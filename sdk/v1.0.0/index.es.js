@@ -336,7 +336,7 @@ const setAppState = (state2) => {
     CoreContext.state[name2] = state2[name2];
   });
 };
-var context$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+var context = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   CoreContext,
   log: log$1,
@@ -350,9 +350,9 @@ var root = freeGlobal$1 || freeSelf || Function("return this")();
 var root$1 = root;
 var Symbol$1 = root$1.Symbol;
 var Symbol$2 = Symbol$1;
-var objectProto$g = Object.prototype;
-var hasOwnProperty$d = objectProto$g.hasOwnProperty;
-var nativeObjectToString$1 = objectProto$g.toString;
+var objectProto$f = Object.prototype;
+var hasOwnProperty$d = objectProto$f.hasOwnProperty;
+var nativeObjectToString$1 = objectProto$f.toString;
 var symToStringTag$1 = Symbol$2 ? Symbol$2.toStringTag : void 0;
 function getRawTag(value) {
   var isOwn = hasOwnProperty$d.call(value, symToStringTag$1), tag = value[symToStringTag$1];
@@ -371,8 +371,8 @@ function getRawTag(value) {
   }
   return result;
 }
-var objectProto$f = Object.prototype;
-var nativeObjectToString = objectProto$f.toString;
+var objectProto$e = Object.prototype;
+var nativeObjectToString = objectProto$e.toString;
 function objectToString(value) {
   return nativeObjectToString.call(value);
 }
@@ -392,21 +392,21 @@ function isSymbol(value) {
   return typeof value == "symbol" || isObjectLike(value) && baseGetTag(value) == symbolTag$3;
 }
 function arrayMap(array, iteratee) {
-  var index2 = -1, length3 = array == null ? 0 : array.length, result = Array(length3);
-  while (++index2 < length3) {
+  var index2 = -1, length2 = array == null ? 0 : array.length, result = Array(length2);
+  while (++index2 < length2) {
     result[index2] = iteratee(array[index2], index2, array);
   }
   return result;
 }
-var isArray$6 = Array.isArray;
-var isArray$7 = isArray$6;
+var isArray$3 = Array.isArray;
+var isArray$4 = isArray$3;
 var INFINITY$1 = 1 / 0;
 var symbolProto$2 = Symbol$2 ? Symbol$2.prototype : void 0, symbolToString = symbolProto$2 ? symbolProto$2.toString : void 0;
 function baseToString(value) {
   if (typeof value == "string") {
     return value;
   }
-  if (isArray$7(value)) {
+  if (isArray$4(value)) {
     return arrayMap(value, baseToString) + "";
   }
   if (isSymbol(value)) {
@@ -453,11 +453,11 @@ function toNumber(value) {
   var isBinary = reIsBinary.test(value);
   return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
 }
-function identity$2(value) {
+function identity$1(value) {
   return value;
 }
 var asyncTag = "[object AsyncFunction]", funcTag$2 = "[object Function]", genTag$1 = "[object GeneratorFunction]", proxyTag = "[object Proxy]";
-function isFunction$4(value) {
+function isFunction$3(value) {
   if (!isObject$5(value)) {
     return false;
   }
@@ -490,15 +490,15 @@ function toSource(func) {
 }
 var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
 var reIsHostCtor = /^\[object .+?Constructor\]$/;
-var funcProto$1 = Function.prototype, objectProto$e = Object.prototype;
+var funcProto$1 = Function.prototype, objectProto$d = Object.prototype;
 var funcToString$1 = funcProto$1.toString;
-var hasOwnProperty$c = objectProto$e.hasOwnProperty;
+var hasOwnProperty$c = objectProto$d.hasOwnProperty;
 var reIsNative = RegExp("^" + funcToString$1.call(hasOwnProperty$c).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$");
 function baseIsNative(value) {
   if (!isObject$5(value) || isMasked(value)) {
     return false;
   }
-  var pattern = isFunction$4(value) ? reIsNative : reIsHostCtor;
+  var pattern = isFunction$3(value) ? reIsNative : reIsHostCtor;
   return pattern.test(toSource(value));
 }
 function getValue(object, key) {
@@ -542,9 +542,9 @@ function apply(func, thisArg, args) {
   return func.apply(thisArg, args);
 }
 function copyArray(source2, array) {
-  var index2 = -1, length3 = source2.length;
-  array || (array = Array(length3));
-  while (++index2 < length3) {
+  var index2 = -1, length2 = source2.length;
+  array || (array = Array(length2));
+  while (++index2 < length2) {
     array[index2] = source2[index2];
   }
   return array;
@@ -580,7 +580,7 @@ var defineProperty$1 = function() {
   }
 }();
 var defineProperty$2 = defineProperty$1;
-var baseSetToString = !defineProperty$2 ? identity$2 : function(func, string) {
+var baseSetToString = !defineProperty$2 ? identity$1 : function(func, string) {
   return defineProperty$2(func, "toString", {
     "configurable": true,
     "enumerable": false,
@@ -592,8 +592,8 @@ var baseSetToString$1 = baseSetToString;
 var setToString = shortOut(baseSetToString$1);
 var setToString$1 = setToString;
 function arrayEach(array, iteratee) {
-  var index2 = -1, length3 = array == null ? 0 : array.length;
-  while (++index2 < length3) {
+  var index2 = -1, length2 = array == null ? 0 : array.length;
+  while (++index2 < length2) {
     if (iteratee(array[index2], index2, array) === false) {
       break;
     }
@@ -601,8 +601,8 @@ function arrayEach(array, iteratee) {
   return array;
 }
 function baseFindIndex(array, predicate, fromIndex, fromRight) {
-  var length3 = array.length, index2 = fromIndex + (fromRight ? 1 : -1);
-  while (fromRight ? index2-- : ++index2 < length3) {
+  var length2 = array.length, index2 = fromIndex + (fromRight ? 1 : -1);
+  while (fromRight ? index2-- : ++index2 < length2) {
     if (predicate(array[index2], index2, array)) {
       return index2;
     }
@@ -613,8 +613,8 @@ function baseIsNaN(value) {
   return value !== value;
 }
 function strictIndexOf(array, value, fromIndex) {
-  var index2 = fromIndex - 1, length3 = array.length;
-  while (++index2 < length3) {
+  var index2 = fromIndex - 1, length2 = array.length;
+  while (++index2 < length2) {
     if (array[index2] === value) {
       return index2;
     }
@@ -626,10 +626,10 @@ function baseIndexOf(array, value, fromIndex) {
 }
 var MAX_SAFE_INTEGER$1 = 9007199254740991;
 var reIsUint = /^(?:0|[1-9]\d*)$/;
-function isIndex(value, length3) {
+function isIndex(value, length2) {
   var type = typeof value;
-  length3 = length3 == null ? MAX_SAFE_INTEGER$1 : length3;
-  return !!length3 && (type == "number" || type != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length3);
+  length2 = length2 == null ? MAX_SAFE_INTEGER$1 : length2;
+  return !!length2 && (type == "number" || type != "symbol" && reIsUint.test(value)) && (value > -1 && value % 1 == 0 && value < length2);
 }
 function baseAssignValue(object, key, value) {
   if (key == "__proto__" && defineProperty$2) {
@@ -646,8 +646,8 @@ function baseAssignValue(object, key, value) {
 function eq(value, other) {
   return value === other || value !== value && other !== other;
 }
-var objectProto$d = Object.prototype;
-var hasOwnProperty$b = objectProto$d.hasOwnProperty;
+var objectProto$c = Object.prototype;
+var hasOwnProperty$b = objectProto$c.hasOwnProperty;
 function assignValue(object, key, value) {
   var objValue = object[key];
   if (!(hasOwnProperty$b.call(object, key) && eq(objValue, value)) || value === void 0 && !(key in object)) {
@@ -657,8 +657,8 @@ function assignValue(object, key, value) {
 function copyObject(source2, props, object, customizer) {
   var isNew = !object;
   object || (object = {});
-  var index2 = -1, length3 = props.length;
-  while (++index2 < length3) {
+  var index2 = -1, length2 = props.length;
+  while (++index2 < length2) {
     var key = props[index2];
     var newValue = customizer ? customizer(object[key], source2[key], key, object, source2) : void 0;
     if (newValue === void 0) {
@@ -676,8 +676,8 @@ var nativeMax$1 = Math.max;
 function overRest(func, start2, transform) {
   start2 = nativeMax$1(start2 === void 0 ? func.length - 1 : start2, 0);
   return function() {
-    var args = arguments, index2 = -1, length3 = nativeMax$1(args.length - start2, 0), array = Array(length3);
-    while (++index2 < length3) {
+    var args = arguments, index2 = -1, length2 = nativeMax$1(args.length - start2, 0), array = Array(length2);
+    while (++index2 < length2) {
       array[index2] = args[start2 + index2];
     }
     index2 = -1;
@@ -690,28 +690,28 @@ function overRest(func, start2, transform) {
   };
 }
 function baseRest(func, start2) {
-  return setToString$1(overRest(func, start2, identity$2), func + "");
+  return setToString$1(overRest(func, start2, identity$1), func + "");
 }
 var MAX_SAFE_INTEGER = 9007199254740991;
 function isLength(value) {
   return typeof value == "number" && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
 }
-function isArrayLike$2(value) {
-  return value != null && isLength(value.length) && !isFunction$4(value);
+function isArrayLike$1(value) {
+  return value != null && isLength(value.length) && !isFunction$3(value);
 }
 function isIterateeCall(value, index2, object) {
   if (!isObject$5(object)) {
     return false;
   }
   var type = typeof index2;
-  if (type == "number" ? isArrayLike$2(object) && isIndex(index2, object.length) : type == "string" && index2 in object) {
+  if (type == "number" ? isArrayLike$1(object) && isIndex(index2, object.length) : type == "string" && index2 in object) {
     return eq(object[index2], value);
   }
   return false;
 }
-var objectProto$c = Object.prototype;
+var objectProto$b = Object.prototype;
 function isPrototype(value) {
-  var Ctor = value && value.constructor, proto = typeof Ctor == "function" && Ctor.prototype || objectProto$c;
+  var Ctor = value && value.constructor, proto = typeof Ctor == "function" && Ctor.prototype || objectProto$b;
   return value === proto;
 }
 function baseTimes(n2, iteratee) {
@@ -725,9 +725,9 @@ var argsTag$3 = "[object Arguments]";
 function baseIsArguments(value) {
   return isObjectLike(value) && baseGetTag(value) == argsTag$3;
 }
-var objectProto$b = Object.prototype;
-var hasOwnProperty$a = objectProto$b.hasOwnProperty;
-var propertyIsEnumerable$1 = objectProto$b.propertyIsEnumerable;
+var objectProto$a = Object.prototype;
+var hasOwnProperty$a = objectProto$a.hasOwnProperty;
+var propertyIsEnumerable$1 = objectProto$a.propertyIsEnumerable;
 var isArguments = baseIsArguments(function() {
   return arguments;
 }()) ? baseIsArguments : function(value) {
@@ -775,12 +775,12 @@ var nodeUtil$1 = nodeUtil;
 var nodeIsTypedArray = nodeUtil$1 && nodeUtil$1.isTypedArray;
 var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
 var isTypedArray$1 = isTypedArray;
-var objectProto$a = Object.prototype;
-var hasOwnProperty$9 = objectProto$a.hasOwnProperty;
+var objectProto$9 = Object.prototype;
+var hasOwnProperty$9 = objectProto$9.hasOwnProperty;
 function arrayLikeKeys(value, inherited) {
-  var isArr = isArray$7(value), isArg = !isArr && isArguments$1(value), isBuff = !isArr && !isArg && isBuffer$2(value), isType = !isArr && !isArg && !isBuff && isTypedArray$1(value), skipIndexes = isArr || isArg || isBuff || isType, result = skipIndexes ? baseTimes(value.length, String) : [], length3 = result.length;
+  var isArr = isArray$4(value), isArg = !isArr && isArguments$1(value), isBuff = !isArr && !isArg && isBuffer$2(value), isType = !isArr && !isArg && !isBuff && isTypedArray$1(value), skipIndexes = isArr || isArg || isBuff || isType, result = skipIndexes ? baseTimes(value.length, String) : [], length2 = result.length;
   for (var key in value) {
-    if ((inherited || hasOwnProperty$9.call(value, key)) && !(skipIndexes && (key == "length" || isBuff && (key == "offset" || key == "parent") || isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || isIndex(key, length3)))) {
+    if ((inherited || hasOwnProperty$9.call(value, key)) && !(skipIndexes && (key == "length" || isBuff && (key == "offset" || key == "parent") || isType && (key == "buffer" || key == "byteLength" || key == "byteOffset") || isIndex(key, length2)))) {
       result.push(key);
     }
   }
@@ -793,8 +793,8 @@ function overArg(func, transform) {
 }
 var nativeKeys = overArg(Object.keys, Object);
 var nativeKeys$1 = nativeKeys;
-var objectProto$9 = Object.prototype;
-var hasOwnProperty$8 = objectProto$9.hasOwnProperty;
+var objectProto$8 = Object.prototype;
+var hasOwnProperty$8 = objectProto$8.hasOwnProperty;
 function baseKeys(object) {
   if (!isPrototype(object)) {
     return nativeKeys$1(object);
@@ -808,7 +808,7 @@ function baseKeys(object) {
   return result;
 }
 function keys$1(object) {
-  return isArrayLike$2(object) ? arrayLikeKeys(object) : baseKeys(object);
+  return isArrayLike$1(object) ? arrayLikeKeys(object) : baseKeys(object);
 }
 function nativeKeysIn(object) {
   var result = [];
@@ -819,8 +819,8 @@ function nativeKeysIn(object) {
   }
   return result;
 }
-var objectProto$8 = Object.prototype;
-var hasOwnProperty$7 = objectProto$8.hasOwnProperty;
+var objectProto$7 = Object.prototype;
+var hasOwnProperty$7 = objectProto$7.hasOwnProperty;
 function baseKeysIn(object) {
   if (!isObject$5(object)) {
     return nativeKeysIn(object);
@@ -834,11 +834,11 @@ function baseKeysIn(object) {
   return result;
 }
 function keysIn(object) {
-  return isArrayLike$2(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
+  return isArrayLike$1(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
 }
 var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/, reIsPlainProp = /^\w*$/;
 function isKey(value, object) {
-  if (isArray$7(value)) {
+  if (isArray$4(value)) {
     return false;
   }
   var type = typeof value;
@@ -859,8 +859,8 @@ function hashDelete(key) {
   return result;
 }
 var HASH_UNDEFINED$2 = "__lodash_hash_undefined__";
-var objectProto$7 = Object.prototype;
-var hasOwnProperty$6 = objectProto$7.hasOwnProperty;
+var objectProto$6 = Object.prototype;
+var hasOwnProperty$6 = objectProto$6.hasOwnProperty;
 function hashGet(key) {
   var data2 = this.__data__;
   if (nativeCreate$1) {
@@ -869,8 +869,8 @@ function hashGet(key) {
   }
   return hasOwnProperty$6.call(data2, key) ? data2[key] : void 0;
 }
-var objectProto$6 = Object.prototype;
-var hasOwnProperty$5 = objectProto$6.hasOwnProperty;
+var objectProto$5 = Object.prototype;
+var hasOwnProperty$5 = objectProto$5.hasOwnProperty;
 function hashHas(key) {
   var data2 = this.__data__;
   return nativeCreate$1 ? data2[key] !== void 0 : hasOwnProperty$5.call(data2, key);
@@ -883,9 +883,9 @@ function hashSet(key, value) {
   return this;
 }
 function Hash(entries) {
-  var index2 = -1, length3 = entries == null ? 0 : entries.length;
+  var index2 = -1, length2 = entries == null ? 0 : entries.length;
   this.clear();
-  while (++index2 < length3) {
+  while (++index2 < length2) {
     var entry = entries[index2];
     this.set(entry[0], entry[1]);
   }
@@ -900,10 +900,10 @@ function listCacheClear() {
   this.size = 0;
 }
 function assocIndexOf(array, key) {
-  var length3 = array.length;
-  while (length3--) {
-    if (eq(array[length3][0], key)) {
-      return length3;
+  var length2 = array.length;
+  while (length2--) {
+    if (eq(array[length2][0], key)) {
+      return length2;
     }
   }
   return -1;
@@ -942,9 +942,9 @@ function listCacheSet(key, value) {
   return this;
 }
 function ListCache(entries) {
-  var index2 = -1, length3 = entries == null ? 0 : entries.length;
+  var index2 = -1, length2 = entries == null ? 0 : entries.length;
   this.clear();
-  while (++index2 < length3) {
+  while (++index2 < length2) {
     var entry = entries[index2];
     this.set(entry[0], entry[1]);
   }
@@ -990,9 +990,9 @@ function mapCacheSet(key, value) {
   return this;
 }
 function MapCache(entries) {
-  var index2 = -1, length3 = entries == null ? 0 : entries.length;
+  var index2 = -1, length2 = entries == null ? 0 : entries.length;
   this.clear();
-  while (++index2 < length3) {
+  while (++index2 < length2) {
     var entry = entries[index2];
     this.set(entry[0], entry[1]);
   }
@@ -1048,7 +1048,7 @@ function toString$1(value) {
   return value == null ? "" : baseToString(value);
 }
 function castPath(value, object) {
-  if (isArray$7(value)) {
+  if (isArray$4(value)) {
     return value;
   }
   return isKey(value, object) ? [value] : stringToPath$1(toString$1(value));
@@ -1063,32 +1063,32 @@ function toKey(value) {
 }
 function baseGet(object, path) {
   path = castPath(path, object);
-  var index2 = 0, length3 = path.length;
-  while (object != null && index2 < length3) {
+  var index2 = 0, length2 = path.length;
+  while (object != null && index2 < length2) {
     object = object[toKey(path[index2++])];
   }
-  return index2 && index2 == length3 ? object : void 0;
+  return index2 && index2 == length2 ? object : void 0;
 }
 function get(object, path, defaultValue) {
   var result = object == null ? void 0 : baseGet(object, path);
   return result === void 0 ? defaultValue : result;
 }
 function arrayPush(array, values2) {
-  var index2 = -1, length3 = values2.length, offset = array.length;
-  while (++index2 < length3) {
+  var index2 = -1, length2 = values2.length, offset = array.length;
+  while (++index2 < length2) {
     array[offset + index2] = values2[index2];
   }
   return array;
 }
 var spreadableSymbol = Symbol$2 ? Symbol$2.isConcatSpreadable : void 0;
 function isFlattenable(value) {
-  return isArray$7(value) || isArguments$1(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
+  return isArray$4(value) || isArguments$1(value) || !!(spreadableSymbol && value && value[spreadableSymbol]);
 }
 function baseFlatten(array, depth, predicate, isStrict, result) {
-  var index2 = -1, length3 = array.length;
+  var index2 = -1, length2 = array.length;
   predicate || (predicate = isFlattenable);
   result || (result = []);
-  while (++index2 < length3) {
+  while (++index2 < length2) {
     var value = array[index2];
     if (depth > 0 && predicate(value)) {
       if (depth > 1) {
@@ -1103,8 +1103,8 @@ function baseFlatten(array, depth, predicate, isStrict, result) {
   return result;
 }
 function flatten(array) {
-  var length3 = array == null ? 0 : array.length;
-  return length3 ? baseFlatten(array, 1) : [];
+  var length2 = array == null ? 0 : array.length;
+  return length2 ? baseFlatten(array, 1) : [];
 }
 function flatRest(func) {
   return setToString$1(overRest(func, void 0, flatten), func + "");
@@ -1112,9 +1112,9 @@ function flatRest(func) {
 var getPrototype = overArg(Object.getPrototypeOf, Object);
 var getPrototype$1 = getPrototype;
 var objectTag$3 = "[object Object]";
-var funcProto = Function.prototype, objectProto$5 = Object.prototype;
+var funcProto = Function.prototype, objectProto$4 = Object.prototype;
 var funcToString = funcProto.toString;
-var hasOwnProperty$4 = objectProto$5.hasOwnProperty;
+var hasOwnProperty$4 = objectProto$4.hasOwnProperty;
 var objectCtorString = funcToString.call(Object);
 function isPlainObject$1(value) {
   if (!isObjectLike(value) || baseGetTag(value) != objectTag$3) {
@@ -1127,27 +1127,27 @@ function isPlainObject$1(value) {
   var Ctor = hasOwnProperty$4.call(proto, "constructor") && proto.constructor;
   return typeof Ctor == "function" && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
 }
-function baseSlice(array, start2, end3) {
-  var index2 = -1, length3 = array.length;
+function baseSlice(array, start2, end2) {
+  var index2 = -1, length2 = array.length;
   if (start2 < 0) {
-    start2 = -start2 > length3 ? 0 : length3 + start2;
+    start2 = -start2 > length2 ? 0 : length2 + start2;
   }
-  end3 = end3 > length3 ? length3 : end3;
-  if (end3 < 0) {
-    end3 += length3;
+  end2 = end2 > length2 ? length2 : end2;
+  if (end2 < 0) {
+    end2 += length2;
   }
-  length3 = start2 > end3 ? 0 : end3 - start2 >>> 0;
+  length2 = start2 > end2 ? 0 : end2 - start2 >>> 0;
   start2 >>>= 0;
-  var result = Array(length3);
-  while (++index2 < length3) {
+  var result = Array(length2);
+  while (++index2 < length2) {
     result[index2] = array[index2 + start2];
   }
   return result;
 }
-function castSlice(array, start2, end3) {
-  var length3 = array.length;
-  end3 = end3 === void 0 ? length3 : end3;
-  return !start2 && end3 >= length3 ? array : baseSlice(array, start2, end3);
+function castSlice(array, start2, end2) {
+  var length2 = array.length;
+  end2 = end2 === void 0 ? length2 : end2;
+  return !start2 && end2 >= length2 ? array : baseSlice(array, start2, end2);
 }
 var rsAstralRange$2 = "\\ud800-\\udfff", rsComboMarksRange$3 = "\\u0300-\\u036f", reComboHalfMarksRange$3 = "\\ufe20-\\ufe2f", rsComboSymbolsRange$3 = "\\u20d0-\\u20ff", rsComboRange$3 = rsComboMarksRange$3 + reComboHalfMarksRange$3 + rsComboSymbolsRange$3, rsVarRange$2 = "\\ufe0e\\ufe0f";
 var rsZWJ$2 = "\\u200d";
@@ -1183,11 +1183,11 @@ function capitalize(string) {
   return upperFirst$1(toString$1(string).toLowerCase());
 }
 function arrayReduce(array, iteratee, accumulator, initAccum) {
-  var index2 = -1, length3 = array == null ? 0 : array.length;
-  if (initAccum && length3) {
+  var index2 = -1, length2 = array == null ? 0 : array.length;
+  if (initAccum && length2) {
     accumulator = array[++index2];
   }
-  while (++index2 < length3) {
+  while (++index2 < length2) {
     accumulator = iteratee(accumulator, array[index2], index2, array);
   }
   return accumulator;
@@ -1497,13 +1497,13 @@ function cloneBuffer(buffer2, isDeep) {
   if (isDeep) {
     return buffer2.slice();
   }
-  var length3 = buffer2.length, result = allocUnsafe ? allocUnsafe(length3) : new buffer2.constructor(length3);
+  var length2 = buffer2.length, result = allocUnsafe ? allocUnsafe(length2) : new buffer2.constructor(length2);
   buffer2.copy(result);
   return result;
 }
 function arrayFilter(array, predicate) {
-  var index2 = -1, length3 = array == null ? 0 : array.length, resIndex = 0, result = [];
-  while (++index2 < length3) {
+  var index2 = -1, length2 = array == null ? 0 : array.length, resIndex = 0, result = [];
+  while (++index2 < length2) {
     var value = array[index2];
     if (predicate(value, index2, array)) {
       result[resIndex++] = value;
@@ -1514,8 +1514,8 @@ function arrayFilter(array, predicate) {
 function stubArray() {
   return [];
 }
-var objectProto$4 = Object.prototype;
-var propertyIsEnumerable = objectProto$4.propertyIsEnumerable;
+var objectProto$3 = Object.prototype;
+var propertyIsEnumerable = objectProto$3.propertyIsEnumerable;
 var nativeGetSymbols$1 = Object.getOwnPropertySymbols;
 var getSymbols = !nativeGetSymbols$1 ? stubArray : function(object) {
   if (object == null) {
@@ -1545,7 +1545,7 @@ function copySymbolsIn(source2, object) {
 }
 function baseGetAllKeys(object, keysFunc, symbolsFunc) {
   var result = keysFunc(object);
-  return isArray$7(object) ? result : arrayPush(result, symbolsFunc(object));
+  return isArray$4(object) ? result : arrayPush(result, symbolsFunc(object));
 }
 function getAllKeys(object) {
   return baseGetAllKeys(object, keys$1, getSymbols$1);
@@ -1584,11 +1584,11 @@ if (DataView$2 && getTag(new DataView$2(new ArrayBuffer(1))) != dataViewTag$3 ||
   };
 }
 var getTag$1 = getTag;
-var objectProto$3 = Object.prototype;
-var hasOwnProperty$3 = objectProto$3.hasOwnProperty;
+var objectProto$2 = Object.prototype;
+var hasOwnProperty$3 = objectProto$2.hasOwnProperty;
 function initCloneArray(array) {
-  var length3 = array.length, result = new array.constructor(length3);
-  if (length3 && typeof array[0] == "string" && hasOwnProperty$3.call(array, "index")) {
+  var length2 = array.length, result = new array.constructor(length2);
+  if (length2 && typeof array[0] == "string" && hasOwnProperty$3.call(array, "index")) {
     result.index = array.index;
     result.input = array.input;
   }
@@ -1688,7 +1688,7 @@ function baseClone(value, bitmask, customizer, key, object, stack) {
   if (!isObject$5(value)) {
     return value;
   }
-  var isArr = isArray$7(value);
+  var isArr = isArray$4(value);
   if (isArr) {
     result = initCloneArray(value);
     if (!isDeep) {
@@ -1750,17 +1750,17 @@ function setCacheHas(value) {
   return this.__data__.has(value);
 }
 function SetCache(values2) {
-  var index2 = -1, length3 = values2 == null ? 0 : values2.length;
+  var index2 = -1, length2 = values2 == null ? 0 : values2.length;
   this.__data__ = new MapCache();
-  while (++index2 < length3) {
+  while (++index2 < length2) {
     this.add(values2[index2]);
   }
 }
 SetCache.prototype.add = SetCache.prototype.push = setCacheAdd;
 SetCache.prototype.has = setCacheHas;
 function arraySome(array, predicate) {
-  var index2 = -1, length3 = array == null ? 0 : array.length;
-  while (++index2 < length3) {
+  var index2 = -1, length2 = array == null ? 0 : array.length;
+  while (++index2 < length2) {
     if (predicate(array[index2], index2, array)) {
       return true;
     }
@@ -1879,8 +1879,8 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
   return false;
 }
 var COMPARE_PARTIAL_FLAG$3 = 1;
-var objectProto$2 = Object.prototype;
-var hasOwnProperty$2 = objectProto$2.hasOwnProperty;
+var objectProto$1 = Object.prototype;
+var hasOwnProperty$2 = objectProto$1.hasOwnProperty;
 function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
   var isPartial = bitmask & COMPARE_PARTIAL_FLAG$3, objProps = getAllKeys(object), objLength = objProps.length, othProps = getAllKeys(other), othLength = othProps.length;
   if (objLength != othLength && !isPartial) {
@@ -1926,10 +1926,10 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
 }
 var COMPARE_PARTIAL_FLAG$2 = 1;
 var argsTag = "[object Arguments]", arrayTag = "[object Array]", objectTag = "[object Object]";
-var objectProto$1 = Object.prototype;
-var hasOwnProperty$1 = objectProto$1.hasOwnProperty;
+var objectProto = Object.prototype;
+var hasOwnProperty$1 = objectProto.hasOwnProperty;
 function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
-  var objIsArr = isArray$7(object), othIsArr = isArray$7(other), objTag = objIsArr ? arrayTag : getTag$1(object), othTag = othIsArr ? arrayTag : getTag$1(other);
+  var objIsArr = isArray$4(object), othIsArr = isArray$4(other), objTag = objIsArr ? arrayTag : getTag$1(object), othTag = othIsArr ? arrayTag : getTag$1(other);
   objTag = objTag == argsTag ? objectTag : objTag;
   othTag = othTag == argsTag ? objectTag : othTag;
   var objIsObj = objTag == objectTag, othIsObj = othTag == objectTag, isSameTag = objTag == othTag;
@@ -1969,9 +1969,9 @@ function baseIsEqual(value, other, bitmask, customizer, stack) {
 }
 var COMPARE_PARTIAL_FLAG$1 = 1, COMPARE_UNORDERED_FLAG$1 = 2;
 function baseIsMatch(object, source2, matchData, customizer) {
-  var index2 = matchData.length, length3 = index2, noCustomizer = !customizer;
+  var index2 = matchData.length, length2 = index2, noCustomizer = !customizer;
   if (object == null) {
-    return !length3;
+    return !length2;
   }
   object = Object(object);
   while (index2--) {
@@ -1980,7 +1980,7 @@ function baseIsMatch(object, source2, matchData, customizer) {
       return false;
     }
   }
-  while (++index2 < length3) {
+  while (++index2 < length2) {
     data2 = matchData[index2];
     var key = data2[0], objValue = object[key], srcValue = data2[1];
     if (noCustomizer && data2[2]) {
@@ -2003,10 +2003,10 @@ function isStrictComparable(value) {
   return value === value && !isObject$5(value);
 }
 function getMatchData(object) {
-  var result = keys$1(object), length3 = result.length;
-  while (length3--) {
-    var key = result[length3], value = object[key];
-    result[length3] = [key, value, isStrictComparable(value)];
+  var result = keys$1(object), length2 = result.length;
+  while (length2--) {
+    var key = result[length2], value = object[key];
+    result[length2] = [key, value, isStrictComparable(value)];
   }
   return result;
 }
@@ -2032,19 +2032,19 @@ function baseHasIn(object, key) {
 }
 function hasPath(object, path, hasFunc) {
   path = castPath(path, object);
-  var index2 = -1, length3 = path.length, result = false;
-  while (++index2 < length3) {
+  var index2 = -1, length2 = path.length, result = false;
+  while (++index2 < length2) {
     var key = toKey(path[index2]);
     if (!(result = object != null && hasFunc(object, key))) {
       break;
     }
     object = object[key];
   }
-  if (result || ++index2 != length3) {
+  if (result || ++index2 != length2) {
     return result;
   }
-  length3 = object == null ? 0 : object.length;
-  return !!length3 && isLength(length3) && isIndex(key, length3) && (isArray$7(object) || isArguments$1(object));
+  length2 = object == null ? 0 : object.length;
+  return !!length2 && isLength(length2) && isIndex(key, length2) && (isArray$4(object) || isArguments$1(object));
 }
 function hasIn(object, path) {
   return object != null && hasPath(object, path, baseHasIn);
@@ -2077,18 +2077,18 @@ function baseIteratee(value) {
     return value;
   }
   if (value == null) {
-    return identity$2;
+    return identity$1;
   }
   if (typeof value == "object") {
-    return isArray$7(value) ? baseMatchesProperty(value[0], value[1]) : baseMatches(value);
+    return isArray$4(value) ? baseMatchesProperty(value[0], value[1]) : baseMatches(value);
   }
   return property(value);
 }
 function createBaseFor(fromRight) {
   return function(object, iteratee, keysFunc) {
-    var index2 = -1, iterable = Object(object), props = keysFunc(object), length3 = props.length;
-    while (length3--) {
-      var key = props[fromRight ? length3 : ++index2];
+    var index2 = -1, iterable = Object(object), props = keysFunc(object), length2 = props.length;
+    while (length2--) {
+      var key = props[fromRight ? length2 : ++index2];
       if (iteratee(iterable[key], key, iterable) === false) {
         break;
       }
@@ -2106,11 +2106,11 @@ function createBaseEach(eachFunc, fromRight) {
     if (collection == null) {
       return collection;
     }
-    if (!isArrayLike$2(collection)) {
+    if (!isArrayLike$1(collection)) {
       return eachFunc(collection, iteratee);
     }
-    var length3 = collection.length, index2 = fromRight ? length3 : -1, iterable = Object(collection);
-    while (fromRight ? index2-- : ++index2 < length3) {
+    var length2 = collection.length, index2 = fromRight ? length2 : -1, iterable = Object(collection);
+    while (fromRight ? index2-- : ++index2 < length2) {
       if (iteratee(iterable[index2], index2, iterable) === false) {
         break;
       }
@@ -2126,7 +2126,7 @@ var now = function() {
 var now$1 = now;
 var FUNC_ERROR_TEXT = "Expected a function";
 var nativeMax = Math.max, nativeMin = Math.min;
-function debounce$2(func, wait, options2) {
+function debounce$1(func, wait, options2) {
   var lastArgs, lastThis, maxWait, result, timerId, lastCallTime, lastInvokeTime = 0, leading = false, maxing = false, trailing = true;
   if (typeof func != "function") {
     throw new TypeError(FUNC_ERROR_TEXT);
@@ -2207,12 +2207,12 @@ function debounce$2(func, wait, options2) {
   debounced.flush = flush;
   return debounced;
 }
-function last$3(array) {
-  var length3 = array == null ? 0 : array.length;
-  return length3 ? array[length3 - 1] : void 0;
+function last$1(array) {
+  var length2 = array == null ? 0 : array.length;
+  return length2 ? array[length2 - 1] : void 0;
 }
 function baseMap(collection, iteratee) {
-  var index2 = -1, result = isArrayLike$2(collection) ? Array(collection.length) : [];
+  var index2 = -1, result = isArrayLike$1(collection) ? Array(collection.length) : [];
   baseEach$1(collection, function(value, key, collection2) {
     result[++index2] = iteratee(value, key, collection2);
   });
@@ -2234,7 +2234,7 @@ var kebabCase$1 = kebabCase;
 function baseUnset(object, path) {
   path = castPath(path, object);
   object = parent(object, path);
-  return object == null || delete object[toKey(last$3(path))];
+  return object == null || delete object[toKey(last$1(path))];
 }
 function customOmitClone(value) {
   return isPlainObject$1(value) ? void 0 : value;
@@ -2255,9 +2255,9 @@ var omit = flatRest(function(object, paths) {
   if (isDeep) {
     result = baseClone(result, CLONE_DEEP_FLAG | CLONE_FLAT_FLAG | CLONE_SYMBOLS_FLAG, customOmitClone);
   }
-  var length3 = paths.length;
-  while (length3--) {
-    baseUnset(result, paths[length3]);
+  var length2 = paths.length;
+  while (length2--) {
+    baseUnset(result, paths[length2]);
   }
   return result;
 });
@@ -2267,8 +2267,8 @@ function baseSet(object, path, value, customizer) {
     return object;
   }
   path = castPath(path, object);
-  var index2 = -1, length3 = path.length, lastIndex = length3 - 1, nested = object;
-  while (nested != null && ++index2 < length3) {
+  var index2 = -1, length2 = path.length, lastIndex = length2 - 1, nested = object;
+  while (nested != null && ++index2 < length2) {
     var key = toKey(path[index2]), newValue = value;
     if (key === "__proto__" || key === "constructor" || key === "prototype") {
       return object;
@@ -2286,8 +2286,8 @@ function baseSet(object, path, value, customizer) {
   return object;
 }
 function basePickBy(object, paths, predicate) {
-  var index2 = -1, length3 = paths.length, result = {};
-  while (++index2 < length3) {
+  var index2 = -1, length2 = paths.length, result = {};
+  while (++index2 < length2) {
     var path = paths[index2], value = baseGet(object, path);
     if (predicate(value, path)) {
       baseSet(result, castPath(path, object), value);
@@ -2296,10 +2296,10 @@ function basePickBy(object, paths, predicate) {
   return result;
 }
 function baseSortBy(array, comparer) {
-  var length3 = array.length;
+  var length2 = array.length;
   array.sort(comparer);
-  while (length3--) {
-    array[length3] = array[length3].value;
+  while (length2--) {
+    array[length2] = array[length2].value;
   }
   return array;
 }
@@ -2317,8 +2317,8 @@ function compareAscending(value, other) {
   return 0;
 }
 function compareMultiple(object, other, orders) {
-  var index2 = -1, objCriteria = object.criteria, othCriteria = other.criteria, length3 = objCriteria.length, ordersLength = orders.length;
-  while (++index2 < length3) {
+  var index2 = -1, objCriteria = object.criteria, othCriteria = other.criteria, length2 = objCriteria.length, ordersLength = orders.length;
+  while (++index2 < length2) {
     var result = compareAscending(objCriteria[index2], othCriteria[index2]);
     if (result) {
       if (index2 >= ordersLength) {
@@ -2333,7 +2333,7 @@ function compareMultiple(object, other, orders) {
 function baseOrderBy(collection, iteratees, orders) {
   if (iteratees.length) {
     iteratees = arrayMap(iteratees, function(iteratee) {
-      if (isArray$7(iteratee)) {
+      if (isArray$4(iteratee)) {
         return function(value) {
           return baseGet(value, iteratee.length === 1 ? iteratee[0] : iteratee);
         };
@@ -2341,7 +2341,7 @@ function baseOrderBy(collection, iteratees, orders) {
       return iteratee;
     });
   } else {
-    iteratees = [identity$2];
+    iteratees = [identity$1];
   }
   var index2 = -1;
   iteratees = arrayMap(iteratees, baseUnary(baseIteratee));
@@ -2365,8 +2365,8 @@ var pick = flatRest(function(object, paths) {
 });
 var pick$1 = pick;
 function baseIndexOfWith(array, value, fromIndex, comparator) {
-  var index2 = fromIndex - 1, length3 = array.length;
-  while (++index2 < length3) {
+  var index2 = fromIndex - 1, length2 = array.length;
+  while (++index2 < length2) {
     if (comparator(array[index2], value)) {
       return index2;
     }
@@ -2376,14 +2376,14 @@ function baseIndexOfWith(array, value, fromIndex, comparator) {
 var arrayProto = Array.prototype;
 var splice = arrayProto.splice;
 function basePullAll(array, values2, iteratee, comparator) {
-  var indexOf2 = comparator ? baseIndexOfWith : baseIndexOf, index2 = -1, length3 = values2.length, seen = array;
+  var indexOf2 = comparator ? baseIndexOfWith : baseIndexOf, index2 = -1, length2 = values2.length, seen = array;
   if (array === values2) {
     values2 = copyArray(values2);
   }
   if (iteratee) {
     seen = arrayMap(array, baseUnary(iteratee));
   }
-  while (++index2 < length3) {
+  while (++index2 < length2) {
     var fromIndex = 0, value = values2[index2], computed = iteratee ? iteratee(value) : value;
     while ((fromIndex = indexOf2(seen, computed, fromIndex, comparator)) > -1) {
       if (seen !== array) {
@@ -2403,10 +2403,10 @@ var sortBy = baseRest(function(collection, iteratees) {
   if (collection == null) {
     return [];
   }
-  var length3 = iteratees.length;
-  if (length3 > 1 && isIterateeCall(collection, iteratees[0], iteratees[1])) {
+  var length2 = iteratees.length;
+  if (length2 > 1 && isIterateeCall(collection, iteratees[0], iteratees[1])) {
     iteratees = [];
-  } else if (length3 > 2 && isIterateeCall(iteratees[0], iteratees[1], iteratees[2])) {
+  } else if (length2 > 2 && isIterateeCall(iteratees[0], iteratees[1], iteratees[2])) {
     iteratees = [iteratees[0]];
   }
   return baseOrderBy(collection, baseFlatten(iteratees, 1), []);
@@ -2418,12 +2418,12 @@ var fastDeepEqual = function equal(a, b) {
   if (a && b && typeof a == "object" && typeof b == "object") {
     if (a.constructor !== b.constructor)
       return false;
-    var length3, i2, keys2;
+    var length2, i2, keys2;
     if (Array.isArray(a)) {
-      length3 = a.length;
-      if (length3 != b.length)
+      length2 = a.length;
+      if (length2 != b.length)
         return false;
-      for (i2 = length3; i2-- !== 0; )
+      for (i2 = length2; i2-- !== 0; )
         if (!equal(a[i2], b[i2]))
           return false;
       return true;
@@ -2435,13 +2435,13 @@ var fastDeepEqual = function equal(a, b) {
     if (a.toString !== Object.prototype.toString)
       return a.toString() === b.toString();
     keys2 = Object.keys(a);
-    length3 = keys2.length;
-    if (length3 !== Object.keys(b).length)
+    length2 = keys2.length;
+    if (length2 !== Object.keys(b).length)
       return false;
-    for (i2 = length3; i2-- !== 0; )
+    for (i2 = length2; i2-- !== 0; )
       if (!Object.prototype.hasOwnProperty.call(b, keys2[i2]))
         return false;
-    for (i2 = length3; i2-- !== 0; ) {
+    for (i2 = length2; i2-- !== 0; ) {
       var key = keys2[i2];
       if (!equal(a[key], b[key]))
         return false;
@@ -2530,7 +2530,7 @@ const getElementAttributes = (x) => {
   }, {});
 };
 const asArray = (x) => {
-  return isArray$7(x) ? x : [x];
+  return isArray$4(x) ? x : [x];
 };
 const sizeToNum = (x, parentSize) => {
   if (typeof x === "number")
@@ -2589,10 +2589,10 @@ var Logic = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty(
   isEqual,
   cloneDeep,
   sortBy: sortBy$1,
-  debounce: debounce$2,
+  debounce: debounce$1,
   camelCase: camelCase$3,
   kebabCase: kebabCase$1,
-  isArray: isArray$7
+  isArray: isArray$4
 }, Symbol.toStringTag, { value: "Module" }));
 var lib$2 = {};
 function e(e2) {
@@ -3322,11 +3322,11 @@ ${error.stack}`;
     return { args };
   }
 }
-function padStart$1(value, length3, fillChar = " ") {
-  return padInternal$1(value, length3, "start", fillChar);
+function padStart$1(value, length2, fillChar = " ") {
+  return padInternal$1(value, length2, "start", fillChar);
 }
-function padEnd$1(value, length3, fillChar = " ") {
-  return padInternal$1(value, length3, "end", fillChar);
+function padEnd$1(value, length2, fillChar = " ") {
+  return padInternal$1(value, length2, "end", fillChar);
 }
 function maxLengthStringValueInArray$1(arr) {
   return arr.map((v) => v.length).reduce((previous, current) => {
@@ -3336,14 +3336,14 @@ function maxLengthStringValueInArray$1(arr) {
     return previous;
   }, 0);
 }
-function padInternal$1(value, length3, padType, fillChar = " ") {
-  if (length3 <= value.length) {
+function padInternal$1(value, length2, padType, fillChar = " ") {
+  if (length2 <= value.length) {
     return value;
   }
   if (fillChar.length > 1) {
     throw new Error(`Fill char must be one char exactly, it is: ${fillChar.length}`);
   }
-  const charsNeeded = length3 - value.length;
+  const charsNeeded = length2 - value.length;
   let padding = "";
   for (let i2 = 0; i2 < charsNeeded; i2++) {
     padding += fillChar;
@@ -3551,7 +3551,7 @@ var typescriptLogging_esm = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object
   formatDate: formatDate$1,
   util: index$3
 }, Symbol.toStringTag, { value: "Module" }));
-var require$$2$2 = /* @__PURE__ */ getAugmentedNamespace(typescriptLogging_esm);
+var require$$2$1 = /* @__PURE__ */ getAugmentedNamespace(typescriptLogging_esm);
 var layoutapi = {};
 var lib$1 = {};
 var lib = {};
@@ -3615,7 +3615,7 @@ Metadata.Metadata = function Metadata2(init2) {
     }
   };
   if (init2 != null) {
-    const entries = isIterable$2(init2) ? init2 : Object.entries(init2);
+    const entries = isIterable$1(init2) ? init2 : Object.entries(init2);
     for (const [key, value] of entries) {
       metadata.set(key, value);
     }
@@ -3642,7 +3642,7 @@ function validate(key, value) {
     }
   }
 }
-function isIterable$2(value) {
+function isIterable$1(value) {
   return Symbol.iterator in value;
 }
 var Status = {};
@@ -3706,14 +3706,14 @@ var setPrototypeOf = function setPrototypeOf2(target, prototype) {
   }
 };
 helpers.setPrototypeOf = setPrototypeOf;
-var getPrototypeOf$1 = function getPrototypeOf2(target) {
+var getPrototypeOf = function getPrototypeOf2(target) {
   if (objectGetPrototypeOfIsDefined) {
     return Object.getPrototypeOf(target);
   } else {
     return target.__proto__ || target.prototype;
   }
 };
-helpers.getPrototypeOf = getPrototypeOf$1;
+helpers.getPrototypeOf = getPrototypeOf;
 var ie8ObjectDefinePropertyBug = false;
 var defineProperty = function defineProperty2(target, name2, propertyDescriptor) {
   if (objectDefinePropertyIsDefined && !ie8ObjectDefinePropertyBug) {
@@ -3809,7 +3809,7 @@ helpers.objectCreate = objectCreate;
       defineProperty3(instance, "toString", {
         configurable: true,
         enumerable: false,
-        value: function toString4() {
+        value: function toString3() {
           return (this.name || "Error") + (typeof this.message === "undefined" ? "" : ": " + this.message);
         },
         writable: true
@@ -4820,7 +4820,7 @@ function execute(signal, executor) {
     }
     let removeAbortListener;
     let finished = false;
-    function finish3() {
+    function finish2() {
       if (!finished) {
         finished = true;
         if (removeAbortListener != null) {
@@ -4830,10 +4830,10 @@ function execute(signal, executor) {
     }
     const callback = executor((value) => {
       resolve(value);
-      finish3();
+      finish2();
     }, (reason) => {
       reject(reason);
-      finish3();
+      finish2();
     });
     if (!finished) {
       const listener = () => {
@@ -4847,7 +4847,7 @@ function execute(signal, executor) {
             reject(reason);
           });
         }
-        finish3();
+        finish2();
       };
       signal.addEventListener("abort", listener);
       removeAbortListener = () => {
@@ -4868,7 +4868,7 @@ function abortable(signal, promise) {
     };
   });
 }
-function delay$2(signal, dueTime) {
+function delay$1(signal, dueTime) {
   return execute(signal, (resolve) => {
     const ms = typeof dueTime === "number" ? dueTime : dueTime.getTime() - Date.now();
     const timer2 = setTimeout(resolve, ms);
@@ -4920,15 +4920,15 @@ function listen(target, eventName, handler, options2) {
   throw new Error("Invalid event target");
 }
 function isNodeStyleEventEmitter(sourceObj) {
-  return isFunction$3(sourceObj.addListener) && isFunction$3(sourceObj.removeListener);
+  return isFunction$2(sourceObj.addListener) && isFunction$2(sourceObj.removeListener);
 }
 function isJQueryStyleEventEmitter(sourceObj) {
-  return isFunction$3(sourceObj.on) && isFunction$3(sourceObj.off);
+  return isFunction$2(sourceObj.on) && isFunction$2(sourceObj.off);
 }
 function isEventTarget(sourceObj) {
-  return isFunction$3(sourceObj.addEventListener) && isFunction$3(sourceObj.removeEventListener);
+  return isFunction$2(sourceObj.addEventListener) && isFunction$2(sourceObj.removeEventListener);
 }
-const isFunction$3 = (obj) => typeof obj === "function";
+const isFunction$2 = (obj) => typeof obj === "function";
 var browser$3 = { exports: {} };
 const _global = typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : void 0;
 if (!_global) {
@@ -4984,7 +4984,7 @@ function all(signal, executor) {
     }
   });
 }
-function race$3(signal, executor) {
+function race$2(signal, executor) {
   return new Promise((resolve, reject) => {
     if (signal.aborted) {
       reject(new AbortError());
@@ -5025,7 +5025,7 @@ function race$3(signal, executor) {
     }
   });
 }
-async function retry$2(signal, fn, options2 = {}) {
+async function retry$1(signal, fn, options2 = {}) {
   const { baseMs = 1e3, maxDelayMs = 15e3, onError, maxAttempts = Infinity } = options2;
   for (let attempt = 0; ; attempt++) {
     try {
@@ -5040,7 +5040,7 @@ async function retry$2(signal, fn, options2 = {}) {
       if (onError) {
         onError(error, attempt, delayMs);
       }
-      await delay$2(signal, delayMs);
+      await delay$1(signal, delayMs);
     }
   }
 }
@@ -5071,11 +5071,11 @@ function spawn(signal, fn) {
   let promise = new Promise((resolve, reject) => {
     let result;
     let failure;
-    fork3((signal2) => fn(signal2, {
+    fork2((signal2) => fn(signal2, {
       defer(fn2) {
         deferredFunctions.push(fn2);
       },
-      fork: fork3
+      fork: fork2
     })).join().then((value) => {
       spawnAbortController.abort();
       result = { value };
@@ -5085,7 +5085,7 @@ function spawn(signal, fn) {
         failure = { error };
       }
     });
-    function fork3(forkFn) {
+    function fork2(forkFn) {
       if (spawnSignal.aborted) {
         return {
           abort() {
@@ -5148,13 +5148,13 @@ var es = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   throwIfAborted,
   rethrowAbortError,
   catchAbortError,
-  delay: delay$2,
+  delay: delay$1,
   execute,
   forever,
   waitForEvent,
   all,
-  race: race$3,
-  retry: retry$2,
+  race: race$2,
+  retry: retry$1,
   spawn,
   run
 }, Symbol.toStringTag, { value: "Module" }));
@@ -5218,15 +5218,15 @@ class AsyncSink {
   }
 }
 AsyncSink$1.AsyncSink = AsyncSink;
-var isAsyncIterable$2 = {};
-Object.defineProperty(isAsyncIterable$2, "__esModule", { value: true });
-isAsyncIterable$2.isAsyncIterable = void 0;
-function isAsyncIterable$1(value) {
+var isAsyncIterable$1 = {};
+Object.defineProperty(isAsyncIterable$1, "__esModule", { value: true });
+isAsyncIterable$1.isAsyncIterable = void 0;
+function isAsyncIterable(value) {
   return value != null && Symbol.asyncIterator in value;
 }
-isAsyncIterable$2.isAsyncIterable = isAsyncIterable$1;
+isAsyncIterable$1.isAsyncIterable = isAsyncIterable;
 var convertMetadata = {};
-var base64$4 = { exports: {} };
+var base64$2 = { exports: {} };
 (function(module2, exports2) {
   (function(global2, factory2) {
     module2.exports = factory2();
@@ -5463,12 +5463,12 @@ var base64$4 = { exports: {} };
     });
     return gBase64;
   });
-})(base64$4);
+})(base64$2);
 Object.defineProperty(convertMetadata, "__esModule", { value: true });
 convertMetadata.convertMetadataFromGrpcWeb = convertMetadata.convertMetadataToGrpcWeb = void 0;
 const grpc_web_1$4 = grpcWebClient_umd.exports;
 const nice_grpc_common_1$5 = lib;
-const js_base64_1 = base64$4.exports;
+const js_base64_1 = base64$2.exports;
 function convertMetadataToGrpcWeb(metadata) {
   const grpcMetadata = new grpc_web_1$4.grpc.Metadata();
   for (const [key, values2] of metadata) {
@@ -5498,7 +5498,7 @@ const abort_controller_x_1$4 = require$$1$1;
 const node_abort_controller_1$3 = __importDefault$l(browser$3.exports);
 const AsyncSink_1$1 = AsyncSink$1;
 const service_definitions_1$4 = serviceDefinitions;
-const isAsyncIterable_1$3 = isAsyncIterable$2;
+const isAsyncIterable_1$3 = isAsyncIterable$1;
 const convertMetadata_1$3 = convertMetadata;
 function createBidiStreamingMethod(definition, channel2, middleware, defaultOptions) {
   const grpcMethodDefinition = (0, service_definitions_1$4.toGrpcWebMethodDefinition)(definition);
@@ -5612,7 +5612,7 @@ const grpc_web_1$2 = grpcWebClient_umd.exports;
 const abort_controller_x_1$3 = require$$1$1;
 const node_abort_controller_1$2 = __importDefault$k(browser$3.exports);
 const service_definitions_1$3 = serviceDefinitions;
-const isAsyncIterable_1$2 = isAsyncIterable$2;
+const isAsyncIterable_1$2 = isAsyncIterable$1;
 const convertMetadata_1$2 = convertMetadata;
 function createClientStreamingMethod(definition, channel2, middleware, defaultOptions) {
   const grpcMethodDefinition = (0, service_definitions_1$3.toGrpcWebMethodDefinition)(definition);
@@ -5710,7 +5710,7 @@ const nice_grpc_common_1$2 = lib;
 const node_abort_controller_1$1 = __importDefault$j(browser$3.exports);
 const service_definitions_1$2 = serviceDefinitions;
 const convertMetadata_1$1 = convertMetadata;
-const isAsyncIterable_1$1 = isAsyncIterable$2;
+const isAsyncIterable_1$1 = isAsyncIterable$1;
 function createServerStreamingMethod(definition, channel2, middleware, defaultOptions) {
   const grpcMethodDefinition = (0, service_definitions_1$2.toGrpcWebMethodDefinition)(definition);
   const methodDescriptor = {
@@ -5803,7 +5803,7 @@ const grpc_web_1 = grpcWebClient_umd.exports;
 const abort_controller_x_1$1 = require$$1$1;
 const node_abort_controller_1 = __importDefault$i(browser$3.exports);
 const service_definitions_1$1 = serviceDefinitions;
-const isAsyncIterable_1 = isAsyncIterable$2;
+const isAsyncIterable_1 = isAsyncIterable$1;
 const convertMetadata_1 = convertMetadata;
 function createUnaryMethod(definition, channel2, middleware, defaultOptions) {
   const grpcMethodDefinition = (0, service_definitions_1$1.toGrpcWebMethodDefinition)(definition);
@@ -5958,829 +5958,598 @@ Object.defineProperty(Client, "__esModule", { value: true });
 })(lib$1);
 var dist$3 = {};
 var api$3 = {};
-var long = Long;
-var wasm = null;
-try {
-  wasm = new WebAssembly.Instance(new WebAssembly.Module(new Uint8Array([
-    0,
-    97,
-    115,
-    109,
-    1,
-    0,
-    0,
-    0,
-    1,
-    13,
-    2,
-    96,
-    0,
-    1,
-    127,
-    96,
-    4,
-    127,
-    127,
-    127,
-    127,
-    1,
-    127,
-    3,
-    7,
-    6,
-    0,
-    1,
-    1,
-    1,
-    1,
-    1,
-    6,
-    6,
-    1,
-    127,
-    1,
-    65,
-    0,
-    11,
-    7,
-    50,
-    6,
-    3,
-    109,
-    117,
-    108,
-    0,
-    1,
-    5,
-    100,
-    105,
-    118,
-    95,
-    115,
-    0,
-    2,
-    5,
-    100,
-    105,
-    118,
-    95,
-    117,
-    0,
-    3,
-    5,
-    114,
-    101,
-    109,
-    95,
-    115,
-    0,
-    4,
-    5,
-    114,
-    101,
-    109,
-    95,
-    117,
-    0,
-    5,
-    8,
-    103,
-    101,
-    116,
-    95,
-    104,
-    105,
-    103,
-    104,
-    0,
-    0,
-    10,
-    191,
-    1,
-    6,
-    4,
-    0,
-    35,
-    0,
-    11,
-    36,
-    1,
-    1,
-    126,
-    32,
-    0,
-    173,
-    32,
-    1,
-    173,
-    66,
-    32,
-    134,
-    132,
-    32,
-    2,
-    173,
-    32,
-    3,
-    173,
-    66,
-    32,
-    134,
-    132,
-    126,
-    34,
-    4,
-    66,
-    32,
-    135,
-    167,
-    36,
-    0,
-    32,
-    4,
-    167,
-    11,
-    36,
-    1,
-    1,
-    126,
-    32,
-    0,
-    173,
-    32,
-    1,
-    173,
-    66,
-    32,
-    134,
-    132,
-    32,
-    2,
-    173,
-    32,
-    3,
-    173,
-    66,
-    32,
-    134,
-    132,
-    127,
-    34,
-    4,
-    66,
-    32,
-    135,
-    167,
-    36,
-    0,
-    32,
-    4,
-    167,
-    11,
-    36,
-    1,
-    1,
-    126,
-    32,
-    0,
-    173,
-    32,
-    1,
-    173,
-    66,
-    32,
-    134,
-    132,
-    32,
-    2,
-    173,
-    32,
-    3,
-    173,
-    66,
-    32,
-    134,
-    132,
-    128,
-    34,
-    4,
-    66,
-    32,
-    135,
-    167,
-    36,
-    0,
-    32,
-    4,
-    167,
-    11,
-    36,
-    1,
-    1,
-    126,
-    32,
-    0,
-    173,
-    32,
-    1,
-    173,
-    66,
-    32,
-    134,
-    132,
-    32,
-    2,
-    173,
-    32,
-    3,
-    173,
-    66,
-    32,
-    134,
-    132,
-    129,
-    34,
-    4,
-    66,
-    32,
-    135,
-    167,
-    36,
-    0,
-    32,
-    4,
-    167,
-    11,
-    36,
-    1,
-    1,
-    126,
-    32,
-    0,
-    173,
-    32,
-    1,
-    173,
-    66,
-    32,
-    134,
-    132,
-    32,
-    2,
-    173,
-    32,
-    3,
-    173,
-    66,
-    32,
-    134,
-    132,
-    130,
-    34,
-    4,
-    66,
-    32,
-    135,
-    167,
-    36,
-    0,
-    32,
-    4,
-    167,
-    11
-  ])), {}).exports;
-} catch (e2) {
-}
-function Long(low, high, unsigned) {
-  this.low = low | 0;
-  this.high = high | 0;
-  this.unsigned = !!unsigned;
-}
-Long.prototype.__isLong__;
-Object.defineProperty(Long.prototype, "__isLong__", { value: true });
-function isLong(obj) {
-  return (obj && obj["__isLong__"]) === true;
-}
-Long.isLong = isLong;
-var INT_CACHE = {};
-var UINT_CACHE = {};
-function fromInt(value, unsigned) {
-  var obj, cachedObj, cache2;
-  if (unsigned) {
-    value >>>= 0;
-    if (cache2 = 0 <= value && value < 256) {
-      cachedObj = UINT_CACHE[value];
-      if (cachedObj)
-        return cachedObj;
+var umd = { exports: {} };
+(function(module2, exports2) {
+  var Long = function(exports3) {
+    Object.defineProperty(exports3, "__esModule", {
+      value: true
+    });
+    exports3.default = void 0;
+    /**
+     * @license
+     * Copyright 2009 The Closure Library Authors
+     * Copyright 2020 Daniel Wirtz / The long.js Authors.
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *     http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     *
+     * SPDX-License-Identifier: Apache-2.0
+     */
+    var wasm = null;
+    try {
+      wasm = new WebAssembly.Instance(new WebAssembly.Module(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 13, 2, 96, 0, 1, 127, 96, 4, 127, 127, 127, 127, 1, 127, 3, 7, 6, 0, 1, 1, 1, 1, 1, 6, 6, 1, 127, 1, 65, 0, 11, 7, 50, 6, 3, 109, 117, 108, 0, 1, 5, 100, 105, 118, 95, 115, 0, 2, 5, 100, 105, 118, 95, 117, 0, 3, 5, 114, 101, 109, 95, 115, 0, 4, 5, 114, 101, 109, 95, 117, 0, 5, 8, 103, 101, 116, 95, 104, 105, 103, 104, 0, 0, 10, 191, 1, 6, 4, 0, 35, 0, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 126, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 127, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 128, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 129, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 130, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11])), {}).exports;
+    } catch (e2) {
     }
-    obj = fromBits(value, (value | 0) < 0 ? -1 : 0, true);
-    if (cache2)
-      UINT_CACHE[value] = obj;
-    return obj;
-  } else {
-    value |= 0;
-    if (cache2 = -128 <= value && value < 128) {
-      cachedObj = INT_CACHE[value];
-      if (cachedObj)
-        return cachedObj;
+    function Long2(low, high, unsigned) {
+      this.low = low | 0;
+      this.high = high | 0;
+      this.unsigned = !!unsigned;
     }
-    obj = fromBits(value, value < 0 ? -1 : 0, false);
-    if (cache2)
-      INT_CACHE[value] = obj;
-    return obj;
-  }
-}
-Long.fromInt = fromInt;
-function fromNumber(value, unsigned) {
-  if (isNaN(value))
-    return unsigned ? UZERO : ZERO;
-  if (unsigned) {
-    if (value < 0)
-      return UZERO;
-    if (value >= TWO_PWR_64_DBL)
-      return MAX_UNSIGNED_VALUE;
-  } else {
-    if (value <= -TWO_PWR_63_DBL)
-      return MIN_VALUE;
-    if (value + 1 >= TWO_PWR_63_DBL)
-      return MAX_VALUE;
-  }
-  if (value < 0)
-    return fromNumber(-value, unsigned).neg();
-  return fromBits(value % TWO_PWR_32_DBL | 0, value / TWO_PWR_32_DBL | 0, unsigned);
-}
-Long.fromNumber = fromNumber;
-function fromBits(lowBits, highBits, unsigned) {
-  return new Long(lowBits, highBits, unsigned);
-}
-Long.fromBits = fromBits;
-var pow_dbl = Math.pow;
-function fromString(str, unsigned, radix) {
-  if (str.length === 0)
-    throw Error("empty string");
-  if (str === "NaN" || str === "Infinity" || str === "+Infinity" || str === "-Infinity")
-    return ZERO;
-  if (typeof unsigned === "number") {
-    radix = unsigned, unsigned = false;
-  } else {
-    unsigned = !!unsigned;
-  }
-  radix = radix || 10;
-  if (radix < 2 || 36 < radix)
-    throw RangeError("radix");
-  var p;
-  if ((p = str.indexOf("-")) > 0)
-    throw Error("interior hyphen");
-  else if (p === 0) {
-    return fromString(str.substring(1), unsigned, radix).neg();
-  }
-  var radixToPower = fromNumber(pow_dbl(radix, 8));
-  var result = ZERO;
-  for (var i2 = 0; i2 < str.length; i2 += 8) {
-    var size = Math.min(8, str.length - i2), value = parseInt(str.substring(i2, i2 + size), radix);
-    if (size < 8) {
-      var power = fromNumber(pow_dbl(radix, size));
-      result = result.mul(power).add(fromNumber(value));
-    } else {
-      result = result.mul(radixToPower);
-      result = result.add(fromNumber(value));
+    Long2.prototype.__isLong__;
+    Object.defineProperty(Long2.prototype, "__isLong__", {
+      value: true
+    });
+    function isLong(obj) {
+      return (obj && obj["__isLong__"]) === true;
     }
-  }
-  result.unsigned = unsigned;
-  return result;
-}
-Long.fromString = fromString;
-function fromValue(val, unsigned) {
-  if (typeof val === "number")
-    return fromNumber(val, unsigned);
-  if (typeof val === "string")
-    return fromString(val, unsigned);
-  return fromBits(val.low, val.high, typeof unsigned === "boolean" ? unsigned : val.unsigned);
-}
-Long.fromValue = fromValue;
-var TWO_PWR_16_DBL = 1 << 16;
-var TWO_PWR_24_DBL = 1 << 24;
-var TWO_PWR_32_DBL = TWO_PWR_16_DBL * TWO_PWR_16_DBL;
-var TWO_PWR_64_DBL = TWO_PWR_32_DBL * TWO_PWR_32_DBL;
-var TWO_PWR_63_DBL = TWO_PWR_64_DBL / 2;
-var TWO_PWR_24 = fromInt(TWO_PWR_24_DBL);
-var ZERO = fromInt(0);
-Long.ZERO = ZERO;
-var UZERO = fromInt(0, true);
-Long.UZERO = UZERO;
-var ONE = fromInt(1);
-Long.ONE = ONE;
-var UONE = fromInt(1, true);
-Long.UONE = UONE;
-var NEG_ONE = fromInt(-1);
-Long.NEG_ONE = NEG_ONE;
-var MAX_VALUE = fromBits(4294967295 | 0, 2147483647 | 0, false);
-Long.MAX_VALUE = MAX_VALUE;
-var MAX_UNSIGNED_VALUE = fromBits(4294967295 | 0, 4294967295 | 0, true);
-Long.MAX_UNSIGNED_VALUE = MAX_UNSIGNED_VALUE;
-var MIN_VALUE = fromBits(0, 2147483648 | 0, false);
-Long.MIN_VALUE = MIN_VALUE;
-var LongPrototype = Long.prototype;
-LongPrototype.toInt = function toInt() {
-  return this.unsigned ? this.low >>> 0 : this.low;
-};
-LongPrototype.toNumber = function toNumber2() {
-  if (this.unsigned)
-    return (this.high >>> 0) * TWO_PWR_32_DBL + (this.low >>> 0);
-  return this.high * TWO_PWR_32_DBL + (this.low >>> 0);
-};
-LongPrototype.toString = function toString2(radix) {
-  radix = radix || 10;
-  if (radix < 2 || 36 < radix)
-    throw RangeError("radix");
-  if (this.isZero())
-    return "0";
-  if (this.isNegative()) {
-    if (this.eq(MIN_VALUE)) {
-      var radixLong = fromNumber(radix), div = this.div(radixLong), rem1 = div.mul(radixLong).sub(this);
-      return div.toString(radix) + rem1.toInt().toString(radix);
-    } else
-      return "-" + this.neg().toString(radix);
-  }
-  var radixToPower = fromNumber(pow_dbl(radix, 6), this.unsigned), rem = this;
-  var result = "";
-  while (true) {
-    var remDiv = rem.div(radixToPower), intval = rem.sub(remDiv.mul(radixToPower)).toInt() >>> 0, digits = intval.toString(radix);
-    rem = remDiv;
-    if (rem.isZero())
-      return digits + result;
-    else {
-      while (digits.length < 6)
-        digits = "0" + digits;
-      result = "" + digits + result;
+    function ctz32(value) {
+      var c = Math.clz32(value & -value);
+      return value ? 31 - c : c;
     }
-  }
-};
-LongPrototype.getHighBits = function getHighBits() {
-  return this.high;
-};
-LongPrototype.getHighBitsUnsigned = function getHighBitsUnsigned() {
-  return this.high >>> 0;
-};
-LongPrototype.getLowBits = function getLowBits() {
-  return this.low;
-};
-LongPrototype.getLowBitsUnsigned = function getLowBitsUnsigned() {
-  return this.low >>> 0;
-};
-LongPrototype.getNumBitsAbs = function getNumBitsAbs() {
-  if (this.isNegative())
-    return this.eq(MIN_VALUE) ? 64 : this.neg().getNumBitsAbs();
-  var val = this.high != 0 ? this.high : this.low;
-  for (var bit = 31; bit > 0; bit--)
-    if ((val & 1 << bit) != 0)
-      break;
-  return this.high != 0 ? bit + 33 : bit + 1;
-};
-LongPrototype.isZero = function isZero() {
-  return this.high === 0 && this.low === 0;
-};
-LongPrototype.eqz = LongPrototype.isZero;
-LongPrototype.isNegative = function isNegative() {
-  return !this.unsigned && this.high < 0;
-};
-LongPrototype.isPositive = function isPositive() {
-  return this.unsigned || this.high >= 0;
-};
-LongPrototype.isOdd = function isOdd() {
-  return (this.low & 1) === 1;
-};
-LongPrototype.isEven = function isEven() {
-  return (this.low & 1) === 0;
-};
-LongPrototype.equals = function equals(other) {
-  if (!isLong(other))
-    other = fromValue(other);
-  if (this.unsigned !== other.unsigned && this.high >>> 31 === 1 && other.high >>> 31 === 1)
-    return false;
-  return this.high === other.high && this.low === other.low;
-};
-LongPrototype.eq = LongPrototype.equals;
-LongPrototype.notEquals = function notEquals(other) {
-  return !this.eq(other);
-};
-LongPrototype.neq = LongPrototype.notEquals;
-LongPrototype.ne = LongPrototype.notEquals;
-LongPrototype.lessThan = function lessThan(other) {
-  return this.comp(other) < 0;
-};
-LongPrototype.lt = LongPrototype.lessThan;
-LongPrototype.lessThanOrEqual = function lessThanOrEqual(other) {
-  return this.comp(other) <= 0;
-};
-LongPrototype.lte = LongPrototype.lessThanOrEqual;
-LongPrototype.le = LongPrototype.lessThanOrEqual;
-LongPrototype.greaterThan = function greaterThan(other) {
-  return this.comp(other) > 0;
-};
-LongPrototype.gt = LongPrototype.greaterThan;
-LongPrototype.greaterThanOrEqual = function greaterThanOrEqual(other) {
-  return this.comp(other) >= 0;
-};
-LongPrototype.gte = LongPrototype.greaterThanOrEqual;
-LongPrototype.ge = LongPrototype.greaterThanOrEqual;
-LongPrototype.compare = function compare(other) {
-  if (!isLong(other))
-    other = fromValue(other);
-  if (this.eq(other))
-    return 0;
-  var thisNeg = this.isNegative(), otherNeg = other.isNegative();
-  if (thisNeg && !otherNeg)
-    return -1;
-  if (!thisNeg && otherNeg)
-    return 1;
-  if (!this.unsigned)
-    return this.sub(other).isNegative() ? -1 : 1;
-  return other.high >>> 0 > this.high >>> 0 || other.high === this.high && other.low >>> 0 > this.low >>> 0 ? -1 : 1;
-};
-LongPrototype.comp = LongPrototype.compare;
-LongPrototype.negate = function negate() {
-  if (!this.unsigned && this.eq(MIN_VALUE))
-    return MIN_VALUE;
-  return this.not().add(ONE);
-};
-LongPrototype.neg = LongPrototype.negate;
-LongPrototype.add = function add(addend) {
-  if (!isLong(addend))
-    addend = fromValue(addend);
-  var a48 = this.high >>> 16;
-  var a32 = this.high & 65535;
-  var a16 = this.low >>> 16;
-  var a00 = this.low & 65535;
-  var b48 = addend.high >>> 16;
-  var b32 = addend.high & 65535;
-  var b16 = addend.low >>> 16;
-  var b00 = addend.low & 65535;
-  var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
-  c00 += a00 + b00;
-  c16 += c00 >>> 16;
-  c00 &= 65535;
-  c16 += a16 + b16;
-  c32 += c16 >>> 16;
-  c16 &= 65535;
-  c32 += a32 + b32;
-  c48 += c32 >>> 16;
-  c32 &= 65535;
-  c48 += a48 + b48;
-  c48 &= 65535;
-  return fromBits(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
-};
-LongPrototype.subtract = function subtract(subtrahend) {
-  if (!isLong(subtrahend))
-    subtrahend = fromValue(subtrahend);
-  return this.add(subtrahend.neg());
-};
-LongPrototype.sub = LongPrototype.subtract;
-LongPrototype.multiply = function multiply(multiplier) {
-  if (this.isZero())
-    return ZERO;
-  if (!isLong(multiplier))
-    multiplier = fromValue(multiplier);
-  if (wasm) {
-    var low = wasm.mul(this.low, this.high, multiplier.low, multiplier.high);
-    return fromBits(low, wasm.get_high(), this.unsigned);
-  }
-  if (multiplier.isZero())
-    return ZERO;
-  if (this.eq(MIN_VALUE))
-    return multiplier.isOdd() ? MIN_VALUE : ZERO;
-  if (multiplier.eq(MIN_VALUE))
-    return this.isOdd() ? MIN_VALUE : ZERO;
-  if (this.isNegative()) {
-    if (multiplier.isNegative())
-      return this.neg().mul(multiplier.neg());
-    else
-      return this.neg().mul(multiplier).neg();
-  } else if (multiplier.isNegative())
-    return this.mul(multiplier.neg()).neg();
-  if (this.lt(TWO_PWR_24) && multiplier.lt(TWO_PWR_24))
-    return fromNumber(this.toNumber() * multiplier.toNumber(), this.unsigned);
-  var a48 = this.high >>> 16;
-  var a32 = this.high & 65535;
-  var a16 = this.low >>> 16;
-  var a00 = this.low & 65535;
-  var b48 = multiplier.high >>> 16;
-  var b32 = multiplier.high & 65535;
-  var b16 = multiplier.low >>> 16;
-  var b00 = multiplier.low & 65535;
-  var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
-  c00 += a00 * b00;
-  c16 += c00 >>> 16;
-  c00 &= 65535;
-  c16 += a16 * b00;
-  c32 += c16 >>> 16;
-  c16 &= 65535;
-  c16 += a00 * b16;
-  c32 += c16 >>> 16;
-  c16 &= 65535;
-  c32 += a32 * b00;
-  c48 += c32 >>> 16;
-  c32 &= 65535;
-  c32 += a16 * b16;
-  c48 += c32 >>> 16;
-  c32 &= 65535;
-  c32 += a00 * b32;
-  c48 += c32 >>> 16;
-  c32 &= 65535;
-  c48 += a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48;
-  c48 &= 65535;
-  return fromBits(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
-};
-LongPrototype.mul = LongPrototype.multiply;
-LongPrototype.divide = function divide(divisor) {
-  if (!isLong(divisor))
-    divisor = fromValue(divisor);
-  if (divisor.isZero())
-    throw Error("division by zero");
-  if (wasm) {
-    if (!this.unsigned && this.high === -2147483648 && divisor.low === -1 && divisor.high === -1) {
-      return this;
+    Long2.isLong = isLong;
+    var INT_CACHE = {};
+    var UINT_CACHE = {};
+    function fromInt(value, unsigned) {
+      var obj, cachedObj, cache2;
+      if (unsigned) {
+        value >>>= 0;
+        if (cache2 = 0 <= value && value < 256) {
+          cachedObj = UINT_CACHE[value];
+          if (cachedObj)
+            return cachedObj;
+        }
+        obj = fromBits(value, 0, true);
+        if (cache2)
+          UINT_CACHE[value] = obj;
+        return obj;
+      } else {
+        value |= 0;
+        if (cache2 = -128 <= value && value < 128) {
+          cachedObj = INT_CACHE[value];
+          if (cachedObj)
+            return cachedObj;
+        }
+        obj = fromBits(value, value < 0 ? -1 : 0, false);
+        if (cache2)
+          INT_CACHE[value] = obj;
+        return obj;
+      }
     }
-    var low = (this.unsigned ? wasm.div_u : wasm.div_s)(this.low, this.high, divisor.low, divisor.high);
-    return fromBits(low, wasm.get_high(), this.unsigned);
-  }
-  if (this.isZero())
-    return this.unsigned ? UZERO : ZERO;
-  var approx, rem, res;
-  if (!this.unsigned) {
-    if (this.eq(MIN_VALUE)) {
-      if (divisor.eq(ONE) || divisor.eq(NEG_ONE))
-        return MIN_VALUE;
-      else if (divisor.eq(MIN_VALUE))
-        return ONE;
-      else {
-        var halfThis = this.shr(1);
-        approx = halfThis.div(divisor).shl(1);
-        if (approx.eq(ZERO)) {
-          return divisor.isNegative() ? ONE : NEG_ONE;
+    Long2.fromInt = fromInt;
+    function fromNumber2(value, unsigned) {
+      if (isNaN(value))
+        return unsigned ? UZERO : ZERO;
+      if (unsigned) {
+        if (value < 0)
+          return UZERO;
+        if (value >= TWO_PWR_64_DBL)
+          return MAX_UNSIGNED_VALUE;
+      } else {
+        if (value <= -TWO_PWR_63_DBL)
+          return MIN_VALUE;
+        if (value + 1 >= TWO_PWR_63_DBL)
+          return MAX_VALUE;
+      }
+      if (value < 0)
+        return fromNumber2(-value, unsigned).neg();
+      return fromBits(value % TWO_PWR_32_DBL | 0, value / TWO_PWR_32_DBL | 0, unsigned);
+    }
+    Long2.fromNumber = fromNumber2;
+    function fromBits(lowBits, highBits, unsigned) {
+      return new Long2(lowBits, highBits, unsigned);
+    }
+    Long2.fromBits = fromBits;
+    var pow_dbl = Math.pow;
+    function fromString(str, unsigned, radix) {
+      if (str.length === 0)
+        throw Error("empty string");
+      if (typeof unsigned === "number") {
+        radix = unsigned;
+        unsigned = false;
+      } else {
+        unsigned = !!unsigned;
+      }
+      if (str === "NaN" || str === "Infinity" || str === "+Infinity" || str === "-Infinity")
+        return unsigned ? UZERO : ZERO;
+      radix = radix || 10;
+      if (radix < 2 || 36 < radix)
+        throw RangeError("radix");
+      var p;
+      if ((p = str.indexOf("-")) > 0)
+        throw Error("interior hyphen");
+      else if (p === 0) {
+        return fromString(str.substring(1), unsigned, radix).neg();
+      }
+      var radixToPower = fromNumber2(pow_dbl(radix, 8));
+      var result = ZERO;
+      for (var i2 = 0; i2 < str.length; i2 += 8) {
+        var size = Math.min(8, str.length - i2), value = parseInt(str.substring(i2, i2 + size), radix);
+        if (size < 8) {
+          var power = fromNumber2(pow_dbl(radix, size));
+          result = result.mul(power).add(fromNumber2(value));
         } else {
-          rem = this.sub(divisor.mul(approx));
-          res = approx.add(rem.div(divisor));
-          return res;
+          result = result.mul(radixToPower);
+          result = result.add(fromNumber2(value));
         }
       }
-    } else if (divisor.eq(MIN_VALUE))
-      return this.unsigned ? UZERO : ZERO;
-    if (this.isNegative()) {
-      if (divisor.isNegative())
-        return this.neg().div(divisor.neg());
-      return this.neg().div(divisor).neg();
-    } else if (divisor.isNegative())
-      return this.div(divisor.neg()).neg();
-    res = ZERO;
-  } else {
-    if (!divisor.unsigned)
-      divisor = divisor.toUnsigned();
-    if (divisor.gt(this))
-      return UZERO;
-    if (divisor.gt(this.shru(1)))
-      return UONE;
-    res = UZERO;
-  }
-  rem = this;
-  while (rem.gte(divisor)) {
-    approx = Math.max(1, Math.floor(rem.toNumber() / divisor.toNumber()));
-    var log2 = Math.ceil(Math.log(approx) / Math.LN2), delta = log2 <= 48 ? 1 : pow_dbl(2, log2 - 48), approxRes = fromNumber(approx), approxRem = approxRes.mul(divisor);
-    while (approxRem.isNegative() || approxRem.gt(rem)) {
-      approx -= delta;
-      approxRes = fromNumber(approx, this.unsigned);
-      approxRem = approxRes.mul(divisor);
+      result.unsigned = unsigned;
+      return result;
     }
-    if (approxRes.isZero())
-      approxRes = ONE;
-    res = res.add(approxRes);
-    rem = rem.sub(approxRem);
-  }
-  return res;
-};
-LongPrototype.div = LongPrototype.divide;
-LongPrototype.modulo = function modulo(divisor) {
-  if (!isLong(divisor))
-    divisor = fromValue(divisor);
-  if (wasm) {
-    var low = (this.unsigned ? wasm.rem_u : wasm.rem_s)(this.low, this.high, divisor.low, divisor.high);
-    return fromBits(low, wasm.get_high(), this.unsigned);
-  }
-  return this.sub(this.div(divisor).mul(divisor));
-};
-LongPrototype.mod = LongPrototype.modulo;
-LongPrototype.rem = LongPrototype.modulo;
-LongPrototype.not = function not2() {
-  return fromBits(~this.low, ~this.high, this.unsigned);
-};
-LongPrototype.and = function and(other) {
-  if (!isLong(other))
-    other = fromValue(other);
-  return fromBits(this.low & other.low, this.high & other.high, this.unsigned);
-};
-LongPrototype.or = function or(other) {
-  if (!isLong(other))
-    other = fromValue(other);
-  return fromBits(this.low | other.low, this.high | other.high, this.unsigned);
-};
-LongPrototype.xor = function xor(other) {
-  if (!isLong(other))
-    other = fromValue(other);
-  return fromBits(this.low ^ other.low, this.high ^ other.high, this.unsigned);
-};
-LongPrototype.shiftLeft = function shiftLeft(numBits) {
-  if (isLong(numBits))
-    numBits = numBits.toInt();
-  if ((numBits &= 63) === 0)
-    return this;
-  else if (numBits < 32)
-    return fromBits(this.low << numBits, this.high << numBits | this.low >>> 32 - numBits, this.unsigned);
-  else
-    return fromBits(0, this.low << numBits - 32, this.unsigned);
-};
-LongPrototype.shl = LongPrototype.shiftLeft;
-LongPrototype.shiftRight = function shiftRight(numBits) {
-  if (isLong(numBits))
-    numBits = numBits.toInt();
-  if ((numBits &= 63) === 0)
-    return this;
-  else if (numBits < 32)
-    return fromBits(this.low >>> numBits | this.high << 32 - numBits, this.high >> numBits, this.unsigned);
-  else
-    return fromBits(this.high >> numBits - 32, this.high >= 0 ? 0 : -1, this.unsigned);
-};
-LongPrototype.shr = LongPrototype.shiftRight;
-LongPrototype.shiftRightUnsigned = function shiftRightUnsigned(numBits) {
-  if (isLong(numBits))
-    numBits = numBits.toInt();
-  numBits &= 63;
-  if (numBits === 0)
-    return this;
-  else {
-    var high = this.high;
-    if (numBits < 32) {
-      var low = this.low;
-      return fromBits(low >>> numBits | high << 32 - numBits, high >>> numBits, this.unsigned);
-    } else if (numBits === 32)
-      return fromBits(high, 0, this.unsigned);
-    else
-      return fromBits(high >>> numBits - 32, 0, this.unsigned);
-  }
-};
-LongPrototype.shru = LongPrototype.shiftRightUnsigned;
-LongPrototype.shr_u = LongPrototype.shiftRightUnsigned;
-LongPrototype.toSigned = function toSigned() {
-  if (!this.unsigned)
-    return this;
-  return fromBits(this.low, this.high, false);
-};
-LongPrototype.toUnsigned = function toUnsigned() {
-  if (this.unsigned)
-    return this;
-  return fromBits(this.low, this.high, true);
-};
-LongPrototype.toBytes = function toBytes(le) {
-  return le ? this.toBytesLE() : this.toBytesBE();
-};
-LongPrototype.toBytesLE = function toBytesLE() {
-  var hi = this.high, lo = this.low;
-  return [
-    lo & 255,
-    lo >>> 8 & 255,
-    lo >>> 16 & 255,
-    lo >>> 24,
-    hi & 255,
-    hi >>> 8 & 255,
-    hi >>> 16 & 255,
-    hi >>> 24
-  ];
-};
-LongPrototype.toBytesBE = function toBytesBE() {
-  var hi = this.high, lo = this.low;
-  return [
-    hi >>> 24,
-    hi >>> 16 & 255,
-    hi >>> 8 & 255,
-    hi & 255,
-    lo >>> 24,
-    lo >>> 16 & 255,
-    lo >>> 8 & 255,
-    lo & 255
-  ];
-};
-Long.fromBytes = function fromBytes(bytes, unsigned, le) {
-  return le ? Long.fromBytesLE(bytes, unsigned) : Long.fromBytesBE(bytes, unsigned);
-};
-Long.fromBytesLE = function fromBytesLE(bytes, unsigned) {
-  return new Long(bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24, bytes[4] | bytes[5] << 8 | bytes[6] << 16 | bytes[7] << 24, unsigned);
-};
-Long.fromBytesBE = function fromBytesBE(bytes, unsigned) {
-  return new Long(bytes[4] << 24 | bytes[5] << 16 | bytes[6] << 8 | bytes[7], bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], unsigned);
-};
-var indexMinimal$1 = {};
-var minimal$3 = {};
-var aspromise$1 = asPromise$1;
-function asPromise$1(fn, ctx) {
+    Long2.fromString = fromString;
+    function fromValue(val, unsigned) {
+      if (typeof val === "number")
+        return fromNumber2(val, unsigned);
+      if (typeof val === "string")
+        return fromString(val, unsigned);
+      return fromBits(val.low, val.high, typeof unsigned === "boolean" ? unsigned : val.unsigned);
+    }
+    Long2.fromValue = fromValue;
+    var TWO_PWR_16_DBL = 1 << 16;
+    var TWO_PWR_24_DBL = 1 << 24;
+    var TWO_PWR_32_DBL = TWO_PWR_16_DBL * TWO_PWR_16_DBL;
+    var TWO_PWR_64_DBL = TWO_PWR_32_DBL * TWO_PWR_32_DBL;
+    var TWO_PWR_63_DBL = TWO_PWR_64_DBL / 2;
+    var TWO_PWR_24 = fromInt(TWO_PWR_24_DBL);
+    var ZERO = fromInt(0);
+    Long2.ZERO = ZERO;
+    var UZERO = fromInt(0, true);
+    Long2.UZERO = UZERO;
+    var ONE = fromInt(1);
+    Long2.ONE = ONE;
+    var UONE = fromInt(1, true);
+    Long2.UONE = UONE;
+    var NEG_ONE = fromInt(-1);
+    Long2.NEG_ONE = NEG_ONE;
+    var MAX_VALUE = fromBits(4294967295 | 0, 2147483647 | 0, false);
+    Long2.MAX_VALUE = MAX_VALUE;
+    var MAX_UNSIGNED_VALUE = fromBits(4294967295 | 0, 4294967295 | 0, true);
+    Long2.MAX_UNSIGNED_VALUE = MAX_UNSIGNED_VALUE;
+    var MIN_VALUE = fromBits(0, 2147483648 | 0, false);
+    Long2.MIN_VALUE = MIN_VALUE;
+    var LongPrototype = Long2.prototype;
+    LongPrototype.toInt = function toInt() {
+      return this.unsigned ? this.low >>> 0 : this.low;
+    };
+    LongPrototype.toNumber = function toNumber3() {
+      if (this.unsigned)
+        return (this.high >>> 0) * TWO_PWR_32_DBL + (this.low >>> 0);
+      return this.high * TWO_PWR_32_DBL + (this.low >>> 0);
+    };
+    LongPrototype.toString = function toString3(radix) {
+      radix = radix || 10;
+      if (radix < 2 || 36 < radix)
+        throw RangeError("radix");
+      if (this.isZero())
+        return "0";
+      if (this.isNegative()) {
+        if (this.eq(MIN_VALUE)) {
+          var radixLong = fromNumber2(radix), div = this.div(radixLong), rem1 = div.mul(radixLong).sub(this);
+          return div.toString(radix) + rem1.toInt().toString(radix);
+        } else
+          return "-" + this.neg().toString(radix);
+      }
+      var radixToPower = fromNumber2(pow_dbl(radix, 6), this.unsigned), rem = this;
+      var result = "";
+      while (true) {
+        var remDiv = rem.div(radixToPower), intval = rem.sub(remDiv.mul(radixToPower)).toInt() >>> 0, digits = intval.toString(radix);
+        rem = remDiv;
+        if (rem.isZero())
+          return digits + result;
+        else {
+          while (digits.length < 6)
+            digits = "0" + digits;
+          result = "" + digits + result;
+        }
+      }
+    };
+    LongPrototype.getHighBits = function getHighBits() {
+      return this.high;
+    };
+    LongPrototype.getHighBitsUnsigned = function getHighBitsUnsigned() {
+      return this.high >>> 0;
+    };
+    LongPrototype.getLowBits = function getLowBits() {
+      return this.low;
+    };
+    LongPrototype.getLowBitsUnsigned = function getLowBitsUnsigned() {
+      return this.low >>> 0;
+    };
+    LongPrototype.getNumBitsAbs = function getNumBitsAbs() {
+      if (this.isNegative())
+        return this.eq(MIN_VALUE) ? 64 : this.neg().getNumBitsAbs();
+      var val = this.high != 0 ? this.high : this.low;
+      for (var bit = 31; bit > 0; bit--)
+        if ((val & 1 << bit) != 0)
+          break;
+      return this.high != 0 ? bit + 33 : bit + 1;
+    };
+    LongPrototype.isZero = function isZero() {
+      return this.high === 0 && this.low === 0;
+    };
+    LongPrototype.eqz = LongPrototype.isZero;
+    LongPrototype.isNegative = function isNegative() {
+      return !this.unsigned && this.high < 0;
+    };
+    LongPrototype.isPositive = function isPositive() {
+      return this.unsigned || this.high >= 0;
+    };
+    LongPrototype.isOdd = function isOdd() {
+      return (this.low & 1) === 1;
+    };
+    LongPrototype.isEven = function isEven() {
+      return (this.low & 1) === 0;
+    };
+    LongPrototype.equals = function equals(other) {
+      if (!isLong(other))
+        other = fromValue(other);
+      if (this.unsigned !== other.unsigned && this.high >>> 31 === 1 && other.high >>> 31 === 1)
+        return false;
+      return this.high === other.high && this.low === other.low;
+    };
+    LongPrototype.eq = LongPrototype.equals;
+    LongPrototype.notEquals = function notEquals(other) {
+      return !this.eq(other);
+    };
+    LongPrototype.neq = LongPrototype.notEquals;
+    LongPrototype.ne = LongPrototype.notEquals;
+    LongPrototype.lessThan = function lessThan(other) {
+      return this.comp(other) < 0;
+    };
+    LongPrototype.lt = LongPrototype.lessThan;
+    LongPrototype.lessThanOrEqual = function lessThanOrEqual(other) {
+      return this.comp(other) <= 0;
+    };
+    LongPrototype.lte = LongPrototype.lessThanOrEqual;
+    LongPrototype.le = LongPrototype.lessThanOrEqual;
+    LongPrototype.greaterThan = function greaterThan(other) {
+      return this.comp(other) > 0;
+    };
+    LongPrototype.gt = LongPrototype.greaterThan;
+    LongPrototype.greaterThanOrEqual = function greaterThanOrEqual(other) {
+      return this.comp(other) >= 0;
+    };
+    LongPrototype.gte = LongPrototype.greaterThanOrEqual;
+    LongPrototype.ge = LongPrototype.greaterThanOrEqual;
+    LongPrototype.compare = function compare(other) {
+      if (!isLong(other))
+        other = fromValue(other);
+      if (this.eq(other))
+        return 0;
+      var thisNeg = this.isNegative(), otherNeg = other.isNegative();
+      if (thisNeg && !otherNeg)
+        return -1;
+      if (!thisNeg && otherNeg)
+        return 1;
+      if (!this.unsigned)
+        return this.sub(other).isNegative() ? -1 : 1;
+      return other.high >>> 0 > this.high >>> 0 || other.high === this.high && other.low >>> 0 > this.low >>> 0 ? -1 : 1;
+    };
+    LongPrototype.comp = LongPrototype.compare;
+    LongPrototype.negate = function negate() {
+      if (!this.unsigned && this.eq(MIN_VALUE))
+        return MIN_VALUE;
+      return this.not().add(ONE);
+    };
+    LongPrototype.neg = LongPrototype.negate;
+    LongPrototype.add = function add(addend) {
+      if (!isLong(addend))
+        addend = fromValue(addend);
+      var a48 = this.high >>> 16;
+      var a32 = this.high & 65535;
+      var a16 = this.low >>> 16;
+      var a00 = this.low & 65535;
+      var b48 = addend.high >>> 16;
+      var b32 = addend.high & 65535;
+      var b16 = addend.low >>> 16;
+      var b00 = addend.low & 65535;
+      var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
+      c00 += a00 + b00;
+      c16 += c00 >>> 16;
+      c00 &= 65535;
+      c16 += a16 + b16;
+      c32 += c16 >>> 16;
+      c16 &= 65535;
+      c32 += a32 + b32;
+      c48 += c32 >>> 16;
+      c32 &= 65535;
+      c48 += a48 + b48;
+      c48 &= 65535;
+      return fromBits(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
+    };
+    LongPrototype.subtract = function subtract(subtrahend) {
+      if (!isLong(subtrahend))
+        subtrahend = fromValue(subtrahend);
+      return this.add(subtrahend.neg());
+    };
+    LongPrototype.sub = LongPrototype.subtract;
+    LongPrototype.multiply = function multiply(multiplier) {
+      if (this.isZero())
+        return this;
+      if (!isLong(multiplier))
+        multiplier = fromValue(multiplier);
+      if (wasm) {
+        var low = wasm["mul"](this.low, this.high, multiplier.low, multiplier.high);
+        return fromBits(low, wasm["get_high"](), this.unsigned);
+      }
+      if (multiplier.isZero())
+        return this.unsigned ? UZERO : ZERO;
+      if (this.eq(MIN_VALUE))
+        return multiplier.isOdd() ? MIN_VALUE : ZERO;
+      if (multiplier.eq(MIN_VALUE))
+        return this.isOdd() ? MIN_VALUE : ZERO;
+      if (this.isNegative()) {
+        if (multiplier.isNegative())
+          return this.neg().mul(multiplier.neg());
+        else
+          return this.neg().mul(multiplier).neg();
+      } else if (multiplier.isNegative())
+        return this.mul(multiplier.neg()).neg();
+      if (this.lt(TWO_PWR_24) && multiplier.lt(TWO_PWR_24))
+        return fromNumber2(this.toNumber() * multiplier.toNumber(), this.unsigned);
+      var a48 = this.high >>> 16;
+      var a32 = this.high & 65535;
+      var a16 = this.low >>> 16;
+      var a00 = this.low & 65535;
+      var b48 = multiplier.high >>> 16;
+      var b32 = multiplier.high & 65535;
+      var b16 = multiplier.low >>> 16;
+      var b00 = multiplier.low & 65535;
+      var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
+      c00 += a00 * b00;
+      c16 += c00 >>> 16;
+      c00 &= 65535;
+      c16 += a16 * b00;
+      c32 += c16 >>> 16;
+      c16 &= 65535;
+      c16 += a00 * b16;
+      c32 += c16 >>> 16;
+      c16 &= 65535;
+      c32 += a32 * b00;
+      c48 += c32 >>> 16;
+      c32 &= 65535;
+      c32 += a16 * b16;
+      c48 += c32 >>> 16;
+      c32 &= 65535;
+      c32 += a00 * b32;
+      c48 += c32 >>> 16;
+      c32 &= 65535;
+      c48 += a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48;
+      c48 &= 65535;
+      return fromBits(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
+    };
+    LongPrototype.mul = LongPrototype.multiply;
+    LongPrototype.divide = function divide(divisor) {
+      if (!isLong(divisor))
+        divisor = fromValue(divisor);
+      if (divisor.isZero())
+        throw Error("division by zero");
+      if (wasm) {
+        if (!this.unsigned && this.high === -2147483648 && divisor.low === -1 && divisor.high === -1) {
+          return this;
+        }
+        var low = (this.unsigned ? wasm["div_u"] : wasm["div_s"])(this.low, this.high, divisor.low, divisor.high);
+        return fromBits(low, wasm["get_high"](), this.unsigned);
+      }
+      if (this.isZero())
+        return this.unsigned ? UZERO : ZERO;
+      var approx, rem, res;
+      if (!this.unsigned) {
+        if (this.eq(MIN_VALUE)) {
+          if (divisor.eq(ONE) || divisor.eq(NEG_ONE))
+            return MIN_VALUE;
+          else if (divisor.eq(MIN_VALUE))
+            return ONE;
+          else {
+            var halfThis = this.shr(1);
+            approx = halfThis.div(divisor).shl(1);
+            if (approx.eq(ZERO)) {
+              return divisor.isNegative() ? ONE : NEG_ONE;
+            } else {
+              rem = this.sub(divisor.mul(approx));
+              res = approx.add(rem.div(divisor));
+              return res;
+            }
+          }
+        } else if (divisor.eq(MIN_VALUE))
+          return this.unsigned ? UZERO : ZERO;
+        if (this.isNegative()) {
+          if (divisor.isNegative())
+            return this.neg().div(divisor.neg());
+          return this.neg().div(divisor).neg();
+        } else if (divisor.isNegative())
+          return this.div(divisor.neg()).neg();
+        res = ZERO;
+      } else {
+        if (!divisor.unsigned)
+          divisor = divisor.toUnsigned();
+        if (divisor.gt(this))
+          return UZERO;
+        if (divisor.gt(this.shru(1)))
+          return UONE;
+        res = UZERO;
+      }
+      rem = this;
+      while (rem.gte(divisor)) {
+        approx = Math.max(1, Math.floor(rem.toNumber() / divisor.toNumber()));
+        var log2 = Math.ceil(Math.log(approx) / Math.LN2), delta = log2 <= 48 ? 1 : pow_dbl(2, log2 - 48), approxRes = fromNumber2(approx), approxRem = approxRes.mul(divisor);
+        while (approxRem.isNegative() || approxRem.gt(rem)) {
+          approx -= delta;
+          approxRes = fromNumber2(approx, this.unsigned);
+          approxRem = approxRes.mul(divisor);
+        }
+        if (approxRes.isZero())
+          approxRes = ONE;
+        res = res.add(approxRes);
+        rem = rem.sub(approxRem);
+      }
+      return res;
+    };
+    LongPrototype.div = LongPrototype.divide;
+    LongPrototype.modulo = function modulo(divisor) {
+      if (!isLong(divisor))
+        divisor = fromValue(divisor);
+      if (wasm) {
+        var low = (this.unsigned ? wasm["rem_u"] : wasm["rem_s"])(this.low, this.high, divisor.low, divisor.high);
+        return fromBits(low, wasm["get_high"](), this.unsigned);
+      }
+      return this.sub(this.div(divisor).mul(divisor));
+    };
+    LongPrototype.mod = LongPrototype.modulo;
+    LongPrototype.rem = LongPrototype.modulo;
+    LongPrototype.not = function not2() {
+      return fromBits(~this.low, ~this.high, this.unsigned);
+    };
+    LongPrototype.countLeadingZeros = function countLeadingZeros() {
+      return this.high ? Math.clz32(this.high) : Math.clz32(this.low) + 32;
+    };
+    LongPrototype.clz = LongPrototype.countLeadingZeros;
+    LongPrototype.countTrailingZeros = function countTrailingZeros() {
+      return this.low ? ctz32(this.low) : ctz32(this.high) + 32;
+    };
+    LongPrototype.ctz = LongPrototype.countTrailingZeros;
+    LongPrototype.and = function and(other) {
+      if (!isLong(other))
+        other = fromValue(other);
+      return fromBits(this.low & other.low, this.high & other.high, this.unsigned);
+    };
+    LongPrototype.or = function or(other) {
+      if (!isLong(other))
+        other = fromValue(other);
+      return fromBits(this.low | other.low, this.high | other.high, this.unsigned);
+    };
+    LongPrototype.xor = function xor(other) {
+      if (!isLong(other))
+        other = fromValue(other);
+      return fromBits(this.low ^ other.low, this.high ^ other.high, this.unsigned);
+    };
+    LongPrototype.shiftLeft = function shiftLeft(numBits) {
+      if (isLong(numBits))
+        numBits = numBits.toInt();
+      if ((numBits &= 63) === 0)
+        return this;
+      else if (numBits < 32)
+        return fromBits(this.low << numBits, this.high << numBits | this.low >>> 32 - numBits, this.unsigned);
+      else
+        return fromBits(0, this.low << numBits - 32, this.unsigned);
+    };
+    LongPrototype.shl = LongPrototype.shiftLeft;
+    LongPrototype.shiftRight = function shiftRight(numBits) {
+      if (isLong(numBits))
+        numBits = numBits.toInt();
+      if ((numBits &= 63) === 0)
+        return this;
+      else if (numBits < 32)
+        return fromBits(this.low >>> numBits | this.high << 32 - numBits, this.high >> numBits, this.unsigned);
+      else
+        return fromBits(this.high >> numBits - 32, this.high >= 0 ? 0 : -1, this.unsigned);
+    };
+    LongPrototype.shr = LongPrototype.shiftRight;
+    LongPrototype.shiftRightUnsigned = function shiftRightUnsigned(numBits) {
+      if (isLong(numBits))
+        numBits = numBits.toInt();
+      if ((numBits &= 63) === 0)
+        return this;
+      if (numBits < 32)
+        return fromBits(this.low >>> numBits | this.high << 32 - numBits, this.high >>> numBits, this.unsigned);
+      if (numBits === 32)
+        return fromBits(this.high, 0, this.unsigned);
+      return fromBits(this.high >>> numBits - 32, 0, this.unsigned);
+    };
+    LongPrototype.shru = LongPrototype.shiftRightUnsigned;
+    LongPrototype.shr_u = LongPrototype.shiftRightUnsigned;
+    LongPrototype.rotateLeft = function rotateLeft(numBits) {
+      var b;
+      if (isLong(numBits))
+        numBits = numBits.toInt();
+      if ((numBits &= 63) === 0)
+        return this;
+      if (numBits === 32)
+        return fromBits(this.high, this.low, this.unsigned);
+      if (numBits < 32) {
+        b = 32 - numBits;
+        return fromBits(this.low << numBits | this.high >>> b, this.high << numBits | this.low >>> b, this.unsigned);
+      }
+      numBits -= 32;
+      b = 32 - numBits;
+      return fromBits(this.high << numBits | this.low >>> b, this.low << numBits | this.high >>> b, this.unsigned);
+    };
+    LongPrototype.rotl = LongPrototype.rotateLeft;
+    LongPrototype.rotateRight = function rotateRight(numBits) {
+      var b;
+      if (isLong(numBits))
+        numBits = numBits.toInt();
+      if ((numBits &= 63) === 0)
+        return this;
+      if (numBits === 32)
+        return fromBits(this.high, this.low, this.unsigned);
+      if (numBits < 32) {
+        b = 32 - numBits;
+        return fromBits(this.high << b | this.low >>> numBits, this.low << b | this.high >>> numBits, this.unsigned);
+      }
+      numBits -= 32;
+      b = 32 - numBits;
+      return fromBits(this.low << b | this.high >>> numBits, this.high << b | this.low >>> numBits, this.unsigned);
+    };
+    LongPrototype.rotr = LongPrototype.rotateRight;
+    LongPrototype.toSigned = function toSigned() {
+      if (!this.unsigned)
+        return this;
+      return fromBits(this.low, this.high, false);
+    };
+    LongPrototype.toUnsigned = function toUnsigned() {
+      if (this.unsigned)
+        return this;
+      return fromBits(this.low, this.high, true);
+    };
+    LongPrototype.toBytes = function toBytes(le) {
+      return le ? this.toBytesLE() : this.toBytesBE();
+    };
+    LongPrototype.toBytesLE = function toBytesLE() {
+      var hi = this.high, lo = this.low;
+      return [lo & 255, lo >>> 8 & 255, lo >>> 16 & 255, lo >>> 24, hi & 255, hi >>> 8 & 255, hi >>> 16 & 255, hi >>> 24];
+    };
+    LongPrototype.toBytesBE = function toBytesBE() {
+      var hi = this.high, lo = this.low;
+      return [hi >>> 24, hi >>> 16 & 255, hi >>> 8 & 255, hi & 255, lo >>> 24, lo >>> 16 & 255, lo >>> 8 & 255, lo & 255];
+    };
+    Long2.fromBytes = function fromBytes(bytes, unsigned, le) {
+      return le ? Long2.fromBytesLE(bytes, unsigned) : Long2.fromBytesBE(bytes, unsigned);
+    };
+    Long2.fromBytesLE = function fromBytesLE(bytes, unsigned) {
+      return new Long2(bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24, bytes[4] | bytes[5] << 8 | bytes[6] << 16 | bytes[7] << 24, unsigned);
+    };
+    Long2.fromBytesBE = function fromBytesBE(bytes, unsigned) {
+      return new Long2(bytes[4] << 24 | bytes[5] << 16 | bytes[6] << 8 | bytes[7], bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], unsigned);
+    };
+    var _default = Long2;
+    exports3.default = _default;
+    return "default" in exports3 ? exports3.default : exports3;
+  }({});
+  module2.exports = Long;
+})(umd);
+var indexMinimal = {};
+var minimal$1 = {};
+var aspromise = asPromise;
+function asPromise(fn, ctx) {
   var params = new Array(arguments.length - 1), offset = 0, index2 = 2, pending = true;
   while (index2 < arguments.length)
     params[offset++] = arguments[index2++];
@@ -6808,10 +6577,10 @@ function asPromise$1(fn, ctx) {
     }
   });
 }
-var base64$3 = {};
+var base64$1 = {};
 (function(exports2) {
   var base642 = exports2;
-  base642.length = function length3(string) {
+  base642.length = function length2(string) {
     var p = string.length;
     if (!p)
       return 0;
@@ -6824,10 +6593,10 @@ var base64$3 = {};
   var s64 = new Array(123);
   for (var i2 = 0; i2 < 64; )
     s64[b64[i2] = i2 < 26 ? i2 + 65 : i2 < 52 ? i2 + 71 : i2 < 62 ? i2 - 4 : i2 - 59 | 43] = i2++;
-  base642.encode = function encode2(buffer2, start2, end3) {
+  base642.encode = function encode2(buffer2, start2, end2) {
     var parts = null, chunk = [];
     var i3 = 0, j = 0, t2;
-    while (start2 < end3) {
+    while (start2 < end2) {
       var b = buffer2[start2++];
       switch (j) {
         case 0:
@@ -6902,19 +6671,19 @@ var base64$3 = {};
   base642.test = function test(string) {
     return /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(string);
   };
-})(base64$3);
-var eventemitter$1 = EventEmitter$2;
-function EventEmitter$2() {
+})(base64$1);
+var eventemitter = EventEmitter$1;
+function EventEmitter$1() {
   this._listeners = {};
 }
-EventEmitter$2.prototype.on = function on2(evt, fn, ctx) {
+EventEmitter$1.prototype.on = function on2(evt, fn, ctx) {
   (this._listeners[evt] || (this._listeners[evt] = [])).push({
     fn,
     ctx: ctx || this
   });
   return this;
 };
-EventEmitter$2.prototype.off = function off(evt, fn) {
+EventEmitter$1.prototype.off = function off(evt, fn) {
   if (evt === void 0)
     this._listeners = {};
   else {
@@ -6931,7 +6700,7 @@ EventEmitter$2.prototype.off = function off(evt, fn) {
   }
   return this;
 };
-EventEmitter$2.prototype.emit = function emit(evt) {
+EventEmitter$1.prototype.emit = function emit(evt) {
   var listeners2 = this._listeners[evt];
   if (listeners2) {
     var args = [], i2 = 1;
@@ -6942,8 +6711,8 @@ EventEmitter$2.prototype.emit = function emit(evt) {
   }
   return this;
 };
-var float$1 = factory$1(factory$1);
-function factory$1(exports2) {
+var float = factory(factory);
+function factory(exports2) {
   if (typeof Float32Array !== "undefined")
     (function() {
       var f32 = new Float32Array([-0]), f8b = new Uint8Array(f32.buffer), le = f8b[3] === 128;
@@ -6999,14 +6768,14 @@ function factory$1(exports2) {
           writeUint((sign << 31 | exponent + 127 << 23 | mantissa) >>> 0, buf, pos);
         }
       }
-      exports2.writeFloatLE = writeFloat_ieee754.bind(null, writeUintLE$1);
-      exports2.writeFloatBE = writeFloat_ieee754.bind(null, writeUintBE$1);
+      exports2.writeFloatLE = writeFloat_ieee754.bind(null, writeUintLE);
+      exports2.writeFloatBE = writeFloat_ieee754.bind(null, writeUintBE);
       function readFloat_ieee754(readUint, buf, pos) {
         var uint = readUint(buf, pos), sign = (uint >> 31) * 2 + 1, exponent = uint >>> 23 & 255, mantissa = uint & 8388607;
         return exponent === 255 ? mantissa ? NaN : sign * Infinity : exponent === 0 ? sign * 1401298464324817e-60 * mantissa : sign * Math.pow(2, exponent - 150) * (mantissa + 8388608);
       }
-      exports2.readFloatLE = readFloat_ieee754.bind(null, readUintLE$1);
-      exports2.readFloatBE = readFloat_ieee754.bind(null, readUintBE$1);
+      exports2.readFloatLE = readFloat_ieee754.bind(null, readUintLE);
+      exports2.readFloatBE = readFloat_ieee754.bind(null, readUintBE);
     })();
   if (typeof Float64Array !== "undefined")
     (function() {
@@ -7091,38 +6860,38 @@ function factory$1(exports2) {
           }
         }
       }
-      exports2.writeDoubleLE = writeDouble_ieee754.bind(null, writeUintLE$1, 0, 4);
-      exports2.writeDoubleBE = writeDouble_ieee754.bind(null, writeUintBE$1, 4, 0);
+      exports2.writeDoubleLE = writeDouble_ieee754.bind(null, writeUintLE, 0, 4);
+      exports2.writeDoubleBE = writeDouble_ieee754.bind(null, writeUintBE, 4, 0);
       function readDouble_ieee754(readUint, off0, off1, buf, pos) {
         var lo = readUint(buf, pos + off0), hi = readUint(buf, pos + off1);
         var sign = (hi >> 31) * 2 + 1, exponent = hi >>> 20 & 2047, mantissa = 4294967296 * (hi & 1048575) + lo;
         return exponent === 2047 ? mantissa ? NaN : sign * Infinity : exponent === 0 ? sign * 5e-324 * mantissa : sign * Math.pow(2, exponent - 1075) * (mantissa + 4503599627370496);
       }
-      exports2.readDoubleLE = readDouble_ieee754.bind(null, readUintLE$1, 0, 4);
-      exports2.readDoubleBE = readDouble_ieee754.bind(null, readUintBE$1, 4, 0);
+      exports2.readDoubleLE = readDouble_ieee754.bind(null, readUintLE, 0, 4);
+      exports2.readDoubleBE = readDouble_ieee754.bind(null, readUintBE, 4, 0);
     })();
   return exports2;
 }
-function writeUintLE$1(val, buf, pos) {
+function writeUintLE(val, buf, pos) {
   buf[pos] = val & 255;
   buf[pos + 1] = val >>> 8 & 255;
   buf[pos + 2] = val >>> 16 & 255;
   buf[pos + 3] = val >>> 24;
 }
-function writeUintBE$1(val, buf, pos) {
+function writeUintBE(val, buf, pos) {
   buf[pos] = val >>> 24;
   buf[pos + 1] = val >>> 16 & 255;
   buf[pos + 2] = val >>> 8 & 255;
   buf[pos + 3] = val & 255;
 }
-function readUintLE$1(buf, pos) {
+function readUintLE(buf, pos) {
   return (buf[pos] | buf[pos + 1] << 8 | buf[pos + 2] << 16 | buf[pos + 3] << 24) >>> 0;
 }
-function readUintBE$1(buf, pos) {
+function readUintBE(buf, pos) {
   return (buf[pos] << 24 | buf[pos + 1] << 16 | buf[pos + 2] << 8 | buf[pos + 3]) >>> 0;
 }
-var inquire_1$1 = inquire$1;
-function inquire$1(moduleName) {
+var inquire_1 = inquire;
+function inquire(moduleName) {
   try {
     var mod = eval("quire".replace(/^/, "re"))(moduleName);
     if (mod && (mod.length || Object.keys(mod).length))
@@ -7131,7 +6900,7 @@ function inquire$1(moduleName) {
   }
   return null;
 }
-var utf8$5 = {};
+var utf8$2 = {};
 (function(exports2) {
   var utf82 = exports2;
   utf82.length = function utf8_length(string) {
@@ -7150,12 +6919,12 @@ var utf8$5 = {};
     }
     return len;
   };
-  utf82.read = function utf8_read(buffer2, start2, end3) {
-    var len = end3 - start2;
+  utf82.read = function utf8_read(buffer2, start2, end2) {
+    var len = end2 - start2;
     if (len < 1)
       return "";
     var parts = null, chunk = [], i2 = 0, t2;
-    while (start2 < end3) {
+    while (start2 < end2) {
       t2 = buffer2[start2++];
       if (t2 < 128)
         chunk[i2++] = t2;
@@ -7203,18 +6972,18 @@ var utf8$5 = {};
     }
     return offset - start2;
   };
-})(utf8$5);
-var pool_1$1 = pool$1;
-function pool$1(alloc3, slice2, size) {
+})(utf8$2);
+var pool_1 = pool;
+function pool(alloc2, slice2, size) {
   var SIZE = size || 8192;
   var MAX = SIZE >>> 1;
   var slab = null;
   var offset = SIZE;
   return function pool_alloc(size2) {
     if (size2 < 1 || size2 > MAX)
-      return alloc3(size2);
+      return alloc2(size2);
     if (offset + size2 > SIZE) {
-      slab = alloc3(SIZE);
+      slab = alloc2(SIZE);
       offset = 0;
     }
     var buf = slice2.call(slab, offset, offset += size2);
@@ -7223,26 +6992,26 @@ function pool$1(alloc3, slice2, size) {
     return buf;
   };
 }
-var longbits$1 = LongBits$5;
-var util$b = minimal$3;
-function LongBits$5(lo, hi) {
+var longbits = LongBits$2;
+var util$5 = minimal$1;
+function LongBits$2(lo, hi) {
   this.lo = lo >>> 0;
   this.hi = hi >>> 0;
 }
-var zero$1 = LongBits$5.zero = new LongBits$5(0, 0);
-zero$1.toNumber = function() {
+var zero = LongBits$2.zero = new LongBits$2(0, 0);
+zero.toNumber = function() {
   return 0;
 };
-zero$1.zzEncode = zero$1.zzDecode = function() {
+zero.zzEncode = zero.zzDecode = function() {
   return this;
 };
-zero$1.length = function() {
+zero.length = function() {
   return 1;
 };
-var zeroHash$1 = LongBits$5.zeroHash = "\0\0\0\0\0\0\0\0";
-LongBits$5.fromNumber = function fromNumber2(value) {
+var zeroHash = LongBits$2.zeroHash = "\0\0\0\0\0\0\0\0";
+LongBits$2.fromNumber = function fromNumber(value) {
   if (value === 0)
-    return zero$1;
+    return zero;
   var sign = value < 0;
   if (sign)
     value = -value;
@@ -7256,20 +7025,20 @@ LongBits$5.fromNumber = function fromNumber2(value) {
         hi = 0;
     }
   }
-  return new LongBits$5(lo, hi);
+  return new LongBits$2(lo, hi);
 };
-LongBits$5.from = function from2(value) {
+LongBits$2.from = function from2(value) {
   if (typeof value === "number")
-    return LongBits$5.fromNumber(value);
-  if (util$b.isString(value)) {
-    if (util$b.Long)
-      value = util$b.Long.fromString(value);
+    return LongBits$2.fromNumber(value);
+  if (util$5.isString(value)) {
+    if (util$5.Long)
+      value = util$5.Long.fromString(value);
     else
-      return LongBits$5.fromNumber(parseInt(value, 10));
+      return LongBits$2.fromNumber(parseInt(value, 10));
   }
-  return value.low || value.high ? new LongBits$5(value.low >>> 0, value.high >>> 0) : zero$1;
+  return value.low || value.high ? new LongBits$2(value.low >>> 0, value.high >>> 0) : zero;
 };
-LongBits$5.prototype.toNumber = function toNumber3(unsigned) {
+LongBits$2.prototype.toNumber = function toNumber2(unsigned) {
   if (!unsigned && this.hi >>> 31) {
     var lo = ~this.lo + 1 >>> 0, hi = ~this.hi >>> 0;
     if (!lo)
@@ -7278,44 +7047,44 @@ LongBits$5.prototype.toNumber = function toNumber3(unsigned) {
   }
   return this.lo + this.hi * 4294967296;
 };
-LongBits$5.prototype.toLong = function toLong(unsigned) {
-  return util$b.Long ? new util$b.Long(this.lo | 0, this.hi | 0, Boolean(unsigned)) : { low: this.lo | 0, high: this.hi | 0, unsigned: Boolean(unsigned) };
+LongBits$2.prototype.toLong = function toLong(unsigned) {
+  return util$5.Long ? new util$5.Long(this.lo | 0, this.hi | 0, Boolean(unsigned)) : { low: this.lo | 0, high: this.hi | 0, unsigned: Boolean(unsigned) };
 };
-var charCodeAt$1 = String.prototype.charCodeAt;
-LongBits$5.fromHash = function fromHash(hash) {
-  if (hash === zeroHash$1)
-    return zero$1;
-  return new LongBits$5((charCodeAt$1.call(hash, 0) | charCodeAt$1.call(hash, 1) << 8 | charCodeAt$1.call(hash, 2) << 16 | charCodeAt$1.call(hash, 3) << 24) >>> 0, (charCodeAt$1.call(hash, 4) | charCodeAt$1.call(hash, 5) << 8 | charCodeAt$1.call(hash, 6) << 16 | charCodeAt$1.call(hash, 7) << 24) >>> 0);
+var charCodeAt = String.prototype.charCodeAt;
+LongBits$2.fromHash = function fromHash(hash) {
+  if (hash === zeroHash)
+    return zero;
+  return new LongBits$2((charCodeAt.call(hash, 0) | charCodeAt.call(hash, 1) << 8 | charCodeAt.call(hash, 2) << 16 | charCodeAt.call(hash, 3) << 24) >>> 0, (charCodeAt.call(hash, 4) | charCodeAt.call(hash, 5) << 8 | charCodeAt.call(hash, 6) << 16 | charCodeAt.call(hash, 7) << 24) >>> 0);
 };
-LongBits$5.prototype.toHash = function toHash() {
+LongBits$2.prototype.toHash = function toHash() {
   return String.fromCharCode(this.lo & 255, this.lo >>> 8 & 255, this.lo >>> 16 & 255, this.lo >>> 24, this.hi & 255, this.hi >>> 8 & 255, this.hi >>> 16 & 255, this.hi >>> 24);
 };
-LongBits$5.prototype.zzEncode = function zzEncode() {
+LongBits$2.prototype.zzEncode = function zzEncode() {
   var mask = this.hi >> 31;
   this.hi = ((this.hi << 1 | this.lo >>> 31) ^ mask) >>> 0;
   this.lo = (this.lo << 1 ^ mask) >>> 0;
   return this;
 };
-LongBits$5.prototype.zzDecode = function zzDecode() {
+LongBits$2.prototype.zzDecode = function zzDecode() {
   var mask = -(this.lo & 1);
   this.lo = ((this.lo >>> 1 | this.hi << 31) ^ mask) >>> 0;
   this.hi = (this.hi >>> 1 ^ mask) >>> 0;
   return this;
 };
-LongBits$5.prototype.length = function length() {
+LongBits$2.prototype.length = function length() {
   var part0 = this.lo, part1 = (this.lo >>> 28 | this.hi << 4) >>> 0, part2 = this.hi >>> 24;
   return part2 === 0 ? part1 === 0 ? part0 < 16384 ? part0 < 128 ? 1 : 2 : part0 < 2097152 ? 3 : 4 : part1 < 16384 ? part1 < 128 ? 5 : 6 : part1 < 2097152 ? 7 : 8 : part2 < 128 ? 9 : 10;
 };
 (function(exports2) {
   var util2 = exports2;
-  util2.asPromise = aspromise$1;
-  util2.base64 = base64$3;
-  util2.EventEmitter = eventemitter$1;
-  util2.float = float$1;
-  util2.inquire = inquire_1$1;
-  util2.utf8 = utf8$5;
-  util2.pool = pool_1$1;
-  util2.LongBits = longbits$1;
+  util2.asPromise = aspromise;
+  util2.base64 = base64$1;
+  util2.EventEmitter = eventemitter;
+  util2.float = float;
+  util2.inquire = inquire_1;
+  util2.utf8 = utf8$2;
+  util2.pool = pool_1;
+  util2.LongBits = longbits;
   util2.isNode = Boolean(typeof commonjsGlobal !== "undefined" && commonjsGlobal && commonjsGlobal.process && commonjsGlobal.process.versions && commonjsGlobal.process.versions.node);
   util2.global = util2.isNode && commonjsGlobal || typeof window !== "undefined" && window || typeof self !== "undefined" && self || commonjsGlobal;
   util2.emptyArray = Object.freeze ? Object.freeze([]) : [];
@@ -7390,7 +7159,7 @@ LongBits$5.prototype.length = function length() {
     Object.defineProperty(CustomError.prototype, "name", { get: function() {
       return name2;
     } });
-    CustomError.prototype.toString = function toString4() {
+    CustomError.prototype.toString = function toString3() {
       return this.name + ": " + this.message;
     };
     return CustomError;
@@ -7433,79 +7202,79 @@ LongBits$5.prototype.length = function length() {
       return new Buffer2(size);
     };
   };
-})(minimal$3);
-var writer$1 = Writer$3;
-var util$a = minimal$3;
-var BufferWriter$3;
-var LongBits$4 = util$a.LongBits, base64$2 = util$a.base64, utf8$4 = util$a.utf8;
-function Op$1(fn, len, val) {
+})(minimal$1);
+var writer = Writer$1;
+var util$4 = minimal$1;
+var BufferWriter$1;
+var LongBits$1 = util$4.LongBits, base64 = util$4.base64, utf8$1 = util$4.utf8;
+function Op(fn, len, val) {
   this.fn = fn;
   this.len = len;
   this.next = void 0;
   this.val = val;
 }
-function noop$3() {
+function noop$1() {
 }
-function State$1(writer2) {
+function State(writer2) {
   this.head = writer2.head;
   this.tail = writer2.tail;
   this.len = writer2.len;
   this.next = writer2.states;
 }
-function Writer$3() {
+function Writer$1() {
   this.len = 0;
-  this.head = new Op$1(noop$3, 0, 0);
+  this.head = new Op(noop$1, 0, 0);
   this.tail = this.head;
   this.states = null;
 }
-var create$6 = function create2() {
-  return util$a.Buffer ? function create_buffer_setup() {
-    return (Writer$3.create = function create_buffer() {
-      return new BufferWriter$3();
+var create$4 = function create2() {
+  return util$4.Buffer ? function create_buffer_setup() {
+    return (Writer$1.create = function create_buffer() {
+      return new BufferWriter$1();
     })();
-  } : function create_array4() {
-    return new Writer$3();
+  } : function create_array3() {
+    return new Writer$1();
   };
 };
-Writer$3.create = create$6();
-Writer$3.alloc = function alloc(size) {
-  return new util$a.Array(size);
+Writer$1.create = create$4();
+Writer$1.alloc = function alloc(size) {
+  return new util$4.Array(size);
 };
-if (util$a.Array !== Array)
-  Writer$3.alloc = util$a.pool(Writer$3.alloc, util$a.Array.prototype.subarray);
-Writer$3.prototype._push = function push(fn, len, val) {
-  this.tail = this.tail.next = new Op$1(fn, len, val);
+if (util$4.Array !== Array)
+  Writer$1.alloc = util$4.pool(Writer$1.alloc, util$4.Array.prototype.subarray);
+Writer$1.prototype._push = function push(fn, len, val) {
+  this.tail = this.tail.next = new Op(fn, len, val);
   this.len += len;
   return this;
 };
-function writeByte$1(val, buf, pos) {
+function writeByte(val, buf, pos) {
   buf[pos] = val & 255;
 }
-function writeVarint32$1(val, buf, pos) {
+function writeVarint32(val, buf, pos) {
   while (val > 127) {
     buf[pos++] = val & 127 | 128;
     val >>>= 7;
   }
   buf[pos] = val;
 }
-function VarintOp$1(len, val) {
+function VarintOp(len, val) {
   this.len = len;
   this.next = void 0;
   this.val = val;
 }
-VarintOp$1.prototype = Object.create(Op$1.prototype);
-VarintOp$1.prototype.fn = writeVarint32$1;
-Writer$3.prototype.uint32 = function write_uint32(value) {
-  this.len += (this.tail = this.tail.next = new VarintOp$1((value = value >>> 0) < 128 ? 1 : value < 16384 ? 2 : value < 2097152 ? 3 : value < 268435456 ? 4 : 5, value)).len;
+VarintOp.prototype = Object.create(Op.prototype);
+VarintOp.prototype.fn = writeVarint32;
+Writer$1.prototype.uint32 = function write_uint32(value) {
+  this.len += (this.tail = this.tail.next = new VarintOp((value = value >>> 0) < 128 ? 1 : value < 16384 ? 2 : value < 2097152 ? 3 : value < 268435456 ? 4 : 5, value)).len;
   return this;
 };
-Writer$3.prototype.int32 = function write_int32(value) {
-  return value < 0 ? this._push(writeVarint64$1, 10, LongBits$4.fromNumber(value)) : this.uint32(value);
+Writer$1.prototype.int32 = function write_int32(value) {
+  return value < 0 ? this._push(writeVarint64, 10, LongBits$1.fromNumber(value)) : this.uint32(value);
 };
-Writer$3.prototype.sint32 = function write_sint32(value) {
+Writer$1.prototype.sint32 = function write_sint32(value) {
   return this.uint32((value << 1 ^ value >> 31) >>> 0);
 };
-function writeVarint64$1(val, buf, pos) {
+function writeVarint64(val, buf, pos) {
   while (val.hi) {
     buf[pos++] = val.lo & 127 | 128;
     val.lo = (val.lo >>> 7 | val.hi << 25) >>> 0;
@@ -7517,79 +7286,79 @@ function writeVarint64$1(val, buf, pos) {
   }
   buf[pos++] = val.lo;
 }
-Writer$3.prototype.uint64 = function write_uint64(value) {
-  var bits = LongBits$4.from(value);
-  return this._push(writeVarint64$1, bits.length(), bits);
+Writer$1.prototype.uint64 = function write_uint64(value) {
+  var bits = LongBits$1.from(value);
+  return this._push(writeVarint64, bits.length(), bits);
 };
-Writer$3.prototype.int64 = Writer$3.prototype.uint64;
-Writer$3.prototype.sint64 = function write_sint64(value) {
-  var bits = LongBits$4.from(value).zzEncode();
-  return this._push(writeVarint64$1, bits.length(), bits);
+Writer$1.prototype.int64 = Writer$1.prototype.uint64;
+Writer$1.prototype.sint64 = function write_sint64(value) {
+  var bits = LongBits$1.from(value).zzEncode();
+  return this._push(writeVarint64, bits.length(), bits);
 };
-Writer$3.prototype.bool = function write_bool(value) {
-  return this._push(writeByte$1, 1, value ? 1 : 0);
+Writer$1.prototype.bool = function write_bool(value) {
+  return this._push(writeByte, 1, value ? 1 : 0);
 };
-function writeFixed32$1(val, buf, pos) {
+function writeFixed32(val, buf, pos) {
   buf[pos] = val & 255;
   buf[pos + 1] = val >>> 8 & 255;
   buf[pos + 2] = val >>> 16 & 255;
   buf[pos + 3] = val >>> 24;
 }
-Writer$3.prototype.fixed32 = function write_fixed32(value) {
-  return this._push(writeFixed32$1, 4, value >>> 0);
+Writer$1.prototype.fixed32 = function write_fixed32(value) {
+  return this._push(writeFixed32, 4, value >>> 0);
 };
-Writer$3.prototype.sfixed32 = Writer$3.prototype.fixed32;
-Writer$3.prototype.fixed64 = function write_fixed64(value) {
-  var bits = LongBits$4.from(value);
-  return this._push(writeFixed32$1, 4, bits.lo)._push(writeFixed32$1, 4, bits.hi);
+Writer$1.prototype.sfixed32 = Writer$1.prototype.fixed32;
+Writer$1.prototype.fixed64 = function write_fixed64(value) {
+  var bits = LongBits$1.from(value);
+  return this._push(writeFixed32, 4, bits.lo)._push(writeFixed32, 4, bits.hi);
 };
-Writer$3.prototype.sfixed64 = Writer$3.prototype.fixed64;
-Writer$3.prototype.float = function write_float(value) {
-  return this._push(util$a.float.writeFloatLE, 4, value);
+Writer$1.prototype.sfixed64 = Writer$1.prototype.fixed64;
+Writer$1.prototype.float = function write_float(value) {
+  return this._push(util$4.float.writeFloatLE, 4, value);
 };
-Writer$3.prototype.double = function write_double(value) {
-  return this._push(util$a.float.writeDoubleLE, 8, value);
+Writer$1.prototype.double = function write_double(value) {
+  return this._push(util$4.float.writeDoubleLE, 8, value);
 };
-var writeBytes$1 = util$a.Array.prototype.set ? function writeBytes_set(val, buf, pos) {
+var writeBytes = util$4.Array.prototype.set ? function writeBytes_set(val, buf, pos) {
   buf.set(val, pos);
 } : function writeBytes_for(val, buf, pos) {
   for (var i2 = 0; i2 < val.length; ++i2)
     buf[pos + i2] = val[i2];
 };
-Writer$3.prototype.bytes = function write_bytes(value) {
+Writer$1.prototype.bytes = function write_bytes(value) {
   var len = value.length >>> 0;
   if (!len)
-    return this._push(writeByte$1, 1, 0);
-  if (util$a.isString(value)) {
-    var buf = Writer$3.alloc(len = base64$2.length(value));
-    base64$2.decode(value, buf, 0);
+    return this._push(writeByte, 1, 0);
+  if (util$4.isString(value)) {
+    var buf = Writer$1.alloc(len = base64.length(value));
+    base64.decode(value, buf, 0);
     value = buf;
   }
-  return this.uint32(len)._push(writeBytes$1, len, value);
+  return this.uint32(len)._push(writeBytes, len, value);
 };
-Writer$3.prototype.string = function write_string(value) {
-  var len = utf8$4.length(value);
-  return len ? this.uint32(len)._push(utf8$4.write, len, value) : this._push(writeByte$1, 1, 0);
+Writer$1.prototype.string = function write_string(value) {
+  var len = utf8$1.length(value);
+  return len ? this.uint32(len)._push(utf8$1.write, len, value) : this._push(writeByte, 1, 0);
 };
-Writer$3.prototype.fork = function fork() {
-  this.states = new State$1(this);
-  this.head = this.tail = new Op$1(noop$3, 0, 0);
+Writer$1.prototype.fork = function fork() {
+  this.states = new State(this);
+  this.head = this.tail = new Op(noop$1, 0, 0);
   this.len = 0;
   return this;
 };
-Writer$3.prototype.reset = function reset() {
+Writer$1.prototype.reset = function reset() {
   if (this.states) {
     this.head = this.states.head;
     this.tail = this.states.tail;
     this.len = this.states.len;
     this.states = this.states.next;
   } else {
-    this.head = this.tail = new Op$1(noop$3, 0, 0);
+    this.head = this.tail = new Op(noop$1, 0, 0);
     this.len = 0;
   }
   return this;
 };
-Writer$3.prototype.ldelim = function ldelim() {
+Writer$1.prototype.ldelim = function ldelim() {
   var head = this.head, tail = this.tail, len = this.len;
   this.reset().uint32(len);
   if (len) {
@@ -7599,7 +7368,7 @@ Writer$3.prototype.ldelim = function ldelim() {
   }
   return this;
 };
-Writer$3.prototype.finish = function finish() {
+Writer$1.prototype.finish = function finish() {
   var head = this.head.next, buf = this.constructor.alloc(this.len), pos = 0;
   while (head) {
     head.fn(head.val, buf, pos);
@@ -7608,21 +7377,21 @@ Writer$3.prototype.finish = function finish() {
   }
   return buf;
 };
-Writer$3._configure = function(BufferWriter_) {
-  BufferWriter$3 = BufferWriter_;
-  Writer$3.create = create$6();
-  BufferWriter$3._configure();
+Writer$1._configure = function(BufferWriter_) {
+  BufferWriter$1 = BufferWriter_;
+  Writer$1.create = create$4();
+  BufferWriter$1._configure();
 };
-var writer_buffer$1 = BufferWriter$2;
-var Writer$2 = writer$1;
-(BufferWriter$2.prototype = Object.create(Writer$2.prototype)).constructor = BufferWriter$2;
-var util$9 = minimal$3;
-function BufferWriter$2() {
-  Writer$2.call(this);
+var writer_buffer = BufferWriter;
+var Writer = writer;
+(BufferWriter.prototype = Object.create(Writer.prototype)).constructor = BufferWriter;
+var util$3 = minimal$1;
+function BufferWriter() {
+  Writer.call(this);
 }
-BufferWriter$2._configure = function() {
-  BufferWriter$2.alloc = util$9._Buffer_allocUnsafe;
-  BufferWriter$2.writeBytesBuffer = util$9.Buffer && util$9.Buffer.prototype instanceof Uint8Array && util$9.Buffer.prototype.set.name === "set" ? function writeBytesBuffer_set(val, buf, pos) {
+BufferWriter._configure = function() {
+  BufferWriter.alloc = util$3._Buffer_allocUnsafe;
+  BufferWriter.writeBytesBuffer = util$3.Buffer && util$3.Buffer.prototype instanceof Uint8Array && util$3.Buffer.prototype.set.name === "set" ? function writeBytesBuffer_set(val, buf, pos) {
     buf.set(val, pos);
   } : function writeBytesBuffer_copy(val, buf, pos) {
     if (val.copy)
@@ -7632,62 +7401,62 @@ BufferWriter$2._configure = function() {
         buf[pos++] = val[i2++];
   };
 };
-BufferWriter$2.prototype.bytes = function write_bytes_buffer(value) {
-  if (util$9.isString(value))
-    value = util$9._Buffer_from(value, "base64");
+BufferWriter.prototype.bytes = function write_bytes_buffer(value) {
+  if (util$3.isString(value))
+    value = util$3._Buffer_from(value, "base64");
   var len = value.length >>> 0;
   this.uint32(len);
   if (len)
-    this._push(BufferWriter$2.writeBytesBuffer, len, value);
+    this._push(BufferWriter.writeBytesBuffer, len, value);
   return this;
 };
-function writeStringBuffer$1(val, buf, pos) {
+function writeStringBuffer(val, buf, pos) {
   if (val.length < 40)
-    util$9.utf8.write(val, buf, pos);
+    util$3.utf8.write(val, buf, pos);
   else if (buf.utf8Write)
     buf.utf8Write(val, pos);
   else
     buf.write(val, pos);
 }
-BufferWriter$2.prototype.string = function write_string_buffer(value) {
-  var len = util$9.Buffer.byteLength(value);
+BufferWriter.prototype.string = function write_string_buffer(value) {
+  var len = util$3.Buffer.byteLength(value);
   this.uint32(len);
   if (len)
-    this._push(writeStringBuffer$1, len, value);
+    this._push(writeStringBuffer, len, value);
   return this;
 };
-BufferWriter$2._configure();
-var reader$1 = Reader$3;
-var util$8 = minimal$3;
-var BufferReader$3;
-var LongBits$3 = util$8.LongBits, utf8$3 = util$8.utf8;
-function indexOutOfRange$1(reader2, writeLength) {
+BufferWriter._configure();
+var reader = Reader$1;
+var util$2 = minimal$1;
+var BufferReader$1;
+var LongBits = util$2.LongBits, utf8 = util$2.utf8;
+function indexOutOfRange(reader2, writeLength) {
   return RangeError("index out of range: " + reader2.pos + " + " + (writeLength || 1) + " > " + reader2.len);
 }
-function Reader$3(buffer2) {
+function Reader$1(buffer2) {
   this.buf = buffer2;
   this.pos = 0;
   this.len = buffer2.length;
 }
-var create_array$1 = typeof Uint8Array !== "undefined" ? function create_typed_array(buffer2) {
+var create_array = typeof Uint8Array !== "undefined" ? function create_typed_array(buffer2) {
   if (buffer2 instanceof Uint8Array || Array.isArray(buffer2))
-    return new Reader$3(buffer2);
+    return new Reader$1(buffer2);
   throw Error("illegal buffer");
 } : function create_array2(buffer2) {
   if (Array.isArray(buffer2))
-    return new Reader$3(buffer2);
+    return new Reader$1(buffer2);
   throw Error("illegal buffer");
 };
-var create$5 = function create3() {
-  return util$8.Buffer ? function create_buffer_setup(buffer2) {
-    return (Reader$3.create = function create_buffer(buffer3) {
-      return util$8.Buffer.isBuffer(buffer3) ? new BufferReader$3(buffer3) : create_array$1(buffer3);
+var create$3 = function create3() {
+  return util$2.Buffer ? function create_buffer_setup(buffer2) {
+    return (Reader$1.create = function create_buffer(buffer3) {
+      return util$2.Buffer.isBuffer(buffer3) ? new BufferReader$1(buffer3) : create_array(buffer3);
     })(buffer2);
-  } : create_array$1;
+  } : create_array;
 };
-Reader$3.create = create$5();
-Reader$3.prototype._slice = util$8.Array.prototype.subarray || util$8.Array.prototype.slice;
-Reader$3.prototype.uint32 = function read_uint32_setup() {
+Reader$1.create = create$3();
+Reader$1.prototype._slice = util$2.Array.prototype.subarray || util$2.Array.prototype.slice;
+Reader$1.prototype.uint32 = function read_uint32_setup() {
   var value = 4294967295;
   return function read_uint32() {
     value = (this.buf[this.pos] & 127) >>> 0;
@@ -7707,20 +7476,20 @@ Reader$3.prototype.uint32 = function read_uint32_setup() {
       return value;
     if ((this.pos += 5) > this.len) {
       this.pos = this.len;
-      throw indexOutOfRange$1(this, 10);
+      throw indexOutOfRange(this, 10);
     }
     return value;
   };
 }();
-Reader$3.prototype.int32 = function read_int32() {
+Reader$1.prototype.int32 = function read_int32() {
   return this.uint32() | 0;
 };
-Reader$3.prototype.sint32 = function read_sint32() {
+Reader$1.prototype.sint32 = function read_sint32() {
   var value = this.uint32();
   return value >>> 1 ^ -(value & 1) | 0;
 };
-function readLongVarint$1() {
-  var bits = new LongBits$3(0, 0);
+function readLongVarint() {
+  var bits = new LongBits(0, 0);
   var i2 = 0;
   if (this.len - this.pos > 4) {
     for (; i2 < 4; ++i2) {
@@ -7736,7 +7505,7 @@ function readLongVarint$1() {
   } else {
     for (; i2 < 3; ++i2) {
       if (this.pos >= this.len)
-        throw indexOutOfRange$1(this);
+        throw indexOutOfRange(this);
       bits.lo = (bits.lo | (this.buf[this.pos] & 127) << i2 * 7) >>> 0;
       if (this.buf[this.pos++] < 128)
         return bits;
@@ -7753,7 +7522,7 @@ function readLongVarint$1() {
   } else {
     for (; i2 < 5; ++i2) {
       if (this.pos >= this.len)
-        throw indexOutOfRange$1(this);
+        throw indexOutOfRange(this);
       bits.hi = (bits.hi | (this.buf[this.pos] & 127) << i2 * 7 + 3) >>> 0;
       if (this.buf[this.pos++] < 128)
         return bits;
@@ -7761,68 +7530,68 @@ function readLongVarint$1() {
   }
   throw Error("invalid varint encoding");
 }
-Reader$3.prototype.bool = function read_bool() {
+Reader$1.prototype.bool = function read_bool() {
   return this.uint32() !== 0;
 };
-function readFixed32_end$1(buf, end3) {
-  return (buf[end3 - 4] | buf[end3 - 3] << 8 | buf[end3 - 2] << 16 | buf[end3 - 1] << 24) >>> 0;
+function readFixed32_end(buf, end2) {
+  return (buf[end2 - 4] | buf[end2 - 3] << 8 | buf[end2 - 2] << 16 | buf[end2 - 1] << 24) >>> 0;
 }
-Reader$3.prototype.fixed32 = function read_fixed32() {
+Reader$1.prototype.fixed32 = function read_fixed32() {
   if (this.pos + 4 > this.len)
-    throw indexOutOfRange$1(this, 4);
-  return readFixed32_end$1(this.buf, this.pos += 4);
+    throw indexOutOfRange(this, 4);
+  return readFixed32_end(this.buf, this.pos += 4);
 };
-Reader$3.prototype.sfixed32 = function read_sfixed32() {
+Reader$1.prototype.sfixed32 = function read_sfixed32() {
   if (this.pos + 4 > this.len)
-    throw indexOutOfRange$1(this, 4);
-  return readFixed32_end$1(this.buf, this.pos += 4) | 0;
+    throw indexOutOfRange(this, 4);
+  return readFixed32_end(this.buf, this.pos += 4) | 0;
 };
-function readFixed64$1() {
+function readFixed64() {
   if (this.pos + 8 > this.len)
-    throw indexOutOfRange$1(this, 8);
-  return new LongBits$3(readFixed32_end$1(this.buf, this.pos += 4), readFixed32_end$1(this.buf, this.pos += 4));
+    throw indexOutOfRange(this, 8);
+  return new LongBits(readFixed32_end(this.buf, this.pos += 4), readFixed32_end(this.buf, this.pos += 4));
 }
-Reader$3.prototype.float = function read_float() {
+Reader$1.prototype.float = function read_float() {
   if (this.pos + 4 > this.len)
-    throw indexOutOfRange$1(this, 4);
-  var value = util$8.float.readFloatLE(this.buf, this.pos);
+    throw indexOutOfRange(this, 4);
+  var value = util$2.float.readFloatLE(this.buf, this.pos);
   this.pos += 4;
   return value;
 };
-Reader$3.prototype.double = function read_double() {
+Reader$1.prototype.double = function read_double() {
   if (this.pos + 8 > this.len)
-    throw indexOutOfRange$1(this, 4);
-  var value = util$8.float.readDoubleLE(this.buf, this.pos);
+    throw indexOutOfRange(this, 4);
+  var value = util$2.float.readDoubleLE(this.buf, this.pos);
   this.pos += 8;
   return value;
 };
-Reader$3.prototype.bytes = function read_bytes() {
-  var length3 = this.uint32(), start2 = this.pos, end3 = this.pos + length3;
-  if (end3 > this.len)
-    throw indexOutOfRange$1(this, length3);
-  this.pos += length3;
+Reader$1.prototype.bytes = function read_bytes() {
+  var length2 = this.uint32(), start2 = this.pos, end2 = this.pos + length2;
+  if (end2 > this.len)
+    throw indexOutOfRange(this, length2);
+  this.pos += length2;
   if (Array.isArray(this.buf))
-    return this.buf.slice(start2, end3);
-  return start2 === end3 ? new this.buf.constructor(0) : this._slice.call(this.buf, start2, end3);
+    return this.buf.slice(start2, end2);
+  return start2 === end2 ? new this.buf.constructor(0) : this._slice.call(this.buf, start2, end2);
 };
-Reader$3.prototype.string = function read_string() {
+Reader$1.prototype.string = function read_string() {
   var bytes = this.bytes();
-  return utf8$3.read(bytes, 0, bytes.length);
+  return utf8.read(bytes, 0, bytes.length);
 };
-Reader$3.prototype.skip = function skip2(length3) {
-  if (typeof length3 === "number") {
-    if (this.pos + length3 > this.len)
-      throw indexOutOfRange$1(this, length3);
-    this.pos += length3;
+Reader$1.prototype.skip = function skip2(length2) {
+  if (typeof length2 === "number") {
+    if (this.pos + length2 > this.len)
+      throw indexOutOfRange(this, length2);
+    this.pos += length2;
   } else {
     do {
       if (this.pos >= this.len)
-        throw indexOutOfRange$1(this);
+        throw indexOutOfRange(this);
     } while (this.buf[this.pos++] & 128);
   }
   return this;
 };
-Reader$3.prototype.skipType = function(wireType) {
+Reader$1.prototype.skipType = function(wireType) {
   switch (wireType) {
     case 0:
       this.skip();
@@ -7846,63 +7615,63 @@ Reader$3.prototype.skipType = function(wireType) {
   }
   return this;
 };
-Reader$3._configure = function(BufferReader_) {
-  BufferReader$3 = BufferReader_;
-  Reader$3.create = create$5();
-  BufferReader$3._configure();
-  var fn = util$8.Long ? "toLong" : "toNumber";
-  util$8.merge(Reader$3.prototype, {
+Reader$1._configure = function(BufferReader_) {
+  BufferReader$1 = BufferReader_;
+  Reader$1.create = create$3();
+  BufferReader$1._configure();
+  var fn = util$2.Long ? "toLong" : "toNumber";
+  util$2.merge(Reader$1.prototype, {
     int64: function read_int64() {
-      return readLongVarint$1.call(this)[fn](false);
+      return readLongVarint.call(this)[fn](false);
     },
     uint64: function read_uint64() {
-      return readLongVarint$1.call(this)[fn](true);
+      return readLongVarint.call(this)[fn](true);
     },
     sint64: function read_sint64() {
-      return readLongVarint$1.call(this).zzDecode()[fn](false);
+      return readLongVarint.call(this).zzDecode()[fn](false);
     },
     fixed64: function read_fixed64() {
-      return readFixed64$1.call(this)[fn](true);
+      return readFixed64.call(this)[fn](true);
     },
     sfixed64: function read_sfixed64() {
-      return readFixed64$1.call(this)[fn](false);
+      return readFixed64.call(this)[fn](false);
     }
   });
 };
-var reader_buffer$1 = BufferReader$2;
-var Reader$2 = reader$1;
-(BufferReader$2.prototype = Object.create(Reader$2.prototype)).constructor = BufferReader$2;
-var util$7 = minimal$3;
-function BufferReader$2(buffer2) {
-  Reader$2.call(this, buffer2);
+var reader_buffer = BufferReader;
+var Reader = reader;
+(BufferReader.prototype = Object.create(Reader.prototype)).constructor = BufferReader;
+var util$1 = minimal$1;
+function BufferReader(buffer2) {
+  Reader.call(this, buffer2);
 }
-BufferReader$2._configure = function() {
-  if (util$7.Buffer)
-    BufferReader$2.prototype._slice = util$7.Buffer.prototype.slice;
+BufferReader._configure = function() {
+  if (util$1.Buffer)
+    BufferReader.prototype._slice = util$1.Buffer.prototype.slice;
 };
-BufferReader$2.prototype.string = function read_string_buffer() {
+BufferReader.prototype.string = function read_string_buffer() {
   var len = this.uint32();
   return this.buf.utf8Slice ? this.buf.utf8Slice(this.pos, this.pos = Math.min(this.pos + len, this.len)) : this.buf.toString("utf-8", this.pos, this.pos = Math.min(this.pos + len, this.len));
 };
-BufferReader$2._configure();
-var rpc$1 = {};
-var service$1 = Service$1;
-var util$6 = minimal$3;
-(Service$1.prototype = Object.create(util$6.EventEmitter.prototype)).constructor = Service$1;
-function Service$1(rpcImpl, requestDelimited, responseDelimited) {
+BufferReader._configure();
+var rpc = {};
+var service = Service;
+var util = minimal$1;
+(Service.prototype = Object.create(util.EventEmitter.prototype)).constructor = Service;
+function Service(rpcImpl, requestDelimited, responseDelimited) {
   if (typeof rpcImpl !== "function")
     throw TypeError("rpcImpl must be a function");
-  util$6.EventEmitter.call(this);
+  util.EventEmitter.call(this);
   this.rpcImpl = rpcImpl;
   this.requestDelimited = Boolean(requestDelimited);
   this.responseDelimited = Boolean(responseDelimited);
 }
-Service$1.prototype.rpcCall = function rpcCall(method, requestCtor, responseCtor, request3, callback) {
+Service.prototype.rpcCall = function rpcCall(method, requestCtor, responseCtor, request3, callback) {
   if (!request3)
     throw TypeError("request must be specified");
   var self2 = this;
   if (!callback)
-    return util$6.asPromise(rpcCall, self2, method, requestCtor, responseCtor, request3);
+    return util.asPromise(rpcCall, self2, method, requestCtor, responseCtor, request3);
   if (!self2.rpcImpl) {
     setTimeout(function() {
       callback(Error("already ended"));
@@ -7938,7 +7707,7 @@ Service$1.prototype.rpcCall = function rpcCall(method, requestCtor, responseCtor
     return void 0;
   }
 };
-Service$1.prototype.end = function end(endedByRPC) {
+Service.prototype.end = function end(endedByRPC) {
   if (this.rpcImpl) {
     if (!endedByRPC)
       this.rpcImpl(null, null, null);
@@ -7949,19 +7718,19 @@ Service$1.prototype.end = function end(endedByRPC) {
 };
 (function(exports2) {
   var rpc2 = exports2;
-  rpc2.Service = service$1;
-})(rpc$1);
-var roots$1 = {};
+  rpc2.Service = service;
+})(rpc);
+var roots = {};
 (function(exports2) {
   var protobuf = exports2;
   protobuf.build = "minimal";
-  protobuf.Writer = writer$1;
-  protobuf.BufferWriter = writer_buffer$1;
-  protobuf.Reader = reader$1;
-  protobuf.BufferReader = reader_buffer$1;
-  protobuf.util = minimal$3;
-  protobuf.rpc = rpc$1;
-  protobuf.roots = roots$1;
+  protobuf.Writer = writer;
+  protobuf.BufferWriter = writer_buffer;
+  protobuf.Reader = reader;
+  protobuf.BufferReader = reader_buffer;
+  protobuf.util = minimal$1;
+  protobuf.rpc = rpc;
+  protobuf.roots = roots;
   protobuf.configure = configure;
   function configure() {
     protobuf.util._configure();
@@ -7969,4312 +7738,8 @@ var roots$1 = {};
     protobuf.Reader._configure(protobuf.BufferReader);
   }
   configure();
-})(indexMinimal$1);
-var minimal$2 = indexMinimal$1;
-function isFunction$2(value) {
-  return typeof value === "function";
-}
-function hasLift(source2) {
-  return isFunction$2(source2 === null || source2 === void 0 ? void 0 : source2.lift);
-}
-function operate(init2) {
-  return function(source2) {
-    if (hasLift(source2)) {
-      return source2.lift(function(liftedSource) {
-        try {
-          return init2(liftedSource, this);
-        } catch (err) {
-          this.error(err);
-        }
-      });
-    }
-    throw new TypeError("Unable to lift unknown Observable type");
-  };
-}
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-var extendStatics$1 = function(d, b) {
-  extendStatics$1 = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
-    d2.__proto__ = b2;
-  } || function(d2, b2) {
-    for (var p in b2)
-      if (Object.prototype.hasOwnProperty.call(b2, p))
-        d2[p] = b2[p];
-  };
-  return extendStatics$1(d, b);
-};
-function __extends$1(d, b) {
-  if (typeof b !== "function" && b !== null)
-    throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-  extendStatics$1(d, b);
-  function __() {
-    this.constructor = d;
-  }
-  d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-function __awaiter$d(thisArg, _arguments, P, generator) {
-  function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve) {
-      resolve(value);
-    });
-  }
-  return new (P || (P = Promise))(function(resolve, reject) {
-    function fulfilled(value) {
-      try {
-        step(generator.next(value));
-      } catch (e2) {
-        reject(e2);
-      }
-    }
-    function rejected(value) {
-      try {
-        step(generator["throw"](value));
-      } catch (e2) {
-        reject(e2);
-      }
-    }
-    function step(result) {
-      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
-    }
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
-  });
-}
-function __generator(thisArg, body) {
-  var _ = { label: 0, sent: function() {
-    if (t2[0] & 1)
-      throw t2[1];
-    return t2[1];
-  }, trys: [], ops: [] }, f2, y, t2, g;
-  return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() {
-    return this;
-  }), g;
-  function verb(n2) {
-    return function(v) {
-      return step([n2, v]);
-    };
-  }
-  function step(op) {
-    if (f2)
-      throw new TypeError("Generator is already executing.");
-    while (_)
-      try {
-        if (f2 = 1, y && (t2 = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t2 = y["return"]) && t2.call(y), 0) : y.next) && !(t2 = t2.call(y, op[1])).done)
-          return t2;
-        if (y = 0, t2)
-          op = [op[0] & 2, t2.value];
-        switch (op[0]) {
-          case 0:
-          case 1:
-            t2 = op;
-            break;
-          case 4:
-            _.label++;
-            return { value: op[1], done: false };
-          case 5:
-            _.label++;
-            y = op[1];
-            op = [0];
-            continue;
-          case 7:
-            op = _.ops.pop();
-            _.trys.pop();
-            continue;
-          default:
-            if (!(t2 = _.trys, t2 = t2.length > 0 && t2[t2.length - 1]) && (op[0] === 6 || op[0] === 2)) {
-              _ = 0;
-              continue;
-            }
-            if (op[0] === 3 && (!t2 || op[1] > t2[0] && op[1] < t2[3])) {
-              _.label = op[1];
-              break;
-            }
-            if (op[0] === 6 && _.label < t2[1]) {
-              _.label = t2[1];
-              t2 = op;
-              break;
-            }
-            if (t2 && _.label < t2[2]) {
-              _.label = t2[2];
-              _.ops.push(op);
-              break;
-            }
-            if (t2[2])
-              _.ops.pop();
-            _.trys.pop();
-            continue;
-        }
-        op = body.call(thisArg, _);
-      } catch (e2) {
-        op = [6, e2];
-        y = 0;
-      } finally {
-        f2 = t2 = 0;
-      }
-    if (op[0] & 5)
-      throw op[1];
-    return { value: op[0] ? op[1] : void 0, done: true };
-  }
-}
-function __values(o2) {
-  var s = typeof Symbol === "function" && Symbol.iterator, m = s && o2[s], i2 = 0;
-  if (m)
-    return m.call(o2);
-  if (o2 && typeof o2.length === "number")
-    return {
-      next: function() {
-        if (o2 && i2 >= o2.length)
-          o2 = void 0;
-        return { value: o2 && o2[i2++], done: !o2 };
-      }
-    };
-  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-}
-function __read(o2, n2) {
-  var m = typeof Symbol === "function" && o2[Symbol.iterator];
-  if (!m)
-    return o2;
-  var i2 = m.call(o2), r2, ar = [], e2;
-  try {
-    while ((n2 === void 0 || n2-- > 0) && !(r2 = i2.next()).done)
-      ar.push(r2.value);
-  } catch (error) {
-    e2 = { error };
-  } finally {
-    try {
-      if (r2 && !r2.done && (m = i2["return"]))
-        m.call(i2);
-    } finally {
-      if (e2)
-        throw e2.error;
-    }
-  }
-  return ar;
-}
-function __spreadArray(to, from4, pack) {
-  if (pack || arguments.length === 2)
-    for (var i2 = 0, l = from4.length, ar; i2 < l; i2++) {
-      if (ar || !(i2 in from4)) {
-        if (!ar)
-          ar = Array.prototype.slice.call(from4, 0, i2);
-        ar[i2] = from4[i2];
-      }
-    }
-  return to.concat(ar || Array.prototype.slice.call(from4));
-}
-function __await(v) {
-  return this instanceof __await ? (this.v = v, this) : new __await(v);
-}
-function __asyncGenerator(thisArg, _arguments, generator) {
-  if (!Symbol.asyncIterator)
-    throw new TypeError("Symbol.asyncIterator is not defined.");
-  var g = generator.apply(thisArg, _arguments || []), i2, q = [];
-  return i2 = {}, verb("next"), verb("throw"), verb("return"), i2[Symbol.asyncIterator] = function() {
-    return this;
-  }, i2;
-  function verb(n2) {
-    if (g[n2])
-      i2[n2] = function(v) {
-        return new Promise(function(a, b) {
-          q.push([n2, v, a, b]) > 1 || resume(n2, v);
-        });
-      };
-  }
-  function resume(n2, v) {
-    try {
-      step(g[n2](v));
-    } catch (e2) {
-      settle3(q[0][3], e2);
-    }
-  }
-  function step(r2) {
-    r2.value instanceof __await ? Promise.resolve(r2.value.v).then(fulfill, reject) : settle3(q[0][2], r2);
-  }
-  function fulfill(value) {
-    resume("next", value);
-  }
-  function reject(value) {
-    resume("throw", value);
-  }
-  function settle3(f2, v) {
-    if (f2(v), q.shift(), q.length)
-      resume(q[0][0], q[0][1]);
-  }
-}
-function __asyncValues(o2) {
-  if (!Symbol.asyncIterator)
-    throw new TypeError("Symbol.asyncIterator is not defined.");
-  var m = o2[Symbol.asyncIterator], i2;
-  return m ? m.call(o2) : (o2 = typeof __values === "function" ? __values(o2) : o2[Symbol.iterator](), i2 = {}, verb("next"), verb("throw"), verb("return"), i2[Symbol.asyncIterator] = function() {
-    return this;
-  }, i2);
-  function verb(n2) {
-    i2[n2] = o2[n2] && function(v) {
-      return new Promise(function(resolve, reject) {
-        v = o2[n2](v), settle3(resolve, reject, v.done, v.value);
-      });
-    };
-  }
-  function settle3(resolve, reject, d, v) {
-    Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d });
-    }, reject);
-  }
-}
-var isArrayLike$1 = function(x) {
-  return x && typeof x.length === "number" && typeof x !== "function";
-};
-function isPromise$1(value) {
-  return isFunction$2(value === null || value === void 0 ? void 0 : value.then);
-}
-function createErrorClass(createImpl) {
-  var _super = function(instance) {
-    Error.call(instance);
-    instance.stack = new Error().stack;
-  };
-  var ctorFunc = createImpl(_super);
-  ctorFunc.prototype = Object.create(Error.prototype);
-  ctorFunc.prototype.constructor = ctorFunc;
-  return ctorFunc;
-}
-var UnsubscriptionError$1 = createErrorClass(function(_super) {
-  return function UnsubscriptionErrorImpl2(errors2) {
-    _super(this);
-    this.message = errors2 ? errors2.length + " errors occurred during unsubscription:\n" + errors2.map(function(err, i2) {
-      return i2 + 1 + ") " + err.toString();
-    }).join("\n  ") : "";
-    this.name = "UnsubscriptionError";
-    this.errors = errors2;
-  };
-});
-function arrRemove(arr, item) {
-  if (arr) {
-    var index2 = arr.indexOf(item);
-    0 <= index2 && arr.splice(index2, 1);
-  }
-}
-var Subscription$1 = function() {
-  function Subscription2(initialTeardown) {
-    this.initialTeardown = initialTeardown;
-    this.closed = false;
-    this._parentage = null;
-    this._finalizers = null;
-  }
-  Subscription2.prototype.unsubscribe = function() {
-    var e_1, _a, e_2, _b;
-    var errors2;
-    if (!this.closed) {
-      this.closed = true;
-      var _parentage = this._parentage;
-      if (_parentage) {
-        this._parentage = null;
-        if (Array.isArray(_parentage)) {
-          try {
-            for (var _parentage_1 = __values(_parentage), _parentage_1_1 = _parentage_1.next(); !_parentage_1_1.done; _parentage_1_1 = _parentage_1.next()) {
-              var parent_1 = _parentage_1_1.value;
-              parent_1.remove(this);
-            }
-          } catch (e_1_1) {
-            e_1 = { error: e_1_1 };
-          } finally {
-            try {
-              if (_parentage_1_1 && !_parentage_1_1.done && (_a = _parentage_1.return))
-                _a.call(_parentage_1);
-            } finally {
-              if (e_1)
-                throw e_1.error;
-            }
-          }
-        } else {
-          _parentage.remove(this);
-        }
-      }
-      var initialFinalizer = this.initialTeardown;
-      if (isFunction$2(initialFinalizer)) {
-        try {
-          initialFinalizer();
-        } catch (e2) {
-          errors2 = e2 instanceof UnsubscriptionError$1 ? e2.errors : [e2];
-        }
-      }
-      var _finalizers = this._finalizers;
-      if (_finalizers) {
-        this._finalizers = null;
-        try {
-          for (var _finalizers_1 = __values(_finalizers), _finalizers_1_1 = _finalizers_1.next(); !_finalizers_1_1.done; _finalizers_1_1 = _finalizers_1.next()) {
-            var finalizer = _finalizers_1_1.value;
-            try {
-              execFinalizer(finalizer);
-            } catch (err) {
-              errors2 = errors2 !== null && errors2 !== void 0 ? errors2 : [];
-              if (err instanceof UnsubscriptionError$1) {
-                errors2 = __spreadArray(__spreadArray([], __read(errors2)), __read(err.errors));
-              } else {
-                errors2.push(err);
-              }
-            }
-          }
-        } catch (e_2_1) {
-          e_2 = { error: e_2_1 };
-        } finally {
-          try {
-            if (_finalizers_1_1 && !_finalizers_1_1.done && (_b = _finalizers_1.return))
-              _b.call(_finalizers_1);
-          } finally {
-            if (e_2)
-              throw e_2.error;
-          }
-        }
-      }
-      if (errors2) {
-        throw new UnsubscriptionError$1(errors2);
-      }
-    }
-  };
-  Subscription2.prototype.add = function(teardown) {
-    var _a;
-    if (teardown && teardown !== this) {
-      if (this.closed) {
-        execFinalizer(teardown);
-      } else {
-        if (teardown instanceof Subscription2) {
-          if (teardown.closed || teardown._hasParent(this)) {
-            return;
-          }
-          teardown._addParent(this);
-        }
-        (this._finalizers = (_a = this._finalizers) !== null && _a !== void 0 ? _a : []).push(teardown);
-      }
-    }
-  };
-  Subscription2.prototype._hasParent = function(parent2) {
-    var _parentage = this._parentage;
-    return _parentage === parent2 || Array.isArray(_parentage) && _parentage.includes(parent2);
-  };
-  Subscription2.prototype._addParent = function(parent2) {
-    var _parentage = this._parentage;
-    this._parentage = Array.isArray(_parentage) ? (_parentage.push(parent2), _parentage) : _parentage ? [_parentage, parent2] : parent2;
-  };
-  Subscription2.prototype._removeParent = function(parent2) {
-    var _parentage = this._parentage;
-    if (_parentage === parent2) {
-      this._parentage = null;
-    } else if (Array.isArray(_parentage)) {
-      arrRemove(_parentage, parent2);
-    }
-  };
-  Subscription2.prototype.remove = function(teardown) {
-    var _finalizers = this._finalizers;
-    _finalizers && arrRemove(_finalizers, teardown);
-    if (teardown instanceof Subscription2) {
-      teardown._removeParent(this);
-    }
-  };
-  Subscription2.EMPTY = function() {
-    var empty2 = new Subscription2();
-    empty2.closed = true;
-    return empty2;
-  }();
-  return Subscription2;
-}();
-var EMPTY_SUBSCRIPTION = Subscription$1.EMPTY;
-function isSubscription(value) {
-  return value instanceof Subscription$1 || value && "closed" in value && isFunction$2(value.remove) && isFunction$2(value.add) && isFunction$2(value.unsubscribe);
-}
-function execFinalizer(finalizer) {
-  if (isFunction$2(finalizer)) {
-    finalizer();
-  } else {
-    finalizer.unsubscribe();
-  }
-}
-var config$2 = {
-  onUnhandledError: null,
-  onStoppedNotification: null,
-  Promise: void 0,
-  useDeprecatedSynchronousErrorHandling: false,
-  useDeprecatedNextContext: false
-};
-var timeoutProvider = {
-  setTimeout: function(handler, timeout2) {
-    var args = [];
-    for (var _i = 2; _i < arguments.length; _i++) {
-      args[_i - 2] = arguments[_i];
-    }
-    var delegate = timeoutProvider.delegate;
-    if (delegate === null || delegate === void 0 ? void 0 : delegate.setTimeout) {
-      return delegate.setTimeout.apply(delegate, __spreadArray([handler, timeout2], __read(args)));
-    }
-    return setTimeout.apply(void 0, __spreadArray([handler, timeout2], __read(args)));
-  },
-  clearTimeout: function(handle) {
-    var delegate = timeoutProvider.delegate;
-    return ((delegate === null || delegate === void 0 ? void 0 : delegate.clearTimeout) || clearTimeout)(handle);
-  },
-  delegate: void 0
-};
-function reportUnhandledError(err) {
-  timeoutProvider.setTimeout(function() {
-    {
-      throw err;
-    }
-  });
-}
-function noop$2() {
-}
-var COMPLETE_NOTIFICATION = function() {
-  return createNotification("C", void 0, void 0);
-}();
-function errorNotification(error) {
-  return createNotification("E", void 0, error);
-}
-function nextNotification(value) {
-  return createNotification("N", value, void 0);
-}
-function createNotification(kind, value, error) {
-  return {
-    kind,
-    value,
-    error
-  };
-}
-var context = null;
-function errorContext(cb) {
-  if (config$2.useDeprecatedSynchronousErrorHandling) {
-    var isRoot = !context;
-    if (isRoot) {
-      context = { errorThrown: false, error: null };
-    }
-    cb();
-    if (isRoot) {
-      var _a = context, errorThrown = _a.errorThrown, error = _a.error;
-      context = null;
-      if (errorThrown) {
-        throw error;
-      }
-    }
-  } else {
-    cb();
-  }
-}
-var Subscriber$1 = function(_super) {
-  __extends$1(Subscriber2, _super);
-  function Subscriber2(destination) {
-    var _this = _super.call(this) || this;
-    _this.isStopped = false;
-    if (destination) {
-      _this.destination = destination;
-      if (isSubscription(destination)) {
-        destination.add(_this);
-      }
-    } else {
-      _this.destination = EMPTY_OBSERVER;
-    }
-    return _this;
-  }
-  Subscriber2.create = function(next, error, complete) {
-    return new SafeSubscriber$1(next, error, complete);
-  };
-  Subscriber2.prototype.next = function(value) {
-    if (this.isStopped) {
-      handleStoppedNotification(nextNotification(value), this);
-    } else {
-      this._next(value);
-    }
-  };
-  Subscriber2.prototype.error = function(err) {
-    if (this.isStopped) {
-      handleStoppedNotification(errorNotification(err), this);
-    } else {
-      this.isStopped = true;
-      this._error(err);
-    }
-  };
-  Subscriber2.prototype.complete = function() {
-    if (this.isStopped) {
-      handleStoppedNotification(COMPLETE_NOTIFICATION, this);
-    } else {
-      this.isStopped = true;
-      this._complete();
-    }
-  };
-  Subscriber2.prototype.unsubscribe = function() {
-    if (!this.closed) {
-      this.isStopped = true;
-      _super.prototype.unsubscribe.call(this);
-      this.destination = null;
-    }
-  };
-  Subscriber2.prototype._next = function(value) {
-    this.destination.next(value);
-  };
-  Subscriber2.prototype._error = function(err) {
-    try {
-      this.destination.error(err);
-    } finally {
-      this.unsubscribe();
-    }
-  };
-  Subscriber2.prototype._complete = function() {
-    try {
-      this.destination.complete();
-    } finally {
-      this.unsubscribe();
-    }
-  };
-  return Subscriber2;
-}(Subscription$1);
-var _bind = Function.prototype.bind;
-function bind$3(fn, thisArg) {
-  return _bind.call(fn, thisArg);
-}
-var ConsumerObserver = function() {
-  function ConsumerObserver2(partialObserver) {
-    this.partialObserver = partialObserver;
-  }
-  ConsumerObserver2.prototype.next = function(value) {
-    var partialObserver = this.partialObserver;
-    if (partialObserver.next) {
-      try {
-        partialObserver.next(value);
-      } catch (error) {
-        handleUnhandledError(error);
-      }
-    }
-  };
-  ConsumerObserver2.prototype.error = function(err) {
-    var partialObserver = this.partialObserver;
-    if (partialObserver.error) {
-      try {
-        partialObserver.error(err);
-      } catch (error) {
-        handleUnhandledError(error);
-      }
-    } else {
-      handleUnhandledError(err);
-    }
-  };
-  ConsumerObserver2.prototype.complete = function() {
-    var partialObserver = this.partialObserver;
-    if (partialObserver.complete) {
-      try {
-        partialObserver.complete();
-      } catch (error) {
-        handleUnhandledError(error);
-      }
-    }
-  };
-  return ConsumerObserver2;
-}();
-var SafeSubscriber$1 = function(_super) {
-  __extends$1(SafeSubscriber2, _super);
-  function SafeSubscriber2(observerOrNext, error, complete) {
-    var _this = _super.call(this) || this;
-    var partialObserver;
-    if (isFunction$2(observerOrNext) || !observerOrNext) {
-      partialObserver = {
-        next: observerOrNext !== null && observerOrNext !== void 0 ? observerOrNext : void 0,
-        error: error !== null && error !== void 0 ? error : void 0,
-        complete: complete !== null && complete !== void 0 ? complete : void 0
-      };
-    } else {
-      var context_1;
-      if (_this && config$2.useDeprecatedNextContext) {
-        context_1 = Object.create(observerOrNext);
-        context_1.unsubscribe = function() {
-          return _this.unsubscribe();
-        };
-        partialObserver = {
-          next: observerOrNext.next && bind$3(observerOrNext.next, context_1),
-          error: observerOrNext.error && bind$3(observerOrNext.error, context_1),
-          complete: observerOrNext.complete && bind$3(observerOrNext.complete, context_1)
-        };
-      } else {
-        partialObserver = observerOrNext;
-      }
-    }
-    _this.destination = new ConsumerObserver(partialObserver);
-    return _this;
-  }
-  return SafeSubscriber2;
-}(Subscriber$1);
-function handleUnhandledError(error) {
-  {
-    reportUnhandledError(error);
-  }
-}
-function defaultErrorHandler(err) {
-  throw err;
-}
-function handleStoppedNotification(notification, subscriber) {
-  var onStoppedNotification = config$2.onStoppedNotification;
-  onStoppedNotification && timeoutProvider.setTimeout(function() {
-    return onStoppedNotification(notification, subscriber);
-  });
-}
-var EMPTY_OBSERVER = {
-  closed: true,
-  next: noop$2,
-  error: defaultErrorHandler,
-  complete: noop$2
-};
-var observable$1 = function() {
-  return typeof Symbol === "function" && Symbol.observable || "@@observable";
-}();
-function identity$1(x) {
-  return x;
-}
-function pipe$1() {
-  var fns = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    fns[_i] = arguments[_i];
-  }
-  return pipeFromArray$1(fns);
-}
-function pipeFromArray$1(fns) {
-  if (fns.length === 0) {
-    return identity$1;
-  }
-  if (fns.length === 1) {
-    return fns[0];
-  }
-  return function piped(input) {
-    return fns.reduce(function(prev, fn) {
-      return fn(prev);
-    }, input);
-  };
-}
-var Observable$1 = function() {
-  function Observable2(subscribe2) {
-    if (subscribe2) {
-      this._subscribe = subscribe2;
-    }
-  }
-  Observable2.prototype.lift = function(operator) {
-    var observable2 = new Observable2();
-    observable2.source = this;
-    observable2.operator = operator;
-    return observable2;
-  };
-  Observable2.prototype.subscribe = function(observerOrNext, error, complete) {
-    var _this = this;
-    var subscriber = isSubscriber(observerOrNext) ? observerOrNext : new SafeSubscriber$1(observerOrNext, error, complete);
-    errorContext(function() {
-      var _a = _this, operator = _a.operator, source2 = _a.source;
-      subscriber.add(operator ? operator.call(subscriber, source2) : source2 ? _this._subscribe(subscriber) : _this._trySubscribe(subscriber));
-    });
-    return subscriber;
-  };
-  Observable2.prototype._trySubscribe = function(sink) {
-    try {
-      return this._subscribe(sink);
-    } catch (err) {
-      sink.error(err);
-    }
-  };
-  Observable2.prototype.forEach = function(next, promiseCtor) {
-    var _this = this;
-    promiseCtor = getPromiseCtor$1(promiseCtor);
-    return new promiseCtor(function(resolve, reject) {
-      var subscriber = new SafeSubscriber$1({
-        next: function(value) {
-          try {
-            next(value);
-          } catch (err) {
-            reject(err);
-            subscriber.unsubscribe();
-          }
-        },
-        error: reject,
-        complete: resolve
-      });
-      _this.subscribe(subscriber);
-    });
-  };
-  Observable2.prototype._subscribe = function(subscriber) {
-    var _a;
-    return (_a = this.source) === null || _a === void 0 ? void 0 : _a.subscribe(subscriber);
-  };
-  Observable2.prototype[observable$1] = function() {
-    return this;
-  };
-  Observable2.prototype.pipe = function() {
-    var operations = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-      operations[_i] = arguments[_i];
-    }
-    return pipeFromArray$1(operations)(this);
-  };
-  Observable2.prototype.toPromise = function(promiseCtor) {
-    var _this = this;
-    promiseCtor = getPromiseCtor$1(promiseCtor);
-    return new promiseCtor(function(resolve, reject) {
-      var value;
-      _this.subscribe(function(x) {
-        return value = x;
-      }, function(err) {
-        return reject(err);
-      }, function() {
-        return resolve(value);
-      });
-    });
-  };
-  Observable2.create = function(subscribe2) {
-    return new Observable2(subscribe2);
-  };
-  return Observable2;
-}();
-function getPromiseCtor$1(promiseCtor) {
-  var _a;
-  return (_a = promiseCtor !== null && promiseCtor !== void 0 ? promiseCtor : config$2.Promise) !== null && _a !== void 0 ? _a : Promise;
-}
-function isObserver(value) {
-  return value && isFunction$2(value.next) && isFunction$2(value.error) && isFunction$2(value.complete);
-}
-function isSubscriber(value) {
-  return value && value instanceof Subscriber$1 || isObserver(value) && isSubscription(value);
-}
-function isInteropObservable$1(input) {
-  return isFunction$2(input[observable$1]);
-}
-function isAsyncIterable(obj) {
-  return Symbol.asyncIterator && isFunction$2(obj === null || obj === void 0 ? void 0 : obj[Symbol.asyncIterator]);
-}
-function createInvalidObservableTypeError(input) {
-  return new TypeError("You provided " + (input !== null && typeof input === "object" ? "an invalid object" : "'" + input + "'") + " where a stream was expected. You can provide an Observable, Promise, ReadableStream, Array, AsyncIterable, or Iterable.");
-}
-function getSymbolIterator$1() {
-  if (typeof Symbol !== "function" || !Symbol.iterator) {
-    return "@@iterator";
-  }
-  return Symbol.iterator;
-}
-var iterator$1 = getSymbolIterator$1();
-function isIterable$1(input) {
-  return isFunction$2(input === null || input === void 0 ? void 0 : input[iterator$1]);
-}
-function readableStreamLikeToAsyncGenerator(readableStream) {
-  return __asyncGenerator(this, arguments, function readableStreamLikeToAsyncGenerator_1() {
-    var reader2, _a, value, done;
-    return __generator(this, function(_b) {
-      switch (_b.label) {
-        case 0:
-          reader2 = readableStream.getReader();
-          _b.label = 1;
-        case 1:
-          _b.trys.push([1, , 9, 10]);
-          _b.label = 2;
-        case 2:
-          return [4, __await(reader2.read())];
-        case 3:
-          _a = _b.sent(), value = _a.value, done = _a.done;
-          if (!done)
-            return [3, 5];
-          return [4, __await(void 0)];
-        case 4:
-          return [2, _b.sent()];
-        case 5:
-          return [4, __await(value)];
-        case 6:
-          return [4, _b.sent()];
-        case 7:
-          _b.sent();
-          return [3, 2];
-        case 8:
-          return [3, 10];
-        case 9:
-          reader2.releaseLock();
-          return [7];
-        case 10:
-          return [2];
-      }
-    });
-  });
-}
-function isReadableStreamLike(obj) {
-  return isFunction$2(obj === null || obj === void 0 ? void 0 : obj.getReader);
-}
-function innerFrom(input) {
-  if (input instanceof Observable$1) {
-    return input;
-  }
-  if (input != null) {
-    if (isInteropObservable$1(input)) {
-      return fromInteropObservable(input);
-    }
-    if (isArrayLike$1(input)) {
-      return fromArrayLike(input);
-    }
-    if (isPromise$1(input)) {
-      return fromPromise(input);
-    }
-    if (isAsyncIterable(input)) {
-      return fromAsyncIterable(input);
-    }
-    if (isIterable$1(input)) {
-      return fromIterable(input);
-    }
-    if (isReadableStreamLike(input)) {
-      return fromReadableStreamLike(input);
-    }
-  }
-  throw createInvalidObservableTypeError(input);
-}
-function fromInteropObservable(obj) {
-  return new Observable$1(function(subscriber) {
-    var obs = obj[observable$1]();
-    if (isFunction$2(obs.subscribe)) {
-      return obs.subscribe(subscriber);
-    }
-    throw new TypeError("Provided object does not correctly implement Symbol.observable");
-  });
-}
-function fromArrayLike(array) {
-  return new Observable$1(function(subscriber) {
-    for (var i2 = 0; i2 < array.length && !subscriber.closed; i2++) {
-      subscriber.next(array[i2]);
-    }
-    subscriber.complete();
-  });
-}
-function fromPromise(promise) {
-  return new Observable$1(function(subscriber) {
-    promise.then(function(value) {
-      if (!subscriber.closed) {
-        subscriber.next(value);
-        subscriber.complete();
-      }
-    }, function(err) {
-      return subscriber.error(err);
-    }).then(null, reportUnhandledError);
-  });
-}
-function fromIterable(iterable) {
-  return new Observable$1(function(subscriber) {
-    var e_1, _a;
-    try {
-      for (var iterable_1 = __values(iterable), iterable_1_1 = iterable_1.next(); !iterable_1_1.done; iterable_1_1 = iterable_1.next()) {
-        var value = iterable_1_1.value;
-        subscriber.next(value);
-        if (subscriber.closed) {
-          return;
-        }
-      }
-    } catch (e_1_1) {
-      e_1 = { error: e_1_1 };
-    } finally {
-      try {
-        if (iterable_1_1 && !iterable_1_1.done && (_a = iterable_1.return))
-          _a.call(iterable_1);
-      } finally {
-        if (e_1)
-          throw e_1.error;
-      }
-    }
-    subscriber.complete();
-  });
-}
-function fromAsyncIterable(asyncIterable) {
-  return new Observable$1(function(subscriber) {
-    process$1(asyncIterable, subscriber).catch(function(err) {
-      return subscriber.error(err);
-    });
-  });
-}
-function fromReadableStreamLike(readableStream) {
-  return fromAsyncIterable(readableStreamLikeToAsyncGenerator(readableStream));
-}
-function process$1(asyncIterable, subscriber) {
-  var asyncIterable_1, asyncIterable_1_1;
-  var e_2, _a;
-  return __awaiter$d(this, void 0, void 0, function() {
-    var value, e_2_1;
-    return __generator(this, function(_b) {
-      switch (_b.label) {
-        case 0:
-          _b.trys.push([0, 5, 6, 11]);
-          asyncIterable_1 = __asyncValues(asyncIterable);
-          _b.label = 1;
-        case 1:
-          return [4, asyncIterable_1.next()];
-        case 2:
-          if (!(asyncIterable_1_1 = _b.sent(), !asyncIterable_1_1.done))
-            return [3, 4];
-          value = asyncIterable_1_1.value;
-          subscriber.next(value);
-          if (subscriber.closed) {
-            return [2];
-          }
-          _b.label = 3;
-        case 3:
-          return [3, 1];
-        case 4:
-          return [3, 11];
-        case 5:
-          e_2_1 = _b.sent();
-          e_2 = { error: e_2_1 };
-          return [3, 11];
-        case 6:
-          _b.trys.push([6, , 9, 10]);
-          if (!(asyncIterable_1_1 && !asyncIterable_1_1.done && (_a = asyncIterable_1.return)))
-            return [3, 8];
-          return [4, _a.call(asyncIterable_1)];
-        case 7:
-          _b.sent();
-          _b.label = 8;
-        case 8:
-          return [3, 10];
-        case 9:
-          if (e_2)
-            throw e_2.error;
-          return [7];
-        case 10:
-          return [7];
-        case 11:
-          subscriber.complete();
-          return [2];
-      }
-    });
-  });
-}
-function createOperatorSubscriber(destination, onNext, onComplete, onError, onFinalize) {
-  return new OperatorSubscriber(destination, onNext, onComplete, onError, onFinalize);
-}
-var OperatorSubscriber = function(_super) {
-  __extends$1(OperatorSubscriber2, _super);
-  function OperatorSubscriber2(destination, onNext, onComplete, onError, onFinalize, shouldUnsubscribe) {
-    var _this = _super.call(this, destination) || this;
-    _this.onFinalize = onFinalize;
-    _this.shouldUnsubscribe = shouldUnsubscribe;
-    _this._next = onNext ? function(value) {
-      try {
-        onNext(value);
-      } catch (err) {
-        destination.error(err);
-      }
-    } : _super.prototype._next;
-    _this._error = onError ? function(err) {
-      try {
-        onError(err);
-      } catch (err2) {
-        destination.error(err2);
-      } finally {
-        this.unsubscribe();
-      }
-    } : _super.prototype._error;
-    _this._complete = onComplete ? function() {
-      try {
-        onComplete();
-      } catch (err) {
-        destination.error(err);
-      } finally {
-        this.unsubscribe();
-      }
-    } : _super.prototype._complete;
-    return _this;
-  }
-  OperatorSubscriber2.prototype.unsubscribe = function() {
-    var _a;
-    if (!this.shouldUnsubscribe || this.shouldUnsubscribe()) {
-      var closed_1 = this.closed;
-      _super.prototype.unsubscribe.call(this);
-      !closed_1 && ((_a = this.onFinalize) === null || _a === void 0 ? void 0 : _a.call(this));
-    }
-  };
-  return OperatorSubscriber2;
-}(Subscriber$1);
-function audit$1(durationSelector) {
-  return operate(function(source2, subscriber) {
-    var hasValue = false;
-    var lastValue = null;
-    var durationSubscriber = null;
-    var isComplete = false;
-    var endDuration = function() {
-      durationSubscriber === null || durationSubscriber === void 0 ? void 0 : durationSubscriber.unsubscribe();
-      durationSubscriber = null;
-      if (hasValue) {
-        hasValue = false;
-        var value = lastValue;
-        lastValue = null;
-        subscriber.next(value);
-      }
-      isComplete && subscriber.complete();
-    };
-    var cleanupDuration = function() {
-      durationSubscriber = null;
-      isComplete && subscriber.complete();
-    };
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      hasValue = true;
-      lastValue = value;
-      if (!durationSubscriber) {
-        innerFrom(durationSelector(value)).subscribe(durationSubscriber = createOperatorSubscriber(subscriber, endDuration, cleanupDuration));
-      }
-    }, function() {
-      isComplete = true;
-      (!hasValue || !durationSubscriber || durationSubscriber.closed) && subscriber.complete();
-    }));
-  });
-}
-var Action$1 = function(_super) {
-  __extends$1(Action2, _super);
-  function Action2(scheduler, work) {
-    return _super.call(this) || this;
-  }
-  Action2.prototype.schedule = function(state2, delay2) {
-    return this;
-  };
-  return Action2;
-}(Subscription$1);
-var intervalProvider = {
-  setInterval: function(handler, timeout2) {
-    var args = [];
-    for (var _i = 2; _i < arguments.length; _i++) {
-      args[_i - 2] = arguments[_i];
-    }
-    var delegate = intervalProvider.delegate;
-    if (delegate === null || delegate === void 0 ? void 0 : delegate.setInterval) {
-      return delegate.setInterval.apply(delegate, __spreadArray([handler, timeout2], __read(args)));
-    }
-    return setInterval.apply(void 0, __spreadArray([handler, timeout2], __read(args)));
-  },
-  clearInterval: function(handle) {
-    var delegate = intervalProvider.delegate;
-    return ((delegate === null || delegate === void 0 ? void 0 : delegate.clearInterval) || clearInterval)(handle);
-  },
-  delegate: void 0
-};
-var AsyncAction$1 = function(_super) {
-  __extends$1(AsyncAction2, _super);
-  function AsyncAction2(scheduler, work) {
-    var _this = _super.call(this, scheduler, work) || this;
-    _this.scheduler = scheduler;
-    _this.work = work;
-    _this.pending = false;
-    return _this;
-  }
-  AsyncAction2.prototype.schedule = function(state2, delay2) {
-    if (delay2 === void 0) {
-      delay2 = 0;
-    }
-    if (this.closed) {
-      return this;
-    }
-    this.state = state2;
-    var id = this.id;
-    var scheduler = this.scheduler;
-    if (id != null) {
-      this.id = this.recycleAsyncId(scheduler, id, delay2);
-    }
-    this.pending = true;
-    this.delay = delay2;
-    this.id = this.id || this.requestAsyncId(scheduler, this.id, delay2);
-    return this;
-  };
-  AsyncAction2.prototype.requestAsyncId = function(scheduler, _id, delay2) {
-    if (delay2 === void 0) {
-      delay2 = 0;
-    }
-    return intervalProvider.setInterval(scheduler.flush.bind(scheduler, this), delay2);
-  };
-  AsyncAction2.prototype.recycleAsyncId = function(_scheduler, id, delay2) {
-    if (delay2 === void 0) {
-      delay2 = 0;
-    }
-    if (delay2 != null && this.delay === delay2 && this.pending === false) {
-      return id;
-    }
-    intervalProvider.clearInterval(id);
-    return void 0;
-  };
-  AsyncAction2.prototype.execute = function(state2, delay2) {
-    if (this.closed) {
-      return new Error("executing a cancelled action");
-    }
-    this.pending = false;
-    var error = this._execute(state2, delay2);
-    if (error) {
-      return error;
-    } else if (this.pending === false && this.id != null) {
-      this.id = this.recycleAsyncId(this.scheduler, this.id, null);
-    }
-  };
-  AsyncAction2.prototype._execute = function(state2, _delay) {
-    var errored = false;
-    var errorValue;
-    try {
-      this.work(state2);
-    } catch (e2) {
-      errored = true;
-      errorValue = e2 ? e2 : new Error("Scheduled action threw falsy error");
-    }
-    if (errored) {
-      this.unsubscribe();
-      return errorValue;
-    }
-  };
-  AsyncAction2.prototype.unsubscribe = function() {
-    if (!this.closed) {
-      var _a = this, id = _a.id, scheduler = _a.scheduler;
-      var actions = scheduler.actions;
-      this.work = this.state = this.scheduler = null;
-      this.pending = false;
-      arrRemove(actions, this);
-      if (id != null) {
-        this.id = this.recycleAsyncId(scheduler, id, null);
-      }
-      this.delay = null;
-      _super.prototype.unsubscribe.call(this);
-    }
-  };
-  return AsyncAction2;
-}(Action$1);
-var dateTimestampProvider = {
-  now: function() {
-    return (dateTimestampProvider.delegate || Date).now();
-  },
-  delegate: void 0
-};
-var Scheduler$1 = function() {
-  function Scheduler2(schedulerActionCtor, now2) {
-    if (now2 === void 0) {
-      now2 = Scheduler2.now;
-    }
-    this.schedulerActionCtor = schedulerActionCtor;
-    this.now = now2;
-  }
-  Scheduler2.prototype.schedule = function(work, delay2, state2) {
-    if (delay2 === void 0) {
-      delay2 = 0;
-    }
-    return new this.schedulerActionCtor(this, work).schedule(state2, delay2);
-  };
-  Scheduler2.now = dateTimestampProvider.now;
-  return Scheduler2;
-}();
-var AsyncScheduler$1 = function(_super) {
-  __extends$1(AsyncScheduler2, _super);
-  function AsyncScheduler2(SchedulerAction, now2) {
-    if (now2 === void 0) {
-      now2 = Scheduler$1.now;
-    }
-    var _this = _super.call(this, SchedulerAction, now2) || this;
-    _this.actions = [];
-    _this._active = false;
-    _this._scheduled = void 0;
-    return _this;
-  }
-  AsyncScheduler2.prototype.flush = function(action) {
-    var actions = this.actions;
-    if (this._active) {
-      actions.push(action);
-      return;
-    }
-    var error;
-    this._active = true;
-    do {
-      if (error = action.execute(action.state, action.delay)) {
-        break;
-      }
-    } while (action = actions.shift());
-    this._active = false;
-    if (error) {
-      while (action = actions.shift()) {
-        action.unsubscribe();
-      }
-      throw error;
-    }
-  };
-  return AsyncScheduler2;
-}(Scheduler$1);
-var asyncScheduler$1 = new AsyncScheduler$1(AsyncAction$1);
-var async$1 = asyncScheduler$1;
-function isScheduler$1(value) {
-  return value && isFunction$2(value.schedule);
-}
-function isValidDate(value) {
-  return value instanceof Date && !isNaN(value);
-}
-function timer$1(dueTime, intervalOrScheduler, scheduler) {
-  if (dueTime === void 0) {
-    dueTime = 0;
-  }
-  if (scheduler === void 0) {
-    scheduler = async$1;
-  }
-  var intervalDuration = -1;
-  if (intervalOrScheduler != null) {
-    if (isScheduler$1(intervalOrScheduler)) {
-      scheduler = intervalOrScheduler;
-    } else {
-      intervalDuration = intervalOrScheduler;
-    }
-  }
-  return new Observable$1(function(subscriber) {
-    var due = isValidDate(dueTime) ? +dueTime - scheduler.now() : dueTime;
-    if (due < 0) {
-      due = 0;
-    }
-    var n2 = 0;
-    return scheduler.schedule(function() {
-      if (!subscriber.closed) {
-        subscriber.next(n2++);
-        if (0 <= intervalDuration) {
-          this.schedule(void 0, intervalDuration);
-        } else {
-          subscriber.complete();
-        }
-      }
-    }, due);
-  });
-}
-function auditTime$1(duration, scheduler) {
-  if (scheduler === void 0) {
-    scheduler = asyncScheduler$1;
-  }
-  return audit$1(function() {
-    return timer$1(duration, scheduler);
-  });
-}
-function buffer$1(closingNotifier) {
-  return operate(function(source2, subscriber) {
-    var currentBuffer = [];
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      return currentBuffer.push(value);
-    }, function() {
-      subscriber.next(currentBuffer);
-      subscriber.complete();
-    }));
-    closingNotifier.subscribe(createOperatorSubscriber(subscriber, function() {
-      var b = currentBuffer;
-      currentBuffer = [];
-      subscriber.next(b);
-    }, noop$2));
-    return function() {
-      currentBuffer = null;
-    };
-  });
-}
-function bufferCount$1(bufferSize, startBufferEvery) {
-  if (startBufferEvery === void 0) {
-    startBufferEvery = null;
-  }
-  startBufferEvery = startBufferEvery !== null && startBufferEvery !== void 0 ? startBufferEvery : bufferSize;
-  return operate(function(source2, subscriber) {
-    var buffers = [];
-    var count2 = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var e_1, _a, e_2, _b;
-      var toEmit = null;
-      if (count2++ % startBufferEvery === 0) {
-        buffers.push([]);
-      }
-      try {
-        for (var buffers_1 = __values(buffers), buffers_1_1 = buffers_1.next(); !buffers_1_1.done; buffers_1_1 = buffers_1.next()) {
-          var buffer2 = buffers_1_1.value;
-          buffer2.push(value);
-          if (bufferSize <= buffer2.length) {
-            toEmit = toEmit !== null && toEmit !== void 0 ? toEmit : [];
-            toEmit.push(buffer2);
-          }
-        }
-      } catch (e_1_1) {
-        e_1 = { error: e_1_1 };
-      } finally {
-        try {
-          if (buffers_1_1 && !buffers_1_1.done && (_a = buffers_1.return))
-            _a.call(buffers_1);
-        } finally {
-          if (e_1)
-            throw e_1.error;
-        }
-      }
-      if (toEmit) {
-        try {
-          for (var toEmit_1 = __values(toEmit), toEmit_1_1 = toEmit_1.next(); !toEmit_1_1.done; toEmit_1_1 = toEmit_1.next()) {
-            var buffer2 = toEmit_1_1.value;
-            arrRemove(buffers, buffer2);
-            subscriber.next(buffer2);
-          }
-        } catch (e_2_1) {
-          e_2 = { error: e_2_1 };
-        } finally {
-          try {
-            if (toEmit_1_1 && !toEmit_1_1.done && (_b = toEmit_1.return))
-              _b.call(toEmit_1);
-          } finally {
-            if (e_2)
-              throw e_2.error;
-          }
-        }
-      }
-    }, function() {
-      var e_3, _a;
-      try {
-        for (var buffers_2 = __values(buffers), buffers_2_1 = buffers_2.next(); !buffers_2_1.done; buffers_2_1 = buffers_2.next()) {
-          var buffer2 = buffers_2_1.value;
-          subscriber.next(buffer2);
-        }
-      } catch (e_3_1) {
-        e_3 = { error: e_3_1 };
-      } finally {
-        try {
-          if (buffers_2_1 && !buffers_2_1.done && (_a = buffers_2.return))
-            _a.call(buffers_2);
-        } finally {
-          if (e_3)
-            throw e_3.error;
-        }
-      }
-      subscriber.complete();
-    }, void 0, function() {
-      buffers = null;
-    }));
-  });
-}
-function last$2(arr) {
-  return arr[arr.length - 1];
-}
-function popResultSelector(args) {
-  return isFunction$2(last$2(args)) ? args.pop() : void 0;
-}
-function popScheduler(args) {
-  return isScheduler$1(last$2(args)) ? args.pop() : void 0;
-}
-function popNumber(args, defaultValue) {
-  return typeof last$2(args) === "number" ? args.pop() : defaultValue;
-}
-function executeSchedule(parentSubscription, scheduler, work, delay2, repeat2) {
-  if (delay2 === void 0) {
-    delay2 = 0;
-  }
-  if (repeat2 === void 0) {
-    repeat2 = false;
-  }
-  var scheduleSubscription = scheduler.schedule(function() {
-    work();
-    if (repeat2) {
-      parentSubscription.add(this.schedule(null, delay2));
-    } else {
-      this.unsubscribe();
-    }
-  }, delay2);
-  parentSubscription.add(scheduleSubscription);
-  if (!repeat2) {
-    return scheduleSubscription;
-  }
-}
-function bufferTime$1(bufferTimeSpan) {
-  var _a, _b;
-  var otherArgs = [];
-  for (var _i = 1; _i < arguments.length; _i++) {
-    otherArgs[_i - 1] = arguments[_i];
-  }
-  var scheduler = (_a = popScheduler(otherArgs)) !== null && _a !== void 0 ? _a : asyncScheduler$1;
-  var bufferCreationInterval = (_b = otherArgs[0]) !== null && _b !== void 0 ? _b : null;
-  var maxBufferSize = otherArgs[1] || Infinity;
-  return operate(function(source2, subscriber) {
-    var bufferRecords = [];
-    var restartOnEmit = false;
-    var emit4 = function(record) {
-      var buffer2 = record.buffer, subs = record.subs;
-      subs.unsubscribe();
-      arrRemove(bufferRecords, record);
-      subscriber.next(buffer2);
-      restartOnEmit && startBuffer();
-    };
-    var startBuffer = function() {
-      if (bufferRecords) {
-        var subs = new Subscription$1();
-        subscriber.add(subs);
-        var buffer2 = [];
-        var record_1 = {
-          buffer: buffer2,
-          subs
-        };
-        bufferRecords.push(record_1);
-        executeSchedule(subs, scheduler, function() {
-          return emit4(record_1);
-        }, bufferTimeSpan);
-      }
-    };
-    if (bufferCreationInterval !== null && bufferCreationInterval >= 0) {
-      executeSchedule(subscriber, scheduler, startBuffer, bufferCreationInterval, true);
-    } else {
-      restartOnEmit = true;
-    }
-    startBuffer();
-    var bufferTimeSubscriber = createOperatorSubscriber(subscriber, function(value) {
-      var e_1, _a2;
-      var recordsCopy = bufferRecords.slice();
-      try {
-        for (var recordsCopy_1 = __values(recordsCopy), recordsCopy_1_1 = recordsCopy_1.next(); !recordsCopy_1_1.done; recordsCopy_1_1 = recordsCopy_1.next()) {
-          var record = recordsCopy_1_1.value;
-          var buffer2 = record.buffer;
-          buffer2.push(value);
-          maxBufferSize <= buffer2.length && emit4(record);
-        }
-      } catch (e_1_1) {
-        e_1 = { error: e_1_1 };
-      } finally {
-        try {
-          if (recordsCopy_1_1 && !recordsCopy_1_1.done && (_a2 = recordsCopy_1.return))
-            _a2.call(recordsCopy_1);
-        } finally {
-          if (e_1)
-            throw e_1.error;
-        }
-      }
-    }, function() {
-      while (bufferRecords === null || bufferRecords === void 0 ? void 0 : bufferRecords.length) {
-        subscriber.next(bufferRecords.shift().buffer);
-      }
-      bufferTimeSubscriber === null || bufferTimeSubscriber === void 0 ? void 0 : bufferTimeSubscriber.unsubscribe();
-      subscriber.complete();
-      subscriber.unsubscribe();
-    }, void 0, function() {
-      return bufferRecords = null;
-    });
-    source2.subscribe(bufferTimeSubscriber);
-  });
-}
-function bufferToggle$1(openings, closingSelector) {
-  return operate(function(source2, subscriber) {
-    var buffers = [];
-    innerFrom(openings).subscribe(createOperatorSubscriber(subscriber, function(openValue) {
-      var buffer2 = [];
-      buffers.push(buffer2);
-      var closingSubscription = new Subscription$1();
-      var emitBuffer = function() {
-        arrRemove(buffers, buffer2);
-        subscriber.next(buffer2);
-        closingSubscription.unsubscribe();
-      };
-      closingSubscription.add(innerFrom(closingSelector(openValue)).subscribe(createOperatorSubscriber(subscriber, emitBuffer, noop$2)));
-    }, noop$2));
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var e_1, _a;
-      try {
-        for (var buffers_1 = __values(buffers), buffers_1_1 = buffers_1.next(); !buffers_1_1.done; buffers_1_1 = buffers_1.next()) {
-          var buffer2 = buffers_1_1.value;
-          buffer2.push(value);
-        }
-      } catch (e_1_1) {
-        e_1 = { error: e_1_1 };
-      } finally {
-        try {
-          if (buffers_1_1 && !buffers_1_1.done && (_a = buffers_1.return))
-            _a.call(buffers_1);
-        } finally {
-          if (e_1)
-            throw e_1.error;
-        }
-      }
-    }, function() {
-      while (buffers.length > 0) {
-        subscriber.next(buffers.shift());
-      }
-      subscriber.complete();
-    }));
-  });
-}
-function bufferWhen$1(closingSelector) {
-  return operate(function(source2, subscriber) {
-    var buffer2 = null;
-    var closingSubscriber = null;
-    var openBuffer = function() {
-      closingSubscriber === null || closingSubscriber === void 0 ? void 0 : closingSubscriber.unsubscribe();
-      var b = buffer2;
-      buffer2 = [];
-      b && subscriber.next(b);
-      innerFrom(closingSelector()).subscribe(closingSubscriber = createOperatorSubscriber(subscriber, openBuffer, noop$2));
-    };
-    openBuffer();
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      return buffer2 === null || buffer2 === void 0 ? void 0 : buffer2.push(value);
-    }, function() {
-      buffer2 && subscriber.next(buffer2);
-      subscriber.complete();
-    }, void 0, function() {
-      return buffer2 = closingSubscriber = null;
-    }));
-  });
-}
-function catchError$1(selector) {
-  return operate(function(source2, subscriber) {
-    var innerSub = null;
-    var syncUnsub = false;
-    var handledResult;
-    innerSub = source2.subscribe(createOperatorSubscriber(subscriber, void 0, void 0, function(err) {
-      handledResult = innerFrom(selector(err, catchError$1(selector)(source2)));
-      if (innerSub) {
-        innerSub.unsubscribe();
-        innerSub = null;
-        handledResult.subscribe(subscriber);
-      } else {
-        syncUnsub = true;
-      }
-    }));
-    if (syncUnsub) {
-      innerSub.unsubscribe();
-      innerSub = null;
-      handledResult.subscribe(subscriber);
-    }
-  });
-}
-var isArray$5 = Array.isArray;
-var getPrototypeOf = Object.getPrototypeOf, objectProto = Object.prototype, getKeys = Object.keys;
-function argsArgArrayOrObject(args) {
-  if (args.length === 1) {
-    var first_1 = args[0];
-    if (isArray$5(first_1)) {
-      return { args: first_1, keys: null };
-    }
-    if (isPOJO(first_1)) {
-      var keys2 = getKeys(first_1);
-      return {
-        args: keys2.map(function(key) {
-          return first_1[key];
-        }),
-        keys: keys2
-      };
-    }
-  }
-  return { args, keys: null };
-}
-function isPOJO(obj) {
-  return obj && typeof obj === "object" && getPrototypeOf(obj) === objectProto;
-}
-function observeOn$1(scheduler, delay2) {
-  if (delay2 === void 0) {
-    delay2 = 0;
-  }
-  return operate(function(source2, subscriber) {
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      return executeSchedule(subscriber, scheduler, function() {
-        return subscriber.next(value);
-      }, delay2);
-    }, function() {
-      return executeSchedule(subscriber, scheduler, function() {
-        return subscriber.complete();
-      }, delay2);
-    }, function(err) {
-      return executeSchedule(subscriber, scheduler, function() {
-        return subscriber.error(err);
-      }, delay2);
-    }));
-  });
-}
-function subscribeOn$1(scheduler, delay2) {
-  if (delay2 === void 0) {
-    delay2 = 0;
-  }
-  return operate(function(source2, subscriber) {
-    subscriber.add(scheduler.schedule(function() {
-      return source2.subscribe(subscriber);
-    }, delay2));
-  });
-}
-function scheduleObservable$1(input, scheduler) {
-  return innerFrom(input).pipe(subscribeOn$1(scheduler), observeOn$1(scheduler));
-}
-function schedulePromise$1(input, scheduler) {
-  return innerFrom(input).pipe(subscribeOn$1(scheduler), observeOn$1(scheduler));
-}
-function scheduleArray$1(input, scheduler) {
-  return new Observable$1(function(subscriber) {
-    var i2 = 0;
-    return scheduler.schedule(function() {
-      if (i2 === input.length) {
-        subscriber.complete();
-      } else {
-        subscriber.next(input[i2++]);
-        if (!subscriber.closed) {
-          this.schedule();
-        }
-      }
-    });
-  });
-}
-function scheduleIterable$1(input, scheduler) {
-  return new Observable$1(function(subscriber) {
-    var iterator2;
-    executeSchedule(subscriber, scheduler, function() {
-      iterator2 = input[iterator$1]();
-      executeSchedule(subscriber, scheduler, function() {
-        var _a;
-        var value;
-        var done;
-        try {
-          _a = iterator2.next(), value = _a.value, done = _a.done;
-        } catch (err) {
-          subscriber.error(err);
-          return;
-        }
-        if (done) {
-          subscriber.complete();
-        } else {
-          subscriber.next(value);
-        }
-      }, 0, true);
-    });
-    return function() {
-      return isFunction$2(iterator2 === null || iterator2 === void 0 ? void 0 : iterator2.return) && iterator2.return();
-    };
-  });
-}
-function scheduleAsyncIterable(input, scheduler) {
-  if (!input) {
-    throw new Error("Iterable cannot be null");
-  }
-  return new Observable$1(function(subscriber) {
-    executeSchedule(subscriber, scheduler, function() {
-      var iterator2 = input[Symbol.asyncIterator]();
-      executeSchedule(subscriber, scheduler, function() {
-        iterator2.next().then(function(result) {
-          if (result.done) {
-            subscriber.complete();
-          } else {
-            subscriber.next(result.value);
-          }
-        });
-      }, 0, true);
-    });
-  });
-}
-function scheduleReadableStreamLike(input, scheduler) {
-  return scheduleAsyncIterable(readableStreamLikeToAsyncGenerator(input), scheduler);
-}
-function scheduled$1(input, scheduler) {
-  if (input != null) {
-    if (isInteropObservable$1(input)) {
-      return scheduleObservable$1(input, scheduler);
-    }
-    if (isArrayLike$1(input)) {
-      return scheduleArray$1(input, scheduler);
-    }
-    if (isPromise$1(input)) {
-      return schedulePromise$1(input, scheduler);
-    }
-    if (isAsyncIterable(input)) {
-      return scheduleAsyncIterable(input, scheduler);
-    }
-    if (isIterable$1(input)) {
-      return scheduleIterable$1(input, scheduler);
-    }
-    if (isReadableStreamLike(input)) {
-      return scheduleReadableStreamLike(input, scheduler);
-    }
-  }
-  throw createInvalidObservableTypeError(input);
-}
-function from$1(input, scheduler) {
-  return scheduler ? scheduled$1(input, scheduler) : innerFrom(input);
-}
-function map$1(project, thisArg) {
-  return operate(function(source2, subscriber) {
-    var index2 = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      subscriber.next(project.call(thisArg, value, index2++));
-    }));
-  });
-}
-var isArray$4 = Array.isArray;
-function callOrApply(fn, args) {
-  return isArray$4(args) ? fn.apply(void 0, __spreadArray([], __read(args))) : fn(args);
-}
-function mapOneOrManyArgs(fn) {
-  return map$1(function(args) {
-    return callOrApply(fn, args);
-  });
-}
-function createObject(keys2, values2) {
-  return keys2.reduce(function(result, key, i2) {
-    return result[key] = values2[i2], result;
-  }, {});
-}
-function combineLatest$2() {
-  var args = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-  var scheduler = popScheduler(args);
-  var resultSelector = popResultSelector(args);
-  var _a = argsArgArrayOrObject(args), observables = _a.args, keys2 = _a.keys;
-  if (observables.length === 0) {
-    return from$1([], scheduler);
-  }
-  var result = new Observable$1(combineLatestInit(observables, scheduler, keys2 ? function(values2) {
-    return createObject(keys2, values2);
-  } : identity$1));
-  return resultSelector ? result.pipe(mapOneOrManyArgs(resultSelector)) : result;
-}
-function combineLatestInit(observables, scheduler, valueTransform) {
-  if (valueTransform === void 0) {
-    valueTransform = identity$1;
-  }
-  return function(subscriber) {
-    maybeSchedule(scheduler, function() {
-      var length3 = observables.length;
-      var values2 = new Array(length3);
-      var active = length3;
-      var remainingFirstValues = length3;
-      var _loop_1 = function(i3) {
-        maybeSchedule(scheduler, function() {
-          var source2 = from$1(observables[i3], scheduler);
-          var hasFirstValue = false;
-          source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-            values2[i3] = value;
-            if (!hasFirstValue) {
-              hasFirstValue = true;
-              remainingFirstValues--;
-            }
-            if (!remainingFirstValues) {
-              subscriber.next(valueTransform(values2.slice()));
-            }
-          }, function() {
-            if (!--active) {
-              subscriber.complete();
-            }
-          }));
-        }, subscriber);
-      };
-      for (var i2 = 0; i2 < length3; i2++) {
-        _loop_1(i2);
-      }
-    }, subscriber);
-  };
-}
-function maybeSchedule(scheduler, execute2, subscription) {
-  if (scheduler) {
-    executeSchedule(subscription, scheduler, execute2);
-  } else {
-    execute2();
-  }
-}
-function mergeInternals(source2, subscriber, project, concurrent, onBeforeNext, expand2, innerSubScheduler, additionalFinalizer) {
-  var buffer2 = [];
-  var active = 0;
-  var index2 = 0;
-  var isComplete = false;
-  var checkComplete = function() {
-    if (isComplete && !buffer2.length && !active) {
-      subscriber.complete();
-    }
-  };
-  var outerNext = function(value) {
-    return active < concurrent ? doInnerSub(value) : buffer2.push(value);
-  };
-  var doInnerSub = function(value) {
-    expand2 && subscriber.next(value);
-    active++;
-    var innerComplete = false;
-    innerFrom(project(value, index2++)).subscribe(createOperatorSubscriber(subscriber, function(innerValue) {
-      onBeforeNext === null || onBeforeNext === void 0 ? void 0 : onBeforeNext(innerValue);
-      if (expand2) {
-        outerNext(innerValue);
-      } else {
-        subscriber.next(innerValue);
-      }
-    }, function() {
-      innerComplete = true;
-    }, void 0, function() {
-      if (innerComplete) {
-        try {
-          active--;
-          var _loop_1 = function() {
-            var bufferedValue = buffer2.shift();
-            if (innerSubScheduler) {
-              executeSchedule(subscriber, innerSubScheduler, function() {
-                return doInnerSub(bufferedValue);
-              });
-            } else {
-              doInnerSub(bufferedValue);
-            }
-          };
-          while (buffer2.length && active < concurrent) {
-            _loop_1();
-          }
-          checkComplete();
-        } catch (err) {
-          subscriber.error(err);
-        }
-      }
-    }));
-  };
-  source2.subscribe(createOperatorSubscriber(subscriber, outerNext, function() {
-    isComplete = true;
-    checkComplete();
-  }));
-  return function() {
-    additionalFinalizer === null || additionalFinalizer === void 0 ? void 0 : additionalFinalizer();
-  };
-}
-function mergeMap$1(project, resultSelector, concurrent) {
-  if (concurrent === void 0) {
-    concurrent = Infinity;
-  }
-  if (isFunction$2(resultSelector)) {
-    return mergeMap$1(function(a, i2) {
-      return map$1(function(b, ii) {
-        return resultSelector(a, b, i2, ii);
-      })(innerFrom(project(a, i2)));
-    }, concurrent);
-  } else if (typeof resultSelector === "number") {
-    concurrent = resultSelector;
-  }
-  return operate(function(source2, subscriber) {
-    return mergeInternals(source2, subscriber, project, concurrent);
-  });
-}
-function scanInternals(accumulator, seed, hasSeed, emitOnNext, emitBeforeComplete) {
-  return function(source2, subscriber) {
-    var hasState = hasSeed;
-    var state2 = seed;
-    var index2 = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var i2 = index2++;
-      state2 = hasState ? accumulator(state2, value, i2) : (hasState = true, value);
-      emitOnNext && subscriber.next(state2);
-    }, emitBeforeComplete && function() {
-      hasState && subscriber.next(state2);
-      subscriber.complete();
-    }));
-  };
-}
-function reduce$1(accumulator, seed) {
-  return operate(scanInternals(accumulator, seed, arguments.length >= 2, false, true));
-}
-var arrReducer = function(arr, value) {
-  return arr.push(value), arr;
-};
-function toArray$1() {
-  return operate(function(source2, subscriber) {
-    reduce$1(arrReducer, [])(source2).subscribe(subscriber);
-  });
-}
-function joinAllInternals(joinFn, project) {
-  return pipe$1(toArray$1(), mergeMap$1(function(sources2) {
-    return joinFn(sources2);
-  }), project ? mapOneOrManyArgs(project) : identity$1);
-}
-function combineLatestAll(project) {
-  return joinAllInternals(combineLatest$2, project);
-}
-var combineAll$1 = combineLatestAll;
-var isArray$3 = Array.isArray;
-function argsOrArgArray(args) {
-  return args.length === 1 && isArray$3(args[0]) ? args[0] : args;
-}
-function combineLatest$1() {
-  var args = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-  var resultSelector = popResultSelector(args);
-  return resultSelector ? pipe$1(combineLatest$1.apply(void 0, __spreadArray([], __read(args))), mapOneOrManyArgs(resultSelector)) : operate(function(source2, subscriber) {
-    combineLatestInit(__spreadArray([source2], __read(argsOrArgArray(args))))(subscriber);
-  });
-}
-function combineLatestWith() {
-  var otherSources = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    otherSources[_i] = arguments[_i];
-  }
-  return combineLatest$1.apply(void 0, __spreadArray([], __read(otherSources)));
-}
-function mergeAll$1(concurrent) {
-  if (concurrent === void 0) {
-    concurrent = Infinity;
-  }
-  return mergeMap$1(identity$1, concurrent);
-}
-function concatAll$1() {
-  return mergeAll$1(1);
-}
-function concat$3() {
-  var args = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-  var scheduler = popScheduler(args);
-  return operate(function(source2, subscriber) {
-    concatAll$1()(from$1(__spreadArray([source2], __read(args)), scheduler)).subscribe(subscriber);
-  });
-}
-function concatMap$1(project, resultSelector) {
-  return isFunction$2(resultSelector) ? mergeMap$1(project, resultSelector, 1) : mergeMap$1(project, 1);
-}
-function concatMapTo$1(innerObservable, resultSelector) {
-  return isFunction$2(resultSelector) ? concatMap$1(function() {
-    return innerObservable;
-  }, resultSelector) : concatMap$1(function() {
-    return innerObservable;
-  });
-}
-function concatWith() {
-  var otherSources = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    otherSources[_i] = arguments[_i];
-  }
-  return concat$3.apply(void 0, __spreadArray([], __read(otherSources)));
-}
-var ObjectUnsubscribedError$1 = createErrorClass(function(_super) {
-  return function ObjectUnsubscribedErrorImpl2() {
-    _super(this);
-    this.name = "ObjectUnsubscribedError";
-    this.message = "object unsubscribed";
-  };
-});
-var Subject$1 = function(_super) {
-  __extends$1(Subject2, _super);
-  function Subject2() {
-    var _this = _super.call(this) || this;
-    _this.closed = false;
-    _this.currentObservers = null;
-    _this.observers = [];
-    _this.isStopped = false;
-    _this.hasError = false;
-    _this.thrownError = null;
-    return _this;
-  }
-  Subject2.prototype.lift = function(operator) {
-    var subject = new AnonymousSubject$1(this, this);
-    subject.operator = operator;
-    return subject;
-  };
-  Subject2.prototype._throwIfClosed = function() {
-    if (this.closed) {
-      throw new ObjectUnsubscribedError$1();
-    }
-  };
-  Subject2.prototype.next = function(value) {
-    var _this = this;
-    errorContext(function() {
-      var e_1, _a;
-      _this._throwIfClosed();
-      if (!_this.isStopped) {
-        if (!_this.currentObservers) {
-          _this.currentObservers = Array.from(_this.observers);
-        }
-        try {
-          for (var _b = __values(_this.currentObservers), _c = _b.next(); !_c.done; _c = _b.next()) {
-            var observer = _c.value;
-            observer.next(value);
-          }
-        } catch (e_1_1) {
-          e_1 = { error: e_1_1 };
-        } finally {
-          try {
-            if (_c && !_c.done && (_a = _b.return))
-              _a.call(_b);
-          } finally {
-            if (e_1)
-              throw e_1.error;
-          }
-        }
-      }
-    });
-  };
-  Subject2.prototype.error = function(err) {
-    var _this = this;
-    errorContext(function() {
-      _this._throwIfClosed();
-      if (!_this.isStopped) {
-        _this.hasError = _this.isStopped = true;
-        _this.thrownError = err;
-        var observers = _this.observers;
-        while (observers.length) {
-          observers.shift().error(err);
-        }
-      }
-    });
-  };
-  Subject2.prototype.complete = function() {
-    var _this = this;
-    errorContext(function() {
-      _this._throwIfClosed();
-      if (!_this.isStopped) {
-        _this.isStopped = true;
-        var observers = _this.observers;
-        while (observers.length) {
-          observers.shift().complete();
-        }
-      }
-    });
-  };
-  Subject2.prototype.unsubscribe = function() {
-    this.isStopped = this.closed = true;
-    this.observers = this.currentObservers = null;
-  };
-  Object.defineProperty(Subject2.prototype, "observed", {
-    get: function() {
-      var _a;
-      return ((_a = this.observers) === null || _a === void 0 ? void 0 : _a.length) > 0;
-    },
-    enumerable: false,
-    configurable: true
-  });
-  Subject2.prototype._trySubscribe = function(subscriber) {
-    this._throwIfClosed();
-    return _super.prototype._trySubscribe.call(this, subscriber);
-  };
-  Subject2.prototype._subscribe = function(subscriber) {
-    this._throwIfClosed();
-    this._checkFinalizedStatuses(subscriber);
-    return this._innerSubscribe(subscriber);
-  };
-  Subject2.prototype._innerSubscribe = function(subscriber) {
-    var _this = this;
-    var _a = this, hasError = _a.hasError, isStopped = _a.isStopped, observers = _a.observers;
-    if (hasError || isStopped) {
-      return EMPTY_SUBSCRIPTION;
-    }
-    this.currentObservers = null;
-    observers.push(subscriber);
-    return new Subscription$1(function() {
-      _this.currentObservers = null;
-      arrRemove(observers, subscriber);
-    });
-  };
-  Subject2.prototype._checkFinalizedStatuses = function(subscriber) {
-    var _a = this, hasError = _a.hasError, thrownError = _a.thrownError, isStopped = _a.isStopped;
-    if (hasError) {
-      subscriber.error(thrownError);
-    } else if (isStopped) {
-      subscriber.complete();
-    }
-  };
-  Subject2.prototype.asObservable = function() {
-    var observable2 = new Observable$1();
-    observable2.source = this;
-    return observable2;
-  };
-  Subject2.create = function(destination, source2) {
-    return new AnonymousSubject$1(destination, source2);
-  };
-  return Subject2;
-}(Observable$1);
-var AnonymousSubject$1 = function(_super) {
-  __extends$1(AnonymousSubject2, _super);
-  function AnonymousSubject2(destination, source2) {
-    var _this = _super.call(this) || this;
-    _this.destination = destination;
-    _this.source = source2;
-    return _this;
-  }
-  AnonymousSubject2.prototype.next = function(value) {
-    var _a, _b;
-    (_b = (_a = this.destination) === null || _a === void 0 ? void 0 : _a.next) === null || _b === void 0 ? void 0 : _b.call(_a, value);
-  };
-  AnonymousSubject2.prototype.error = function(err) {
-    var _a, _b;
-    (_b = (_a = this.destination) === null || _a === void 0 ? void 0 : _a.error) === null || _b === void 0 ? void 0 : _b.call(_a, err);
-  };
-  AnonymousSubject2.prototype.complete = function() {
-    var _a, _b;
-    (_b = (_a = this.destination) === null || _a === void 0 ? void 0 : _a.complete) === null || _b === void 0 ? void 0 : _b.call(_a);
-  };
-  AnonymousSubject2.prototype._subscribe = function(subscriber) {
-    var _a, _b;
-    return (_b = (_a = this.source) === null || _a === void 0 ? void 0 : _a.subscribe(subscriber)) !== null && _b !== void 0 ? _b : EMPTY_SUBSCRIPTION;
-  };
-  return AnonymousSubject2;
-}(Subject$1);
-function fromSubscribable(subscribable) {
-  return new Observable$1(function(subscriber) {
-    return subscribable.subscribe(subscriber);
-  });
-}
-var DEFAULT_CONFIG = {
-  connector: function() {
-    return new Subject$1();
-  }
-};
-function connect$1(selector, config2) {
-  if (config2 === void 0) {
-    config2 = DEFAULT_CONFIG;
-  }
-  var connector = config2.connector;
-  return operate(function(source2, subscriber) {
-    var subject = connector();
-    from$1(selector(fromSubscribable(subject))).subscribe(subscriber);
-    subscriber.add(source2.subscribe(subject));
-  });
-}
-function count$1(predicate) {
-  return reduce$1(function(total, value, i2) {
-    return !predicate || predicate(value, i2) ? total + 1 : total;
-  }, 0);
-}
-function debounce$1(durationSelector) {
-  return operate(function(source2, subscriber) {
-    var hasValue = false;
-    var lastValue = null;
-    var durationSubscriber = null;
-    var emit4 = function() {
-      durationSubscriber === null || durationSubscriber === void 0 ? void 0 : durationSubscriber.unsubscribe();
-      durationSubscriber = null;
-      if (hasValue) {
-        hasValue = false;
-        var value = lastValue;
-        lastValue = null;
-        subscriber.next(value);
-      }
-    };
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      durationSubscriber === null || durationSubscriber === void 0 ? void 0 : durationSubscriber.unsubscribe();
-      hasValue = true;
-      lastValue = value;
-      durationSubscriber = createOperatorSubscriber(subscriber, emit4, noop$2);
-      innerFrom(durationSelector(value)).subscribe(durationSubscriber);
-    }, function() {
-      emit4();
-      subscriber.complete();
-    }, void 0, function() {
-      lastValue = durationSubscriber = null;
-    }));
-  });
-}
-function debounceTime$1(dueTime, scheduler) {
-  if (scheduler === void 0) {
-    scheduler = asyncScheduler$1;
-  }
-  return operate(function(source2, subscriber) {
-    var activeTask = null;
-    var lastValue = null;
-    var lastTime = null;
-    var emit4 = function() {
-      if (activeTask) {
-        activeTask.unsubscribe();
-        activeTask = null;
-        var value = lastValue;
-        lastValue = null;
-        subscriber.next(value);
-      }
-    };
-    function emitWhenIdle() {
-      var targetTime = lastTime + dueTime;
-      var now2 = scheduler.now();
-      if (now2 < targetTime) {
-        activeTask = this.schedule(void 0, targetTime - now2);
-        subscriber.add(activeTask);
-        return;
-      }
-      emit4();
-    }
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      lastValue = value;
-      lastTime = scheduler.now();
-      if (!activeTask) {
-        activeTask = scheduler.schedule(emitWhenIdle, dueTime);
-        subscriber.add(activeTask);
-      }
-    }, function() {
-      emit4();
-      subscriber.complete();
-    }, void 0, function() {
-      lastValue = activeTask = null;
-    }));
-  });
-}
-function defaultIfEmpty$1(defaultValue) {
-  return operate(function(source2, subscriber) {
-    var hasValue = false;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      hasValue = true;
-      subscriber.next(value);
-    }, function() {
-      if (!hasValue) {
-        subscriber.next(defaultValue);
-      }
-      subscriber.complete();
-    }));
-  });
-}
-function concat$2() {
-  var args = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-  return concatAll$1()(from$1(args, popScheduler(args)));
-}
-var EMPTY$1 = new Observable$1(function(subscriber) {
-  return subscriber.complete();
-});
-function take$1(count2) {
-  return count2 <= 0 ? function() {
-    return EMPTY$1;
-  } : operate(function(source2, subscriber) {
-    var seen = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      if (++seen <= count2) {
-        subscriber.next(value);
-        if (count2 <= seen) {
-          subscriber.complete();
-        }
-      }
-    }));
-  });
-}
-function ignoreElements$1() {
-  return operate(function(source2, subscriber) {
-    source2.subscribe(createOperatorSubscriber(subscriber, noop$2));
-  });
-}
-function mapTo$1(value) {
-  return map$1(function() {
-    return value;
-  });
-}
-function delayWhen$1(delayDurationSelector, subscriptionDelay) {
-  if (subscriptionDelay) {
-    return function(source2) {
-      return concat$2(subscriptionDelay.pipe(take$1(1), ignoreElements$1()), source2.pipe(delayWhen$1(delayDurationSelector)));
-    };
-  }
-  return mergeMap$1(function(value, index2) {
-    return delayDurationSelector(value, index2).pipe(take$1(1), mapTo$1(value));
-  });
-}
-function delay$1(due, scheduler) {
-  if (scheduler === void 0) {
-    scheduler = asyncScheduler$1;
-  }
-  var duration = timer$1(due, scheduler);
-  return delayWhen$1(function() {
-    return duration;
-  });
-}
-function of$1() {
-  var args = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-  var scheduler = popScheduler(args);
-  return from$1(args, scheduler);
-}
-function throwError$1(errorOrErrorFactory, scheduler) {
-  var errorFactory = isFunction$2(errorOrErrorFactory) ? errorOrErrorFactory : function() {
-    return errorOrErrorFactory;
-  };
-  var init2 = function(subscriber) {
-    return subscriber.error(errorFactory());
-  };
-  return new Observable$1(scheduler ? function(subscriber) {
-    return scheduler.schedule(init2, 0, subscriber);
-  } : init2);
-}
-var NotificationKind;
-(function(NotificationKind2) {
-  NotificationKind2["NEXT"] = "N";
-  NotificationKind2["ERROR"] = "E";
-  NotificationKind2["COMPLETE"] = "C";
-})(NotificationKind || (NotificationKind = {}));
-var Notification$1 = function() {
-  function Notification2(kind, value, error) {
-    this.kind = kind;
-    this.value = value;
-    this.error = error;
-    this.hasValue = kind === "N";
-  }
-  Notification2.prototype.observe = function(observer) {
-    return observeNotification(this, observer);
-  };
-  Notification2.prototype.do = function(nextHandler, errorHandler, completeHandler) {
-    var _a = this, kind = _a.kind, value = _a.value, error = _a.error;
-    return kind === "N" ? nextHandler === null || nextHandler === void 0 ? void 0 : nextHandler(value) : kind === "E" ? errorHandler === null || errorHandler === void 0 ? void 0 : errorHandler(error) : completeHandler === null || completeHandler === void 0 ? void 0 : completeHandler();
-  };
-  Notification2.prototype.accept = function(nextOrObserver, error, complete) {
-    var _a;
-    return isFunction$2((_a = nextOrObserver) === null || _a === void 0 ? void 0 : _a.next) ? this.observe(nextOrObserver) : this.do(nextOrObserver, error, complete);
-  };
-  Notification2.prototype.toObservable = function() {
-    var _a = this, kind = _a.kind, value = _a.value, error = _a.error;
-    var result = kind === "N" ? of$1(value) : kind === "E" ? throwError$1(function() {
-      return error;
-    }) : kind === "C" ? EMPTY$1 : 0;
-    if (!result) {
-      throw new TypeError("Unexpected notification kind " + kind);
-    }
-    return result;
-  };
-  Notification2.createNext = function(value) {
-    return new Notification2("N", value);
-  };
-  Notification2.createError = function(err) {
-    return new Notification2("E", void 0, err);
-  };
-  Notification2.createComplete = function() {
-    return Notification2.completeNotification;
-  };
-  Notification2.completeNotification = new Notification2("C");
-  return Notification2;
-}();
-function observeNotification(notification, observer) {
-  var _a, _b, _c;
-  var _d = notification, kind = _d.kind, value = _d.value, error = _d.error;
-  if (typeof kind !== "string") {
-    throw new TypeError('Invalid notification, missing "kind"');
-  }
-  kind === "N" ? (_a = observer.next) === null || _a === void 0 ? void 0 : _a.call(observer, value) : kind === "E" ? (_b = observer.error) === null || _b === void 0 ? void 0 : _b.call(observer, error) : (_c = observer.complete) === null || _c === void 0 ? void 0 : _c.call(observer);
-}
-function dematerialize$1() {
-  return operate(function(source2, subscriber) {
-    source2.subscribe(createOperatorSubscriber(subscriber, function(notification) {
-      return observeNotification(notification, subscriber);
-    }));
-  });
-}
-function distinct$1(keySelector, flushes) {
-  return operate(function(source2, subscriber) {
-    var distinctKeys = /* @__PURE__ */ new Set();
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var key = keySelector ? keySelector(value) : value;
-      if (!distinctKeys.has(key)) {
-        distinctKeys.add(key);
-        subscriber.next(value);
-      }
-    }));
-    flushes === null || flushes === void 0 ? void 0 : flushes.subscribe(createOperatorSubscriber(subscriber, function() {
-      return distinctKeys.clear();
-    }, noop$2));
-  });
-}
-function distinctUntilChanged$1(comparator, keySelector) {
-  if (keySelector === void 0) {
-    keySelector = identity$1;
-  }
-  comparator = comparator !== null && comparator !== void 0 ? comparator : defaultCompare;
-  return operate(function(source2, subscriber) {
-    var previousKey;
-    var first2 = true;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var currentKey = keySelector(value);
-      if (first2 || !comparator(previousKey, currentKey)) {
-        first2 = false;
-        previousKey = currentKey;
-        subscriber.next(value);
-      }
-    }));
-  });
-}
-function defaultCompare(a, b) {
-  return a === b;
-}
-function distinctUntilKeyChanged$1(key, compare2) {
-  return distinctUntilChanged$1(function(x, y) {
-    return compare2 ? compare2(x[key], y[key]) : x[key] === y[key];
-  });
-}
-var ArgumentOutOfRangeError$1 = createErrorClass(function(_super) {
-  return function ArgumentOutOfRangeErrorImpl2() {
-    _super(this);
-    this.name = "ArgumentOutOfRangeError";
-    this.message = "argument out of range";
-  };
-});
-function filter$1(predicate, thisArg) {
-  return operate(function(source2, subscriber) {
-    var index2 = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      return predicate.call(thisArg, value, index2++) && subscriber.next(value);
-    }));
-  });
-}
-var EmptyError$1 = createErrorClass(function(_super) {
-  return function EmptyErrorImpl2() {
-    _super(this);
-    this.name = "EmptyError";
-    this.message = "no elements in sequence";
-  };
-});
-function throwIfEmpty$1(errorFactory) {
-  if (errorFactory === void 0) {
-    errorFactory = defaultErrorFactory$1;
-  }
-  return operate(function(source2, subscriber) {
-    var hasValue = false;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      hasValue = true;
-      subscriber.next(value);
-    }, function() {
-      return hasValue ? subscriber.complete() : subscriber.error(errorFactory());
-    }));
-  });
-}
-function defaultErrorFactory$1() {
-  return new EmptyError$1();
-}
-function elementAt$1(index2, defaultValue) {
-  if (index2 < 0) {
-    throw new ArgumentOutOfRangeError$1();
-  }
-  var hasDefaultValue = arguments.length >= 2;
-  return function(source2) {
-    return source2.pipe(filter$1(function(v, i2) {
-      return i2 === index2;
-    }), take$1(1), hasDefaultValue ? defaultIfEmpty$1(defaultValue) : throwIfEmpty$1(function() {
-      return new ArgumentOutOfRangeError$1();
-    }));
-  };
-}
-function endWith$1() {
-  var values2 = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    values2[_i] = arguments[_i];
-  }
-  return function(source2) {
-    return concat$2(source2, of$1.apply(void 0, __spreadArray([], __read(values2))));
-  };
-}
-function every$1(predicate, thisArg) {
-  return operate(function(source2, subscriber) {
-    var index2 = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      if (!predicate.call(thisArg, value, index2++, source2)) {
-        subscriber.next(false);
-        subscriber.complete();
-      }
-    }, function() {
-      subscriber.next(true);
-      subscriber.complete();
-    }));
-  });
-}
-function exhaustAll() {
-  return operate(function(source2, subscriber) {
-    var isComplete = false;
-    var innerSub = null;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(inner) {
-      if (!innerSub) {
-        innerSub = innerFrom(inner).subscribe(createOperatorSubscriber(subscriber, void 0, function() {
-          innerSub = null;
-          isComplete && subscriber.complete();
-        }));
-      }
-    }, function() {
-      isComplete = true;
-      !innerSub && subscriber.complete();
-    }));
-  });
-}
-var exhaust$1 = exhaustAll;
-function exhaustMap$1(project, resultSelector) {
-  if (resultSelector) {
-    return function(source2) {
-      return source2.pipe(exhaustMap$1(function(a, i2) {
-        return innerFrom(project(a, i2)).pipe(map$1(function(b, ii) {
-          return resultSelector(a, b, i2, ii);
-        }));
-      }));
-    };
-  }
-  return operate(function(source2, subscriber) {
-    var index2 = 0;
-    var innerSub = null;
-    var isComplete = false;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(outerValue) {
-      if (!innerSub) {
-        innerSub = createOperatorSubscriber(subscriber, void 0, function() {
-          innerSub = null;
-          isComplete && subscriber.complete();
-        });
-        innerFrom(project(outerValue, index2++)).subscribe(innerSub);
-      }
-    }, function() {
-      isComplete = true;
-      !innerSub && subscriber.complete();
-    }));
-  });
-}
-function expand$1(project, concurrent, scheduler) {
-  if (concurrent === void 0) {
-    concurrent = Infinity;
-  }
-  concurrent = (concurrent || 0) < 1 ? Infinity : concurrent;
-  return operate(function(source2, subscriber) {
-    return mergeInternals(source2, subscriber, project, concurrent, void 0, true, scheduler);
-  });
-}
-function finalize$1(callback) {
-  return operate(function(source2, subscriber) {
-    try {
-      source2.subscribe(subscriber);
-    } finally {
-      subscriber.add(callback);
-    }
-  });
-}
-function find$2(predicate, thisArg) {
-  return operate(createFind(predicate, thisArg, "value"));
-}
-function createFind(predicate, thisArg, emit4) {
-  var findIndex2 = emit4 === "index";
-  return function(source2, subscriber) {
-    var index2 = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var i2 = index2++;
-      if (predicate.call(thisArg, value, i2, source2)) {
-        subscriber.next(findIndex2 ? i2 : value);
-        subscriber.complete();
-      }
-    }, function() {
-      subscriber.next(findIndex2 ? -1 : void 0);
-      subscriber.complete();
-    }));
-  };
-}
-function findIndex$1(predicate, thisArg) {
-  return operate(createFind(predicate, thisArg, "index"));
-}
-function first$1(predicate, defaultValue) {
-  var hasDefaultValue = arguments.length >= 2;
-  return function(source2) {
-    return source2.pipe(predicate ? filter$1(function(v, i2) {
-      return predicate(v, i2, source2);
-    }) : identity$1, take$1(1), hasDefaultValue ? defaultIfEmpty$1(defaultValue) : throwIfEmpty$1(function() {
-      return new EmptyError$1();
-    }));
-  };
-}
-function groupBy$1(keySelector, elementOrOptions, duration, connector) {
-  return operate(function(source2, subscriber) {
-    var element;
-    if (!elementOrOptions || typeof elementOrOptions === "function") {
-      element = elementOrOptions;
-    } else {
-      duration = elementOrOptions.duration, element = elementOrOptions.element, connector = elementOrOptions.connector;
-    }
-    var groups = /* @__PURE__ */ new Map();
-    var notify = function(cb) {
-      groups.forEach(cb);
-      cb(subscriber);
-    };
-    var handleError = function(err) {
-      return notify(function(consumer) {
-        return consumer.error(err);
-      });
-    };
-    var activeGroups = 0;
-    var teardownAttempted = false;
-    var groupBySourceSubscriber = new OperatorSubscriber(subscriber, function(value) {
-      try {
-        var key_1 = keySelector(value);
-        var group_1 = groups.get(key_1);
-        if (!group_1) {
-          groups.set(key_1, group_1 = connector ? connector() : new Subject$1());
-          var grouped = createGroupedObservable(key_1, group_1);
-          subscriber.next(grouped);
-          if (duration) {
-            var durationSubscriber_1 = createOperatorSubscriber(group_1, function() {
-              group_1.complete();
-              durationSubscriber_1 === null || durationSubscriber_1 === void 0 ? void 0 : durationSubscriber_1.unsubscribe();
-            }, void 0, void 0, function() {
-              return groups.delete(key_1);
-            });
-            groupBySourceSubscriber.add(innerFrom(duration(grouped)).subscribe(durationSubscriber_1));
-          }
-        }
-        group_1.next(element ? element(value) : value);
-      } catch (err) {
-        handleError(err);
-      }
-    }, function() {
-      return notify(function(consumer) {
-        return consumer.complete();
-      });
-    }, handleError, function() {
-      return groups.clear();
-    }, function() {
-      teardownAttempted = true;
-      return activeGroups === 0;
-    });
-    source2.subscribe(groupBySourceSubscriber);
-    function createGroupedObservable(key, groupSubject) {
-      var result = new Observable$1(function(groupSubscriber) {
-        activeGroups++;
-        var innerSub = groupSubject.subscribe(groupSubscriber);
-        return function() {
-          innerSub.unsubscribe();
-          --activeGroups === 0 && teardownAttempted && groupBySourceSubscriber.unsubscribe();
-        };
-      });
-      result.key = key;
-      return result;
-    }
-  });
-}
-function isEmpty$1() {
-  return operate(function(source2, subscriber) {
-    source2.subscribe(createOperatorSubscriber(subscriber, function() {
-      subscriber.next(false);
-      subscriber.complete();
-    }, function() {
-      subscriber.next(true);
-      subscriber.complete();
-    }));
-  });
-}
-function takeLast$1(count2) {
-  return count2 <= 0 ? function() {
-    return EMPTY$1;
-  } : operate(function(source2, subscriber) {
-    var buffer2 = [];
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      buffer2.push(value);
-      count2 < buffer2.length && buffer2.shift();
-    }, function() {
-      var e_1, _a;
-      try {
-        for (var buffer_1 = __values(buffer2), buffer_1_1 = buffer_1.next(); !buffer_1_1.done; buffer_1_1 = buffer_1.next()) {
-          var value = buffer_1_1.value;
-          subscriber.next(value);
-        }
-      } catch (e_1_1) {
-        e_1 = { error: e_1_1 };
-      } finally {
-        try {
-          if (buffer_1_1 && !buffer_1_1.done && (_a = buffer_1.return))
-            _a.call(buffer_1);
-        } finally {
-          if (e_1)
-            throw e_1.error;
-        }
-      }
-      subscriber.complete();
-    }, void 0, function() {
-      buffer2 = null;
-    }));
-  });
-}
-function last$1(predicate, defaultValue) {
-  var hasDefaultValue = arguments.length >= 2;
-  return function(source2) {
-    return source2.pipe(predicate ? filter$1(function(v, i2) {
-      return predicate(v, i2, source2);
-    }) : identity$1, takeLast$1(1), hasDefaultValue ? defaultIfEmpty$1(defaultValue) : throwIfEmpty$1(function() {
-      return new EmptyError$1();
-    }));
-  };
-}
-function materialize$1() {
-  return operate(function(source2, subscriber) {
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      subscriber.next(Notification$1.createNext(value));
-    }, function() {
-      subscriber.next(Notification$1.createComplete());
-      subscriber.complete();
-    }, function(err) {
-      subscriber.next(Notification$1.createError(err));
-      subscriber.complete();
-    }));
-  });
-}
-function max$1(comparer) {
-  return reduce$1(isFunction$2(comparer) ? function(x, y) {
-    return comparer(x, y) > 0 ? x : y;
-  } : function(x, y) {
-    return x > y ? x : y;
-  });
-}
-function merge$3() {
-  var args = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-  var scheduler = popScheduler(args);
-  var concurrent = popNumber(args, Infinity);
-  args = argsOrArgArray(args);
-  return operate(function(source2, subscriber) {
-    mergeAll$1(concurrent)(from$1(__spreadArray([source2], __read(args)), scheduler)).subscribe(subscriber);
-  });
-}
-var flatMap$1 = mergeMap$1;
-function mergeMapTo$1(innerObservable, resultSelector, concurrent) {
-  if (concurrent === void 0) {
-    concurrent = Infinity;
-  }
-  if (isFunction$2(resultSelector)) {
-    return mergeMap$1(function() {
-      return innerObservable;
-    }, resultSelector, concurrent);
-  }
-  if (typeof resultSelector === "number") {
-    concurrent = resultSelector;
-  }
-  return mergeMap$1(function() {
-    return innerObservable;
-  }, concurrent);
-}
-function mergeScan$1(accumulator, seed, concurrent) {
-  if (concurrent === void 0) {
-    concurrent = Infinity;
-  }
-  return operate(function(source2, subscriber) {
-    var state2 = seed;
-    return mergeInternals(source2, subscriber, function(value, index2) {
-      return accumulator(state2, value, index2);
-    }, concurrent, function(value) {
-      state2 = value;
-    }, false, void 0, function() {
-      return state2 = null;
-    });
-  });
-}
-function mergeWith() {
-  var otherSources = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    otherSources[_i] = arguments[_i];
-  }
-  return merge$3.apply(void 0, __spreadArray([], __read(otherSources)));
-}
-function min$1(comparer) {
-  return reduce$1(isFunction$2(comparer) ? function(x, y) {
-    return comparer(x, y) < 0 ? x : y;
-  } : function(x, y) {
-    return x < y ? x : y;
-  });
-}
-function refCount$1() {
-  return operate(function(source2, subscriber) {
-    var connection = null;
-    source2._refCount++;
-    var refCounter = createOperatorSubscriber(subscriber, void 0, void 0, void 0, function() {
-      if (!source2 || source2._refCount <= 0 || 0 < --source2._refCount) {
-        connection = null;
-        return;
-      }
-      var sharedConnection = source2._connection;
-      var conn = connection;
-      connection = null;
-      if (sharedConnection && (!conn || sharedConnection === conn)) {
-        sharedConnection.unsubscribe();
-      }
-      subscriber.unsubscribe();
-    });
-    source2.subscribe(refCounter);
-    if (!refCounter.closed) {
-      connection = source2.connect();
-    }
-  });
-}
-var ConnectableObservable$1 = function(_super) {
-  __extends$1(ConnectableObservable2, _super);
-  function ConnectableObservable2(source2, subjectFactory) {
-    var _this = _super.call(this) || this;
-    _this.source = source2;
-    _this.subjectFactory = subjectFactory;
-    _this._subject = null;
-    _this._refCount = 0;
-    _this._connection = null;
-    if (hasLift(source2)) {
-      _this.lift = source2.lift;
-    }
-    return _this;
-  }
-  ConnectableObservable2.prototype._subscribe = function(subscriber) {
-    return this.getSubject().subscribe(subscriber);
-  };
-  ConnectableObservable2.prototype.getSubject = function() {
-    var subject = this._subject;
-    if (!subject || subject.isStopped) {
-      this._subject = this.subjectFactory();
-    }
-    return this._subject;
-  };
-  ConnectableObservable2.prototype._teardown = function() {
-    this._refCount = 0;
-    var _connection = this._connection;
-    this._subject = this._connection = null;
-    _connection === null || _connection === void 0 ? void 0 : _connection.unsubscribe();
-  };
-  ConnectableObservable2.prototype.connect = function() {
-    var _this = this;
-    var connection = this._connection;
-    if (!connection) {
-      connection = this._connection = new Subscription$1();
-      var subject_1 = this.getSubject();
-      connection.add(this.source.subscribe(createOperatorSubscriber(subject_1, void 0, function() {
-        _this._teardown();
-        subject_1.complete();
-      }, function(err) {
-        _this._teardown();
-        subject_1.error(err);
-      }, function() {
-        return _this._teardown();
-      })));
-      if (connection.closed) {
-        this._connection = null;
-        connection = Subscription$1.EMPTY;
-      }
-    }
-    return connection;
-  };
-  ConnectableObservable2.prototype.refCount = function() {
-    return refCount$1()(this);
-  };
-  return ConnectableObservable2;
-}(Observable$1);
-function multicast$1(subjectOrSubjectFactory, selector) {
-  var subjectFactory = isFunction$2(subjectOrSubjectFactory) ? subjectOrSubjectFactory : function() {
-    return subjectOrSubjectFactory;
-  };
-  if (isFunction$2(selector)) {
-    return connect$1(selector, {
-      connector: subjectFactory
-    });
-  }
-  return function(source2) {
-    return new ConnectableObservable$1(source2, subjectFactory);
-  };
-}
-function onErrorResumeNext$1() {
-  var sources2 = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    sources2[_i] = arguments[_i];
-  }
-  var nextSources = argsOrArgArray(sources2);
-  return operate(function(source2, subscriber) {
-    var remaining = __spreadArray([source2], __read(nextSources));
-    var subscribeNext = function() {
-      if (!subscriber.closed) {
-        if (remaining.length > 0) {
-          var nextSource = void 0;
-          try {
-            nextSource = innerFrom(remaining.shift());
-          } catch (err) {
-            subscribeNext();
-            return;
-          }
-          var innerSub = createOperatorSubscriber(subscriber, void 0, noop$2, noop$2);
-          nextSource.subscribe(innerSub);
-          innerSub.add(subscribeNext);
-        } else {
-          subscriber.complete();
-        }
-      }
-    };
-    subscribeNext();
-  });
-}
-function pairwise$1() {
-  return operate(function(source2, subscriber) {
-    var prev;
-    var hasPrev = false;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var p = prev;
-      prev = value;
-      hasPrev && subscriber.next([p, value]);
-      hasPrev = true;
-    }));
-  });
-}
-function not$1(pred, thisArg) {
-  return function(value, index2) {
-    return !pred.call(thisArg, value, index2);
-  };
-}
-function partition$1(predicate, thisArg) {
-  return function(source2) {
-    return [filter$1(predicate, thisArg)(source2), filter$1(not$1(predicate, thisArg))(source2)];
-  };
-}
-function pluck$1() {
-  var properties = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    properties[_i] = arguments[_i];
-  }
-  var length3 = properties.length;
-  if (length3 === 0) {
-    throw new Error("list of properties cannot be empty.");
-  }
-  return map$1(function(x) {
-    var currentProp = x;
-    for (var i2 = 0; i2 < length3; i2++) {
-      var p = currentProp === null || currentProp === void 0 ? void 0 : currentProp[properties[i2]];
-      if (typeof p !== "undefined") {
-        currentProp = p;
-      } else {
-        return void 0;
-      }
-    }
-    return currentProp;
-  });
-}
-function publish$1(selector) {
-  return selector ? function(source2) {
-    return connect$1(selector)(source2);
-  } : function(source2) {
-    return multicast$1(new Subject$1())(source2);
-  };
-}
-var BehaviorSubject$1 = function(_super) {
-  __extends$1(BehaviorSubject2, _super);
-  function BehaviorSubject2(_value) {
-    var _this = _super.call(this) || this;
-    _this._value = _value;
-    return _this;
-  }
-  Object.defineProperty(BehaviorSubject2.prototype, "value", {
-    get: function() {
-      return this.getValue();
-    },
-    enumerable: false,
-    configurable: true
-  });
-  BehaviorSubject2.prototype._subscribe = function(subscriber) {
-    var subscription = _super.prototype._subscribe.call(this, subscriber);
-    !subscription.closed && subscriber.next(this._value);
-    return subscription;
-  };
-  BehaviorSubject2.prototype.getValue = function() {
-    var _a = this, hasError = _a.hasError, thrownError = _a.thrownError, _value = _a._value;
-    if (hasError) {
-      throw thrownError;
-    }
-    this._throwIfClosed();
-    return _value;
-  };
-  BehaviorSubject2.prototype.next = function(value) {
-    _super.prototype.next.call(this, this._value = value);
-  };
-  return BehaviorSubject2;
-}(Subject$1);
-function publishBehavior$1(initialValue) {
-  return function(source2) {
-    var subject = new BehaviorSubject$1(initialValue);
-    return new ConnectableObservable$1(source2, function() {
-      return subject;
-    });
-  };
-}
-var AsyncSubject$1 = function(_super) {
-  __extends$1(AsyncSubject2, _super);
-  function AsyncSubject2() {
-    var _this = _super !== null && _super.apply(this, arguments) || this;
-    _this._value = null;
-    _this._hasValue = false;
-    _this._isComplete = false;
-    return _this;
-  }
-  AsyncSubject2.prototype._checkFinalizedStatuses = function(subscriber) {
-    var _a = this, hasError = _a.hasError, _hasValue = _a._hasValue, _value = _a._value, thrownError = _a.thrownError, isStopped = _a.isStopped, _isComplete = _a._isComplete;
-    if (hasError) {
-      subscriber.error(thrownError);
-    } else if (isStopped || _isComplete) {
-      _hasValue && subscriber.next(_value);
-      subscriber.complete();
-    }
-  };
-  AsyncSubject2.prototype.next = function(value) {
-    if (!this.isStopped) {
-      this._value = value;
-      this._hasValue = true;
-    }
-  };
-  AsyncSubject2.prototype.complete = function() {
-    var _a = this, _hasValue = _a._hasValue, _value = _a._value, _isComplete = _a._isComplete;
-    if (!_isComplete) {
-      this._isComplete = true;
-      _hasValue && _super.prototype.next.call(this, _value);
-      _super.prototype.complete.call(this);
-    }
-  };
-  return AsyncSubject2;
-}(Subject$1);
-function publishLast$1() {
-  return function(source2) {
-    var subject = new AsyncSubject$1();
-    return new ConnectableObservable$1(source2, function() {
-      return subject;
-    });
-  };
-}
-var ReplaySubject$1 = function(_super) {
-  __extends$1(ReplaySubject2, _super);
-  function ReplaySubject2(_bufferSize, _windowTime, _timestampProvider) {
-    if (_bufferSize === void 0) {
-      _bufferSize = Infinity;
-    }
-    if (_windowTime === void 0) {
-      _windowTime = Infinity;
-    }
-    if (_timestampProvider === void 0) {
-      _timestampProvider = dateTimestampProvider;
-    }
-    var _this = _super.call(this) || this;
-    _this._bufferSize = _bufferSize;
-    _this._windowTime = _windowTime;
-    _this._timestampProvider = _timestampProvider;
-    _this._buffer = [];
-    _this._infiniteTimeWindow = true;
-    _this._infiniteTimeWindow = _windowTime === Infinity;
-    _this._bufferSize = Math.max(1, _bufferSize);
-    _this._windowTime = Math.max(1, _windowTime);
-    return _this;
-  }
-  ReplaySubject2.prototype.next = function(value) {
-    var _a = this, isStopped = _a.isStopped, _buffer = _a._buffer, _infiniteTimeWindow = _a._infiniteTimeWindow, _timestampProvider = _a._timestampProvider, _windowTime = _a._windowTime;
-    if (!isStopped) {
-      _buffer.push(value);
-      !_infiniteTimeWindow && _buffer.push(_timestampProvider.now() + _windowTime);
-    }
-    this._trimBuffer();
-    _super.prototype.next.call(this, value);
-  };
-  ReplaySubject2.prototype._subscribe = function(subscriber) {
-    this._throwIfClosed();
-    this._trimBuffer();
-    var subscription = this._innerSubscribe(subscriber);
-    var _a = this, _infiniteTimeWindow = _a._infiniteTimeWindow, _buffer = _a._buffer;
-    var copy = _buffer.slice();
-    for (var i2 = 0; i2 < copy.length && !subscriber.closed; i2 += _infiniteTimeWindow ? 1 : 2) {
-      subscriber.next(copy[i2]);
-    }
-    this._checkFinalizedStatuses(subscriber);
-    return subscription;
-  };
-  ReplaySubject2.prototype._trimBuffer = function() {
-    var _a = this, _bufferSize = _a._bufferSize, _timestampProvider = _a._timestampProvider, _buffer = _a._buffer, _infiniteTimeWindow = _a._infiniteTimeWindow;
-    var adjustedBufferSize = (_infiniteTimeWindow ? 1 : 2) * _bufferSize;
-    _bufferSize < Infinity && adjustedBufferSize < _buffer.length && _buffer.splice(0, _buffer.length - adjustedBufferSize);
-    if (!_infiniteTimeWindow) {
-      var now2 = _timestampProvider.now();
-      var last2 = 0;
-      for (var i2 = 1; i2 < _buffer.length && _buffer[i2] <= now2; i2 += 2) {
-        last2 = i2;
-      }
-      last2 && _buffer.splice(0, last2 + 1);
-    }
-  };
-  return ReplaySubject2;
-}(Subject$1);
-function publishReplay$1(bufferSize, windowTime2, selectorOrScheduler, timestampProvider) {
-  if (selectorOrScheduler && !isFunction$2(selectorOrScheduler)) {
-    timestampProvider = selectorOrScheduler;
-  }
-  var selector = isFunction$2(selectorOrScheduler) ? selectorOrScheduler : void 0;
-  return function(source2) {
-    return multicast$1(new ReplaySubject$1(bufferSize, windowTime2, timestampProvider), selector)(source2);
-  };
-}
-function raceInit(sources2) {
-  return function(subscriber) {
-    var subscriptions = [];
-    var _loop_1 = function(i3) {
-      subscriptions.push(innerFrom(sources2[i3]).subscribe(createOperatorSubscriber(subscriber, function(value) {
-        if (subscriptions) {
-          for (var s = 0; s < subscriptions.length; s++) {
-            s !== i3 && subscriptions[s].unsubscribe();
-          }
-          subscriptions = null;
-        }
-        subscriber.next(value);
-      })));
-    };
-    for (var i2 = 0; subscriptions && !subscriber.closed && i2 < sources2.length; i2++) {
-      _loop_1(i2);
-    }
-  };
-}
-function raceWith() {
-  var otherSources = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    otherSources[_i] = arguments[_i];
-  }
-  return !otherSources.length ? identity$1 : operate(function(source2, subscriber) {
-    raceInit(__spreadArray([source2], __read(otherSources)))(subscriber);
-  });
-}
-function race$2() {
-  var args = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-  return raceWith.apply(void 0, __spreadArray([], __read(argsOrArgArray(args))));
-}
-function repeat$1(countOrConfig) {
-  var _a;
-  var count2 = Infinity;
-  var delay2;
-  if (countOrConfig != null) {
-    if (typeof countOrConfig === "object") {
-      _a = countOrConfig.count, count2 = _a === void 0 ? Infinity : _a, delay2 = countOrConfig.delay;
-    } else {
-      count2 = countOrConfig;
-    }
-  }
-  return count2 <= 0 ? function() {
-    return EMPTY$1;
-  } : operate(function(source2, subscriber) {
-    var soFar = 0;
-    var sourceSub;
-    var resubscribe = function() {
-      sourceSub === null || sourceSub === void 0 ? void 0 : sourceSub.unsubscribe();
-      sourceSub = null;
-      if (delay2 != null) {
-        var notifier = typeof delay2 === "number" ? timer$1(delay2) : innerFrom(delay2(soFar));
-        var notifierSubscriber_1 = createOperatorSubscriber(subscriber, function() {
-          notifierSubscriber_1.unsubscribe();
-          subscribeToSource();
-        });
-        notifier.subscribe(notifierSubscriber_1);
-      } else {
-        subscribeToSource();
-      }
-    };
-    var subscribeToSource = function() {
-      var syncUnsub = false;
-      sourceSub = source2.subscribe(createOperatorSubscriber(subscriber, void 0, function() {
-        if (++soFar < count2) {
-          if (sourceSub) {
-            resubscribe();
-          } else {
-            syncUnsub = true;
-          }
-        } else {
-          subscriber.complete();
-        }
-      }));
-      if (syncUnsub) {
-        resubscribe();
-      }
-    };
-    subscribeToSource();
-  });
-}
-function repeatWhen$1(notifier) {
-  return operate(function(source2, subscriber) {
-    var innerSub;
-    var syncResub = false;
-    var completions$;
-    var isNotifierComplete = false;
-    var isMainComplete = false;
-    var checkComplete = function() {
-      return isMainComplete && isNotifierComplete && (subscriber.complete(), true);
-    };
-    var getCompletionSubject = function() {
-      if (!completions$) {
-        completions$ = new Subject$1();
-        notifier(completions$).subscribe(createOperatorSubscriber(subscriber, function() {
-          if (innerSub) {
-            subscribeForRepeatWhen();
-          } else {
-            syncResub = true;
-          }
-        }, function() {
-          isNotifierComplete = true;
-          checkComplete();
-        }));
-      }
-      return completions$;
-    };
-    var subscribeForRepeatWhen = function() {
-      isMainComplete = false;
-      innerSub = source2.subscribe(createOperatorSubscriber(subscriber, void 0, function() {
-        isMainComplete = true;
-        !checkComplete() && getCompletionSubject().next();
-      }));
-      if (syncResub) {
-        innerSub.unsubscribe();
-        innerSub = null;
-        syncResub = false;
-        subscribeForRepeatWhen();
-      }
-    };
-    subscribeForRepeatWhen();
-  });
-}
-function retry$1(configOrCount) {
-  if (configOrCount === void 0) {
-    configOrCount = Infinity;
-  }
-  var config2;
-  if (configOrCount && typeof configOrCount === "object") {
-    config2 = configOrCount;
-  } else {
-    config2 = {
-      count: configOrCount
-    };
-  }
-  var _a = config2.count, count2 = _a === void 0 ? Infinity : _a, delay2 = config2.delay, _b = config2.resetOnSuccess, resetOnSuccess = _b === void 0 ? false : _b;
-  return count2 <= 0 ? identity$1 : operate(function(source2, subscriber) {
-    var soFar = 0;
-    var innerSub;
-    var subscribeForRetry = function() {
-      var syncUnsub = false;
-      innerSub = source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-        if (resetOnSuccess) {
-          soFar = 0;
-        }
-        subscriber.next(value);
-      }, void 0, function(err) {
-        if (soFar++ < count2) {
-          var resub_1 = function() {
-            if (innerSub) {
-              innerSub.unsubscribe();
-              innerSub = null;
-              subscribeForRetry();
-            } else {
-              syncUnsub = true;
-            }
-          };
-          if (delay2 != null) {
-            var notifier = typeof delay2 === "number" ? timer$1(delay2) : innerFrom(delay2(err, soFar));
-            var notifierSubscriber_1 = createOperatorSubscriber(subscriber, function() {
-              notifierSubscriber_1.unsubscribe();
-              resub_1();
-            }, function() {
-              subscriber.complete();
-            });
-            notifier.subscribe(notifierSubscriber_1);
-          } else {
-            resub_1();
-          }
-        } else {
-          subscriber.error(err);
-        }
-      }));
-      if (syncUnsub) {
-        innerSub.unsubscribe();
-        innerSub = null;
-        subscribeForRetry();
-      }
-    };
-    subscribeForRetry();
-  });
-}
-function retryWhen$1(notifier) {
-  return operate(function(source2, subscriber) {
-    var innerSub;
-    var syncResub = false;
-    var errors$;
-    var subscribeForRetryWhen = function() {
-      innerSub = source2.subscribe(createOperatorSubscriber(subscriber, void 0, void 0, function(err) {
-        if (!errors$) {
-          errors$ = new Subject$1();
-          notifier(errors$).subscribe(createOperatorSubscriber(subscriber, function() {
-            return innerSub ? subscribeForRetryWhen() : syncResub = true;
-          }));
-        }
-        if (errors$) {
-          errors$.next(err);
-        }
-      }));
-      if (syncResub) {
-        innerSub.unsubscribe();
-        innerSub = null;
-        syncResub = false;
-        subscribeForRetryWhen();
-      }
-    };
-    subscribeForRetryWhen();
-  });
-}
-function sample$1(notifier) {
-  return operate(function(source2, subscriber) {
-    var hasValue = false;
-    var lastValue = null;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      hasValue = true;
-      lastValue = value;
-    }));
-    notifier.subscribe(createOperatorSubscriber(subscriber, function() {
-      if (hasValue) {
-        hasValue = false;
-        var value = lastValue;
-        lastValue = null;
-        subscriber.next(value);
-      }
-    }, noop$2));
-  });
-}
-function interval(period, scheduler) {
-  if (period === void 0) {
-    period = 0;
-  }
-  if (scheduler === void 0) {
-    scheduler = asyncScheduler$1;
-  }
-  if (period < 0) {
-    period = 0;
-  }
-  return timer$1(period, period, scheduler);
-}
-function sampleTime$1(period, scheduler) {
-  if (scheduler === void 0) {
-    scheduler = asyncScheduler$1;
-  }
-  return sample$1(interval(period, scheduler));
-}
-function scan$1(accumulator, seed) {
-  return operate(scanInternals(accumulator, seed, arguments.length >= 2, true));
-}
-function sequenceEqual$1(compareTo, comparator) {
-  if (comparator === void 0) {
-    comparator = function(a, b) {
-      return a === b;
-    };
-  }
-  return operate(function(source2, subscriber) {
-    var aState = createState();
-    var bState = createState();
-    var emit4 = function(isEqual2) {
-      subscriber.next(isEqual2);
-      subscriber.complete();
-    };
-    var createSubscriber = function(selfState, otherState) {
-      var sequenceEqualSubscriber = createOperatorSubscriber(subscriber, function(a) {
-        var buffer2 = otherState.buffer, complete = otherState.complete;
-        if (buffer2.length === 0) {
-          complete ? emit4(false) : selfState.buffer.push(a);
-        } else {
-          !comparator(a, buffer2.shift()) && emit4(false);
-        }
-      }, function() {
-        selfState.complete = true;
-        var complete = otherState.complete, buffer2 = otherState.buffer;
-        complete && emit4(buffer2.length === 0);
-        sequenceEqualSubscriber === null || sequenceEqualSubscriber === void 0 ? void 0 : sequenceEqualSubscriber.unsubscribe();
-      });
-      return sequenceEqualSubscriber;
-    };
-    source2.subscribe(createSubscriber(aState, bState));
-    compareTo.subscribe(createSubscriber(bState, aState));
-  });
-}
-function createState() {
-  return {
-    buffer: [],
-    complete: false
-  };
-}
-function share$1(options2) {
-  if (options2 === void 0) {
-    options2 = {};
-  }
-  var _a = options2.connector, connector = _a === void 0 ? function() {
-    return new Subject$1();
-  } : _a, _b = options2.resetOnError, resetOnError = _b === void 0 ? true : _b, _c = options2.resetOnComplete, resetOnComplete = _c === void 0 ? true : _c, _d = options2.resetOnRefCountZero, resetOnRefCountZero = _d === void 0 ? true : _d;
-  return function(wrapperSource) {
-    var connection = null;
-    var resetConnection = null;
-    var subject = null;
-    var refCount2 = 0;
-    var hasCompleted = false;
-    var hasErrored = false;
-    var cancelReset = function() {
-      resetConnection === null || resetConnection === void 0 ? void 0 : resetConnection.unsubscribe();
-      resetConnection = null;
-    };
-    var reset3 = function() {
-      cancelReset();
-      connection = subject = null;
-      hasCompleted = hasErrored = false;
-    };
-    var resetAndUnsubscribe = function() {
-      var conn = connection;
-      reset3();
-      conn === null || conn === void 0 ? void 0 : conn.unsubscribe();
-    };
-    return operate(function(source2, subscriber) {
-      refCount2++;
-      if (!hasErrored && !hasCompleted) {
-        cancelReset();
-      }
-      var dest = subject = subject !== null && subject !== void 0 ? subject : connector();
-      subscriber.add(function() {
-        refCount2--;
-        if (refCount2 === 0 && !hasErrored && !hasCompleted) {
-          resetConnection = handleReset(resetAndUnsubscribe, resetOnRefCountZero);
-        }
-      });
-      dest.subscribe(subscriber);
-      if (!connection) {
-        connection = new SafeSubscriber$1({
-          next: function(value) {
-            return dest.next(value);
-          },
-          error: function(err) {
-            hasErrored = true;
-            cancelReset();
-            resetConnection = handleReset(reset3, resetOnError, err);
-            dest.error(err);
-          },
-          complete: function() {
-            hasCompleted = true;
-            cancelReset();
-            resetConnection = handleReset(reset3, resetOnComplete);
-            dest.complete();
-          }
-        });
-        from$1(source2).subscribe(connection);
-      }
-    })(wrapperSource);
-  };
-}
-function handleReset(reset3, on4) {
-  var args = [];
-  for (var _i = 2; _i < arguments.length; _i++) {
-    args[_i - 2] = arguments[_i];
-  }
-  if (on4 === true) {
-    reset3();
-    return null;
-  }
-  if (on4 === false) {
-    return null;
-  }
-  return on4.apply(void 0, __spreadArray([], __read(args))).pipe(take$1(1)).subscribe(function() {
-    return reset3();
-  });
-}
-function shareReplay$1(configOrBufferSize, windowTime2, scheduler) {
-  var _a, _b, _c;
-  var bufferSize;
-  var refCount2 = false;
-  if (configOrBufferSize && typeof configOrBufferSize === "object") {
-    _a = configOrBufferSize.bufferSize, bufferSize = _a === void 0 ? Infinity : _a, _b = configOrBufferSize.windowTime, windowTime2 = _b === void 0 ? Infinity : _b, _c = configOrBufferSize.refCount, refCount2 = _c === void 0 ? false : _c, scheduler = configOrBufferSize.scheduler;
-  } else {
-    bufferSize = configOrBufferSize !== null && configOrBufferSize !== void 0 ? configOrBufferSize : Infinity;
-  }
-  return share$1({
-    connector: function() {
-      return new ReplaySubject$1(bufferSize, windowTime2, scheduler);
-    },
-    resetOnError: true,
-    resetOnComplete: false,
-    resetOnRefCountZero: refCount2
-  });
-}
-var SequenceError = createErrorClass(function(_super) {
-  return function SequenceErrorImpl(message) {
-    _super(this);
-    this.name = "SequenceError";
-    this.message = message;
-  };
-});
-var NotFoundError = createErrorClass(function(_super) {
-  return function NotFoundErrorImpl(message) {
-    _super(this);
-    this.name = "NotFoundError";
-    this.message = message;
-  };
-});
-function single$1(predicate) {
-  return operate(function(source2, subscriber) {
-    var hasValue = false;
-    var singleValue;
-    var seenValue = false;
-    var index2 = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      seenValue = true;
-      if (!predicate || predicate(value, index2++, source2)) {
-        hasValue && subscriber.error(new SequenceError("Too many matching values"));
-        hasValue = true;
-        singleValue = value;
-      }
-    }, function() {
-      if (hasValue) {
-        subscriber.next(singleValue);
-        subscriber.complete();
-      } else {
-        subscriber.error(seenValue ? new NotFoundError("No matching values") : new EmptyError$1());
-      }
-    }));
-  });
-}
-function skip$1(count2) {
-  return filter$1(function(_, index2) {
-    return count2 <= index2;
-  });
-}
-function skipLast$1(skipCount) {
-  return skipCount <= 0 ? identity$1 : operate(function(source2, subscriber) {
-    var ring = new Array(skipCount);
-    var seen = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var valueIndex = seen++;
-      if (valueIndex < skipCount) {
-        ring[valueIndex] = value;
-      } else {
-        var index2 = valueIndex % skipCount;
-        var oldValue = ring[index2];
-        ring[index2] = value;
-        subscriber.next(oldValue);
-      }
-    }));
-    return function() {
-      ring = null;
-    };
-  });
-}
-function skipUntil$1(notifier) {
-  return operate(function(source2, subscriber) {
-    var taking = false;
-    var skipSubscriber = createOperatorSubscriber(subscriber, function() {
-      skipSubscriber === null || skipSubscriber === void 0 ? void 0 : skipSubscriber.unsubscribe();
-      taking = true;
-    }, noop$2);
-    innerFrom(notifier).subscribe(skipSubscriber);
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      return taking && subscriber.next(value);
-    }));
-  });
-}
-function skipWhile$1(predicate) {
-  return operate(function(source2, subscriber) {
-    var taking = false;
-    var index2 = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      return (taking || (taking = !predicate(value, index2++))) && subscriber.next(value);
-    }));
-  });
-}
-function startWith$1() {
-  var values2 = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    values2[_i] = arguments[_i];
-  }
-  var scheduler = popScheduler(values2);
-  return operate(function(source2, subscriber) {
-    (scheduler ? concat$2(values2, source2, scheduler) : concat$2(values2, source2)).subscribe(subscriber);
-  });
-}
-function switchMap$1(project, resultSelector) {
-  return operate(function(source2, subscriber) {
-    var innerSubscriber = null;
-    var index2 = 0;
-    var isComplete = false;
-    var checkComplete = function() {
-      return isComplete && !innerSubscriber && subscriber.complete();
-    };
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      innerSubscriber === null || innerSubscriber === void 0 ? void 0 : innerSubscriber.unsubscribe();
-      var innerIndex = 0;
-      var outerIndex = index2++;
-      innerFrom(project(value, outerIndex)).subscribe(innerSubscriber = createOperatorSubscriber(subscriber, function(innerValue) {
-        return subscriber.next(resultSelector ? resultSelector(value, innerValue, outerIndex, innerIndex++) : innerValue);
-      }, function() {
-        innerSubscriber = null;
-        checkComplete();
-      }));
-    }, function() {
-      isComplete = true;
-      checkComplete();
-    }));
-  });
-}
-function switchAll$1() {
-  return switchMap$1(identity$1);
-}
-function switchMapTo$1(innerObservable, resultSelector) {
-  return isFunction$2(resultSelector) ? switchMap$1(function() {
-    return innerObservable;
-  }, resultSelector) : switchMap$1(function() {
-    return innerObservable;
-  });
-}
-function switchScan(accumulator, seed) {
-  return operate(function(source2, subscriber) {
-    var state2 = seed;
-    switchMap$1(function(value, index2) {
-      return accumulator(state2, value, index2);
-    }, function(_, innerValue) {
-      return state2 = innerValue, innerValue;
-    })(source2).subscribe(subscriber);
-    return function() {
-      state2 = null;
-    };
-  });
-}
-function takeUntil$1(notifier) {
-  return operate(function(source2, subscriber) {
-    innerFrom(notifier).subscribe(createOperatorSubscriber(subscriber, function() {
-      return subscriber.complete();
-    }, noop$2));
-    !subscriber.closed && source2.subscribe(subscriber);
-  });
-}
-function takeWhile$1(predicate, inclusive) {
-  if (inclusive === void 0) {
-    inclusive = false;
-  }
-  return operate(function(source2, subscriber) {
-    var index2 = 0;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var result = predicate(value, index2++);
-      (result || inclusive) && subscriber.next(value);
-      !result && subscriber.complete();
-    }));
-  });
-}
-function tap$1(observerOrNext, error, complete) {
-  var tapObserver = isFunction$2(observerOrNext) || error || complete ? { next: observerOrNext, error, complete } : observerOrNext;
-  return tapObserver ? operate(function(source2, subscriber) {
-    var _a;
-    (_a = tapObserver.subscribe) === null || _a === void 0 ? void 0 : _a.call(tapObserver);
-    var isUnsub = true;
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var _a2;
-      (_a2 = tapObserver.next) === null || _a2 === void 0 ? void 0 : _a2.call(tapObserver, value);
-      subscriber.next(value);
-    }, function() {
-      var _a2;
-      isUnsub = false;
-      (_a2 = tapObserver.complete) === null || _a2 === void 0 ? void 0 : _a2.call(tapObserver);
-      subscriber.complete();
-    }, function(err) {
-      var _a2;
-      isUnsub = false;
-      (_a2 = tapObserver.error) === null || _a2 === void 0 ? void 0 : _a2.call(tapObserver, err);
-      subscriber.error(err);
-    }, function() {
-      var _a2, _b;
-      if (isUnsub) {
-        (_a2 = tapObserver.unsubscribe) === null || _a2 === void 0 ? void 0 : _a2.call(tapObserver);
-      }
-      (_b = tapObserver.finalize) === null || _b === void 0 ? void 0 : _b.call(tapObserver);
-    }));
-  }) : identity$1;
-}
-var defaultThrottleConfig$1 = {
-  leading: true,
-  trailing: false
-};
-function throttle$1(durationSelector, config2) {
-  if (config2 === void 0) {
-    config2 = defaultThrottleConfig$1;
-  }
-  return operate(function(source2, subscriber) {
-    var leading = config2.leading, trailing = config2.trailing;
-    var hasValue = false;
-    var sendValue = null;
-    var throttled = null;
-    var isComplete = false;
-    var endThrottling = function() {
-      throttled === null || throttled === void 0 ? void 0 : throttled.unsubscribe();
-      throttled = null;
-      if (trailing) {
-        send();
-        isComplete && subscriber.complete();
-      }
-    };
-    var cleanupThrottling = function() {
-      throttled = null;
-      isComplete && subscriber.complete();
-    };
-    var startThrottle = function(value) {
-      return throttled = innerFrom(durationSelector(value)).subscribe(createOperatorSubscriber(subscriber, endThrottling, cleanupThrottling));
-    };
-    var send = function() {
-      if (hasValue) {
-        hasValue = false;
-        var value = sendValue;
-        sendValue = null;
-        subscriber.next(value);
-        !isComplete && startThrottle(value);
-      }
-    };
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      hasValue = true;
-      sendValue = value;
-      !(throttled && !throttled.closed) && (leading ? send() : startThrottle(value));
-    }, function() {
-      isComplete = true;
-      !(trailing && hasValue && throttled && !throttled.closed) && subscriber.complete();
-    }));
-  });
-}
-function throttleTime$1(duration, scheduler, config2) {
-  if (scheduler === void 0) {
-    scheduler = asyncScheduler$1;
-  }
-  if (config2 === void 0) {
-    config2 = defaultThrottleConfig$1;
-  }
-  var duration$ = timer$1(duration, scheduler);
-  return throttle$1(function() {
-    return duration$;
-  }, config2);
-}
-function timeInterval$1(scheduler) {
-  if (scheduler === void 0) {
-    scheduler = asyncScheduler$1;
-  }
-  return operate(function(source2, subscriber) {
-    var last2 = scheduler.now();
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var now2 = scheduler.now();
-      var interval2 = now2 - last2;
-      last2 = now2;
-      subscriber.next(new TimeInterval$1(value, interval2));
-    }));
-  });
-}
-var TimeInterval$1 = function() {
-  function TimeInterval2(value, interval2) {
-    this.value = value;
-    this.interval = interval2;
-  }
-  return TimeInterval2;
-}();
-var TimeoutError$1 = createErrorClass(function(_super) {
-  return function TimeoutErrorImpl2(info) {
-    if (info === void 0) {
-      info = null;
-    }
-    _super(this);
-    this.message = "Timeout has occurred";
-    this.name = "TimeoutError";
-    this.info = info;
-  };
-});
-function timeout$1(config2, schedulerArg) {
-  var _a = isValidDate(config2) ? { first: config2 } : typeof config2 === "number" ? { each: config2 } : config2, first2 = _a.first, each = _a.each, _b = _a.with, _with = _b === void 0 ? timeoutErrorFactory : _b, _c = _a.scheduler, scheduler = _c === void 0 ? schedulerArg !== null && schedulerArg !== void 0 ? schedulerArg : asyncScheduler$1 : _c, _d = _a.meta, meta = _d === void 0 ? null : _d;
-  if (first2 == null && each == null) {
-    throw new TypeError("No timeout provided.");
-  }
-  return operate(function(source2, subscriber) {
-    var originalSourceSubscription;
-    var timerSubscription;
-    var lastValue = null;
-    var seen = 0;
-    var startTimer = function(delay2) {
-      timerSubscription = executeSchedule(subscriber, scheduler, function() {
-        try {
-          originalSourceSubscription.unsubscribe();
-          innerFrom(_with({
-            meta,
-            lastValue,
-            seen
-          })).subscribe(subscriber);
-        } catch (err) {
-          subscriber.error(err);
-        }
-      }, delay2);
-    };
-    originalSourceSubscription = source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.unsubscribe();
-      seen++;
-      subscriber.next(lastValue = value);
-      each > 0 && startTimer(each);
-    }, void 0, void 0, function() {
-      if (!(timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.closed)) {
-        timerSubscription === null || timerSubscription === void 0 ? void 0 : timerSubscription.unsubscribe();
-      }
-      lastValue = null;
-    }));
-    !seen && startTimer(first2 != null ? typeof first2 === "number" ? first2 : +first2 - scheduler.now() : each);
-  });
-}
-function timeoutErrorFactory(info) {
-  throw new TimeoutError$1(info);
-}
-function timeoutWith$1(due, withObservable, scheduler) {
-  var first2;
-  var each;
-  var _with;
-  scheduler = scheduler !== null && scheduler !== void 0 ? scheduler : async$1;
-  if (isValidDate(due)) {
-    first2 = due;
-  } else if (typeof due === "number") {
-    each = due;
-  }
-  if (withObservable) {
-    _with = function() {
-      return withObservable;
-    };
-  } else {
-    throw new TypeError("No observable provided to switch to");
-  }
-  if (first2 == null && each == null) {
-    throw new TypeError("No timeout provided.");
-  }
-  return timeout$1({
-    first: first2,
-    each,
-    scheduler,
-    with: _with
-  });
-}
-function timestamp$2(timestampProvider) {
-  if (timestampProvider === void 0) {
-    timestampProvider = dateTimestampProvider;
-  }
-  return map$1(function(value) {
-    return { value, timestamp: timestampProvider.now() };
-  });
-}
-function window$2(windowBoundaries) {
-  return operate(function(source2, subscriber) {
-    var windowSubject = new Subject$1();
-    subscriber.next(windowSubject.asObservable());
-    var errorHandler = function(err) {
-      windowSubject.error(err);
-      subscriber.error(err);
-    };
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      return windowSubject === null || windowSubject === void 0 ? void 0 : windowSubject.next(value);
-    }, function() {
-      windowSubject.complete();
-      subscriber.complete();
-    }, errorHandler));
-    windowBoundaries.subscribe(createOperatorSubscriber(subscriber, function() {
-      windowSubject.complete();
-      subscriber.next(windowSubject = new Subject$1());
-    }, noop$2, errorHandler));
-    return function() {
-      windowSubject === null || windowSubject === void 0 ? void 0 : windowSubject.unsubscribe();
-      windowSubject = null;
-    };
-  });
-}
-function windowCount$1(windowSize, startWindowEvery) {
-  if (startWindowEvery === void 0) {
-    startWindowEvery = 0;
-  }
-  var startEvery = startWindowEvery > 0 ? startWindowEvery : windowSize;
-  return operate(function(source2, subscriber) {
-    var windows = [new Subject$1()];
-    var starts = [];
-    var count2 = 0;
-    subscriber.next(windows[0].asObservable());
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var e_1, _a;
-      try {
-        for (var windows_1 = __values(windows), windows_1_1 = windows_1.next(); !windows_1_1.done; windows_1_1 = windows_1.next()) {
-          var window_1 = windows_1_1.value;
-          window_1.next(value);
-        }
-      } catch (e_1_1) {
-        e_1 = { error: e_1_1 };
-      } finally {
-        try {
-          if (windows_1_1 && !windows_1_1.done && (_a = windows_1.return))
-            _a.call(windows_1);
-        } finally {
-          if (e_1)
-            throw e_1.error;
-        }
-      }
-      var c = count2 - windowSize + 1;
-      if (c >= 0 && c % startEvery === 0) {
-        windows.shift().complete();
-      }
-      if (++count2 % startEvery === 0) {
-        var window_2 = new Subject$1();
-        windows.push(window_2);
-        subscriber.next(window_2.asObservable());
-      }
-    }, function() {
-      while (windows.length > 0) {
-        windows.shift().complete();
-      }
-      subscriber.complete();
-    }, function(err) {
-      while (windows.length > 0) {
-        windows.shift().error(err);
-      }
-      subscriber.error(err);
-    }, function() {
-      starts = null;
-      windows = null;
-    }));
-  });
-}
-function windowTime$1(windowTimeSpan) {
-  var _a, _b;
-  var otherArgs = [];
-  for (var _i = 1; _i < arguments.length; _i++) {
-    otherArgs[_i - 1] = arguments[_i];
-  }
-  var scheduler = (_a = popScheduler(otherArgs)) !== null && _a !== void 0 ? _a : asyncScheduler$1;
-  var windowCreationInterval = (_b = otherArgs[0]) !== null && _b !== void 0 ? _b : null;
-  var maxWindowSize = otherArgs[1] || Infinity;
-  return operate(function(source2, subscriber) {
-    var windowRecords = [];
-    var restartOnClose = false;
-    var closeWindow = function(record) {
-      var window2 = record.window, subs = record.subs;
-      window2.complete();
-      subs.unsubscribe();
-      arrRemove(windowRecords, record);
-      restartOnClose && startWindow();
-    };
-    var startWindow = function() {
-      if (windowRecords) {
-        var subs = new Subscription$1();
-        subscriber.add(subs);
-        var window_1 = new Subject$1();
-        var record_1 = {
-          window: window_1,
-          subs,
-          seen: 0
-        };
-        windowRecords.push(record_1);
-        subscriber.next(window_1.asObservable());
-        executeSchedule(subs, scheduler, function() {
-          return closeWindow(record_1);
-        }, windowTimeSpan);
-      }
-    };
-    if (windowCreationInterval !== null && windowCreationInterval >= 0) {
-      executeSchedule(subscriber, scheduler, startWindow, windowCreationInterval, true);
-    } else {
-      restartOnClose = true;
-    }
-    startWindow();
-    var loop = function(cb) {
-      return windowRecords.slice().forEach(cb);
-    };
-    var terminate = function(cb) {
-      loop(function(_a2) {
-        var window2 = _a2.window;
-        return cb(window2);
-      });
-      cb(subscriber);
-      subscriber.unsubscribe();
-    };
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      loop(function(record) {
-        record.window.next(value);
-        maxWindowSize <= ++record.seen && closeWindow(record);
-      });
-    }, function() {
-      return terminate(function(consumer) {
-        return consumer.complete();
-      });
-    }, function(err) {
-      return terminate(function(consumer) {
-        return consumer.error(err);
-      });
-    }));
-    return function() {
-      windowRecords = null;
-    };
-  });
-}
-function windowToggle$1(openings, closingSelector) {
-  return operate(function(source2, subscriber) {
-    var windows = [];
-    var handleError = function(err) {
-      while (0 < windows.length) {
-        windows.shift().error(err);
-      }
-      subscriber.error(err);
-    };
-    innerFrom(openings).subscribe(createOperatorSubscriber(subscriber, function(openValue) {
-      var window2 = new Subject$1();
-      windows.push(window2);
-      var closingSubscription = new Subscription$1();
-      var closeWindow = function() {
-        arrRemove(windows, window2);
-        window2.complete();
-        closingSubscription.unsubscribe();
-      };
-      var closingNotifier;
-      try {
-        closingNotifier = innerFrom(closingSelector(openValue));
-      } catch (err) {
-        handleError(err);
-        return;
-      }
-      subscriber.next(window2.asObservable());
-      closingSubscription.add(closingNotifier.subscribe(createOperatorSubscriber(subscriber, closeWindow, noop$2, handleError)));
-    }, noop$2));
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var e_1, _a;
-      var windowsCopy = windows.slice();
-      try {
-        for (var windowsCopy_1 = __values(windowsCopy), windowsCopy_1_1 = windowsCopy_1.next(); !windowsCopy_1_1.done; windowsCopy_1_1 = windowsCopy_1.next()) {
-          var window_1 = windowsCopy_1_1.value;
-          window_1.next(value);
-        }
-      } catch (e_1_1) {
-        e_1 = { error: e_1_1 };
-      } finally {
-        try {
-          if (windowsCopy_1_1 && !windowsCopy_1_1.done && (_a = windowsCopy_1.return))
-            _a.call(windowsCopy_1);
-        } finally {
-          if (e_1)
-            throw e_1.error;
-        }
-      }
-    }, function() {
-      while (0 < windows.length) {
-        windows.shift().complete();
-      }
-      subscriber.complete();
-    }, handleError, function() {
-      while (0 < windows.length) {
-        windows.shift().unsubscribe();
-      }
-    }));
-  });
-}
-function windowWhen$1(closingSelector) {
-  return operate(function(source2, subscriber) {
-    var window2;
-    var closingSubscriber;
-    var handleError = function(err) {
-      window2.error(err);
-      subscriber.error(err);
-    };
-    var openWindow = function() {
-      closingSubscriber === null || closingSubscriber === void 0 ? void 0 : closingSubscriber.unsubscribe();
-      window2 === null || window2 === void 0 ? void 0 : window2.complete();
-      window2 = new Subject$1();
-      subscriber.next(window2.asObservable());
-      var closingNotifier;
-      try {
-        closingNotifier = innerFrom(closingSelector());
-      } catch (err) {
-        handleError(err);
-        return;
-      }
-      closingNotifier.subscribe(closingSubscriber = createOperatorSubscriber(subscriber, openWindow, openWindow, handleError));
-    };
-    openWindow();
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      return window2.next(value);
-    }, function() {
-      window2.complete();
-      subscriber.complete();
-    }, handleError, function() {
-      closingSubscriber === null || closingSubscriber === void 0 ? void 0 : closingSubscriber.unsubscribe();
-      window2 = null;
-    }));
-  });
-}
-function withLatestFrom$1() {
-  var inputs = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    inputs[_i] = arguments[_i];
-  }
-  var project = popResultSelector(inputs);
-  return operate(function(source2, subscriber) {
-    var len = inputs.length;
-    var otherValues = new Array(len);
-    var hasValue = inputs.map(function() {
-      return false;
-    });
-    var ready = false;
-    var _loop_1 = function(i3) {
-      innerFrom(inputs[i3]).subscribe(createOperatorSubscriber(subscriber, function(value) {
-        otherValues[i3] = value;
-        if (!ready && !hasValue[i3]) {
-          hasValue[i3] = true;
-          (ready = hasValue.every(identity$1)) && (hasValue = null);
-        }
-      }, noop$2));
-    };
-    for (var i2 = 0; i2 < len; i2++) {
-      _loop_1(i2);
-    }
-    source2.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      if (ready) {
-        var values2 = __spreadArray([value], __read(otherValues));
-        subscriber.next(project ? project.apply(void 0, __spreadArray([], __read(values2))) : values2);
-      }
-    }));
-  });
-}
-function zip$3() {
-  var args = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-  var resultSelector = popResultSelector(args);
-  var sources2 = argsOrArgArray(args);
-  return sources2.length ? new Observable$1(function(subscriber) {
-    var buffers = sources2.map(function() {
-      return [];
-    });
-    var completed = sources2.map(function() {
-      return false;
-    });
-    subscriber.add(function() {
-      buffers = completed = null;
-    });
-    var _loop_1 = function(sourceIndex2) {
-      innerFrom(sources2[sourceIndex2]).subscribe(createOperatorSubscriber(subscriber, function(value) {
-        buffers[sourceIndex2].push(value);
-        if (buffers.every(function(buffer2) {
-          return buffer2.length;
-        })) {
-          var result = buffers.map(function(buffer2) {
-            return buffer2.shift();
-          });
-          subscriber.next(resultSelector ? resultSelector.apply(void 0, __spreadArray([], __read(result))) : result);
-          if (buffers.some(function(buffer2, i2) {
-            return !buffer2.length && completed[i2];
-          })) {
-            subscriber.complete();
-          }
-        }
-      }, function() {
-        completed[sourceIndex2] = true;
-        !buffers[sourceIndex2].length && subscriber.complete();
-      }));
-    };
-    for (var sourceIndex = 0; !subscriber.closed && sourceIndex < sources2.length; sourceIndex++) {
-      _loop_1(sourceIndex);
-    }
-    return function() {
-      buffers = completed = null;
-    };
-  }) : EMPTY$1;
-}
-function zip$2() {
-  var sources2 = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    sources2[_i] = arguments[_i];
-  }
-  return operate(function(source2, subscriber) {
-    zip$3.apply(void 0, __spreadArray([source2], __read(sources2))).subscribe(subscriber);
-  });
-}
-function zipAll$1(project) {
-  return joinAllInternals(zip$3, project);
-}
-function zipWith() {
-  var otherInputs = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    otherInputs[_i] = arguments[_i];
-  }
-  return zip$2.apply(void 0, __spreadArray([], __read(otherInputs)));
-}
-var operators$1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  audit: audit$1,
-  auditTime: auditTime$1,
-  buffer: buffer$1,
-  bufferCount: bufferCount$1,
-  bufferTime: bufferTime$1,
-  bufferToggle: bufferToggle$1,
-  bufferWhen: bufferWhen$1,
-  catchError: catchError$1,
-  combineAll: combineAll$1,
-  combineLatestAll,
-  combineLatest: combineLatest$1,
-  combineLatestWith,
-  concat: concat$3,
-  concatAll: concatAll$1,
-  concatMap: concatMap$1,
-  concatMapTo: concatMapTo$1,
-  concatWith,
-  connect: connect$1,
-  count: count$1,
-  debounce: debounce$1,
-  debounceTime: debounceTime$1,
-  defaultIfEmpty: defaultIfEmpty$1,
-  delay: delay$1,
-  delayWhen: delayWhen$1,
-  dematerialize: dematerialize$1,
-  distinct: distinct$1,
-  distinctUntilChanged: distinctUntilChanged$1,
-  distinctUntilKeyChanged: distinctUntilKeyChanged$1,
-  elementAt: elementAt$1,
-  endWith: endWith$1,
-  every: every$1,
-  exhaust: exhaust$1,
-  exhaustAll,
-  exhaustMap: exhaustMap$1,
-  expand: expand$1,
-  filter: filter$1,
-  finalize: finalize$1,
-  find: find$2,
-  findIndex: findIndex$1,
-  first: first$1,
-  groupBy: groupBy$1,
-  ignoreElements: ignoreElements$1,
-  isEmpty: isEmpty$1,
-  last: last$1,
-  map: map$1,
-  mapTo: mapTo$1,
-  materialize: materialize$1,
-  max: max$1,
-  merge: merge$3,
-  mergeAll: mergeAll$1,
-  flatMap: flatMap$1,
-  mergeMap: mergeMap$1,
-  mergeMapTo: mergeMapTo$1,
-  mergeScan: mergeScan$1,
-  mergeWith,
-  min: min$1,
-  multicast: multicast$1,
-  observeOn: observeOn$1,
-  onErrorResumeNext: onErrorResumeNext$1,
-  pairwise: pairwise$1,
-  partition: partition$1,
-  pluck: pluck$1,
-  publish: publish$1,
-  publishBehavior: publishBehavior$1,
-  publishLast: publishLast$1,
-  publishReplay: publishReplay$1,
-  race: race$2,
-  raceWith,
-  reduce: reduce$1,
-  repeat: repeat$1,
-  repeatWhen: repeatWhen$1,
-  retry: retry$1,
-  retryWhen: retryWhen$1,
-  refCount: refCount$1,
-  sample: sample$1,
-  sampleTime: sampleTime$1,
-  scan: scan$1,
-  sequenceEqual: sequenceEqual$1,
-  share: share$1,
-  shareReplay: shareReplay$1,
-  single: single$1,
-  skip: skip$1,
-  skipLast: skipLast$1,
-  skipUntil: skipUntil$1,
-  skipWhile: skipWhile$1,
-  startWith: startWith$1,
-  subscribeOn: subscribeOn$1,
-  switchAll: switchAll$1,
-  switchMap: switchMap$1,
-  switchMapTo: switchMapTo$1,
-  switchScan,
-  take: take$1,
-  takeLast: takeLast$1,
-  takeUntil: takeUntil$1,
-  takeWhile: takeWhile$1,
-  tap: tap$1,
-  throttle: throttle$1,
-  throttleTime: throttleTime$1,
-  throwIfEmpty: throwIfEmpty$1,
-  timeInterval: timeInterval$1,
-  timeout: timeout$1,
-  timeoutWith: timeoutWith$1,
-  timestamp: timestamp$2,
-  toArray: toArray$1,
-  window: window$2,
-  windowCount: windowCount$1,
-  windowTime: windowTime$1,
-  windowToggle: windowToggle$1,
-  windowWhen: windowWhen$1,
-  withLatestFrom: withLatestFrom$1,
-  zip: zip$2,
-  zipAll: zipAll$1,
-  zipWith
-}, Symbol.toStringTag, { value: "Module" }));
-var require$$2$1 = /* @__PURE__ */ getAugmentedNamespace(operators$1);
+})(indexMinimal);
+var minimal = indexMinimal;
 var struct$2 = {};
 (function(exports2) {
   var __createBinding2 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o2, m, k, k2) {
@@ -12310,8 +7775,8 @@ var struct$2 = {};
   };
   Object.defineProperty(exports2, "__esModule", { value: true });
   exports2.ListValue = exports2.Value = exports2.Struct_FieldsEntry = exports2.Struct = exports2.nullValueToNumber = exports2.nullValueToJSON = exports2.nullValueFromJSON = exports2.NullValue = exports2.protobufPackage = void 0;
-  const long_12 = __importDefault2(long);
-  const _m02 = __importStar2(minimal$2);
+  const long_12 = __importDefault2(umd.exports);
+  const _m02 = __importStar2(minimal);
   exports2.protobufPackage = "google.protobuf";
   var NullValue;
   (function(NullValue2) {
@@ -12357,11 +7822,11 @@ var struct$2 = {};
       });
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStruct();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -12436,11 +7901,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStruct_FieldsEntry();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -12508,11 +7973,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseValue();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -12617,11 +8082,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseListValue();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -12718,10 +8183,9 @@ var struct$2 = {};
     return mod2 && mod2.__esModule ? mod2 : { "default": mod2 };
   };
   Object.defineProperty(exports2, "__esModule", { value: true });
-  exports2.LayoutServiceDefinition = exports2.LayoutServiceClientImpl = exports2.LayerServiceDefinition = exports2.LayerServiceClientImpl = exports2.EventsServiceDefinition = exports2.EventsServiceClientImpl = exports2.EventsStreamResponse = exports2.EventsStreamReconnectRequest = exports2.EventsStreamError = exports2.EventsStreamRequest = exports2.SubscribePayload = exports2.Event = exports2.LayerEvent = exports2.LayoutEvent = exports2.BatchLayerRequest_BatchItem = exports2.BatchLayerRequest = exports2.BatchDeleteLayerRequest = exports2.DeleteLayerRequest = exports2.DeleteLayerPayload = exports2.UpdateLayerRequest = exports2.GetLayerRequest = exports2.CreateLayerRequest = exports2.ListLayersResponse = exports2.ListLayersRequest = exports2.PartialLayerWithID = exports2.PartialLayer = exports2.LayerAnimation = exports2.DeleteLayoutResponse = exports2.DeleteLayoutRequest = exports2.DeleteLayoutPayload = exports2.UpdateLayoutRequest = exports2.GetLayoutRequest = exports2.CreateLayoutRequest = exports2.ListLayoutsResponse = exports2.ListLayoutsRequest = exports2.PartialLayout = exports2.PublishEventResponse = exports2.PublishEventRequest = exports2.EventTarget = exports2.BatchLayerResponse_BatchLayerItem = exports2.BatchLayerResponse = exports2.DeleteLayerResponse = exports2.Layer = exports2.Layout = exports2.eventsStreamMessageTypeToNumber = exports2.eventsStreamMessageTypeToJSON = exports2.eventsStreamMessageTypeFromJSON = exports2.EventsStreamMessageType = exports2.eventTypeToNumber = exports2.eventTypeToJSON = exports2.eventTypeFromJSON = exports2.EventType = exports2.eventSubTypeToNumber = exports2.eventSubTypeToJSON = exports2.eventSubTypeFromJSON = exports2.EventSubType = exports2.layoutTypeToNumber = exports2.layoutTypeToJSON = exports2.layoutTypeFromJSON = exports2.LayoutType = exports2.protobufPackage = void 0;
-  const long_12 = __importDefault2(long);
-  const _m02 = __importStar2(minimal$2);
-  const operators_1 = require$$2$1;
+  exports2.LayoutServiceDefinition = exports2.LayoutServiceClientImpl = exports2.LayerServiceDefinition = exports2.LayerServiceClientImpl = exports2.Event = exports2.LayerEvent = exports2.LayoutEvent = exports2.BatchLayerRequest_BatchItem = exports2.BatchLayerRequest = exports2.BatchDeleteLayerRequest = exports2.DeleteLayerPayload = exports2.UpdateLayerRequest = exports2.GetLayerRequest = exports2.CreateLayerRequest = exports2.ListLayersResponse = exports2.ListLayersRequest = exports2.PartialLayerWithID = exports2.PartialLayer = exports2.LayerAnimation = exports2.DeleteLayoutResponse = exports2.DeleteLayoutRequest = exports2.DeleteLayoutPayload = exports2.UpdateLayoutRequest = exports2.GetLayoutRequest = exports2.CreateLayoutRequest = exports2.ListLayoutsResponse = exports2.ListLayoutsRequest = exports2.PartialLayout = exports2.BatchLayerResponse_BatchLayerItem = exports2.BatchLayerResponse = exports2.DeleteLayerResponse = exports2.DeleteLayerRequest = exports2.Layer = exports2.Layout = exports2.eventTypeToNumber = exports2.eventTypeToJSON = exports2.eventTypeFromJSON = exports2.EventType = exports2.eventSubTypeToNumber = exports2.eventSubTypeToJSON = exports2.eventSubTypeFromJSON = exports2.EventSubType = exports2.layoutTypeToNumber = exports2.layoutTypeToJSON = exports2.layoutTypeFromJSON = exports2.LayoutType = exports2.protobufPackage = void 0;
+  const long_12 = __importDefault2(umd.exports);
+  const _m02 = __importStar2(minimal);
   const struct_1 = struct$2;
   exports2.protobufPackage = "apis.layout.v2";
   var LayoutType;
@@ -12884,78 +8348,6 @@ var struct$2 = {};
     }
   }
   exports2.eventTypeToNumber = eventTypeToNumber;
-  var EventsStreamMessageType;
-  (function(EventsStreamMessageType2) {
-    EventsStreamMessageType2["EVENTS_STREAM_MESSAGE_TYPE_UNSPECIFIED"] = "EVENTS_STREAM_MESSAGE_TYPE_UNSPECIFIED";
-    EventsStreamMessageType2["EVENTS_STREAM_MESSAGE_TYPE_PING"] = "EVENTS_STREAM_MESSAGE_TYPE_PING";
-    EventsStreamMessageType2["EVENTS_STREAM_MESSAGE_TYPE_ERROR"] = "EVENTS_STREAM_MESSAGE_TYPE_ERROR";
-    EventsStreamMessageType2["EVENTS_STREAM_MESSAGE_TYPE_SUBSCRIBED"] = "EVENTS_STREAM_MESSAGE_TYPE_SUBSCRIBED";
-    EventsStreamMessageType2["EVENTS_STREAM_MESSAGE_TYPE_UNSUBSCRIBED"] = "EVENTS_STREAM_MESSAGE_TYPE_UNSUBSCRIBED";
-    EventsStreamMessageType2["EVENTS_STREAM_MESSAGE_TYPE_PUBLISHED"] = "EVENTS_STREAM_MESSAGE_TYPE_PUBLISHED";
-  })(EventsStreamMessageType = exports2.EventsStreamMessageType || (exports2.EventsStreamMessageType = {}));
-  function eventsStreamMessageTypeFromJSON(object) {
-    switch (object) {
-      case 0:
-      case "EVENTS_STREAM_MESSAGE_TYPE_UNSPECIFIED":
-        return EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_UNSPECIFIED;
-      case 1:
-      case "EVENTS_STREAM_MESSAGE_TYPE_PING":
-        return EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_PING;
-      case 2:
-      case "EVENTS_STREAM_MESSAGE_TYPE_ERROR":
-        return EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_ERROR;
-      case 3:
-      case "EVENTS_STREAM_MESSAGE_TYPE_SUBSCRIBED":
-        return EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_SUBSCRIBED;
-      case 4:
-      case "EVENTS_STREAM_MESSAGE_TYPE_UNSUBSCRIBED":
-        return EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_UNSUBSCRIBED;
-      case 5:
-      case "EVENTS_STREAM_MESSAGE_TYPE_PUBLISHED":
-        return EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_PUBLISHED;
-      default:
-        throw new globalThis2.Error("Unrecognized enum value " + object + " for enum EventsStreamMessageType");
-    }
-  }
-  exports2.eventsStreamMessageTypeFromJSON = eventsStreamMessageTypeFromJSON;
-  function eventsStreamMessageTypeToJSON(object) {
-    switch (object) {
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_UNSPECIFIED:
-        return "EVENTS_STREAM_MESSAGE_TYPE_UNSPECIFIED";
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_PING:
-        return "EVENTS_STREAM_MESSAGE_TYPE_PING";
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_ERROR:
-        return "EVENTS_STREAM_MESSAGE_TYPE_ERROR";
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_SUBSCRIBED:
-        return "EVENTS_STREAM_MESSAGE_TYPE_SUBSCRIBED";
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_UNSUBSCRIBED:
-        return "EVENTS_STREAM_MESSAGE_TYPE_UNSUBSCRIBED";
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_PUBLISHED:
-        return "EVENTS_STREAM_MESSAGE_TYPE_PUBLISHED";
-      default:
-        return "UNKNOWN";
-    }
-  }
-  exports2.eventsStreamMessageTypeToJSON = eventsStreamMessageTypeToJSON;
-  function eventsStreamMessageTypeToNumber(object) {
-    switch (object) {
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_UNSPECIFIED:
-        return 0;
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_PING:
-        return 1;
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_ERROR:
-        return 2;
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_SUBSCRIBED:
-        return 3;
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_UNSUBSCRIBED:
-        return 4;
-      case EventsStreamMessageType.EVENTS_STREAM_MESSAGE_TYPE_PUBLISHED:
-        return 5;
-      default:
-        return 0;
-    }
-  }
-  exports2.eventsStreamMessageTypeToNumber = eventsStreamMessageTypeToNumber;
   function createBaseLayout() {
     return {
       id: "",
@@ -12964,8 +8356,8 @@ var struct$2 = {};
       metadata: void 0,
       projectId: void 0,
       collectionId: void 0,
-      requestMetadata: void 0,
-      type: void 0
+      type: void 0,
+      requestMetadata: void 0
     };
   }
   exports2.Layout = {
@@ -12988,19 +8380,19 @@ var struct$2 = {};
       if (message.collectionId !== void 0) {
         writer2.uint32(66).string(message.collectionId);
       }
-      if (message.requestMetadata !== void 0) {
-        struct_1.Value.encode(struct_1.Value.wrap(message.requestMetadata), writer2.uint32(810).fork()).ldelim();
-      }
       if (message.type !== void 0) {
         writer2.uint32(72).int32(layoutTypeToNumber(message.type));
       }
+      if (message.requestMetadata !== void 0) {
+        struct_1.Value.encode(struct_1.Value.wrap(message.requestMetadata), writer2.uint32(810).fork()).ldelim();
+      }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseLayout();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -13021,11 +8413,11 @@ var struct$2 = {};
           case 8:
             message.collectionId = reader2.string();
             break;
-          case 101:
-            message.requestMetadata = struct_1.Value.unwrap(struct_1.Value.decode(reader2, reader2.uint32()));
-            break;
           case 9:
             message.type = layoutTypeFromJSON(reader2.int32());
+            break;
+          case 101:
+            message.requestMetadata = struct_1.Value.unwrap(struct_1.Value.decode(reader2, reader2.uint32()));
             break;
           default:
             reader2.skipType(tag & 7);
@@ -13042,8 +8434,8 @@ var struct$2 = {};
         metadata: isSet2(object === null || object === void 0 ? void 0 : object.metadata) ? object.metadata : void 0,
         projectId: isSet2(object.projectId) ? String(object.projectId) : void 0,
         collectionId: isSet2(object.collectionId) ? String(object.collectionId) : void 0,
-        requestMetadata: isSet2(object === null || object === void 0 ? void 0 : object.requestMetadata) ? object.requestMetadata : void 0,
-        type: isSet2(object.type) ? layoutTypeFromJSON(object.type) : void 0
+        type: isSet2(object.type) ? layoutTypeFromJSON(object.type) : void 0,
+        requestMetadata: isSet2(object === null || object === void 0 ? void 0 : object.requestMetadata) ? object.requestMetadata : void 0
       };
     },
     toJSON(message) {
@@ -13054,8 +8446,8 @@ var struct$2 = {};
       message.metadata !== void 0 && (obj.metadata = message.metadata);
       message.projectId !== void 0 && (obj.projectId = message.projectId);
       message.collectionId !== void 0 && (obj.collectionId = message.collectionId);
-      message.requestMetadata !== void 0 && (obj.requestMetadata = message.requestMetadata);
       message.type !== void 0 && (obj.type = message.type !== void 0 ? layoutTypeToJSON(message.type) : void 0);
+      message.requestMetadata !== void 0 && (obj.requestMetadata = message.requestMetadata);
       return obj;
     },
     fromPartial(object) {
@@ -13067,8 +8459,8 @@ var struct$2 = {};
       message.metadata = (_d = object.metadata) !== null && _d !== void 0 ? _d : void 0;
       message.projectId = (_e = object.projectId) !== null && _e !== void 0 ? _e : void 0;
       message.collectionId = (_f = object.collectionId) !== null && _f !== void 0 ? _f : void 0;
-      message.requestMetadata = (_g = object.requestMetadata) !== null && _g !== void 0 ? _g : void 0;
-      message.type = (_h = object.type) !== null && _h !== void 0 ? _h : void 0;
+      message.type = (_g = object.type) !== null && _g !== void 0 ? _g : void 0;
+      message.requestMetadata = (_h = object.requestMetadata) !== null && _h !== void 0 ? _h : void 0;
       return message;
     }
   };
@@ -13144,11 +8536,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseLayer();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -13272,6 +8664,68 @@ var struct$2 = {};
       return message;
     }
   };
+  function createBaseDeleteLayerRequest() {
+    return { layoutId: "", layerId: "", payload: void 0 };
+  }
+  exports2.DeleteLayerRequest = {
+    encode(message, writer2 = _m02.Writer.create()) {
+      if (message.layoutId !== "") {
+        writer2.uint32(10).string(message.layoutId);
+      }
+      if (message.layerId !== "") {
+        writer2.uint32(18).string(message.layerId);
+      }
+      if (message.payload !== void 0) {
+        exports2.DeleteLayerPayload.encode(message.payload, writer2.uint32(26).fork()).ldelim();
+      }
+      return writer2;
+    },
+    decode(input, length2) {
+      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
+      const message = createBaseDeleteLayerRequest();
+      while (reader2.pos < end2) {
+        const tag = reader2.uint32();
+        switch (tag >>> 3) {
+          case 1:
+            message.layoutId = reader2.string();
+            break;
+          case 2:
+            message.layerId = reader2.string();
+            break;
+          case 3:
+            message.payload = exports2.DeleteLayerPayload.decode(reader2, reader2.uint32());
+            break;
+          default:
+            reader2.skipType(tag & 7);
+            break;
+        }
+      }
+      return message;
+    },
+    fromJSON(object) {
+      return {
+        layoutId: isSet2(object.layoutId) ? String(object.layoutId) : "",
+        layerId: isSet2(object.layerId) ? String(object.layerId) : "",
+        payload: isSet2(object.payload) ? exports2.DeleteLayerPayload.fromJSON(object.payload) : void 0
+      };
+    },
+    toJSON(message) {
+      const obj = {};
+      message.layoutId !== void 0 && (obj.layoutId = message.layoutId);
+      message.layerId !== void 0 && (obj.layerId = message.layerId);
+      message.payload !== void 0 && (obj.payload = message.payload ? exports2.DeleteLayerPayload.toJSON(message.payload) : void 0);
+      return obj;
+    },
+    fromPartial(object) {
+      var _a, _b;
+      const message = createBaseDeleteLayerRequest();
+      message.layoutId = (_a = object.layoutId) !== null && _a !== void 0 ? _a : "";
+      message.layerId = (_b = object.layerId) !== null && _b !== void 0 ? _b : "";
+      message.payload = object.payload !== void 0 && object.payload !== null ? exports2.DeleteLayerPayload.fromPartial(object.payload) : void 0;
+      return message;
+    }
+  };
   function createBaseDeleteLayerResponse() {
     return { id: "", layoutId: "", requestMetadata: void 0 };
   }
@@ -13288,11 +8742,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteLayerResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -13335,27 +8789,33 @@ var struct$2 = {};
     }
   };
   function createBaseBatchLayerResponse() {
-    return { layers: [], requestMetadata: void 0 };
+    return { layers: [], layoutId: "", requestMetadata: void 0 };
   }
   exports2.BatchLayerResponse = {
     encode(message, writer2 = _m02.Writer.create()) {
       for (const v of message.layers) {
         exports2.BatchLayerResponse_BatchLayerItem.encode(v, writer2.uint32(18).fork()).ldelim();
       }
+      if (message.layoutId !== "") {
+        writer2.uint32(26).string(message.layoutId);
+      }
       if (message.requestMetadata !== void 0) {
         struct_1.Value.encode(struct_1.Value.wrap(message.requestMetadata), writer2.uint32(802).fork()).ldelim();
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseBatchLayerResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 2:
             message.layers.push(exports2.BatchLayerResponse_BatchLayerItem.decode(reader2, reader2.uint32()));
+            break;
+          case 3:
+            message.layoutId = reader2.string();
             break;
           case 100:
             message.requestMetadata = struct_1.Value.unwrap(struct_1.Value.decode(reader2, reader2.uint32()));
@@ -13370,6 +8830,7 @@ var struct$2 = {};
     fromJSON(object) {
       return {
         layers: Array.isArray(object === null || object === void 0 ? void 0 : object.layers) ? object.layers.map((e2) => exports2.BatchLayerResponse_BatchLayerItem.fromJSON(e2)) : [],
+        layoutId: isSet2(object.layoutId) ? String(object.layoutId) : "",
         requestMetadata: isSet2(object === null || object === void 0 ? void 0 : object.requestMetadata) ? object.requestMetadata : void 0
       };
     },
@@ -13380,14 +8841,16 @@ var struct$2 = {};
       } else {
         obj.layers = [];
       }
+      message.layoutId !== void 0 && (obj.layoutId = message.layoutId);
       message.requestMetadata !== void 0 && (obj.requestMetadata = message.requestMetadata);
       return obj;
     },
     fromPartial(object) {
-      var _a, _b;
+      var _a, _b, _c;
       const message = createBaseBatchLayerResponse();
       message.layers = ((_a = object.layers) === null || _a === void 0 ? void 0 : _a.map((e2) => exports2.BatchLayerResponse_BatchLayerItem.fromPartial(e2))) || [];
-      message.requestMetadata = (_b = object.requestMetadata) !== null && _b !== void 0 ? _b : void 0;
+      message.layoutId = (_b = object.layoutId) !== null && _b !== void 0 ? _b : "";
+      message.requestMetadata = (_c = object.requestMetadata) !== null && _c !== void 0 ? _c : void 0;
       return message;
     }
   };
@@ -13407,11 +8870,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseBatchLayerResponse_BatchLayerItem();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -13452,230 +8915,6 @@ var struct$2 = {};
       return message;
     }
   };
-  function createBaseEventTarget() {
-    return { collectionId: void 0, projectId: void 0, layoutId: void 0 };
-  }
-  exports2.EventTarget = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.collectionId !== void 0) {
-        writer2.uint32(42).string(message.collectionId);
-      }
-      if (message.projectId !== void 0) {
-        writer2.uint32(34).string(message.projectId);
-      }
-      if (message.layoutId !== void 0) {
-        writer2.uint32(10).string(message.layoutId);
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBaseEventTarget();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 5:
-            message.collectionId = reader2.string();
-            break;
-          case 4:
-            message.projectId = reader2.string();
-            break;
-          case 1:
-            message.layoutId = reader2.string();
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        collectionId: isSet2(object.collectionId) ? String(object.collectionId) : void 0,
-        projectId: isSet2(object.projectId) ? String(object.projectId) : void 0,
-        layoutId: isSet2(object.layoutId) ? String(object.layoutId) : void 0
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.collectionId !== void 0 && (obj.collectionId = message.collectionId);
-      message.projectId !== void 0 && (obj.projectId = message.projectId);
-      message.layoutId !== void 0 && (obj.layoutId = message.layoutId);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b, _c;
-      const message = createBaseEventTarget();
-      message.collectionId = (_a = object.collectionId) !== null && _a !== void 0 ? _a : void 0;
-      message.projectId = (_b = object.projectId) !== null && _b !== void 0 ? _b : void 0;
-      message.layoutId = (_c = object.layoutId) !== null && _c !== void 0 ? _c : void 0;
-      return message;
-    }
-  };
-  function createBasePublishEventRequest() {
-    return {
-      name: "",
-      payload: void 0,
-      requestMetadata: void 0,
-      target: void 0
-    };
-  }
-  exports2.PublishEventRequest = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.name !== "") {
-        writer2.uint32(10).string(message.name);
-      }
-      if (message.payload !== void 0) {
-        struct_1.Struct.encode(struct_1.Struct.wrap(message.payload), writer2.uint32(18).fork()).ldelim();
-      }
-      if (message.requestMetadata !== void 0) {
-        struct_1.Value.encode(struct_1.Value.wrap(message.requestMetadata), writer2.uint32(34).fork()).ldelim();
-      }
-      if (message.target !== void 0) {
-        exports2.EventTarget.encode(message.target, writer2.uint32(26).fork()).ldelim();
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBasePublishEventRequest();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 1:
-            message.name = reader2.string();
-            break;
-          case 2:
-            message.payload = struct_1.Struct.unwrap(struct_1.Struct.decode(reader2, reader2.uint32()));
-            break;
-          case 4:
-            message.requestMetadata = struct_1.Value.unwrap(struct_1.Value.decode(reader2, reader2.uint32()));
-            break;
-          case 3:
-            message.target = exports2.EventTarget.decode(reader2, reader2.uint32());
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        name: isSet2(object.name) ? String(object.name) : "",
-        payload: isObject2(object.payload) ? object.payload : void 0,
-        requestMetadata: isSet2(object === null || object === void 0 ? void 0 : object.requestMetadata) ? object.requestMetadata : void 0,
-        target: isSet2(object.target) ? exports2.EventTarget.fromJSON(object.target) : void 0
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.name !== void 0 && (obj.name = message.name);
-      message.payload !== void 0 && (obj.payload = message.payload);
-      message.requestMetadata !== void 0 && (obj.requestMetadata = message.requestMetadata);
-      message.target !== void 0 && (obj.target = message.target ? exports2.EventTarget.toJSON(message.target) : void 0);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b, _c;
-      const message = createBasePublishEventRequest();
-      message.name = (_a = object.name) !== null && _a !== void 0 ? _a : "";
-      message.payload = (_b = object.payload) !== null && _b !== void 0 ? _b : void 0;
-      message.requestMetadata = (_c = object.requestMetadata) !== null && _c !== void 0 ? _c : void 0;
-      message.target = object.target !== void 0 && object.target !== null ? exports2.EventTarget.fromPartial(object.target) : void 0;
-      return message;
-    }
-  };
-  function createBasePublishEventResponse() {
-    return {
-      name: "",
-      payload: void 0,
-      target: void 0,
-      requestMetadata: void 0,
-      id: ""
-    };
-  }
-  exports2.PublishEventResponse = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.name !== "") {
-        writer2.uint32(10).string(message.name);
-      }
-      if (message.payload !== void 0) {
-        struct_1.Struct.encode(struct_1.Struct.wrap(message.payload), writer2.uint32(18).fork()).ldelim();
-      }
-      if (message.target !== void 0) {
-        exports2.EventTarget.encode(message.target, writer2.uint32(26).fork()).ldelim();
-      }
-      if (message.requestMetadata !== void 0) {
-        struct_1.Value.encode(struct_1.Value.wrap(message.requestMetadata), writer2.uint32(34).fork()).ldelim();
-      }
-      if (message.id !== "") {
-        writer2.uint32(42).string(message.id);
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBasePublishEventResponse();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 1:
-            message.name = reader2.string();
-            break;
-          case 2:
-            message.payload = struct_1.Struct.unwrap(struct_1.Struct.decode(reader2, reader2.uint32()));
-            break;
-          case 3:
-            message.target = exports2.EventTarget.decode(reader2, reader2.uint32());
-            break;
-          case 4:
-            message.requestMetadata = struct_1.Value.unwrap(struct_1.Value.decode(reader2, reader2.uint32()));
-            break;
-          case 5:
-            message.id = reader2.string();
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        name: isSet2(object.name) ? String(object.name) : "",
-        payload: isObject2(object.payload) ? object.payload : void 0,
-        target: isSet2(object.target) ? exports2.EventTarget.fromJSON(object.target) : void 0,
-        requestMetadata: isSet2(object === null || object === void 0 ? void 0 : object.requestMetadata) ? object.requestMetadata : void 0,
-        id: isSet2(object.id) ? String(object.id) : ""
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.name !== void 0 && (obj.name = message.name);
-      message.payload !== void 0 && (obj.payload = message.payload);
-      message.target !== void 0 && (obj.target = message.target ? exports2.EventTarget.toJSON(message.target) : void 0);
-      message.requestMetadata !== void 0 && (obj.requestMetadata = message.requestMetadata);
-      message.id !== void 0 && (obj.id = message.id);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b, _c, _d;
-      const message = createBasePublishEventResponse();
-      message.name = (_a = object.name) !== null && _a !== void 0 ? _a : "";
-      message.payload = (_b = object.payload) !== null && _b !== void 0 ? _b : void 0;
-      message.target = object.target !== void 0 && object.target !== null ? exports2.EventTarget.fromPartial(object.target) : void 0;
-      message.requestMetadata = (_c = object.requestMetadata) !== null && _c !== void 0 ? _c : void 0;
-      message.id = (_d = object.id) !== null && _d !== void 0 ? _d : "";
-      return message;
-    }
-  };
   function createBasePartialLayout() {
     return {
       width: void 0,
@@ -13712,11 +8951,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBasePartialLayout();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 2:
@@ -13798,11 +9037,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseListLayoutsRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -13854,11 +9093,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseListLayoutsResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -13902,11 +9141,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateLayoutRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 2:
@@ -13945,11 +9184,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetLayoutRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -13992,11 +9231,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateLayoutRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -14042,11 +9281,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteLayoutPayload();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 100:
@@ -14089,11 +9328,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteLayoutRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -14142,11 +9381,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteLayoutResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 2:
@@ -14206,11 +9445,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseLayerAnimation();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -14330,11 +9569,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBasePartialLayer();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -14524,11 +9763,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBasePartialLayerWithID();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1e3:
@@ -14662,11 +9901,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseListLayersRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -14706,11 +9945,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseListLayersResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -14757,11 +9996,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateLayerRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -14810,11 +10049,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetLayerRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -14866,11 +10105,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateLayerRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -14922,11 +10161,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteLayerPayload();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 100:
@@ -14956,68 +10195,6 @@ var struct$2 = {};
       return message;
     }
   };
-  function createBaseDeleteLayerRequest() {
-    return { layoutId: "", layerId: "", payload: void 0 };
-  }
-  exports2.DeleteLayerRequest = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.layoutId !== "") {
-        writer2.uint32(10).string(message.layoutId);
-      }
-      if (message.layerId !== "") {
-        writer2.uint32(18).string(message.layerId);
-      }
-      if (message.payload !== void 0) {
-        exports2.DeleteLayerPayload.encode(message.payload, writer2.uint32(26).fork()).ldelim();
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBaseDeleteLayerRequest();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 1:
-            message.layoutId = reader2.string();
-            break;
-          case 2:
-            message.layerId = reader2.string();
-            break;
-          case 3:
-            message.payload = exports2.DeleteLayerPayload.decode(reader2, reader2.uint32());
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        layoutId: isSet2(object.layoutId) ? String(object.layoutId) : "",
-        layerId: isSet2(object.layerId) ? String(object.layerId) : "",
-        payload: isSet2(object.payload) ? exports2.DeleteLayerPayload.fromJSON(object.payload) : void 0
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.layoutId !== void 0 && (obj.layoutId = message.layoutId);
-      message.layerId !== void 0 && (obj.layerId = message.layerId);
-      message.payload !== void 0 && (obj.payload = message.payload ? exports2.DeleteLayerPayload.toJSON(message.payload) : void 0);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b;
-      const message = createBaseDeleteLayerRequest();
-      message.layoutId = (_a = object.layoutId) !== null && _a !== void 0 ? _a : "";
-      message.layerId = (_b = object.layerId) !== null && _b !== void 0 ? _b : "";
-      message.payload = object.payload !== void 0 && object.payload !== null ? exports2.DeleteLayerPayload.fromPartial(object.payload) : void 0;
-      return message;
-    }
-  };
   function createBaseBatchDeleteLayerRequest() {
     return { id: "", requestMetadata: void 0 };
   }
@@ -15031,11 +10208,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseBatchDeleteLayerRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -15087,11 +10264,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseBatchLayerRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -15153,11 +10330,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseBatchLayerRequest_BatchItem();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -15214,11 +10391,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseLayoutEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -15283,11 +10460,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseLayerEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -15347,11 +10524,11 @@ var struct$2 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -15384,417 +10561,6 @@ var struct$2 = {};
       message.layout = object.layout !== void 0 && object.layout !== null ? exports2.LayoutEvent.fromPartial(object.layout) : void 0;
       message.layer = object.layer !== void 0 && object.layer !== null ? exports2.LayerEvent.fromPartial(object.layer) : void 0;
       return message;
-    }
-  };
-  function createBaseSubscribePayload() {
-    return { name: "", target: void 0 };
-  }
-  exports2.SubscribePayload = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.name !== "") {
-        writer2.uint32(10).string(message.name);
-      }
-      if (message.target !== void 0) {
-        exports2.EventTarget.encode(message.target, writer2.uint32(18).fork()).ldelim();
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBaseSubscribePayload();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 1:
-            message.name = reader2.string();
-            break;
-          case 2:
-            message.target = exports2.EventTarget.decode(reader2, reader2.uint32());
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        name: isSet2(object.name) ? String(object.name) : "",
-        target: isSet2(object.target) ? exports2.EventTarget.fromJSON(object.target) : void 0
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.name !== void 0 && (obj.name = message.name);
-      message.target !== void 0 && (obj.target = message.target ? exports2.EventTarget.toJSON(message.target) : void 0);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a;
-      const message = createBaseSubscribePayload();
-      message.name = (_a = object.name) !== null && _a !== void 0 ? _a : "";
-      message.target = object.target !== void 0 && object.target !== null ? exports2.EventTarget.fromPartial(object.target) : void 0;
-      return message;
-    }
-  };
-  function createBaseEventsStreamRequest() {
-    return {
-      correlationId: void 0,
-      subscribe: void 0,
-      unsubscribe: void 0,
-      publish: void 0,
-      ping: void 0
-    };
-  }
-  exports2.EventsStreamRequest = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.correlationId !== void 0) {
-        writer2.uint32(10).string(message.correlationId);
-      }
-      if (message.subscribe !== void 0) {
-        exports2.SubscribePayload.encode(message.subscribe, writer2.uint32(802).fork()).ldelim();
-      }
-      if (message.unsubscribe !== void 0) {
-        exports2.SubscribePayload.encode(message.unsubscribe, writer2.uint32(810).fork()).ldelim();
-      }
-      if (message.publish !== void 0) {
-        exports2.PublishEventRequest.encode(message.publish, writer2.uint32(818).fork()).ldelim();
-      }
-      if (message.ping !== void 0) {
-        writer2.uint32(826).string(message.ping);
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBaseEventsStreamRequest();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 1:
-            message.correlationId = reader2.string();
-            break;
-          case 100:
-            message.subscribe = exports2.SubscribePayload.decode(reader2, reader2.uint32());
-            break;
-          case 101:
-            message.unsubscribe = exports2.SubscribePayload.decode(reader2, reader2.uint32());
-            break;
-          case 102:
-            message.publish = exports2.PublishEventRequest.decode(reader2, reader2.uint32());
-            break;
-          case 103:
-            message.ping = reader2.string();
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        correlationId: isSet2(object.correlationId) ? String(object.correlationId) : void 0,
-        subscribe: isSet2(object.subscribe) ? exports2.SubscribePayload.fromJSON(object.subscribe) : void 0,
-        unsubscribe: isSet2(object.unsubscribe) ? exports2.SubscribePayload.fromJSON(object.unsubscribe) : void 0,
-        publish: isSet2(object.publish) ? exports2.PublishEventRequest.fromJSON(object.publish) : void 0,
-        ping: isSet2(object.ping) ? String(object.ping) : void 0
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.correlationId !== void 0 && (obj.correlationId = message.correlationId);
-      message.subscribe !== void 0 && (obj.subscribe = message.subscribe ? exports2.SubscribePayload.toJSON(message.subscribe) : void 0);
-      message.unsubscribe !== void 0 && (obj.unsubscribe = message.unsubscribe ? exports2.SubscribePayload.toJSON(message.unsubscribe) : void 0);
-      message.publish !== void 0 && (obj.publish = message.publish ? exports2.PublishEventRequest.toJSON(message.publish) : void 0);
-      message.ping !== void 0 && (obj.ping = message.ping);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b;
-      const message = createBaseEventsStreamRequest();
-      message.correlationId = (_a = object.correlationId) !== null && _a !== void 0 ? _a : void 0;
-      message.subscribe = object.subscribe !== void 0 && object.subscribe !== null ? exports2.SubscribePayload.fromPartial(object.subscribe) : void 0;
-      message.unsubscribe = object.unsubscribe !== void 0 && object.unsubscribe !== null ? exports2.SubscribePayload.fromPartial(object.unsubscribe) : void 0;
-      message.publish = object.publish !== void 0 && object.publish !== null ? exports2.PublishEventRequest.fromPartial(object.publish) : void 0;
-      message.ping = (_b = object.ping) !== null && _b !== void 0 ? _b : void 0;
-      return message;
-    }
-  };
-  function createBaseEventsStreamError() {
-    return { code: 0, message: "" };
-  }
-  exports2.EventsStreamError = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.code !== 0) {
-        writer2.uint32(8).int32(message.code);
-      }
-      if (message.message !== "") {
-        writer2.uint32(18).string(message.message);
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBaseEventsStreamError();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 1:
-            message.code = reader2.int32();
-            break;
-          case 2:
-            message.message = reader2.string();
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        code: isSet2(object.code) ? Number(object.code) : 0,
-        message: isSet2(object.message) ? String(object.message) : ""
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.code !== void 0 && (obj.code = Math.round(message.code));
-      message.message !== void 0 && (obj.message = message.message);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b;
-      const message = createBaseEventsStreamError();
-      message.code = (_a = object.code) !== null && _a !== void 0 ? _a : 0;
-      message.message = (_b = object.message) !== null && _b !== void 0 ? _b : "";
-      return message;
-    }
-  };
-  function createBaseEventsStreamReconnectRequest() {
-    return { reauthenticate: false, beforeTimestamp: "" };
-  }
-  exports2.EventsStreamReconnectRequest = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.reauthenticate === true) {
-        writer2.uint32(8).bool(message.reauthenticate);
-      }
-      if (message.beforeTimestamp !== "") {
-        writer2.uint32(18).string(message.beforeTimestamp);
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBaseEventsStreamReconnectRequest();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 1:
-            message.reauthenticate = reader2.bool();
-            break;
-          case 2:
-            message.beforeTimestamp = reader2.string();
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        reauthenticate: isSet2(object.reauthenticate) ? Boolean(object.reauthenticate) : false,
-        beforeTimestamp: isSet2(object.beforeTimestamp) ? String(object.beforeTimestamp) : ""
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.reauthenticate !== void 0 && (obj.reauthenticate = message.reauthenticate);
-      message.beforeTimestamp !== void 0 && (obj.beforeTimestamp = message.beforeTimestamp);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b;
-      const message = createBaseEventsStreamReconnectRequest();
-      message.reauthenticate = (_a = object.reauthenticate) !== null && _a !== void 0 ? _a : false;
-      message.beforeTimestamp = (_b = object.beforeTimestamp) !== null && _b !== void 0 ? _b : "";
-      return message;
-    }
-  };
-  function createBaseEventsStreamResponse() {
-    return {
-      correlationId: void 0,
-      sessionId: void 0,
-      event: void 0,
-      pong: void 0,
-      error: void 0,
-      subscribed: void 0,
-      unsubscribed: void 0,
-      published: void 0,
-      reconnectBefore: void 0
-    };
-  }
-  exports2.EventsStreamResponse = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.correlationId !== void 0) {
-        writer2.uint32(18).string(message.correlationId);
-      }
-      if (message.sessionId !== void 0) {
-        writer2.uint32(26).string(message.sessionId);
-      }
-      if (message.event !== void 0) {
-        exports2.PublishEventResponse.encode(message.event, writer2.uint32(802).fork()).ldelim();
-      }
-      if (message.pong !== void 0) {
-        writer2.uint32(1602).string(message.pong);
-      }
-      if (message.error !== void 0) {
-        exports2.EventsStreamError.encode(message.error, writer2.uint32(1610).fork()).ldelim();
-      }
-      if (message.subscribed !== void 0) {
-        exports2.SubscribePayload.encode(message.subscribed, writer2.uint32(1618).fork()).ldelim();
-      }
-      if (message.unsubscribed !== void 0) {
-        exports2.SubscribePayload.encode(message.unsubscribed, writer2.uint32(1626).fork()).ldelim();
-      }
-      if (message.published !== void 0) {
-        exports2.PublishEventResponse.encode(message.published, writer2.uint32(1634).fork()).ldelim();
-      }
-      if (message.reconnectBefore !== void 0) {
-        exports2.EventsStreamReconnectRequest.encode(message.reconnectBefore, writer2.uint32(1642).fork()).ldelim();
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBaseEventsStreamResponse();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 2:
-            message.correlationId = reader2.string();
-            break;
-          case 3:
-            message.sessionId = reader2.string();
-            break;
-          case 100:
-            message.event = exports2.PublishEventResponse.decode(reader2, reader2.uint32());
-            break;
-          case 200:
-            message.pong = reader2.string();
-            break;
-          case 201:
-            message.error = exports2.EventsStreamError.decode(reader2, reader2.uint32());
-            break;
-          case 202:
-            message.subscribed = exports2.SubscribePayload.decode(reader2, reader2.uint32());
-            break;
-          case 203:
-            message.unsubscribed = exports2.SubscribePayload.decode(reader2, reader2.uint32());
-            break;
-          case 204:
-            message.published = exports2.PublishEventResponse.decode(reader2, reader2.uint32());
-            break;
-          case 205:
-            message.reconnectBefore = exports2.EventsStreamReconnectRequest.decode(reader2, reader2.uint32());
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        correlationId: isSet2(object.correlationId) ? String(object.correlationId) : void 0,
-        sessionId: isSet2(object.sessionId) ? String(object.sessionId) : void 0,
-        event: isSet2(object.event) ? exports2.PublishEventResponse.fromJSON(object.event) : void 0,
-        pong: isSet2(object.pong) ? String(object.pong) : void 0,
-        error: isSet2(object.error) ? exports2.EventsStreamError.fromJSON(object.error) : void 0,
-        subscribed: isSet2(object.subscribed) ? exports2.SubscribePayload.fromJSON(object.subscribed) : void 0,
-        unsubscribed: isSet2(object.unsubscribed) ? exports2.SubscribePayload.fromJSON(object.unsubscribed) : void 0,
-        published: isSet2(object.published) ? exports2.PublishEventResponse.fromJSON(object.published) : void 0,
-        reconnectBefore: isSet2(object.reconnectBefore) ? exports2.EventsStreamReconnectRequest.fromJSON(object.reconnectBefore) : void 0
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.correlationId !== void 0 && (obj.correlationId = message.correlationId);
-      message.sessionId !== void 0 && (obj.sessionId = message.sessionId);
-      message.event !== void 0 && (obj.event = message.event ? exports2.PublishEventResponse.toJSON(message.event) : void 0);
-      message.pong !== void 0 && (obj.pong = message.pong);
-      message.error !== void 0 && (obj.error = message.error ? exports2.EventsStreamError.toJSON(message.error) : void 0);
-      message.subscribed !== void 0 && (obj.subscribed = message.subscribed ? exports2.SubscribePayload.toJSON(message.subscribed) : void 0);
-      message.unsubscribed !== void 0 && (obj.unsubscribed = message.unsubscribed ? exports2.SubscribePayload.toJSON(message.unsubscribed) : void 0);
-      message.published !== void 0 && (obj.published = message.published ? exports2.PublishEventResponse.toJSON(message.published) : void 0);
-      message.reconnectBefore !== void 0 && (obj.reconnectBefore = message.reconnectBefore ? exports2.EventsStreamReconnectRequest.toJSON(message.reconnectBefore) : void 0);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b, _c;
-      const message = createBaseEventsStreamResponse();
-      message.correlationId = (_a = object.correlationId) !== null && _a !== void 0 ? _a : void 0;
-      message.sessionId = (_b = object.sessionId) !== null && _b !== void 0 ? _b : void 0;
-      message.event = object.event !== void 0 && object.event !== null ? exports2.PublishEventResponse.fromPartial(object.event) : void 0;
-      message.pong = (_c = object.pong) !== null && _c !== void 0 ? _c : void 0;
-      message.error = object.error !== void 0 && object.error !== null ? exports2.EventsStreamError.fromPartial(object.error) : void 0;
-      message.subscribed = object.subscribed !== void 0 && object.subscribed !== null ? exports2.SubscribePayload.fromPartial(object.subscribed) : void 0;
-      message.unsubscribed = object.unsubscribed !== void 0 && object.unsubscribed !== null ? exports2.SubscribePayload.fromPartial(object.unsubscribed) : void 0;
-      message.published = object.published !== void 0 && object.published !== null ? exports2.PublishEventResponse.fromPartial(object.published) : void 0;
-      message.reconnectBefore = object.reconnectBefore !== void 0 && object.reconnectBefore !== null ? exports2.EventsStreamReconnectRequest.fromPartial(object.reconnectBefore) : void 0;
-      return message;
-    }
-  };
-  class EventsServiceClientImpl {
-    constructor(rpc2) {
-      this.rpc = rpc2;
-      this.Stream = this.Stream.bind(this);
-      this.Publish = this.Publish.bind(this);
-    }
-    Stream(request3) {
-      const data2 = request3.pipe(operators_1.map((request4) => exports2.EventsStreamRequest.encode(request4).finish()));
-      const result = this.rpc.bidirectionalStreamingRequest("apis.layout.v2.EventsService", "Stream", data2);
-      return result.pipe(operators_1.map((data3) => exports2.EventsStreamResponse.decode(new _m02.Reader(data3))));
-    }
-    Publish(request3) {
-      const data2 = exports2.PublishEventRequest.encode(request3).finish();
-      const promise = this.rpc.request("apis.layout.v2.EventsService", "Publish", data2);
-      return promise.then((data3) => exports2.PublishEventResponse.decode(new _m02.Reader(data3)));
-    }
-  }
-  exports2.EventsServiceClientImpl = EventsServiceClientImpl;
-  exports2.EventsServiceDefinition = {
-    name: "EventsService",
-    fullName: "apis.layout.v2.EventsService",
-    methods: {
-      stream: {
-        name: "Stream",
-        requestType: exports2.EventsStreamRequest,
-        requestStream: true,
-        responseType: exports2.EventsStreamResponse,
-        responseStream: true,
-        options: {}
-      },
-      publish: {
-        name: "Publish",
-        requestType: exports2.PublishEventRequest,
-        requestStream: false,
-        responseType: exports2.PublishEventResponse,
-        responseStream: false,
-        options: {}
-      }
     }
   };
   class LayerServiceClientImpl {
@@ -16015,16 +10781,9 @@ var struct$2 = {};
         __createBinding2(exports3, m, p);
   };
   Object.defineProperty(exports2, "__esModule", { value: true });
-  exports2.layoutApiEventMap = exports2.eventsApiSupportedEvents = exports2.eventsApiEventRpcCalls = void 0;
+  exports2.layoutApiEventMap = void 0;
   const api_12 = api$3;
   __exportStar(api$3, exports2);
-  exports2.eventsApiEventRpcCalls = {
-    ping: "pong",
-    publish: "published",
-    subscribe: "subscribed",
-    unsubscribe: "unsubscribed"
-  };
-  exports2.eventsApiSupportedEvents = [...Object.values(exports2.eventsApiEventRpcCalls), "error", "event", "reconnectBefore"];
   exports2.layoutApiEventMap = {
     [api_12.EventType.EVENT_TYPE_LAYOUT]: "layout",
     [api_12.EventType.EVENT_TYPE_LAYER]: "layer",
@@ -16313,11 +11072,11 @@ ${error.stack}`;
     return { args };
   }
 }
-function padStart(value, length3, fillChar = " ") {
-  return padInternal(value, length3, "start", fillChar);
+function padStart(value, length2, fillChar = " ") {
+  return padInternal(value, length2, "start", fillChar);
 }
-function padEnd(value, length3, fillChar = " ") {
-  return padInternal(value, length3, "end", fillChar);
+function padEnd(value, length2, fillChar = " ") {
+  return padInternal(value, length2, "end", fillChar);
 }
 function maxLengthStringValueInArray(arr) {
   return arr.map((v) => v.length).reduce((previous, current) => {
@@ -16327,14 +11086,14 @@ function maxLengthStringValueInArray(arr) {
     return previous;
   }, 0);
 }
-function padInternal(value, length3, padType, fillChar = " ") {
-  if (length3 <= value.length) {
+function padInternal(value, length2, padType, fillChar = " ") {
+  if (length2 <= value.length) {
     return value;
   }
   if (fillChar.length > 1) {
     throw new Error(`Fill char must be one char exactly, it is: ${fillChar.length}`);
   }
-  const charsNeeded = length3 - value.length;
+  const charsNeeded = length2 - value.length;
   let padding = "";
   for (let i2 = 0; i2 < charsNeeded; i2++) {
     padding += fillChar;
@@ -16973,10 +11732,10 @@ var typescriptLoggingCategory_esm = /* @__PURE__ */ Object.freeze(/* @__PURE__ *
 var require$$1 = /* @__PURE__ */ getAugmentedNamespace(typescriptLoggingCategory_esm);
 Object.defineProperty(logger$1, "__esModule", { value: true });
 logger$1.logger = void 0;
-const typescript_logging_1 = require$$2$2;
+const typescript_logging_1 = require$$2$1;
 const typescript_logging_category_style_1 = require$$1;
 logger$1.logger = typescript_logging_category_style_1.CategoryProvider.createProvider("ApiStream", { allowSameCategoryName: true, level: typescript_logging_1.LogLevel.Warn });
-var version$2 = "2.2.1";
+var version$2 = "1.0.0";
 var __createBinding$5 = commonjsGlobal && commonjsGlobal.__createBinding || (Object.create ? function(o2, m, k, k2) {
   if (k2 === void 0)
     k2 = k;
@@ -17192,7 +11951,7 @@ class LayoutApi extends api_1$1.ApiClient {
     this.handlers[type] = this.handlers[type].filter((i2) => i2 !== handler);
   }
 }
-LayoutApi.LAYOUTAPI_EVENT_PREFIX = "lapi";
+LayoutApi.LAYOUTAPI_EVENT_PREFIX = "apistream:layout";
 __decorate([
   (0, decorator_1.RequiresSdkAuthentication)(),
   __metadata("design:type", Object)
@@ -17242,8 +12001,8 @@ var __importDefault$g = commonjsGlobal && commonjsGlobal.__importDefault || func
 };
 Object.defineProperty(timestamp$1, "__esModule", { value: true });
 timestamp$1.Timestamp = timestamp$1.protobufPackage = void 0;
-const long_1$1 = __importDefault$g(long);
-const _m0$1 = __importStar$3(minimal$2);
+const long_1$1 = __importDefault$g(umd.exports);
+const _m0$1 = __importStar$3(minimal);
 timestamp$1.protobufPackage = "google.protobuf";
 function createBaseTimestamp() {
   return { seconds: 0, nanos: 0 };
@@ -17258,11 +12017,11 @@ timestamp$1.Timestamp = {
     }
     return writer2;
   },
-  decode(input, length3) {
+  decode(input, length2) {
     const reader2 = input instanceof _m0$1.Reader ? input : new _m0$1.Reader(input);
-    let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+    let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
     const message = createBaseTimestamp();
-    while (reader2.pos < end3) {
+    while (reader2.pos < end2) {
       const tag = reader2.uint32();
       switch (tag >>> 3) {
         case 1:
@@ -17309,11 +12068,11 @@ var globalThis$1 = (() => {
     return commonjsGlobal;
   throw "Unable to locate global object";
 })();
-function longToNumber(long2) {
-  if (long2.gt(Number.MAX_SAFE_INTEGER)) {
+function longToNumber(long) {
+  if (long.gt(Number.MAX_SAFE_INTEGER)) {
     throw new globalThis$1.Error("Value is larger than Number.MAX_SAFE_INTEGER");
   }
-  return long2.toNumber();
+  return long.toNumber();
 }
 if (_m0$1.util.Long !== long_1$1.default) {
   _m0$1.util.Long = long_1$1.default;
@@ -17361,8 +12120,8 @@ var struct$1 = {};
   };
   Object.defineProperty(exports2, "__esModule", { value: true });
   exports2.ListValue = exports2.Value = exports2.Struct_FieldsEntry = exports2.Struct = exports2.nullValueToNumber = exports2.nullValueToJSON = exports2.nullValueFromJSON = exports2.NullValue = exports2.protobufPackage = void 0;
-  const long_12 = __importDefault2(long);
-  const _m02 = __importStar2(minimal$2);
+  const long_12 = __importDefault2(umd.exports);
+  const _m02 = __importStar2(minimal);
   exports2.protobufPackage = "google.protobuf";
   var NullValue;
   (function(NullValue2) {
@@ -17408,11 +12167,11 @@ var struct$1 = {};
       });
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStruct();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -17487,11 +12246,11 @@ var struct$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStruct_FieldsEntry();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -17559,11 +12318,11 @@ var struct$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseValue();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -17668,11 +12427,11 @@ var struct$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseListValue();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -17774,8 +12533,8 @@ var __importDefault$f = commonjsGlobal && commonjsGlobal.__importDefault || func
 };
 Object.defineProperty(field_mask, "__esModule", { value: true });
 field_mask.FieldMask = field_mask.protobufPackage = void 0;
-const long_1 = __importDefault$f(long);
-const _m0 = __importStar$2(minimal$2);
+const long_1 = __importDefault$f(umd.exports);
+const _m0 = __importStar$2(minimal);
 field_mask.protobufPackage = "google.protobuf";
 function createBaseFieldMask() {
   return { paths: [] };
@@ -17787,11 +12546,11 @@ field_mask.FieldMask = {
     }
     return writer2;
   },
-  decode(input, length3) {
+  decode(input, length2) {
     const reader2 = input instanceof _m0.Reader ? input : new _m0.Reader(input);
-    let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+    let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
     const message = createBaseFieldMask();
-    while (reader2.pos < end3) {
+    while (reader2.pos < end2) {
       const tag = reader2.uint32();
       switch (tag >>> 3) {
         case 1:
@@ -17871,8 +12630,8 @@ if (_m0.util.Long !== long_1.default) {
   exports2.UpdateSourceResponse = exports2.UpdateSourceRequest = exports2.GetSourcesResponse = exports2.GetSourcesRequest = exports2.GetSourceResponse = exports2.GetSourceRequest = exports2.UpdateSourceInProjectResponse = exports2.UpdateSourceInProjectRequest = exports2.AddSourceToProjectResponse = exports2.AddSourceToProjectRequest = exports2.DeleteSourceResponse = exports2.DeleteSourceRequest = exports2.CreateSourceResponse = exports2.CreateSourceRequest = exports2.UpdateDestinationResponse = exports2.UpdateDestinationRequest = exports2.DeleteDestinationResponse = exports2.DeleteDestinationRequest = exports2.GetDestinationResponse = exports2.GetDestinationRequest = exports2.CreateDestinationResponse = exports2.CreateDestinationRequest = exports2.StopProjectWebRtcResponse = exports2.StopProjectWebRtcRequest = exports2.StartProjectWebRtcResponse = exports2.StartProjectWebRtcRequest = exports2.GetProjectBroadcastStatusResponse = exports2.GetProjectBroadcastStatusRequest = exports2.GetProjectBroadcastSnapshotResponse = exports2.GetProjectBroadcastSnapshotRequest = exports2.GetProjectResponse = exports2.GetProjectRequest = exports2.StopProjectBroadcastResponse = exports2.StopProjectBroadcastRequest = exports2.StartProjectBroadcastResponse = exports2.StartProjectBroadcastRequest = exports2.DeleteProjectResponse = exports2.DeleteProjectRequest = exports2.UpdateProjectResponse = exports2.UpdateProjectRequest = exports2.CreateProjectResponse = exports2.CreateProjectRequest = exports2.GetCollectionsResponse = exports2.GetCollectionsRequest = exports2.DeleteCollectionResponse = exports2.DeleteCollectionRequest = exports2.UpdateCollectionResponse = exports2.UpdateCollectionRequest = exports2.GetCollectionResponse = exports2.GetCollectionRequest = void 0;
   exports2.DestinationServiceDefinition = exports2.DestinationServiceClientImpl = exports2.ProjectServiceDefinition = exports2.ProjectServiceClientImpl = exports2.CollectionServiceDefinition = exports2.CollectionServiceClientImpl = exports2.LiveEvent = exports2.SourceEvent = exports2.ProjectEvent = exports2.DestinationEvent = exports2.CollectionEvent = exports2.SourceRemoveEvent = exports2.SourceAddEvent = exports2.SourceUpdateEvent = exports2.SourceDeleteEvent = exports2.SourceCreateEvent = exports2.CollectionUpdateEvent = exports2.CollectionDeleteEvent = exports2.CollectionCreateEvent = exports2.ProjectBroadcastStateEvent = exports2.ProjectUpdateEvent = exports2.ProjectDeleteEvent = exports2.ProjectCreateEvent = exports2.DestinationStateEvent = exports2.DestinationUpdateEvent = exports2.DestinationDeleteEvent = exports2.DestinationCreateEvent = exports2.GetTestTokenResponse = exports2.GetTestTokenRequest = exports2.GetJsonWebKeySetResponse = exports2.GetJsonWebKeySetRequest = exports2.JsonWebKey = exports2.CreateDemoAccessTokenResponse = exports2.CreateDemoAccessTokenRequest = exports2.GuestCodeRedirectResponse = exports2.GuestCodeRedirectRequest = exports2.GuestCode = exports2.RefreshAccessTokenResponse = exports2.RefreshAccessTokenRequest = exports2.CreateWebRtcAccessTokenResponse = exports2.CreateWebRtcAccessTokenRequest = exports2.CreateGuestAccessTokenResponse = exports2.CreateGuestAccessTokenRequest = exports2.GuestAccessToken = exports2.GuestAccessTokenExchange = exports2.GuestAccessTokenDirect = exports2.CreateAccessTokenResponse = exports2.CreateAccessTokenRequest = exports2.RemoveSourceFromProjectResponse = exports2.RemoveSourceFromProjectRequest = void 0;
   exports2.PublicAuthenticationServiceDefinition = exports2.PublicAuthenticationServiceClientImpl = exports2.AuthenticationServiceDefinition = exports2.AuthenticationServiceClientImpl = exports2.BackendAuthenticationServiceDefinition = exports2.BackendAuthenticationServiceClientImpl = exports2.SourceServiceDefinition = exports2.SourceServiceClientImpl = void 0;
-  const long_12 = __importDefault2(long);
-  const _m02 = __importStar2(minimal$2);
+  const long_12 = __importDefault2(umd.exports);
+  const _m02 = __importStar2(minimal);
   const timestamp_1 = timestamp$1;
   const struct_1 = struct$1;
   const field_mask_1 = field_mask;
@@ -18797,11 +13556,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseVideoRendering();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -18859,11 +13618,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseAudioRendering();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -18921,11 +13680,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseRendering();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -18999,11 +13758,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseVideoCodecRateControl();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19061,11 +13820,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseVideoEncoding();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19117,11 +13876,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseAudioEncoding();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19164,11 +13923,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseEncoding();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19227,11 +13986,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSourceRtmpPushAddress();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19303,11 +14062,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSrtPushAddress();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19368,11 +14127,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSourceAddress();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19420,11 +14179,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDestinationRtmpPushAddress();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19476,11 +14235,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDestinationAgoraPushAddress();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19535,11 +14294,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDestinationAddress();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19590,11 +14349,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSourceTrigger();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19646,11 +14405,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseWebRtcTrigger();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 3:
@@ -19690,11 +14449,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseProjectTrigger();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19736,11 +14495,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBasePreviewHlsPullAddress();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19796,11 +14555,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBasePreviewWebRtcAddress();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19852,11 +14611,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBasePreviewAddress();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 2:
@@ -19895,11 +14654,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStudioSdkComposition();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -19939,11 +14698,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSceneCompositionLegacy();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 2:
@@ -19986,11 +14745,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSceneComposition();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20036,11 +14795,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseExternalComposition();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20094,11 +14853,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseComposition();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20155,11 +14914,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseHostedWebRtc();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20199,11 +14958,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseWebRtc();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20245,11 +15004,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseWebRtcAccess();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20298,11 +15057,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseLatLong();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20382,11 +15141,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseProjectBroadcastStatus();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20492,11 +15251,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSource();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20586,11 +15345,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDestination();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20716,11 +15475,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseProject();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20857,11 +15616,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCollection();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20927,11 +15686,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateCollectionRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -20971,11 +15730,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateCollectionResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21024,11 +15783,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetCollectionRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21080,11 +15839,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetCollectionResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21129,11 +15888,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateCollectionRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21185,11 +15944,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateCollectionResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21231,11 +15990,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteCollectionRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21287,11 +16046,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteCollectionResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21344,11 +16103,11 @@ if (_m0.util.Long !== long_1.default) {
     encode(_, writer2 = _m02.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetCollectionsRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -21380,11 +16139,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetCollectionsResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21458,11 +16217,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateProjectRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21544,11 +16303,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateProjectResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21625,11 +16384,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateProjectRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21726,11 +16485,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateProjectResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21782,11 +16541,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteProjectRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21841,11 +16600,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteProjectResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21897,11 +16656,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStartProjectBroadcastRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -21953,11 +16712,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStartProjectBroadcastResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22003,11 +16762,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStopProjectBroadcastRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22056,11 +16815,11 @@ if (_m0.util.Long !== long_1.default) {
     encode(_, writer2 = _m02.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStopProjectBroadcastResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -22098,11 +16857,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetProjectRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22157,11 +16916,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetProjectResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22212,11 +16971,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetProjectBroadcastSnapshotRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22274,11 +17033,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetProjectBroadcastSnapshotResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22327,11 +17086,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetProjectBroadcastStatusRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22377,11 +17136,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetProjectBroadcastStatusResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22423,11 +17182,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStartProjectWebRtcRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22470,11 +17229,11 @@ if (_m0.util.Long !== long_1.default) {
     encode(_, writer2 = _m02.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStartProjectWebRtcResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -22509,11 +17268,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStopProjectWebRtcRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22556,11 +17315,11 @@ if (_m0.util.Long !== long_1.default) {
     encode(_, writer2 = _m02.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStopProjectWebRtcResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -22614,11 +17373,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateDestinationRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22688,11 +17447,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateDestinationResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22737,11 +17496,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetDestinationRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22793,11 +17552,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetDestinationResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22850,11 +17609,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteDestinationRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22912,11 +17671,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteDestinationResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -22986,11 +17745,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateDestinationRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23075,11 +17834,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateDestinationResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23139,11 +17898,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateSourceRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23201,11 +17960,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateSourceResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23250,11 +18009,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteSourceRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23306,11 +18065,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDeleteSourceResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 3:
@@ -23363,11 +18122,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseAddSourceToProjectRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23428,11 +18187,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseAddSourceToProjectResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23496,11 +18255,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateSourceInProjectRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23564,11 +18323,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateSourceInProjectResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23610,11 +18369,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetSourceRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23660,11 +18419,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetSourceResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23703,11 +18462,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetSourcesRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23747,11 +18506,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetSourcesResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23817,11 +18576,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateSourceRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23894,11 +18653,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUpdateSourceResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -23953,11 +18712,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseRemoveSourceFromProjectRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24018,11 +18777,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseRemoveSourceFromProjectResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24074,11 +18833,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateAccessTokenRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24130,11 +18889,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateAccessTokenResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24177,11 +18936,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGuestAccessTokenDirect();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24227,11 +18986,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGuestAccessTokenExchange();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24274,11 +19033,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGuestAccessToken();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24345,11 +19104,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateGuestAccessTokenRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24422,11 +19181,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateGuestAccessTokenResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24478,11 +19237,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateWebRtcAccessTokenRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24534,11 +19293,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateWebRtcAccessTokenResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 2:
@@ -24574,11 +19333,11 @@ if (_m0.util.Long !== long_1.default) {
     encode(_, writer2 = _m02.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseRefreshAccessTokenRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -24607,11 +19366,11 @@ if (_m0.util.Long !== long_1.default) {
     encode(_, writer2 = _m02.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseRefreshAccessTokenResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -24661,11 +19420,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGuestCode();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24732,11 +19491,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGuestCodeRedirectRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24779,11 +19538,11 @@ if (_m0.util.Long !== long_1.default) {
     encode(_, writer2 = _m02.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGuestCodeRedirectResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -24818,11 +19577,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateDemoAccessTokenRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24868,11 +19627,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCreateDemoAccessTokenResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24927,11 +19686,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseJsonWebKey();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -24998,11 +19757,11 @@ if (_m0.util.Long !== long_1.default) {
     encode(_, writer2 = _m02.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetJsonWebKeySetRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -25034,11 +19793,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetJsonWebKeySetResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25079,11 +19838,11 @@ if (_m0.util.Long !== long_1.default) {
     encode(_, writer2 = _m02.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetTestTokenRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -25115,11 +19874,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGetTestTokenResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25173,11 +19932,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDestinationCreateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25241,11 +20000,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDestinationDeleteEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25315,11 +20074,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDestinationUpdateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25401,11 +20160,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDestinationStateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25469,11 +20228,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseProjectCreateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25528,11 +20287,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseProjectDeleteEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25592,11 +20351,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseProjectUpdateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25676,11 +20435,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseProjectBroadcastStateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25747,11 +20506,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCollectionCreateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25797,11 +20556,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCollectionDeleteEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25847,11 +20606,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCollectionUpdateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25913,11 +20672,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSourceCreateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -25972,11 +20731,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSourceDeleteEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -26031,11 +20790,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSourceUpdateEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -26106,11 +20865,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSourceAddEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -26174,11 +20933,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSourceRemoveEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -26236,11 +20995,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseCollectionEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -26305,11 +21064,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseDestinationEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -26380,11 +21139,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseProjectEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -26459,11 +21218,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSourceEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -26544,11 +21303,11 @@ if (_m0.util.Long !== long_1.default) {
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseLiveEvent();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -27355,7 +22114,7 @@ if (_m0.util.Long !== long_1.default) {
       });
     }
   }
-  LiveApi.LIVEAPI_EVENT_PREFIX = "vapi";
+  LiveApi.LIVEAPI_EVENT_PREFIX = "apistream:live";
   __decorate2([
     (0, decorator_12.RequiresSdkAuthentication)(),
     __metadata2("design:type", Object)
@@ -28011,11 +22770,11 @@ function getSymbolIterator() {
 var iterator = /* @__PURE__ */ getSymbolIterator();
 var subscribeToIterable = function(iterable) {
   return function(subscriber) {
-    var iterator$12 = iterable[iterator]();
+    var iterator$1 = iterable[iterator]();
     do {
       var item = void 0;
       try {
-        item = iterator$12.next();
+        item = iterator$1.next();
       } catch (err) {
         subscriber.error(err);
         return subscriber;
@@ -28029,10 +22788,10 @@ var subscribeToIterable = function(iterable) {
         break;
       }
     } while (true);
-    if (typeof iterator$12.return === "function") {
+    if (typeof iterator$1.return === "function") {
       subscriber.add(function() {
-        if (iterator$12.return) {
-          iterator$12.return();
+        if (iterator$1.return) {
+          iterator$1.return();
         }
       });
     }
@@ -28518,18 +23277,18 @@ var BufferSkipCountSubscriber = /* @__PURE__ */ function(_super) {
   return BufferSkipCountSubscriber2;
 }(Subscriber);
 function bufferTime(bufferTimeSpan) {
-  var length3 = arguments.length;
+  var length2 = arguments.length;
   var scheduler = async;
   if (isScheduler(arguments[arguments.length - 1])) {
     scheduler = arguments[arguments.length - 1];
-    length3--;
+    length2--;
   }
   var bufferCreationInterval = null;
-  if (length3 >= 2) {
+  if (length2 >= 2) {
     bufferCreationInterval = arguments[1];
   }
   var maxBufferSize = Number.POSITIVE_INFINITY;
-  if (length3 >= 3) {
+  if (length2 >= 3) {
     maxBufferSize = arguments[2];
   }
   return function bufferTimeOperatorFunction(source2) {
@@ -29026,8 +23785,8 @@ function scheduleObservable(input, scheduler) {
   return new Observable(function(subscriber) {
     var sub = new Subscription();
     sub.add(scheduler.schedule(function() {
-      var observable$12 = input[observable]();
-      sub.add(observable$12.subscribe({
+      var observable$1 = input[observable]();
+      sub.add(observable$1.subscribe({
         next: function(value) {
           sub.add(scheduler.schedule(function() {
             return subscriber.next(value);
@@ -29074,14 +23833,14 @@ function scheduleIterable(input, scheduler) {
   }
   return new Observable(function(subscriber) {
     var sub = new Subscription();
-    var iterator$12;
+    var iterator$1;
     sub.add(function() {
-      if (iterator$12 && typeof iterator$12.return === "function") {
-        iterator$12.return();
+      if (iterator$1 && typeof iterator$1.return === "function") {
+        iterator$1.return();
       }
     });
     sub.add(scheduler.schedule(function() {
-      iterator$12 = input[iterator]();
+      iterator$1 = input[iterator]();
       sub.add(scheduler.schedule(function() {
         if (subscriber.closed) {
           return;
@@ -29089,7 +23848,7 @@ function scheduleIterable(input, scheduler) {
         var value;
         var done;
         try {
-          var result = iterator$12.next();
+          var result = iterator$1.next();
           value = result.value;
           done = result.done;
         } catch (err) {
@@ -29944,14 +24703,14 @@ var DistinctSubscriber = /* @__PURE__ */ function(_super) {
   };
   return DistinctSubscriber2;
 }(SimpleOuterSubscriber);
-function distinctUntilChanged(compare2, keySelector) {
+function distinctUntilChanged(compare, keySelector) {
   return function(source2) {
-    return source2.lift(new DistinctUntilChangedOperator(compare2, keySelector));
+    return source2.lift(new DistinctUntilChangedOperator(compare, keySelector));
   };
 }
 var DistinctUntilChangedOperator = /* @__PURE__ */ function() {
-  function DistinctUntilChangedOperator2(compare2, keySelector) {
-    this.compare = compare2;
+  function DistinctUntilChangedOperator2(compare, keySelector) {
+    this.compare = compare;
     this.keySelector = keySelector;
   }
   DistinctUntilChangedOperator2.prototype.call = function(subscriber, source2) {
@@ -29961,12 +24720,12 @@ var DistinctUntilChangedOperator = /* @__PURE__ */ function() {
 }();
 var DistinctUntilChangedSubscriber = /* @__PURE__ */ function(_super) {
   __extends(DistinctUntilChangedSubscriber2, _super);
-  function DistinctUntilChangedSubscriber2(destination, compare2, keySelector) {
+  function DistinctUntilChangedSubscriber2(destination, compare, keySelector) {
     var _this = _super.call(this, destination) || this;
     _this.keySelector = keySelector;
     _this.hasKey = false;
-    if (typeof compare2 === "function") {
-      _this.compare = compare2;
+    if (typeof compare === "function") {
+      _this.compare = compare;
     }
     return _this;
   }
@@ -29984,8 +24743,8 @@ var DistinctUntilChangedSubscriber = /* @__PURE__ */ function(_super) {
     var result = false;
     if (this.hasKey) {
       try {
-        var compare2 = this.compare;
-        result = compare2(this.key, key);
+        var compare = this.compare;
+        result = compare(this.key, key);
       } catch (err) {
         return this.destination.error(err);
       }
@@ -29999,9 +24758,9 @@ var DistinctUntilChangedSubscriber = /* @__PURE__ */ function(_super) {
   };
   return DistinctUntilChangedSubscriber2;
 }(Subscriber);
-function distinctUntilKeyChanged(key, compare2) {
+function distinctUntilKeyChanged(key, compare) {
   return distinctUntilChanged(function(x, y) {
-    return compare2 ? compare2(x[key], y[key]) : x[key] === y[key];
+    return compare ? compare(x[key], y[key]) : x[key] === y[key];
   });
 }
 var ArgumentOutOfRangeErrorImpl = /* @__PURE__ */ function() {
@@ -31628,18 +26387,18 @@ function pluck() {
   for (var _i = 0; _i < arguments.length; _i++) {
     properties[_i] = arguments[_i];
   }
-  var length3 = properties.length;
-  if (length3 === 0) {
+  var length2 = properties.length;
+  if (length2 === 0) {
     throw new Error("list of properties cannot be empty.");
   }
   return function(source2) {
-    return map(plucker(properties, length3))(source2);
+    return map(plucker(properties, length2))(source2);
   };
 }
-function plucker(props, length3) {
+function plucker(props, length2) {
   var mapper = function(x) {
     var currentProp = x;
-    for (var i2 = 0; i2 < length3; i2++) {
+    for (var i2 = 0; i2 < length2; i2++) {
       var p = currentProp != null ? currentProp[props[i2]] : void 0;
       if (p !== void 0) {
         currentProp = p;
@@ -33031,7 +27790,7 @@ var TakeWhileSubscriber = /* @__PURE__ */ function(_super) {
   };
   return TakeWhileSubscriber2;
 }(Subscriber);
-function noop$1() {
+function noop() {
 }
 function tap(nextOrObserver, error, complete) {
   return function tapOperatorFunction(source2) {
@@ -33053,19 +27812,19 @@ var TapSubscriber = /* @__PURE__ */ function(_super) {
   __extends(TapSubscriber2, _super);
   function TapSubscriber2(destination, observerOrNext, error, complete) {
     var _this = _super.call(this, destination) || this;
-    _this._tapNext = noop$1;
-    _this._tapError = noop$1;
-    _this._tapComplete = noop$1;
-    _this._tapError = error || noop$1;
-    _this._tapComplete = complete || noop$1;
+    _this._tapNext = noop;
+    _this._tapError = noop;
+    _this._tapComplete = noop;
+    _this._tapError = error || noop;
+    _this._tapComplete = complete || noop;
     if (isFunction$1(observerOrNext)) {
       _this._context = _this;
       _this._tapNext = observerOrNext;
     } else if (observerOrNext) {
       _this._context = observerOrNext;
-      _this._tapNext = observerOrNext.next || noop$1;
-      _this._tapError = observerOrNext.error || noop$1;
-      _this._tapComplete = observerOrNext.complete || noop$1;
+      _this._tapNext = observerOrNext.next || noop;
+      _this._tapError = observerOrNext.error || noop;
+      _this._tapComplete = observerOrNext.complete || noop;
     }
     return _this;
   }
@@ -33292,9 +28051,9 @@ function timeInterval(scheduler) {
   };
 }
 var TimeInterval = /* @__PURE__ */ function() {
-  function TimeInterval2(value, interval2) {
+  function TimeInterval2(value, interval) {
     this.value = value;
-    this.interval = interval2;
+    this.interval = interval;
   }
   return TimeInterval2;
 }();
@@ -34305,8 +29064,8 @@ var struct = {};
   };
   Object.defineProperty(exports2, "__esModule", { value: true });
   exports2.ListValue = exports2.Value = exports2.Struct_FieldsEntry = exports2.Struct = exports2.nullValueToNumber = exports2.nullValueToJSON = exports2.nullValueFromJSON = exports2.NullValue = exports2.protobufPackage = void 0;
-  const long_12 = __importDefault2(long);
-  const _m02 = __importStar2(minimal$2);
+  const long_12 = __importDefault2(umd.exports);
+  const _m02 = __importStar2(minimal);
   exports2.protobufPackage = "google.protobuf";
   var NullValue;
   (function(NullValue2) {
@@ -34352,11 +29111,11 @@ var struct = {};
       });
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStruct();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -34431,11 +29190,11 @@ var struct = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseStruct_FieldsEntry();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -34503,11 +29262,11 @@ var struct = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseValue();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -34612,11 +29371,11 @@ var struct = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseListValue();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -34713,9 +29472,9 @@ var struct = {};
     return mod2 && mod2.__esModule ? mod2 : { "default": mod2 };
   };
   Object.defineProperty(exports2, "__esModule", { value: true });
-  exports2.EventServiceDefinition = exports2.EventServiceClientImpl = exports2.EventsStreamResponse = exports2.EventsStreamReconnectRequest = exports2.EventsStreamError = exports2.EventsStreamRequest = exports2.SubscribePayload = exports2.PublishEventResponse = exports2.PublishEventRequest = exports2.EventTarget = exports2.eventsStreamMessageTypeToNumber = exports2.eventsStreamMessageTypeToJSON = exports2.eventsStreamMessageTypeFromJSON = exports2.EventsStreamMessageType = exports2.protobufPackage = void 0;
-  const long_12 = __importDefault2(long);
-  const _m02 = __importStar2(minimal$2);
+  exports2.EventServiceDefinition = exports2.EventServiceClientImpl = exports2.EventsStreamResponse = exports2.EventsStreamRequest = exports2.EventsStreamReconnectRequest = exports2.EventsStreamError = exports2.SubscribePayload = exports2.PublishEventResponse = exports2.PublishEventRequest = exports2.EventTarget = exports2.eventsStreamMessageTypeToNumber = exports2.eventsStreamMessageTypeToJSON = exports2.eventsStreamMessageTypeFromJSON = exports2.EventsStreamMessageType = exports2.protobufPackage = void 0;
+  const long_12 = __importDefault2(umd.exports);
+  const _m02 = __importStar2(minimal);
   const operators_1 = require$$2;
   const struct_1 = struct;
   exports2.protobufPackage = "apis.event.v2";
@@ -34807,11 +29566,11 @@ var struct = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseEventTarget();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 5:
@@ -34877,11 +29636,11 @@ var struct = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBasePublishEventRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -34957,11 +29716,11 @@ var struct = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBasePublishEventResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -35028,11 +29787,11 @@ var struct = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSubscribePayload();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -35068,6 +29827,112 @@ var struct = {};
       return message;
     }
   };
+  function createBaseEventsStreamError() {
+    return { code: 0, message: "" };
+  }
+  exports2.EventsStreamError = {
+    encode(message, writer2 = _m02.Writer.create()) {
+      if (message.code !== 0) {
+        writer2.uint32(8).int32(message.code);
+      }
+      if (message.message !== "") {
+        writer2.uint32(18).string(message.message);
+      }
+      return writer2;
+    },
+    decode(input, length2) {
+      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
+      const message = createBaseEventsStreamError();
+      while (reader2.pos < end2) {
+        const tag = reader2.uint32();
+        switch (tag >>> 3) {
+          case 1:
+            message.code = reader2.int32();
+            break;
+          case 2:
+            message.message = reader2.string();
+            break;
+          default:
+            reader2.skipType(tag & 7);
+            break;
+        }
+      }
+      return message;
+    },
+    fromJSON(object) {
+      return {
+        code: isSet2(object.code) ? Number(object.code) : 0,
+        message: isSet2(object.message) ? String(object.message) : ""
+      };
+    },
+    toJSON(message) {
+      const obj = {};
+      message.code !== void 0 && (obj.code = Math.round(message.code));
+      message.message !== void 0 && (obj.message = message.message);
+      return obj;
+    },
+    fromPartial(object) {
+      var _a, _b;
+      const message = createBaseEventsStreamError();
+      message.code = (_a = object.code) !== null && _a !== void 0 ? _a : 0;
+      message.message = (_b = object.message) !== null && _b !== void 0 ? _b : "";
+      return message;
+    }
+  };
+  function createBaseEventsStreamReconnectRequest() {
+    return { reauthenticate: false, beforeTimestamp: "" };
+  }
+  exports2.EventsStreamReconnectRequest = {
+    encode(message, writer2 = _m02.Writer.create()) {
+      if (message.reauthenticate === true) {
+        writer2.uint32(8).bool(message.reauthenticate);
+      }
+      if (message.beforeTimestamp !== "") {
+        writer2.uint32(18).string(message.beforeTimestamp);
+      }
+      return writer2;
+    },
+    decode(input, length2) {
+      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
+      const message = createBaseEventsStreamReconnectRequest();
+      while (reader2.pos < end2) {
+        const tag = reader2.uint32();
+        switch (tag >>> 3) {
+          case 1:
+            message.reauthenticate = reader2.bool();
+            break;
+          case 2:
+            message.beforeTimestamp = reader2.string();
+            break;
+          default:
+            reader2.skipType(tag & 7);
+            break;
+        }
+      }
+      return message;
+    },
+    fromJSON(object) {
+      return {
+        reauthenticate: isSet2(object.reauthenticate) ? Boolean(object.reauthenticate) : false,
+        beforeTimestamp: isSet2(object.beforeTimestamp) ? String(object.beforeTimestamp) : ""
+      };
+    },
+    toJSON(message) {
+      const obj = {};
+      message.reauthenticate !== void 0 && (obj.reauthenticate = message.reauthenticate);
+      message.beforeTimestamp !== void 0 && (obj.beforeTimestamp = message.beforeTimestamp);
+      return obj;
+    },
+    fromPartial(object) {
+      var _a, _b;
+      const message = createBaseEventsStreamReconnectRequest();
+      message.reauthenticate = (_a = object.reauthenticate) !== null && _a !== void 0 ? _a : false;
+      message.beforeTimestamp = (_b = object.beforeTimestamp) !== null && _b !== void 0 ? _b : "";
+      return message;
+    }
+  };
   function createBaseEventsStreamRequest() {
     return {
       correlationId: void 0,
@@ -35096,11 +29961,11 @@ var struct = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseEventsStreamRequest();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -35154,112 +30019,6 @@ var struct = {};
       return message;
     }
   };
-  function createBaseEventsStreamError() {
-    return { code: 0, message: "" };
-  }
-  exports2.EventsStreamError = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.code !== 0) {
-        writer2.uint32(8).int32(message.code);
-      }
-      if (message.message !== "") {
-        writer2.uint32(18).string(message.message);
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBaseEventsStreamError();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 1:
-            message.code = reader2.int32();
-            break;
-          case 2:
-            message.message = reader2.string();
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        code: isSet2(object.code) ? Number(object.code) : 0,
-        message: isSet2(object.message) ? String(object.message) : ""
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.code !== void 0 && (obj.code = Math.round(message.code));
-      message.message !== void 0 && (obj.message = message.message);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b;
-      const message = createBaseEventsStreamError();
-      message.code = (_a = object.code) !== null && _a !== void 0 ? _a : 0;
-      message.message = (_b = object.message) !== null && _b !== void 0 ? _b : "";
-      return message;
-    }
-  };
-  function createBaseEventsStreamReconnectRequest() {
-    return { reauthenticate: false, beforeTimestamp: "" };
-  }
-  exports2.EventsStreamReconnectRequest = {
-    encode(message, writer2 = _m02.Writer.create()) {
-      if (message.reauthenticate === true) {
-        writer2.uint32(8).bool(message.reauthenticate);
-      }
-      if (message.beforeTimestamp !== "") {
-        writer2.uint32(18).string(message.beforeTimestamp);
-      }
-      return writer2;
-    },
-    decode(input, length3) {
-      const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
-      const message = createBaseEventsStreamReconnectRequest();
-      while (reader2.pos < end3) {
-        const tag = reader2.uint32();
-        switch (tag >>> 3) {
-          case 1:
-            message.reauthenticate = reader2.bool();
-            break;
-          case 2:
-            message.beforeTimestamp = reader2.string();
-            break;
-          default:
-            reader2.skipType(tag & 7);
-            break;
-        }
-      }
-      return message;
-    },
-    fromJSON(object) {
-      return {
-        reauthenticate: isSet2(object.reauthenticate) ? Boolean(object.reauthenticate) : false,
-        beforeTimestamp: isSet2(object.beforeTimestamp) ? String(object.beforeTimestamp) : ""
-      };
-    },
-    toJSON(message) {
-      const obj = {};
-      message.reauthenticate !== void 0 && (obj.reauthenticate = message.reauthenticate);
-      message.beforeTimestamp !== void 0 && (obj.beforeTimestamp = message.beforeTimestamp);
-      return obj;
-    },
-    fromPartial(object) {
-      var _a, _b;
-      const message = createBaseEventsStreamReconnectRequest();
-      message.reauthenticate = (_a = object.reauthenticate) !== null && _a !== void 0 ? _a : false;
-      message.beforeTimestamp = (_b = object.beforeTimestamp) !== null && _b !== void 0 ? _b : "";
-      return message;
-    }
-  };
   function createBaseEventsStreamResponse() {
     return {
       correlationId: void 0,
@@ -35304,11 +30063,11 @@ var struct = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseEventsStreamResponse();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 2:
@@ -35911,8 +30670,8 @@ var security = {};
   };
   Object.defineProperty(exports2, "__esModule", { value: true });
   exports2.GuestUrl = exports2.SfuTokenPermissions = exports2.AccessToken = exports2.GuestControl = exports2.User = exports2.GuestScope = exports2.Authorization = exports2.SfuRoomMetadata = exports2.SfuParticipantMetadata = exports2.protobufPackage = void 0;
-  const long_12 = __importDefault2(long);
-  const _m02 = __importStar2(minimal$2);
+  const long_12 = __importDefault2(umd.exports);
+  const _m02 = __importStar2(minimal);
   const api_12 = api$1;
   exports2.protobufPackage = "security.v21";
   function createBaseSfuParticipantMetadata() {
@@ -35955,11 +30714,11 @@ var security = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSfuParticipantMetadata();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -36071,11 +30830,11 @@ var security = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSfuRoomMetadata();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -36187,11 +30946,11 @@ var security = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseAuthorization();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -36303,11 +31062,11 @@ var security = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGuestScope();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -36421,11 +31180,11 @@ var security = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseUser();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -36521,11 +31280,11 @@ var security = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGuestControl();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -36615,11 +31374,11 @@ var security = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseAccessToken();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -36743,11 +31502,11 @@ var security = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseSfuTokenPermissions();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -36838,11 +31597,11 @@ var security = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof _m02.Reader ? input : new _m02.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = createBaseGuestUrl();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -36908,8 +31667,8 @@ var livekit_models$1 = {};
   };
   Object.defineProperty(exports2, "__esModule", { value: true });
   exports2.ParticipantTracks = exports2.UserPacket = exports2.SpeakerInfo = exports2.ActiveSpeakerUpdate = exports2.DataPacket = exports2.VideoLayer = exports2.TrackInfo = exports2.ParticipantInfo = exports2.Codec = exports2.Room = exports2.dataPacket_KindToJSON = exports2.dataPacket_KindFromJSON = exports2.DataPacket_Kind = exports2.participantInfo_StateToJSON = exports2.participantInfo_StateFromJSON = exports2.ParticipantInfo_State = exports2.connectionQualityToJSON = exports2.connectionQualityFromJSON = exports2.ConnectionQuality = exports2.videoQualityToJSON = exports2.videoQualityFromJSON = exports2.VideoQuality = exports2.trackSourceToJSON = exports2.trackSourceFromJSON = exports2.TrackSource = exports2.trackTypeToJSON = exports2.trackTypeFromJSON = exports2.TrackType = exports2.protobufPackage = void 0;
-  const long_12 = __importDefault2(long);
-  const minimal_1 = __importDefault2(minimal$2);
+  const long_12 = __importDefault2(umd.exports);
+  const minimal_1 = __importDefault2(minimal);
   exports2.protobufPackage = "livekit";
   var TrackType;
   (function(TrackType2) {
@@ -37196,12 +31955,12 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseRoom);
       message.enabledCodecs = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -37381,11 +32140,11 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseCodec);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -37477,12 +32236,12 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseParticipantInfo);
       message.tracks = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -37686,12 +32445,12 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseTrackInfo);
       message.layers = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -37891,11 +32650,11 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseVideoLayer);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -37988,11 +32747,11 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseDataPacket);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38065,12 +32824,12 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseActiveSpeakerUpdate);
       message.speakers = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38127,11 +32886,11 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSpeakerInfo);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38210,13 +32969,13 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUserPacket);
       message.destinationSids = [];
       message.payload = new Uint8Array();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38297,12 +33056,12 @@ var livekit_models$1 = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseParticipantTracks);
       message.trackSids = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38387,11 +33146,11 @@ var livekit_models$1 = {};
     }
     return btoa2(bin.join(""));
   }
-  function longToNumber2(long2) {
-    if (long2.gt(Number.MAX_SAFE_INTEGER)) {
+  function longToNumber2(long) {
+    if (long.gt(Number.MAX_SAFE_INTEGER)) {
       throw new globalThis2.Error("Value is larger than Number.MAX_SAFE_INTEGER");
     }
-    return long2.toNumber();
+    return long.toNumber();
   }
   if (minimal_1.default.util.Long !== long_12.default) {
     minimal_1.default.util.Long = long_12.default;
@@ -38406,8 +33165,8 @@ var livekit_room = {};
   };
   Object.defineProperty(exports2, "__esModule", { value: true });
   exports2.UpdateRoomMetadataRequest = exports2.SendDataResponse = exports2.SendDataRequest = exports2.UpdateSubscriptionsResponse = exports2.UpdateSubscriptionsRequest = exports2.UpdateParticipantRequest = exports2.ParticipantPermission = exports2.MuteRoomTrackResponse = exports2.MuteRoomTrackRequest = exports2.RemoveParticipantResponse = exports2.RoomParticipantIdentity = exports2.ListParticipantsResponse = exports2.ListParticipantsRequest = exports2.DeleteRoomResponse = exports2.DeleteRoomRequest = exports2.ListRoomsResponse = exports2.ListRoomsRequest = exports2.CreateRoomRequest = exports2.protobufPackage = void 0;
-  const long_12 = __importDefault2(long);
-  const minimal_1 = __importDefault2(minimal$2);
+  const long_12 = __importDefault2(umd.exports);
+  const minimal_1 = __importDefault2(minimal);
   const livekit_models_12 = livekit_models$1;
   exports2.protobufPackage = "livekit";
   const baseCreateRoomRequest = {
@@ -38436,11 +33195,11 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseCreateRoomRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38541,12 +33300,12 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseListRoomsRequest);
       message.names = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38597,12 +33356,12 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseListRoomsResponse);
       message.rooms = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38653,11 +33412,11 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseDeleteRoomRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38699,11 +33458,11 @@ var livekit_room = {};
     encode(_, writer2 = minimal_1.default.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseDeleteRoomResponse);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -38734,11 +33493,11 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseListParticipantsRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38783,12 +33542,12 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseListParticipantsResponse);
       message.participants = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38842,11 +33601,11 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseRoomParticipantIdentity);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -38902,11 +33661,11 @@ var livekit_room = {};
     encode(_, writer2 = minimal_1.default.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseRemoveParticipantResponse);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -38951,11 +33710,11 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseMuteRoomTrackRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -39042,11 +33801,11 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseMuteRoomTrackResponse);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -39101,11 +33860,11 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseParticipantPermission);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -39191,11 +33950,11 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUpdateParticipantRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -39299,13 +34058,13 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUpdateSubscriptionsRequest);
       message.trackSids = [];
       message.participantTracks = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -39415,11 +34174,11 @@ var livekit_room = {};
     encode(_, writer2 = minimal_1.default.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUpdateSubscriptionsResponse);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -39459,13 +34218,13 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSendDataRequest);
       message.destinationSids = [];
       message.data = new Uint8Array();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -39554,11 +34313,11 @@ var livekit_room = {};
     encode(_, writer2 = minimal_1.default.Writer.create()) {
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSendDataResponse);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           default:
@@ -39592,11 +34351,11 @@ var livekit_room = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUpdateRoomMetadataRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -40695,7 +35454,7 @@ var Axios_1 = Axios$1;
 function Cancel$1(message) {
   this.message = message;
 }
-Cancel$1.prototype.toString = function toString3() {
+Cancel$1.prototype.toString = function toString2() {
   return "Cancel" + (this.message ? ": " + this.message : "");
 };
 Cancel$1.prototype.__CANCEL__ = true;
@@ -41313,7 +36072,7 @@ livekit.LiveKitUtils = LiveKitUtils;
   exports2.ApiStream = exports2.LiveKitUtils = exports2.LiveKitServer = exports2.EventApiModel = exports2.LayoutApiModel = exports2.LiveApiModel = void 0;
   const jwt_decode_12 = __importDefault2(require$$0$2);
   const uuid_12 = require$$1$2;
-  const typescript_logging_12 = require$$2$2;
+  const typescript_logging_12 = require$$2$1;
   const layoutapi_1 = layoutapi;
   const liveapi_1 = liveapi;
   const eventapi_1 = eventapi;
@@ -41522,1788 +36281,6 @@ var logger = {};
   exports2.setLogLevel = setLogLevel;
 })(logger);
 var livekit_models = {};
-var umd = { exports: {} };
-(function(module2, exports2) {
-  var Long2 = function(exports3) {
-    Object.defineProperty(exports3, "__esModule", {
-      value: true
-    });
-    exports3.default = void 0;
-    /**
-     * @license
-     * Copyright 2009 The Closure Library Authors
-     * Copyright 2020 Daniel Wirtz / The long.js Authors.
-     *
-     * Licensed under the Apache License, Version 2.0 (the "License");
-     * you may not use this file except in compliance with the License.
-     * You may obtain a copy of the License at
-     *
-     *     http://www.apache.org/licenses/LICENSE-2.0
-     *
-     * Unless required by applicable law or agreed to in writing, software
-     * distributed under the License is distributed on an "AS IS" BASIS,
-     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     * See the License for the specific language governing permissions and
-     * limitations under the License.
-     *
-     * SPDX-License-Identifier: Apache-2.0
-     */
-    var wasm2 = null;
-    try {
-      wasm2 = new WebAssembly.Instance(new WebAssembly.Module(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 13, 2, 96, 0, 1, 127, 96, 4, 127, 127, 127, 127, 1, 127, 3, 7, 6, 0, 1, 1, 1, 1, 1, 6, 6, 1, 127, 1, 65, 0, 11, 7, 50, 6, 3, 109, 117, 108, 0, 1, 5, 100, 105, 118, 95, 115, 0, 2, 5, 100, 105, 118, 95, 117, 0, 3, 5, 114, 101, 109, 95, 115, 0, 4, 5, 114, 101, 109, 95, 117, 0, 5, 8, 103, 101, 116, 95, 104, 105, 103, 104, 0, 0, 10, 191, 1, 6, 4, 0, 35, 0, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 126, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 127, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 128, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 129, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11, 36, 1, 1, 126, 32, 0, 173, 32, 1, 173, 66, 32, 134, 132, 32, 2, 173, 32, 3, 173, 66, 32, 134, 132, 130, 34, 4, 66, 32, 135, 167, 36, 0, 32, 4, 167, 11])), {}).exports;
-    } catch (e2) {
-    }
-    function Long3(low, high, unsigned) {
-      this.low = low | 0;
-      this.high = high | 0;
-      this.unsigned = !!unsigned;
-    }
-    Long3.prototype.__isLong__;
-    Object.defineProperty(Long3.prototype, "__isLong__", {
-      value: true
-    });
-    function isLong2(obj) {
-      return (obj && obj["__isLong__"]) === true;
-    }
-    function ctz32(value) {
-      var c = Math.clz32(value & -value);
-      return value ? 31 - c : c;
-    }
-    Long3.isLong = isLong2;
-    var INT_CACHE2 = {};
-    var UINT_CACHE2 = {};
-    function fromInt2(value, unsigned) {
-      var obj, cachedObj, cache2;
-      if (unsigned) {
-        value >>>= 0;
-        if (cache2 = 0 <= value && value < 256) {
-          cachedObj = UINT_CACHE2[value];
-          if (cachedObj)
-            return cachedObj;
-        }
-        obj = fromBits2(value, 0, true);
-        if (cache2)
-          UINT_CACHE2[value] = obj;
-        return obj;
-      } else {
-        value |= 0;
-        if (cache2 = -128 <= value && value < 128) {
-          cachedObj = INT_CACHE2[value];
-          if (cachedObj)
-            return cachedObj;
-        }
-        obj = fromBits2(value, value < 0 ? -1 : 0, false);
-        if (cache2)
-          INT_CACHE2[value] = obj;
-        return obj;
-      }
-    }
-    Long3.fromInt = fromInt2;
-    function fromNumber4(value, unsigned) {
-      if (isNaN(value))
-        return unsigned ? UZERO2 : ZERO2;
-      if (unsigned) {
-        if (value < 0)
-          return UZERO2;
-        if (value >= TWO_PWR_64_DBL2)
-          return MAX_UNSIGNED_VALUE2;
-      } else {
-        if (value <= -TWO_PWR_63_DBL2)
-          return MIN_VALUE2;
-        if (value + 1 >= TWO_PWR_63_DBL2)
-          return MAX_VALUE2;
-      }
-      if (value < 0)
-        return fromNumber4(-value, unsigned).neg();
-      return fromBits2(value % TWO_PWR_32_DBL2 | 0, value / TWO_PWR_32_DBL2 | 0, unsigned);
-    }
-    Long3.fromNumber = fromNumber4;
-    function fromBits2(lowBits, highBits, unsigned) {
-      return new Long3(lowBits, highBits, unsigned);
-    }
-    Long3.fromBits = fromBits2;
-    var pow_dbl2 = Math.pow;
-    function fromString2(str, unsigned, radix) {
-      if (str.length === 0)
-        throw Error("empty string");
-      if (typeof unsigned === "number") {
-        radix = unsigned;
-        unsigned = false;
-      } else {
-        unsigned = !!unsigned;
-      }
-      if (str === "NaN" || str === "Infinity" || str === "+Infinity" || str === "-Infinity")
-        return unsigned ? UZERO2 : ZERO2;
-      radix = radix || 10;
-      if (radix < 2 || 36 < radix)
-        throw RangeError("radix");
-      var p;
-      if ((p = str.indexOf("-")) > 0)
-        throw Error("interior hyphen");
-      else if (p === 0) {
-        return fromString2(str.substring(1), unsigned, radix).neg();
-      }
-      var radixToPower = fromNumber4(pow_dbl2(radix, 8));
-      var result = ZERO2;
-      for (var i2 = 0; i2 < str.length; i2 += 8) {
-        var size = Math.min(8, str.length - i2), value = parseInt(str.substring(i2, i2 + size), radix);
-        if (size < 8) {
-          var power = fromNumber4(pow_dbl2(radix, size));
-          result = result.mul(power).add(fromNumber4(value));
-        } else {
-          result = result.mul(radixToPower);
-          result = result.add(fromNumber4(value));
-        }
-      }
-      result.unsigned = unsigned;
-      return result;
-    }
-    Long3.fromString = fromString2;
-    function fromValue2(val, unsigned) {
-      if (typeof val === "number")
-        return fromNumber4(val, unsigned);
-      if (typeof val === "string")
-        return fromString2(val, unsigned);
-      return fromBits2(val.low, val.high, typeof unsigned === "boolean" ? unsigned : val.unsigned);
-    }
-    Long3.fromValue = fromValue2;
-    var TWO_PWR_16_DBL2 = 1 << 16;
-    var TWO_PWR_24_DBL2 = 1 << 24;
-    var TWO_PWR_32_DBL2 = TWO_PWR_16_DBL2 * TWO_PWR_16_DBL2;
-    var TWO_PWR_64_DBL2 = TWO_PWR_32_DBL2 * TWO_PWR_32_DBL2;
-    var TWO_PWR_63_DBL2 = TWO_PWR_64_DBL2 / 2;
-    var TWO_PWR_242 = fromInt2(TWO_PWR_24_DBL2);
-    var ZERO2 = fromInt2(0);
-    Long3.ZERO = ZERO2;
-    var UZERO2 = fromInt2(0, true);
-    Long3.UZERO = UZERO2;
-    var ONE2 = fromInt2(1);
-    Long3.ONE = ONE2;
-    var UONE2 = fromInt2(1, true);
-    Long3.UONE = UONE2;
-    var NEG_ONE2 = fromInt2(-1);
-    Long3.NEG_ONE = NEG_ONE2;
-    var MAX_VALUE2 = fromBits2(4294967295 | 0, 2147483647 | 0, false);
-    Long3.MAX_VALUE = MAX_VALUE2;
-    var MAX_UNSIGNED_VALUE2 = fromBits2(4294967295 | 0, 4294967295 | 0, true);
-    Long3.MAX_UNSIGNED_VALUE = MAX_UNSIGNED_VALUE2;
-    var MIN_VALUE2 = fromBits2(0, 2147483648 | 0, false);
-    Long3.MIN_VALUE = MIN_VALUE2;
-    var LongPrototype2 = Long3.prototype;
-    LongPrototype2.toInt = function toInt2() {
-      return this.unsigned ? this.low >>> 0 : this.low;
-    };
-    LongPrototype2.toNumber = function toNumber5() {
-      if (this.unsigned)
-        return (this.high >>> 0) * TWO_PWR_32_DBL2 + (this.low >>> 0);
-      return this.high * TWO_PWR_32_DBL2 + (this.low >>> 0);
-    };
-    LongPrototype2.toString = function toString4(radix) {
-      radix = radix || 10;
-      if (radix < 2 || 36 < radix)
-        throw RangeError("radix");
-      if (this.isZero())
-        return "0";
-      if (this.isNegative()) {
-        if (this.eq(MIN_VALUE2)) {
-          var radixLong = fromNumber4(radix), div = this.div(radixLong), rem1 = div.mul(radixLong).sub(this);
-          return div.toString(radix) + rem1.toInt().toString(radix);
-        } else
-          return "-" + this.neg().toString(radix);
-      }
-      var radixToPower = fromNumber4(pow_dbl2(radix, 6), this.unsigned), rem = this;
-      var result = "";
-      while (true) {
-        var remDiv = rem.div(radixToPower), intval = rem.sub(remDiv.mul(radixToPower)).toInt() >>> 0, digits = intval.toString(radix);
-        rem = remDiv;
-        if (rem.isZero())
-          return digits + result;
-        else {
-          while (digits.length < 6)
-            digits = "0" + digits;
-          result = "" + digits + result;
-        }
-      }
-    };
-    LongPrototype2.getHighBits = function getHighBits2() {
-      return this.high;
-    };
-    LongPrototype2.getHighBitsUnsigned = function getHighBitsUnsigned2() {
-      return this.high >>> 0;
-    };
-    LongPrototype2.getLowBits = function getLowBits2() {
-      return this.low;
-    };
-    LongPrototype2.getLowBitsUnsigned = function getLowBitsUnsigned2() {
-      return this.low >>> 0;
-    };
-    LongPrototype2.getNumBitsAbs = function getNumBitsAbs2() {
-      if (this.isNegative())
-        return this.eq(MIN_VALUE2) ? 64 : this.neg().getNumBitsAbs();
-      var val = this.high != 0 ? this.high : this.low;
-      for (var bit = 31; bit > 0; bit--)
-        if ((val & 1 << bit) != 0)
-          break;
-      return this.high != 0 ? bit + 33 : bit + 1;
-    };
-    LongPrototype2.isZero = function isZero2() {
-      return this.high === 0 && this.low === 0;
-    };
-    LongPrototype2.eqz = LongPrototype2.isZero;
-    LongPrototype2.isNegative = function isNegative2() {
-      return !this.unsigned && this.high < 0;
-    };
-    LongPrototype2.isPositive = function isPositive2() {
-      return this.unsigned || this.high >= 0;
-    };
-    LongPrototype2.isOdd = function isOdd2() {
-      return (this.low & 1) === 1;
-    };
-    LongPrototype2.isEven = function isEven2() {
-      return (this.low & 1) === 0;
-    };
-    LongPrototype2.equals = function equals2(other) {
-      if (!isLong2(other))
-        other = fromValue2(other);
-      if (this.unsigned !== other.unsigned && this.high >>> 31 === 1 && other.high >>> 31 === 1)
-        return false;
-      return this.high === other.high && this.low === other.low;
-    };
-    LongPrototype2.eq = LongPrototype2.equals;
-    LongPrototype2.notEquals = function notEquals2(other) {
-      return !this.eq(other);
-    };
-    LongPrototype2.neq = LongPrototype2.notEquals;
-    LongPrototype2.ne = LongPrototype2.notEquals;
-    LongPrototype2.lessThan = function lessThan2(other) {
-      return this.comp(other) < 0;
-    };
-    LongPrototype2.lt = LongPrototype2.lessThan;
-    LongPrototype2.lessThanOrEqual = function lessThanOrEqual2(other) {
-      return this.comp(other) <= 0;
-    };
-    LongPrototype2.lte = LongPrototype2.lessThanOrEqual;
-    LongPrototype2.le = LongPrototype2.lessThanOrEqual;
-    LongPrototype2.greaterThan = function greaterThan2(other) {
-      return this.comp(other) > 0;
-    };
-    LongPrototype2.gt = LongPrototype2.greaterThan;
-    LongPrototype2.greaterThanOrEqual = function greaterThanOrEqual2(other) {
-      return this.comp(other) >= 0;
-    };
-    LongPrototype2.gte = LongPrototype2.greaterThanOrEqual;
-    LongPrototype2.ge = LongPrototype2.greaterThanOrEqual;
-    LongPrototype2.compare = function compare2(other) {
-      if (!isLong2(other))
-        other = fromValue2(other);
-      if (this.eq(other))
-        return 0;
-      var thisNeg = this.isNegative(), otherNeg = other.isNegative();
-      if (thisNeg && !otherNeg)
-        return -1;
-      if (!thisNeg && otherNeg)
-        return 1;
-      if (!this.unsigned)
-        return this.sub(other).isNegative() ? -1 : 1;
-      return other.high >>> 0 > this.high >>> 0 || other.high === this.high && other.low >>> 0 > this.low >>> 0 ? -1 : 1;
-    };
-    LongPrototype2.comp = LongPrototype2.compare;
-    LongPrototype2.negate = function negate2() {
-      if (!this.unsigned && this.eq(MIN_VALUE2))
-        return MIN_VALUE2;
-      return this.not().add(ONE2);
-    };
-    LongPrototype2.neg = LongPrototype2.negate;
-    LongPrototype2.add = function add2(addend) {
-      if (!isLong2(addend))
-        addend = fromValue2(addend);
-      var a48 = this.high >>> 16;
-      var a32 = this.high & 65535;
-      var a16 = this.low >>> 16;
-      var a00 = this.low & 65535;
-      var b48 = addend.high >>> 16;
-      var b32 = addend.high & 65535;
-      var b16 = addend.low >>> 16;
-      var b00 = addend.low & 65535;
-      var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
-      c00 += a00 + b00;
-      c16 += c00 >>> 16;
-      c00 &= 65535;
-      c16 += a16 + b16;
-      c32 += c16 >>> 16;
-      c16 &= 65535;
-      c32 += a32 + b32;
-      c48 += c32 >>> 16;
-      c32 &= 65535;
-      c48 += a48 + b48;
-      c48 &= 65535;
-      return fromBits2(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
-    };
-    LongPrototype2.subtract = function subtract2(subtrahend) {
-      if (!isLong2(subtrahend))
-        subtrahend = fromValue2(subtrahend);
-      return this.add(subtrahend.neg());
-    };
-    LongPrototype2.sub = LongPrototype2.subtract;
-    LongPrototype2.multiply = function multiply2(multiplier) {
-      if (this.isZero())
-        return this;
-      if (!isLong2(multiplier))
-        multiplier = fromValue2(multiplier);
-      if (wasm2) {
-        var low = wasm2["mul"](this.low, this.high, multiplier.low, multiplier.high);
-        return fromBits2(low, wasm2["get_high"](), this.unsigned);
-      }
-      if (multiplier.isZero())
-        return this.unsigned ? UZERO2 : ZERO2;
-      if (this.eq(MIN_VALUE2))
-        return multiplier.isOdd() ? MIN_VALUE2 : ZERO2;
-      if (multiplier.eq(MIN_VALUE2))
-        return this.isOdd() ? MIN_VALUE2 : ZERO2;
-      if (this.isNegative()) {
-        if (multiplier.isNegative())
-          return this.neg().mul(multiplier.neg());
-        else
-          return this.neg().mul(multiplier).neg();
-      } else if (multiplier.isNegative())
-        return this.mul(multiplier.neg()).neg();
-      if (this.lt(TWO_PWR_242) && multiplier.lt(TWO_PWR_242))
-        return fromNumber4(this.toNumber() * multiplier.toNumber(), this.unsigned);
-      var a48 = this.high >>> 16;
-      var a32 = this.high & 65535;
-      var a16 = this.low >>> 16;
-      var a00 = this.low & 65535;
-      var b48 = multiplier.high >>> 16;
-      var b32 = multiplier.high & 65535;
-      var b16 = multiplier.low >>> 16;
-      var b00 = multiplier.low & 65535;
-      var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
-      c00 += a00 * b00;
-      c16 += c00 >>> 16;
-      c00 &= 65535;
-      c16 += a16 * b00;
-      c32 += c16 >>> 16;
-      c16 &= 65535;
-      c16 += a00 * b16;
-      c32 += c16 >>> 16;
-      c16 &= 65535;
-      c32 += a32 * b00;
-      c48 += c32 >>> 16;
-      c32 &= 65535;
-      c32 += a16 * b16;
-      c48 += c32 >>> 16;
-      c32 &= 65535;
-      c32 += a00 * b32;
-      c48 += c32 >>> 16;
-      c32 &= 65535;
-      c48 += a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48;
-      c48 &= 65535;
-      return fromBits2(c16 << 16 | c00, c48 << 16 | c32, this.unsigned);
-    };
-    LongPrototype2.mul = LongPrototype2.multiply;
-    LongPrototype2.divide = function divide2(divisor) {
-      if (!isLong2(divisor))
-        divisor = fromValue2(divisor);
-      if (divisor.isZero())
-        throw Error("division by zero");
-      if (wasm2) {
-        if (!this.unsigned && this.high === -2147483648 && divisor.low === -1 && divisor.high === -1) {
-          return this;
-        }
-        var low = (this.unsigned ? wasm2["div_u"] : wasm2["div_s"])(this.low, this.high, divisor.low, divisor.high);
-        return fromBits2(low, wasm2["get_high"](), this.unsigned);
-      }
-      if (this.isZero())
-        return this.unsigned ? UZERO2 : ZERO2;
-      var approx, rem, res;
-      if (!this.unsigned) {
-        if (this.eq(MIN_VALUE2)) {
-          if (divisor.eq(ONE2) || divisor.eq(NEG_ONE2))
-            return MIN_VALUE2;
-          else if (divisor.eq(MIN_VALUE2))
-            return ONE2;
-          else {
-            var halfThis = this.shr(1);
-            approx = halfThis.div(divisor).shl(1);
-            if (approx.eq(ZERO2)) {
-              return divisor.isNegative() ? ONE2 : NEG_ONE2;
-            } else {
-              rem = this.sub(divisor.mul(approx));
-              res = approx.add(rem.div(divisor));
-              return res;
-            }
-          }
-        } else if (divisor.eq(MIN_VALUE2))
-          return this.unsigned ? UZERO2 : ZERO2;
-        if (this.isNegative()) {
-          if (divisor.isNegative())
-            return this.neg().div(divisor.neg());
-          return this.neg().div(divisor).neg();
-        } else if (divisor.isNegative())
-          return this.div(divisor.neg()).neg();
-        res = ZERO2;
-      } else {
-        if (!divisor.unsigned)
-          divisor = divisor.toUnsigned();
-        if (divisor.gt(this))
-          return UZERO2;
-        if (divisor.gt(this.shru(1)))
-          return UONE2;
-        res = UZERO2;
-      }
-      rem = this;
-      while (rem.gte(divisor)) {
-        approx = Math.max(1, Math.floor(rem.toNumber() / divisor.toNumber()));
-        var log2 = Math.ceil(Math.log(approx) / Math.LN2), delta = log2 <= 48 ? 1 : pow_dbl2(2, log2 - 48), approxRes = fromNumber4(approx), approxRem = approxRes.mul(divisor);
-        while (approxRem.isNegative() || approxRem.gt(rem)) {
-          approx -= delta;
-          approxRes = fromNumber4(approx, this.unsigned);
-          approxRem = approxRes.mul(divisor);
-        }
-        if (approxRes.isZero())
-          approxRes = ONE2;
-        res = res.add(approxRes);
-        rem = rem.sub(approxRem);
-      }
-      return res;
-    };
-    LongPrototype2.div = LongPrototype2.divide;
-    LongPrototype2.modulo = function modulo2(divisor) {
-      if (!isLong2(divisor))
-        divisor = fromValue2(divisor);
-      if (wasm2) {
-        var low = (this.unsigned ? wasm2["rem_u"] : wasm2["rem_s"])(this.low, this.high, divisor.low, divisor.high);
-        return fromBits2(low, wasm2["get_high"](), this.unsigned);
-      }
-      return this.sub(this.div(divisor).mul(divisor));
-    };
-    LongPrototype2.mod = LongPrototype2.modulo;
-    LongPrototype2.rem = LongPrototype2.modulo;
-    LongPrototype2.not = function not3() {
-      return fromBits2(~this.low, ~this.high, this.unsigned);
-    };
-    LongPrototype2.countLeadingZeros = function countLeadingZeros() {
-      return this.high ? Math.clz32(this.high) : Math.clz32(this.low) + 32;
-    };
-    LongPrototype2.clz = LongPrototype2.countLeadingZeros;
-    LongPrototype2.countTrailingZeros = function countTrailingZeros() {
-      return this.low ? ctz32(this.low) : ctz32(this.high) + 32;
-    };
-    LongPrototype2.ctz = LongPrototype2.countTrailingZeros;
-    LongPrototype2.and = function and2(other) {
-      if (!isLong2(other))
-        other = fromValue2(other);
-      return fromBits2(this.low & other.low, this.high & other.high, this.unsigned);
-    };
-    LongPrototype2.or = function or2(other) {
-      if (!isLong2(other))
-        other = fromValue2(other);
-      return fromBits2(this.low | other.low, this.high | other.high, this.unsigned);
-    };
-    LongPrototype2.xor = function xor2(other) {
-      if (!isLong2(other))
-        other = fromValue2(other);
-      return fromBits2(this.low ^ other.low, this.high ^ other.high, this.unsigned);
-    };
-    LongPrototype2.shiftLeft = function shiftLeft2(numBits) {
-      if (isLong2(numBits))
-        numBits = numBits.toInt();
-      if ((numBits &= 63) === 0)
-        return this;
-      else if (numBits < 32)
-        return fromBits2(this.low << numBits, this.high << numBits | this.low >>> 32 - numBits, this.unsigned);
-      else
-        return fromBits2(0, this.low << numBits - 32, this.unsigned);
-    };
-    LongPrototype2.shl = LongPrototype2.shiftLeft;
-    LongPrototype2.shiftRight = function shiftRight2(numBits) {
-      if (isLong2(numBits))
-        numBits = numBits.toInt();
-      if ((numBits &= 63) === 0)
-        return this;
-      else if (numBits < 32)
-        return fromBits2(this.low >>> numBits | this.high << 32 - numBits, this.high >> numBits, this.unsigned);
-      else
-        return fromBits2(this.high >> numBits - 32, this.high >= 0 ? 0 : -1, this.unsigned);
-    };
-    LongPrototype2.shr = LongPrototype2.shiftRight;
-    LongPrototype2.shiftRightUnsigned = function shiftRightUnsigned2(numBits) {
-      if (isLong2(numBits))
-        numBits = numBits.toInt();
-      if ((numBits &= 63) === 0)
-        return this;
-      if (numBits < 32)
-        return fromBits2(this.low >>> numBits | this.high << 32 - numBits, this.high >>> numBits, this.unsigned);
-      if (numBits === 32)
-        return fromBits2(this.high, 0, this.unsigned);
-      return fromBits2(this.high >>> numBits - 32, 0, this.unsigned);
-    };
-    LongPrototype2.shru = LongPrototype2.shiftRightUnsigned;
-    LongPrototype2.shr_u = LongPrototype2.shiftRightUnsigned;
-    LongPrototype2.rotateLeft = function rotateLeft(numBits) {
-      var b;
-      if (isLong2(numBits))
-        numBits = numBits.toInt();
-      if ((numBits &= 63) === 0)
-        return this;
-      if (numBits === 32)
-        return fromBits2(this.high, this.low, this.unsigned);
-      if (numBits < 32) {
-        b = 32 - numBits;
-        return fromBits2(this.low << numBits | this.high >>> b, this.high << numBits | this.low >>> b, this.unsigned);
-      }
-      numBits -= 32;
-      b = 32 - numBits;
-      return fromBits2(this.high << numBits | this.low >>> b, this.low << numBits | this.high >>> b, this.unsigned);
-    };
-    LongPrototype2.rotl = LongPrototype2.rotateLeft;
-    LongPrototype2.rotateRight = function rotateRight(numBits) {
-      var b;
-      if (isLong2(numBits))
-        numBits = numBits.toInt();
-      if ((numBits &= 63) === 0)
-        return this;
-      if (numBits === 32)
-        return fromBits2(this.high, this.low, this.unsigned);
-      if (numBits < 32) {
-        b = 32 - numBits;
-        return fromBits2(this.high << b | this.low >>> numBits, this.low << b | this.high >>> numBits, this.unsigned);
-      }
-      numBits -= 32;
-      b = 32 - numBits;
-      return fromBits2(this.low << b | this.high >>> numBits, this.high << b | this.low >>> numBits, this.unsigned);
-    };
-    LongPrototype2.rotr = LongPrototype2.rotateRight;
-    LongPrototype2.toSigned = function toSigned2() {
-      if (!this.unsigned)
-        return this;
-      return fromBits2(this.low, this.high, false);
-    };
-    LongPrototype2.toUnsigned = function toUnsigned2() {
-      if (this.unsigned)
-        return this;
-      return fromBits2(this.low, this.high, true);
-    };
-    LongPrototype2.toBytes = function toBytes2(le) {
-      return le ? this.toBytesLE() : this.toBytesBE();
-    };
-    LongPrototype2.toBytesLE = function toBytesLE2() {
-      var hi = this.high, lo = this.low;
-      return [lo & 255, lo >>> 8 & 255, lo >>> 16 & 255, lo >>> 24, hi & 255, hi >>> 8 & 255, hi >>> 16 & 255, hi >>> 24];
-    };
-    LongPrototype2.toBytesBE = function toBytesBE2() {
-      var hi = this.high, lo = this.low;
-      return [hi >>> 24, hi >>> 16 & 255, hi >>> 8 & 255, hi & 255, lo >>> 24, lo >>> 16 & 255, lo >>> 8 & 255, lo & 255];
-    };
-    Long3.fromBytes = function fromBytes2(bytes, unsigned, le) {
-      return le ? Long3.fromBytesLE(bytes, unsigned) : Long3.fromBytesBE(bytes, unsigned);
-    };
-    Long3.fromBytesLE = function fromBytesLE2(bytes, unsigned) {
-      return new Long3(bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24, bytes[4] | bytes[5] << 8 | bytes[6] << 16 | bytes[7] << 24, unsigned);
-    };
-    Long3.fromBytesBE = function fromBytesBE2(bytes, unsigned) {
-      return new Long3(bytes[4] << 24 | bytes[5] << 16 | bytes[6] << 8 | bytes[7], bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3], unsigned);
-    };
-    var _default = Long3;
-    exports3.default = _default;
-    return "default" in exports3 ? exports3.default : exports3;
-  }({});
-  module2.exports = Long2;
-})(umd);
-var indexMinimal = {};
-var minimal$1 = {};
-var aspromise = asPromise;
-function asPromise(fn, ctx) {
-  var params = new Array(arguments.length - 1), offset = 0, index2 = 2, pending = true;
-  while (index2 < arguments.length)
-    params[offset++] = arguments[index2++];
-  return new Promise(function executor(resolve, reject) {
-    params[offset] = function callback(err) {
-      if (pending) {
-        pending = false;
-        if (err)
-          reject(err);
-        else {
-          var params2 = new Array(arguments.length - 1), offset2 = 0;
-          while (offset2 < params2.length)
-            params2[offset2++] = arguments[offset2];
-          resolve.apply(null, params2);
-        }
-      }
-    };
-    try {
-      fn.apply(ctx || null, params);
-    } catch (err) {
-      if (pending) {
-        pending = false;
-        reject(err);
-      }
-    }
-  });
-}
-var base64$1 = {};
-(function(exports2) {
-  var base642 = exports2;
-  base642.length = function length3(string) {
-    var p = string.length;
-    if (!p)
-      return 0;
-    var n2 = 0;
-    while (--p % 4 > 1 && string.charAt(p) === "=")
-      ++n2;
-    return Math.ceil(string.length * 3) / 4 - n2;
-  };
-  var b64 = new Array(64);
-  var s64 = new Array(123);
-  for (var i2 = 0; i2 < 64; )
-    s64[b64[i2] = i2 < 26 ? i2 + 65 : i2 < 52 ? i2 + 71 : i2 < 62 ? i2 - 4 : i2 - 59 | 43] = i2++;
-  base642.encode = function encode2(buffer2, start2, end3) {
-    var parts = null, chunk = [];
-    var i3 = 0, j = 0, t2;
-    while (start2 < end3) {
-      var b = buffer2[start2++];
-      switch (j) {
-        case 0:
-          chunk[i3++] = b64[b >> 2];
-          t2 = (b & 3) << 4;
-          j = 1;
-          break;
-        case 1:
-          chunk[i3++] = b64[t2 | b >> 4];
-          t2 = (b & 15) << 2;
-          j = 2;
-          break;
-        case 2:
-          chunk[i3++] = b64[t2 | b >> 6];
-          chunk[i3++] = b64[b & 63];
-          j = 0;
-          break;
-      }
-      if (i3 > 8191) {
-        (parts || (parts = [])).push(String.fromCharCode.apply(String, chunk));
-        i3 = 0;
-      }
-    }
-    if (j) {
-      chunk[i3++] = b64[t2];
-      chunk[i3++] = 61;
-      if (j === 1)
-        chunk[i3++] = 61;
-    }
-    if (parts) {
-      if (i3)
-        parts.push(String.fromCharCode.apply(String, chunk.slice(0, i3)));
-      return parts.join("");
-    }
-    return String.fromCharCode.apply(String, chunk.slice(0, i3));
-  };
-  var invalidEncoding = "invalid encoding";
-  base642.decode = function decode(string, buffer2, offset) {
-    var start2 = offset;
-    var j = 0, t2;
-    for (var i3 = 0; i3 < string.length; ) {
-      var c = string.charCodeAt(i3++);
-      if (c === 61 && j > 1)
-        break;
-      if ((c = s64[c]) === void 0)
-        throw Error(invalidEncoding);
-      switch (j) {
-        case 0:
-          t2 = c;
-          j = 1;
-          break;
-        case 1:
-          buffer2[offset++] = t2 << 2 | (c & 48) >> 4;
-          t2 = c;
-          j = 2;
-          break;
-        case 2:
-          buffer2[offset++] = (t2 & 15) << 4 | (c & 60) >> 2;
-          t2 = c;
-          j = 3;
-          break;
-        case 3:
-          buffer2[offset++] = (t2 & 3) << 6 | c;
-          j = 0;
-          break;
-      }
-    }
-    if (j === 1)
-      throw Error(invalidEncoding);
-    return offset - start2;
-  };
-  base642.test = function test(string) {
-    return /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(string);
-  };
-})(base64$1);
-var eventemitter = EventEmitter$1;
-function EventEmitter$1() {
-  this._listeners = {};
-}
-EventEmitter$1.prototype.on = function on3(evt, fn, ctx) {
-  (this._listeners[evt] || (this._listeners[evt] = [])).push({
-    fn,
-    ctx: ctx || this
-  });
-  return this;
-};
-EventEmitter$1.prototype.off = function off2(evt, fn) {
-  if (evt === void 0)
-    this._listeners = {};
-  else {
-    if (fn === void 0)
-      this._listeners[evt] = [];
-    else {
-      var listeners2 = this._listeners[evt];
-      for (var i2 = 0; i2 < listeners2.length; )
-        if (listeners2[i2].fn === fn)
-          listeners2.splice(i2, 1);
-        else
-          ++i2;
-    }
-  }
-  return this;
-};
-EventEmitter$1.prototype.emit = function emit2(evt) {
-  var listeners2 = this._listeners[evt];
-  if (listeners2) {
-    var args = [], i2 = 1;
-    for (; i2 < arguments.length; )
-      args.push(arguments[i2++]);
-    for (i2 = 0; i2 < listeners2.length; )
-      listeners2[i2].fn.apply(listeners2[i2++].ctx, args);
-  }
-  return this;
-};
-var float = factory(factory);
-function factory(exports2) {
-  if (typeof Float32Array !== "undefined")
-    (function() {
-      var f32 = new Float32Array([-0]), f8b = new Uint8Array(f32.buffer), le = f8b[3] === 128;
-      function writeFloat_f32_cpy(val, buf, pos) {
-        f32[0] = val;
-        buf[pos] = f8b[0];
-        buf[pos + 1] = f8b[1];
-        buf[pos + 2] = f8b[2];
-        buf[pos + 3] = f8b[3];
-      }
-      function writeFloat_f32_rev(val, buf, pos) {
-        f32[0] = val;
-        buf[pos] = f8b[3];
-        buf[pos + 1] = f8b[2];
-        buf[pos + 2] = f8b[1];
-        buf[pos + 3] = f8b[0];
-      }
-      exports2.writeFloatLE = le ? writeFloat_f32_cpy : writeFloat_f32_rev;
-      exports2.writeFloatBE = le ? writeFloat_f32_rev : writeFloat_f32_cpy;
-      function readFloat_f32_cpy(buf, pos) {
-        f8b[0] = buf[pos];
-        f8b[1] = buf[pos + 1];
-        f8b[2] = buf[pos + 2];
-        f8b[3] = buf[pos + 3];
-        return f32[0];
-      }
-      function readFloat_f32_rev(buf, pos) {
-        f8b[3] = buf[pos];
-        f8b[2] = buf[pos + 1];
-        f8b[1] = buf[pos + 2];
-        f8b[0] = buf[pos + 3];
-        return f32[0];
-      }
-      exports2.readFloatLE = le ? readFloat_f32_cpy : readFloat_f32_rev;
-      exports2.readFloatBE = le ? readFloat_f32_rev : readFloat_f32_cpy;
-    })();
-  else
-    (function() {
-      function writeFloat_ieee754(writeUint, val, buf, pos) {
-        var sign = val < 0 ? 1 : 0;
-        if (sign)
-          val = -val;
-        if (val === 0)
-          writeUint(1 / val > 0 ? 0 : 2147483648, buf, pos);
-        else if (isNaN(val))
-          writeUint(2143289344, buf, pos);
-        else if (val > 34028234663852886e22)
-          writeUint((sign << 31 | 2139095040) >>> 0, buf, pos);
-        else if (val < 11754943508222875e-54)
-          writeUint((sign << 31 | Math.round(val / 1401298464324817e-60)) >>> 0, buf, pos);
-        else {
-          var exponent = Math.floor(Math.log(val) / Math.LN2), mantissa = Math.round(val * Math.pow(2, -exponent) * 8388608) & 8388607;
-          writeUint((sign << 31 | exponent + 127 << 23 | mantissa) >>> 0, buf, pos);
-        }
-      }
-      exports2.writeFloatLE = writeFloat_ieee754.bind(null, writeUintLE);
-      exports2.writeFloatBE = writeFloat_ieee754.bind(null, writeUintBE);
-      function readFloat_ieee754(readUint, buf, pos) {
-        var uint = readUint(buf, pos), sign = (uint >> 31) * 2 + 1, exponent = uint >>> 23 & 255, mantissa = uint & 8388607;
-        return exponent === 255 ? mantissa ? NaN : sign * Infinity : exponent === 0 ? sign * 1401298464324817e-60 * mantissa : sign * Math.pow(2, exponent - 150) * (mantissa + 8388608);
-      }
-      exports2.readFloatLE = readFloat_ieee754.bind(null, readUintLE);
-      exports2.readFloatBE = readFloat_ieee754.bind(null, readUintBE);
-    })();
-  if (typeof Float64Array !== "undefined")
-    (function() {
-      var f64 = new Float64Array([-0]), f8b = new Uint8Array(f64.buffer), le = f8b[7] === 128;
-      function writeDouble_f64_cpy(val, buf, pos) {
-        f64[0] = val;
-        buf[pos] = f8b[0];
-        buf[pos + 1] = f8b[1];
-        buf[pos + 2] = f8b[2];
-        buf[pos + 3] = f8b[3];
-        buf[pos + 4] = f8b[4];
-        buf[pos + 5] = f8b[5];
-        buf[pos + 6] = f8b[6];
-        buf[pos + 7] = f8b[7];
-      }
-      function writeDouble_f64_rev(val, buf, pos) {
-        f64[0] = val;
-        buf[pos] = f8b[7];
-        buf[pos + 1] = f8b[6];
-        buf[pos + 2] = f8b[5];
-        buf[pos + 3] = f8b[4];
-        buf[pos + 4] = f8b[3];
-        buf[pos + 5] = f8b[2];
-        buf[pos + 6] = f8b[1];
-        buf[pos + 7] = f8b[0];
-      }
-      exports2.writeDoubleLE = le ? writeDouble_f64_cpy : writeDouble_f64_rev;
-      exports2.writeDoubleBE = le ? writeDouble_f64_rev : writeDouble_f64_cpy;
-      function readDouble_f64_cpy(buf, pos) {
-        f8b[0] = buf[pos];
-        f8b[1] = buf[pos + 1];
-        f8b[2] = buf[pos + 2];
-        f8b[3] = buf[pos + 3];
-        f8b[4] = buf[pos + 4];
-        f8b[5] = buf[pos + 5];
-        f8b[6] = buf[pos + 6];
-        f8b[7] = buf[pos + 7];
-        return f64[0];
-      }
-      function readDouble_f64_rev(buf, pos) {
-        f8b[7] = buf[pos];
-        f8b[6] = buf[pos + 1];
-        f8b[5] = buf[pos + 2];
-        f8b[4] = buf[pos + 3];
-        f8b[3] = buf[pos + 4];
-        f8b[2] = buf[pos + 5];
-        f8b[1] = buf[pos + 6];
-        f8b[0] = buf[pos + 7];
-        return f64[0];
-      }
-      exports2.readDoubleLE = le ? readDouble_f64_cpy : readDouble_f64_rev;
-      exports2.readDoubleBE = le ? readDouble_f64_rev : readDouble_f64_cpy;
-    })();
-  else
-    (function() {
-      function writeDouble_ieee754(writeUint, off0, off1, val, buf, pos) {
-        var sign = val < 0 ? 1 : 0;
-        if (sign)
-          val = -val;
-        if (val === 0) {
-          writeUint(0, buf, pos + off0);
-          writeUint(1 / val > 0 ? 0 : 2147483648, buf, pos + off1);
-        } else if (isNaN(val)) {
-          writeUint(0, buf, pos + off0);
-          writeUint(2146959360, buf, pos + off1);
-        } else if (val > 17976931348623157e292) {
-          writeUint(0, buf, pos + off0);
-          writeUint((sign << 31 | 2146435072) >>> 0, buf, pos + off1);
-        } else {
-          var mantissa;
-          if (val < 22250738585072014e-324) {
-            mantissa = val / 5e-324;
-            writeUint(mantissa >>> 0, buf, pos + off0);
-            writeUint((sign << 31 | mantissa / 4294967296) >>> 0, buf, pos + off1);
-          } else {
-            var exponent = Math.floor(Math.log(val) / Math.LN2);
-            if (exponent === 1024)
-              exponent = 1023;
-            mantissa = val * Math.pow(2, -exponent);
-            writeUint(mantissa * 4503599627370496 >>> 0, buf, pos + off0);
-            writeUint((sign << 31 | exponent + 1023 << 20 | mantissa * 1048576 & 1048575) >>> 0, buf, pos + off1);
-          }
-        }
-      }
-      exports2.writeDoubleLE = writeDouble_ieee754.bind(null, writeUintLE, 0, 4);
-      exports2.writeDoubleBE = writeDouble_ieee754.bind(null, writeUintBE, 4, 0);
-      function readDouble_ieee754(readUint, off0, off1, buf, pos) {
-        var lo = readUint(buf, pos + off0), hi = readUint(buf, pos + off1);
-        var sign = (hi >> 31) * 2 + 1, exponent = hi >>> 20 & 2047, mantissa = 4294967296 * (hi & 1048575) + lo;
-        return exponent === 2047 ? mantissa ? NaN : sign * Infinity : exponent === 0 ? sign * 5e-324 * mantissa : sign * Math.pow(2, exponent - 1075) * (mantissa + 4503599627370496);
-      }
-      exports2.readDoubleLE = readDouble_ieee754.bind(null, readUintLE, 0, 4);
-      exports2.readDoubleBE = readDouble_ieee754.bind(null, readUintBE, 4, 0);
-    })();
-  return exports2;
-}
-function writeUintLE(val, buf, pos) {
-  buf[pos] = val & 255;
-  buf[pos + 1] = val >>> 8 & 255;
-  buf[pos + 2] = val >>> 16 & 255;
-  buf[pos + 3] = val >>> 24;
-}
-function writeUintBE(val, buf, pos) {
-  buf[pos] = val >>> 24;
-  buf[pos + 1] = val >>> 16 & 255;
-  buf[pos + 2] = val >>> 8 & 255;
-  buf[pos + 3] = val & 255;
-}
-function readUintLE(buf, pos) {
-  return (buf[pos] | buf[pos + 1] << 8 | buf[pos + 2] << 16 | buf[pos + 3] << 24) >>> 0;
-}
-function readUintBE(buf, pos) {
-  return (buf[pos] << 24 | buf[pos + 1] << 16 | buf[pos + 2] << 8 | buf[pos + 3]) >>> 0;
-}
-var inquire_1 = inquire;
-function inquire(moduleName) {
-  try {
-    var mod = eval("quire".replace(/^/, "re"))(moduleName);
-    if (mod && (mod.length || Object.keys(mod).length))
-      return mod;
-  } catch (e2) {
-  }
-  return null;
-}
-var utf8$2 = {};
-(function(exports2) {
-  var utf82 = exports2;
-  utf82.length = function utf8_length(string) {
-    var len = 0, c = 0;
-    for (var i2 = 0; i2 < string.length; ++i2) {
-      c = string.charCodeAt(i2);
-      if (c < 128)
-        len += 1;
-      else if (c < 2048)
-        len += 2;
-      else if ((c & 64512) === 55296 && (string.charCodeAt(i2 + 1) & 64512) === 56320) {
-        ++i2;
-        len += 4;
-      } else
-        len += 3;
-    }
-    return len;
-  };
-  utf82.read = function utf8_read(buffer2, start2, end3) {
-    var len = end3 - start2;
-    if (len < 1)
-      return "";
-    var parts = null, chunk = [], i2 = 0, t2;
-    while (start2 < end3) {
-      t2 = buffer2[start2++];
-      if (t2 < 128)
-        chunk[i2++] = t2;
-      else if (t2 > 191 && t2 < 224)
-        chunk[i2++] = (t2 & 31) << 6 | buffer2[start2++] & 63;
-      else if (t2 > 239 && t2 < 365) {
-        t2 = ((t2 & 7) << 18 | (buffer2[start2++] & 63) << 12 | (buffer2[start2++] & 63) << 6 | buffer2[start2++] & 63) - 65536;
-        chunk[i2++] = 55296 + (t2 >> 10);
-        chunk[i2++] = 56320 + (t2 & 1023);
-      } else
-        chunk[i2++] = (t2 & 15) << 12 | (buffer2[start2++] & 63) << 6 | buffer2[start2++] & 63;
-      if (i2 > 8191) {
-        (parts || (parts = [])).push(String.fromCharCode.apply(String, chunk));
-        i2 = 0;
-      }
-    }
-    if (parts) {
-      if (i2)
-        parts.push(String.fromCharCode.apply(String, chunk.slice(0, i2)));
-      return parts.join("");
-    }
-    return String.fromCharCode.apply(String, chunk.slice(0, i2));
-  };
-  utf82.write = function utf8_write(string, buffer2, offset) {
-    var start2 = offset, c1, c2;
-    for (var i2 = 0; i2 < string.length; ++i2) {
-      c1 = string.charCodeAt(i2);
-      if (c1 < 128) {
-        buffer2[offset++] = c1;
-      } else if (c1 < 2048) {
-        buffer2[offset++] = c1 >> 6 | 192;
-        buffer2[offset++] = c1 & 63 | 128;
-      } else if ((c1 & 64512) === 55296 && ((c2 = string.charCodeAt(i2 + 1)) & 64512) === 56320) {
-        c1 = 65536 + ((c1 & 1023) << 10) + (c2 & 1023);
-        ++i2;
-        buffer2[offset++] = c1 >> 18 | 240;
-        buffer2[offset++] = c1 >> 12 & 63 | 128;
-        buffer2[offset++] = c1 >> 6 & 63 | 128;
-        buffer2[offset++] = c1 & 63 | 128;
-      } else {
-        buffer2[offset++] = c1 >> 12 | 224;
-        buffer2[offset++] = c1 >> 6 & 63 | 128;
-        buffer2[offset++] = c1 & 63 | 128;
-      }
-    }
-    return offset - start2;
-  };
-})(utf8$2);
-var pool_1 = pool;
-function pool(alloc3, slice2, size) {
-  var SIZE = size || 8192;
-  var MAX = SIZE >>> 1;
-  var slab = null;
-  var offset = SIZE;
-  return function pool_alloc(size2) {
-    if (size2 < 1 || size2 > MAX)
-      return alloc3(size2);
-    if (offset + size2 > SIZE) {
-      slab = alloc3(SIZE);
-      offset = 0;
-    }
-    var buf = slice2.call(slab, offset, offset += size2);
-    if (offset & 7)
-      offset = (offset | 7) + 1;
-    return buf;
-  };
-}
-var longbits = LongBits$2;
-var util$5 = minimal$1;
-function LongBits$2(lo, hi) {
-  this.lo = lo >>> 0;
-  this.hi = hi >>> 0;
-}
-var zero = LongBits$2.zero = new LongBits$2(0, 0);
-zero.toNumber = function() {
-  return 0;
-};
-zero.zzEncode = zero.zzDecode = function() {
-  return this;
-};
-zero.length = function() {
-  return 1;
-};
-var zeroHash = LongBits$2.zeroHash = "\0\0\0\0\0\0\0\0";
-LongBits$2.fromNumber = function fromNumber3(value) {
-  if (value === 0)
-    return zero;
-  var sign = value < 0;
-  if (sign)
-    value = -value;
-  var lo = value >>> 0, hi = (value - lo) / 4294967296 >>> 0;
-  if (sign) {
-    hi = ~hi >>> 0;
-    lo = ~lo >>> 0;
-    if (++lo > 4294967295) {
-      lo = 0;
-      if (++hi > 4294967295)
-        hi = 0;
-    }
-  }
-  return new LongBits$2(lo, hi);
-};
-LongBits$2.from = function from3(value) {
-  if (typeof value === "number")
-    return LongBits$2.fromNumber(value);
-  if (util$5.isString(value)) {
-    if (util$5.Long)
-      value = util$5.Long.fromString(value);
-    else
-      return LongBits$2.fromNumber(parseInt(value, 10));
-  }
-  return value.low || value.high ? new LongBits$2(value.low >>> 0, value.high >>> 0) : zero;
-};
-LongBits$2.prototype.toNumber = function toNumber4(unsigned) {
-  if (!unsigned && this.hi >>> 31) {
-    var lo = ~this.lo + 1 >>> 0, hi = ~this.hi >>> 0;
-    if (!lo)
-      hi = hi + 1 >>> 0;
-    return -(lo + hi * 4294967296);
-  }
-  return this.lo + this.hi * 4294967296;
-};
-LongBits$2.prototype.toLong = function toLong2(unsigned) {
-  return util$5.Long ? new util$5.Long(this.lo | 0, this.hi | 0, Boolean(unsigned)) : { low: this.lo | 0, high: this.hi | 0, unsigned: Boolean(unsigned) };
-};
-var charCodeAt = String.prototype.charCodeAt;
-LongBits$2.fromHash = function fromHash2(hash) {
-  if (hash === zeroHash)
-    return zero;
-  return new LongBits$2((charCodeAt.call(hash, 0) | charCodeAt.call(hash, 1) << 8 | charCodeAt.call(hash, 2) << 16 | charCodeAt.call(hash, 3) << 24) >>> 0, (charCodeAt.call(hash, 4) | charCodeAt.call(hash, 5) << 8 | charCodeAt.call(hash, 6) << 16 | charCodeAt.call(hash, 7) << 24) >>> 0);
-};
-LongBits$2.prototype.toHash = function toHash2() {
-  return String.fromCharCode(this.lo & 255, this.lo >>> 8 & 255, this.lo >>> 16 & 255, this.lo >>> 24, this.hi & 255, this.hi >>> 8 & 255, this.hi >>> 16 & 255, this.hi >>> 24);
-};
-LongBits$2.prototype.zzEncode = function zzEncode2() {
-  var mask = this.hi >> 31;
-  this.hi = ((this.hi << 1 | this.lo >>> 31) ^ mask) >>> 0;
-  this.lo = (this.lo << 1 ^ mask) >>> 0;
-  return this;
-};
-LongBits$2.prototype.zzDecode = function zzDecode2() {
-  var mask = -(this.lo & 1);
-  this.lo = ((this.lo >>> 1 | this.hi << 31) ^ mask) >>> 0;
-  this.hi = (this.hi >>> 1 ^ mask) >>> 0;
-  return this;
-};
-LongBits$2.prototype.length = function length2() {
-  var part0 = this.lo, part1 = (this.lo >>> 28 | this.hi << 4) >>> 0, part2 = this.hi >>> 24;
-  return part2 === 0 ? part1 === 0 ? part0 < 16384 ? part0 < 128 ? 1 : 2 : part0 < 2097152 ? 3 : 4 : part1 < 16384 ? part1 < 128 ? 5 : 6 : part1 < 2097152 ? 7 : 8 : part2 < 128 ? 9 : 10;
-};
-(function(exports2) {
-  var util2 = exports2;
-  util2.asPromise = aspromise;
-  util2.base64 = base64$1;
-  util2.EventEmitter = eventemitter;
-  util2.float = float;
-  util2.inquire = inquire_1;
-  util2.utf8 = utf8$2;
-  util2.pool = pool_1;
-  util2.LongBits = longbits;
-  util2.isNode = Boolean(typeof commonjsGlobal !== "undefined" && commonjsGlobal && commonjsGlobal.process && commonjsGlobal.process.versions && commonjsGlobal.process.versions.node);
-  util2.global = util2.isNode && commonjsGlobal || typeof window !== "undefined" && window || typeof self !== "undefined" && self || commonjsGlobal;
-  util2.emptyArray = Object.freeze ? Object.freeze([]) : [];
-  util2.emptyObject = Object.freeze ? Object.freeze({}) : {};
-  util2.isInteger = Number.isInteger || function isInteger(value) {
-    return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
-  };
-  util2.isString = function isString2(value) {
-    return typeof value === "string" || value instanceof String;
-  };
-  util2.isObject = function isObject2(value) {
-    return value && typeof value === "object";
-  };
-  util2.isset = util2.isSet = function isSet2(obj, prop) {
-    var value = obj[prop];
-    if (value != null && obj.hasOwnProperty(prop))
-      return typeof value !== "object" || (Array.isArray(value) ? value.length : Object.keys(value).length) > 0;
-    return false;
-  };
-  util2.Buffer = function() {
-    try {
-      var Buffer2 = util2.inquire("buffer").Buffer;
-      return Buffer2.prototype.utf8Write ? Buffer2 : null;
-    } catch (e2) {
-      return null;
-    }
-  }();
-  util2._Buffer_from = null;
-  util2._Buffer_allocUnsafe = null;
-  util2.newBuffer = function newBuffer(sizeOrArray) {
-    return typeof sizeOrArray === "number" ? util2.Buffer ? util2._Buffer_allocUnsafe(sizeOrArray) : new util2.Array(sizeOrArray) : util2.Buffer ? util2._Buffer_from(sizeOrArray) : typeof Uint8Array === "undefined" ? sizeOrArray : new Uint8Array(sizeOrArray);
-  };
-  util2.Array = typeof Uint8Array !== "undefined" ? Uint8Array : Array;
-  util2.Long = util2.global.dcodeIO && util2.global.dcodeIO.Long || util2.global.Long || util2.inquire("long");
-  util2.key2Re = /^true|false|0|1$/;
-  util2.key32Re = /^-?(?:0|[1-9][0-9]*)$/;
-  util2.key64Re = /^(?:[\\x00-\\xff]{8}|-?(?:0|[1-9][0-9]*))$/;
-  util2.longToHash = function longToHash(value) {
-    return value ? util2.LongBits.from(value).toHash() : util2.LongBits.zeroHash;
-  };
-  util2.longFromHash = function longFromHash(hash, unsigned) {
-    var bits = util2.LongBits.fromHash(hash);
-    if (util2.Long)
-      return util2.Long.fromBits(bits.lo, bits.hi, unsigned);
-    return bits.toNumber(Boolean(unsigned));
-  };
-  function merge2(dst, src, ifNotSet) {
-    for (var keys2 = Object.keys(src), i2 = 0; i2 < keys2.length; ++i2)
-      if (dst[keys2[i2]] === void 0 || !ifNotSet)
-        dst[keys2[i2]] = src[keys2[i2]];
-    return dst;
-  }
-  util2.merge = merge2;
-  util2.lcFirst = function lcFirst(str) {
-    return str.charAt(0).toLowerCase() + str.substring(1);
-  };
-  function newError(name2) {
-    function CustomError(message, properties) {
-      if (!(this instanceof CustomError))
-        return new CustomError(message, properties);
-      Object.defineProperty(this, "message", { get: function() {
-        return message;
-      } });
-      if (Error.captureStackTrace)
-        Error.captureStackTrace(this, CustomError);
-      else
-        Object.defineProperty(this, "stack", { value: new Error().stack || "" });
-      if (properties)
-        merge2(this, properties);
-    }
-    (CustomError.prototype = Object.create(Error.prototype)).constructor = CustomError;
-    Object.defineProperty(CustomError.prototype, "name", { get: function() {
-      return name2;
-    } });
-    CustomError.prototype.toString = function toString4() {
-      return this.name + ": " + this.message;
-    };
-    return CustomError;
-  }
-  util2.newError = newError;
-  util2.ProtocolError = newError("ProtocolError");
-  util2.oneOfGetter = function getOneOf(fieldNames) {
-    var fieldMap = {};
-    for (var i2 = 0; i2 < fieldNames.length; ++i2)
-      fieldMap[fieldNames[i2]] = 1;
-    return function() {
-      for (var keys2 = Object.keys(this), i3 = keys2.length - 1; i3 > -1; --i3)
-        if (fieldMap[keys2[i3]] === 1 && this[keys2[i3]] !== void 0 && this[keys2[i3]] !== null)
-          return keys2[i3];
-    };
-  };
-  util2.oneOfSetter = function setOneOf(fieldNames) {
-    return function(name2) {
-      for (var i2 = 0; i2 < fieldNames.length; ++i2)
-        if (fieldNames[i2] !== name2)
-          delete this[fieldNames[i2]];
-    };
-  };
-  util2.toJSONOptions = {
-    longs: String,
-    enums: String,
-    bytes: String,
-    json: true
-  };
-  util2._configure = function() {
-    var Buffer2 = util2.Buffer;
-    if (!Buffer2) {
-      util2._Buffer_from = util2._Buffer_allocUnsafe = null;
-      return;
-    }
-    util2._Buffer_from = Buffer2.from !== Uint8Array.from && Buffer2.from || function Buffer_from(value, encoding) {
-      return new Buffer2(value, encoding);
-    };
-    util2._Buffer_allocUnsafe = Buffer2.allocUnsafe || function Buffer_allocUnsafe(size) {
-      return new Buffer2(size);
-    };
-  };
-})(minimal$1);
-var writer = Writer$1;
-var util$4 = minimal$1;
-var BufferWriter$1;
-var LongBits$1 = util$4.LongBits, base64 = util$4.base64, utf8$1 = util$4.utf8;
-function Op(fn, len, val) {
-  this.fn = fn;
-  this.len = len;
-  this.next = void 0;
-  this.val = val;
-}
-function noop() {
-}
-function State(writer2) {
-  this.head = writer2.head;
-  this.tail = writer2.tail;
-  this.len = writer2.len;
-  this.next = writer2.states;
-}
-function Writer$1() {
-  this.len = 0;
-  this.head = new Op(noop, 0, 0);
-  this.tail = this.head;
-  this.states = null;
-}
-var create$4 = function create5() {
-  return util$4.Buffer ? function create_buffer_setup() {
-    return (Writer$1.create = function create_buffer() {
-      return new BufferWriter$1();
-    })();
-  } : function create_array4() {
-    return new Writer$1();
-  };
-};
-Writer$1.create = create$4();
-Writer$1.alloc = function alloc2(size) {
-  return new util$4.Array(size);
-};
-if (util$4.Array !== Array)
-  Writer$1.alloc = util$4.pool(Writer$1.alloc, util$4.Array.prototype.subarray);
-Writer$1.prototype._push = function push2(fn, len, val) {
-  this.tail = this.tail.next = new Op(fn, len, val);
-  this.len += len;
-  return this;
-};
-function writeByte(val, buf, pos) {
-  buf[pos] = val & 255;
-}
-function writeVarint32(val, buf, pos) {
-  while (val > 127) {
-    buf[pos++] = val & 127 | 128;
-    val >>>= 7;
-  }
-  buf[pos] = val;
-}
-function VarintOp(len, val) {
-  this.len = len;
-  this.next = void 0;
-  this.val = val;
-}
-VarintOp.prototype = Object.create(Op.prototype);
-VarintOp.prototype.fn = writeVarint32;
-Writer$1.prototype.uint32 = function write_uint322(value) {
-  this.len += (this.tail = this.tail.next = new VarintOp((value = value >>> 0) < 128 ? 1 : value < 16384 ? 2 : value < 2097152 ? 3 : value < 268435456 ? 4 : 5, value)).len;
-  return this;
-};
-Writer$1.prototype.int32 = function write_int322(value) {
-  return value < 0 ? this._push(writeVarint64, 10, LongBits$1.fromNumber(value)) : this.uint32(value);
-};
-Writer$1.prototype.sint32 = function write_sint322(value) {
-  return this.uint32((value << 1 ^ value >> 31) >>> 0);
-};
-function writeVarint64(val, buf, pos) {
-  while (val.hi) {
-    buf[pos++] = val.lo & 127 | 128;
-    val.lo = (val.lo >>> 7 | val.hi << 25) >>> 0;
-    val.hi >>>= 7;
-  }
-  while (val.lo > 127) {
-    buf[pos++] = val.lo & 127 | 128;
-    val.lo = val.lo >>> 7;
-  }
-  buf[pos++] = val.lo;
-}
-Writer$1.prototype.uint64 = function write_uint642(value) {
-  var bits = LongBits$1.from(value);
-  return this._push(writeVarint64, bits.length(), bits);
-};
-Writer$1.prototype.int64 = Writer$1.prototype.uint64;
-Writer$1.prototype.sint64 = function write_sint642(value) {
-  var bits = LongBits$1.from(value).zzEncode();
-  return this._push(writeVarint64, bits.length(), bits);
-};
-Writer$1.prototype.bool = function write_bool2(value) {
-  return this._push(writeByte, 1, value ? 1 : 0);
-};
-function writeFixed32(val, buf, pos) {
-  buf[pos] = val & 255;
-  buf[pos + 1] = val >>> 8 & 255;
-  buf[pos + 2] = val >>> 16 & 255;
-  buf[pos + 3] = val >>> 24;
-}
-Writer$1.prototype.fixed32 = function write_fixed322(value) {
-  return this._push(writeFixed32, 4, value >>> 0);
-};
-Writer$1.prototype.sfixed32 = Writer$1.prototype.fixed32;
-Writer$1.prototype.fixed64 = function write_fixed642(value) {
-  var bits = LongBits$1.from(value);
-  return this._push(writeFixed32, 4, bits.lo)._push(writeFixed32, 4, bits.hi);
-};
-Writer$1.prototype.sfixed64 = Writer$1.prototype.fixed64;
-Writer$1.prototype.float = function write_float2(value) {
-  return this._push(util$4.float.writeFloatLE, 4, value);
-};
-Writer$1.prototype.double = function write_double2(value) {
-  return this._push(util$4.float.writeDoubleLE, 8, value);
-};
-var writeBytes = util$4.Array.prototype.set ? function writeBytes_set2(val, buf, pos) {
-  buf.set(val, pos);
-} : function writeBytes_for2(val, buf, pos) {
-  for (var i2 = 0; i2 < val.length; ++i2)
-    buf[pos + i2] = val[i2];
-};
-Writer$1.prototype.bytes = function write_bytes2(value) {
-  var len = value.length >>> 0;
-  if (!len)
-    return this._push(writeByte, 1, 0);
-  if (util$4.isString(value)) {
-    var buf = Writer$1.alloc(len = base64.length(value));
-    base64.decode(value, buf, 0);
-    value = buf;
-  }
-  return this.uint32(len)._push(writeBytes, len, value);
-};
-Writer$1.prototype.string = function write_string2(value) {
-  var len = utf8$1.length(value);
-  return len ? this.uint32(len)._push(utf8$1.write, len, value) : this._push(writeByte, 1, 0);
-};
-Writer$1.prototype.fork = function fork2() {
-  this.states = new State(this);
-  this.head = this.tail = new Op(noop, 0, 0);
-  this.len = 0;
-  return this;
-};
-Writer$1.prototype.reset = function reset2() {
-  if (this.states) {
-    this.head = this.states.head;
-    this.tail = this.states.tail;
-    this.len = this.states.len;
-    this.states = this.states.next;
-  } else {
-    this.head = this.tail = new Op(noop, 0, 0);
-    this.len = 0;
-  }
-  return this;
-};
-Writer$1.prototype.ldelim = function ldelim2() {
-  var head = this.head, tail = this.tail, len = this.len;
-  this.reset().uint32(len);
-  if (len) {
-    this.tail.next = head.next;
-    this.tail = tail;
-    this.len += len;
-  }
-  return this;
-};
-Writer$1.prototype.finish = function finish2() {
-  var head = this.head.next, buf = this.constructor.alloc(this.len), pos = 0;
-  while (head) {
-    head.fn(head.val, buf, pos);
-    pos += head.len;
-    head = head.next;
-  }
-  return buf;
-};
-Writer$1._configure = function(BufferWriter_) {
-  BufferWriter$1 = BufferWriter_;
-  Writer$1.create = create$4();
-  BufferWriter$1._configure();
-};
-var writer_buffer = BufferWriter;
-var Writer = writer;
-(BufferWriter.prototype = Object.create(Writer.prototype)).constructor = BufferWriter;
-var util$3 = minimal$1;
-function BufferWriter() {
-  Writer.call(this);
-}
-BufferWriter._configure = function() {
-  BufferWriter.alloc = util$3._Buffer_allocUnsafe;
-  BufferWriter.writeBytesBuffer = util$3.Buffer && util$3.Buffer.prototype instanceof Uint8Array && util$3.Buffer.prototype.set.name === "set" ? function writeBytesBuffer_set(val, buf, pos) {
-    buf.set(val, pos);
-  } : function writeBytesBuffer_copy(val, buf, pos) {
-    if (val.copy)
-      val.copy(buf, pos, 0, val.length);
-    else
-      for (var i2 = 0; i2 < val.length; )
-        buf[pos++] = val[i2++];
-  };
-};
-BufferWriter.prototype.bytes = function write_bytes_buffer2(value) {
-  if (util$3.isString(value))
-    value = util$3._Buffer_from(value, "base64");
-  var len = value.length >>> 0;
-  this.uint32(len);
-  if (len)
-    this._push(BufferWriter.writeBytesBuffer, len, value);
-  return this;
-};
-function writeStringBuffer(val, buf, pos) {
-  if (val.length < 40)
-    util$3.utf8.write(val, buf, pos);
-  else if (buf.utf8Write)
-    buf.utf8Write(val, pos);
-  else
-    buf.write(val, pos);
-}
-BufferWriter.prototype.string = function write_string_buffer2(value) {
-  var len = util$3.Buffer.byteLength(value);
-  this.uint32(len);
-  if (len)
-    this._push(writeStringBuffer, len, value);
-  return this;
-};
-BufferWriter._configure();
-var reader = Reader$1;
-var util$2 = minimal$1;
-var BufferReader$1;
-var LongBits = util$2.LongBits, utf8 = util$2.utf8;
-function indexOutOfRange(reader2, writeLength) {
-  return RangeError("index out of range: " + reader2.pos + " + " + (writeLength || 1) + " > " + reader2.len);
-}
-function Reader$1(buffer2) {
-  this.buf = buffer2;
-  this.pos = 0;
-  this.len = buffer2.length;
-}
-var create_array = typeof Uint8Array !== "undefined" ? function create_typed_array2(buffer2) {
-  if (buffer2 instanceof Uint8Array || Array.isArray(buffer2))
-    return new Reader$1(buffer2);
-  throw Error("illegal buffer");
-} : function create_array3(buffer2) {
-  if (Array.isArray(buffer2))
-    return new Reader$1(buffer2);
-  throw Error("illegal buffer");
-};
-var create$3 = function create6() {
-  return util$2.Buffer ? function create_buffer_setup(buffer2) {
-    return (Reader$1.create = function create_buffer(buffer3) {
-      return util$2.Buffer.isBuffer(buffer3) ? new BufferReader$1(buffer3) : create_array(buffer3);
-    })(buffer2);
-  } : create_array;
-};
-Reader$1.create = create$3();
-Reader$1.prototype._slice = util$2.Array.prototype.subarray || util$2.Array.prototype.slice;
-Reader$1.prototype.uint32 = function read_uint32_setup2() {
-  var value = 4294967295;
-  return function read_uint32() {
-    value = (this.buf[this.pos] & 127) >>> 0;
-    if (this.buf[this.pos++] < 128)
-      return value;
-    value = (value | (this.buf[this.pos] & 127) << 7) >>> 0;
-    if (this.buf[this.pos++] < 128)
-      return value;
-    value = (value | (this.buf[this.pos] & 127) << 14) >>> 0;
-    if (this.buf[this.pos++] < 128)
-      return value;
-    value = (value | (this.buf[this.pos] & 127) << 21) >>> 0;
-    if (this.buf[this.pos++] < 128)
-      return value;
-    value = (value | (this.buf[this.pos] & 15) << 28) >>> 0;
-    if (this.buf[this.pos++] < 128)
-      return value;
-    if ((this.pos += 5) > this.len) {
-      this.pos = this.len;
-      throw indexOutOfRange(this, 10);
-    }
-    return value;
-  };
-}();
-Reader$1.prototype.int32 = function read_int322() {
-  return this.uint32() | 0;
-};
-Reader$1.prototype.sint32 = function read_sint322() {
-  var value = this.uint32();
-  return value >>> 1 ^ -(value & 1) | 0;
-};
-function readLongVarint() {
-  var bits = new LongBits(0, 0);
-  var i2 = 0;
-  if (this.len - this.pos > 4) {
-    for (; i2 < 4; ++i2) {
-      bits.lo = (bits.lo | (this.buf[this.pos] & 127) << i2 * 7) >>> 0;
-      if (this.buf[this.pos++] < 128)
-        return bits;
-    }
-    bits.lo = (bits.lo | (this.buf[this.pos] & 127) << 28) >>> 0;
-    bits.hi = (bits.hi | (this.buf[this.pos] & 127) >> 4) >>> 0;
-    if (this.buf[this.pos++] < 128)
-      return bits;
-    i2 = 0;
-  } else {
-    for (; i2 < 3; ++i2) {
-      if (this.pos >= this.len)
-        throw indexOutOfRange(this);
-      bits.lo = (bits.lo | (this.buf[this.pos] & 127) << i2 * 7) >>> 0;
-      if (this.buf[this.pos++] < 128)
-        return bits;
-    }
-    bits.lo = (bits.lo | (this.buf[this.pos++] & 127) << i2 * 7) >>> 0;
-    return bits;
-  }
-  if (this.len - this.pos > 4) {
-    for (; i2 < 5; ++i2) {
-      bits.hi = (bits.hi | (this.buf[this.pos] & 127) << i2 * 7 + 3) >>> 0;
-      if (this.buf[this.pos++] < 128)
-        return bits;
-    }
-  } else {
-    for (; i2 < 5; ++i2) {
-      if (this.pos >= this.len)
-        throw indexOutOfRange(this);
-      bits.hi = (bits.hi | (this.buf[this.pos] & 127) << i2 * 7 + 3) >>> 0;
-      if (this.buf[this.pos++] < 128)
-        return bits;
-    }
-  }
-  throw Error("invalid varint encoding");
-}
-Reader$1.prototype.bool = function read_bool2() {
-  return this.uint32() !== 0;
-};
-function readFixed32_end(buf, end3) {
-  return (buf[end3 - 4] | buf[end3 - 3] << 8 | buf[end3 - 2] << 16 | buf[end3 - 1] << 24) >>> 0;
-}
-Reader$1.prototype.fixed32 = function read_fixed322() {
-  if (this.pos + 4 > this.len)
-    throw indexOutOfRange(this, 4);
-  return readFixed32_end(this.buf, this.pos += 4);
-};
-Reader$1.prototype.sfixed32 = function read_sfixed322() {
-  if (this.pos + 4 > this.len)
-    throw indexOutOfRange(this, 4);
-  return readFixed32_end(this.buf, this.pos += 4) | 0;
-};
-function readFixed64() {
-  if (this.pos + 8 > this.len)
-    throw indexOutOfRange(this, 8);
-  return new LongBits(readFixed32_end(this.buf, this.pos += 4), readFixed32_end(this.buf, this.pos += 4));
-}
-Reader$1.prototype.float = function read_float2() {
-  if (this.pos + 4 > this.len)
-    throw indexOutOfRange(this, 4);
-  var value = util$2.float.readFloatLE(this.buf, this.pos);
-  this.pos += 4;
-  return value;
-};
-Reader$1.prototype.double = function read_double2() {
-  if (this.pos + 8 > this.len)
-    throw indexOutOfRange(this, 4);
-  var value = util$2.float.readDoubleLE(this.buf, this.pos);
-  this.pos += 8;
-  return value;
-};
-Reader$1.prototype.bytes = function read_bytes2() {
-  var length3 = this.uint32(), start2 = this.pos, end3 = this.pos + length3;
-  if (end3 > this.len)
-    throw indexOutOfRange(this, length3);
-  this.pos += length3;
-  if (Array.isArray(this.buf))
-    return this.buf.slice(start2, end3);
-  return start2 === end3 ? new this.buf.constructor(0) : this._slice.call(this.buf, start2, end3);
-};
-Reader$1.prototype.string = function read_string2() {
-  var bytes = this.bytes();
-  return utf8.read(bytes, 0, bytes.length);
-};
-Reader$1.prototype.skip = function skip3(length3) {
-  if (typeof length3 === "number") {
-    if (this.pos + length3 > this.len)
-      throw indexOutOfRange(this, length3);
-    this.pos += length3;
-  } else {
-    do {
-      if (this.pos >= this.len)
-        throw indexOutOfRange(this);
-    } while (this.buf[this.pos++] & 128);
-  }
-  return this;
-};
-Reader$1.prototype.skipType = function(wireType) {
-  switch (wireType) {
-    case 0:
-      this.skip();
-      break;
-    case 1:
-      this.skip(8);
-      break;
-    case 2:
-      this.skip(this.uint32());
-      break;
-    case 3:
-      while ((wireType = this.uint32() & 7) !== 4) {
-        this.skipType(wireType);
-      }
-      break;
-    case 5:
-      this.skip(4);
-      break;
-    default:
-      throw Error("invalid wire type " + wireType + " at offset " + this.pos);
-  }
-  return this;
-};
-Reader$1._configure = function(BufferReader_) {
-  BufferReader$1 = BufferReader_;
-  Reader$1.create = create$3();
-  BufferReader$1._configure();
-  var fn = util$2.Long ? "toLong" : "toNumber";
-  util$2.merge(Reader$1.prototype, {
-    int64: function read_int64() {
-      return readLongVarint.call(this)[fn](false);
-    },
-    uint64: function read_uint64() {
-      return readLongVarint.call(this)[fn](true);
-    },
-    sint64: function read_sint64() {
-      return readLongVarint.call(this).zzDecode()[fn](false);
-    },
-    fixed64: function read_fixed64() {
-      return readFixed64.call(this)[fn](true);
-    },
-    sfixed64: function read_sfixed64() {
-      return readFixed64.call(this)[fn](false);
-    }
-  });
-};
-var reader_buffer = BufferReader;
-var Reader = reader;
-(BufferReader.prototype = Object.create(Reader.prototype)).constructor = BufferReader;
-var util$1 = minimal$1;
-function BufferReader(buffer2) {
-  Reader.call(this, buffer2);
-}
-BufferReader._configure = function() {
-  if (util$1.Buffer)
-    BufferReader.prototype._slice = util$1.Buffer.prototype.slice;
-};
-BufferReader.prototype.string = function read_string_buffer2() {
-  var len = this.uint32();
-  return this.buf.utf8Slice ? this.buf.utf8Slice(this.pos, this.pos = Math.min(this.pos + len, this.len)) : this.buf.toString("utf-8", this.pos, this.pos = Math.min(this.pos + len, this.len));
-};
-BufferReader._configure();
-var rpc = {};
-var service = Service;
-var util = minimal$1;
-(Service.prototype = Object.create(util.EventEmitter.prototype)).constructor = Service;
-function Service(rpcImpl, requestDelimited, responseDelimited) {
-  if (typeof rpcImpl !== "function")
-    throw TypeError("rpcImpl must be a function");
-  util.EventEmitter.call(this);
-  this.rpcImpl = rpcImpl;
-  this.requestDelimited = Boolean(requestDelimited);
-  this.responseDelimited = Boolean(responseDelimited);
-}
-Service.prototype.rpcCall = function rpcCall2(method, requestCtor, responseCtor, request3, callback) {
-  if (!request3)
-    throw TypeError("request must be specified");
-  var self2 = this;
-  if (!callback)
-    return util.asPromise(rpcCall2, self2, method, requestCtor, responseCtor, request3);
-  if (!self2.rpcImpl) {
-    setTimeout(function() {
-      callback(Error("already ended"));
-    }, 0);
-    return void 0;
-  }
-  try {
-    return self2.rpcImpl(method, requestCtor[self2.requestDelimited ? "encodeDelimited" : "encode"](request3).finish(), function rpcCallback(err, response) {
-      if (err) {
-        self2.emit("error", err, method);
-        return callback(err);
-      }
-      if (response === null) {
-        self2.end(true);
-        return void 0;
-      }
-      if (!(response instanceof responseCtor)) {
-        try {
-          response = responseCtor[self2.responseDelimited ? "decodeDelimited" : "decode"](response);
-        } catch (err2) {
-          self2.emit("error", err2, method);
-          return callback(err2);
-        }
-      }
-      self2.emit("data", response, method);
-      return callback(null, response);
-    });
-  } catch (err) {
-    self2.emit("error", err, method);
-    setTimeout(function() {
-      callback(err);
-    }, 0);
-    return void 0;
-  }
-};
-Service.prototype.end = function end2(endedByRPC) {
-  if (this.rpcImpl) {
-    if (!endedByRPC)
-      this.rpcImpl(null, null, null);
-    this.rpcImpl = null;
-    this.emit("end").off();
-  }
-  return this;
-};
-(function(exports2) {
-  var rpc2 = exports2;
-  rpc2.Service = service;
-})(rpc);
-var roots = {};
-(function(exports2) {
-  var protobuf = exports2;
-  protobuf.build = "minimal";
-  protobuf.Writer = writer;
-  protobuf.BufferWriter = writer_buffer;
-  protobuf.Reader = reader;
-  protobuf.BufferReader = reader_buffer;
-  protobuf.util = minimal$1;
-  protobuf.rpc = rpc;
-  protobuf.roots = roots;
-  protobuf.configure = configure;
-  function configure() {
-    protobuf.util._configure();
-    protobuf.Writer._configure(protobuf.BufferWriter);
-    protobuf.Reader._configure(protobuf.BufferReader);
-  }
-  configure();
-})(indexMinimal);
-var minimal = indexMinimal;
 (function(exports2) {
   var __importDefault2 = commonjsGlobal && commonjsGlobal.__importDefault || function(mod2) {
     return mod2 && mod2.__esModule ? mod2 : { "default": mod2 };
@@ -43666,12 +36643,12 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseRoom);
       message.enabledCodecs = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -43816,11 +36793,11 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseCodec);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -43905,12 +36882,12 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseParticipantInfo);
       message.tracks = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -44087,12 +37064,12 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseTrackInfo);
       message.layers = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -44272,11 +37249,11 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseVideoLayer);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -44364,11 +37341,11 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseDataPacket);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -44438,12 +37415,12 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseActiveSpeakerUpdate);
       message.speakers = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -44500,11 +37477,11 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSpeakerInfo);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -44572,13 +37549,13 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUserPacket);
       message.destinationSids = [];
       message.payload = new Uint8Array();
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -44652,12 +37629,12 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseParticipantTracks);
       message.trackSids = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -44749,11 +37726,11 @@ var minimal = indexMinimal;
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseClientInfo);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -44885,11 +37862,11 @@ var minimal = indexMinimal;
     }
     return btoa2(bin.join(""));
   }
-  function longToNumber2(long2) {
-    if (long2.gt(Number.MAX_SAFE_INTEGER)) {
+  function longToNumber2(long) {
+    if (long.gt(Number.MAX_SAFE_INTEGER)) {
       throw new globalThis2.Error("Value is larger than Number.MAX_SAFE_INTEGER");
     }
-    return long2.toNumber();
+    return long.toNumber();
   }
   if (minimal_1.default.util.Long !== long_12.default) {
     minimal_1.default.util.Long = long_12.default;
@@ -45013,11 +37990,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSignalRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -45255,11 +38232,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSignalResponse);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -45519,12 +38496,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseAddTrackRequest);
       message.layers = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -45659,11 +38636,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseTrickleRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -45718,11 +38695,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseMuteTrackRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -45796,13 +38773,13 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseJoinResponse);
       message.otherParticipants = [];
       message.iceServers = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -45935,11 +38912,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseTrackPublishedResponse);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -45998,11 +38975,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSessionDescription);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46054,12 +39031,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseParticipantUpdate);
       message.participants = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46116,13 +39093,13 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUpdateSubscription);
       message.trackSids = [];
       message.participantTracks = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46222,12 +39199,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUpdateTrackSettings);
       message.trackSids = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46319,11 +39296,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseLeaveRequest);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46368,12 +39345,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUpdateVideoLayers);
       message.layers = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46441,12 +39418,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseICEServer);
       message.urls = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46518,12 +39495,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSpeakersChanged);
       message.speakers = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46574,11 +39551,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseRoomUpdate);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46633,11 +39610,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseConnectionQualityInfo);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46699,12 +39676,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseConnectionQualityUpdate);
       message.updates = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46765,11 +39742,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseStreamStateInfo);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46831,12 +39808,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseStreamStateUpdate);
       message.streamStates = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46890,11 +39867,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSubscribedQuality);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -46949,12 +39926,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSubscribedQualityUpdate);
       message.subscribedQualities = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -47026,12 +40003,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseTrackPermission);
       message.trackSids = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -47106,12 +40083,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseUpdateSubscriptionPermissions);
       message.trackPermissions = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -47183,11 +40160,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSubscriptionPermissionUpdate);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -47255,12 +40232,12 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSyncState);
       message.publishTracks = [];
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -47348,11 +40325,11 @@ var livekit_rtc = {};
       }
       return writer2;
     },
-    decode(input, length3) {
+    decode(input, length2) {
       const reader2 = input instanceof minimal_1.default.Reader ? input : new minimal_1.default.Reader(input);
-      let end3 = length3 === void 0 ? reader2.len : reader2.pos + length3;
+      let end2 = length2 === void 0 ? reader2.len : reader2.pos + length2;
       const message = Object.assign({}, baseSimulateScenario);
-      while (reader2.pos < end3) {
+      while (reader2.pos < end2) {
         const tag = reader2.uint32();
         switch (tag >>> 3) {
           case 1:
@@ -47731,7 +40708,7 @@ function _getMaxListeners(that) {
 EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
   return _getMaxListeners(this);
 };
-EventEmitter.prototype.emit = function emit3(type) {
+EventEmitter.prototype.emit = function emit2(type) {
   var args = [];
   for (var i2 = 1; i2 < arguments.length; i2++)
     args.push(arguments[i2]);
@@ -53861,8 +46838,8 @@ function shimSendThrowTypeError(window2) {
     const origDataChannelSend = dc.send;
     dc.send = function send() {
       const data2 = arguments[0];
-      const length3 = data2.length || data2.size || data2.byteLength;
-      if (dc.readyState === "open" && pc.sctp && length3 > pc.sctp.maxMessageSize) {
+      const length2 = data2.length || data2.size || data2.byteLength;
+      if (dc.readyState === "open" && pc.sctp && length2 > pc.sctp.maxMessageSize) {
         throw new TypeError("Message too large (can send a maximum of " + pc.sctp.maxMessageSize + " bytes)");
       }
       return origDataChannelSend.apply(dc, arguments);
@@ -57072,9 +50049,9 @@ try {
     function WeakMap3(iterable) {
       dP(this, "_", { value: "_@ungap/weakmap" + id++ });
       if (iterable)
-        iterable.forEach(add2, this);
+        iterable.forEach(add, this);
     }
-    function add2(pair) {
+    function add(pair) {
       this.set(pair[0], pair[1]);
     }
   }(Math.random(), Object);
@@ -57137,21 +50114,21 @@ const remove = ({ firstChild, lastChild }) => {
 const diffable = (node, operation) => node.nodeType === nodeType ? 1 / operation < 0 ? operation ? remove(node) : node.lastChild : operation ? node.valueOf() : node.firstChild : node;
 const persistent = (fragment) => {
   const { childNodes } = fragment;
-  const { length: length3 } = childNodes;
-  if (length3 < 2)
-    return length3 ? childNodes[0] : fragment;
+  const { length: length2 } = childNodes;
+  if (length2 < 2)
+    return length2 ? childNodes[0] : fragment;
   const nodes = slice.call(childNodes, 0);
   const firstChild = nodes[0];
-  const lastChild = nodes[length3 - 1];
+  const lastChild = nodes[length2 - 1];
   return {
     ELEMENT_NODE,
     nodeType,
     firstChild,
     lastChild,
     valueOf() {
-      if (childNodes.length !== length3) {
+      if (childNodes.length !== length2) {
         let i2 = 0;
-        while (i2 < length3)
+        while (i2 < length2)
           fragment.appendChild(nodes[i2++]);
       }
       return fragment;
@@ -57162,14 +50139,14 @@ const persistent = (fragment) => {
 var createContent = function(document2) {
   var FRAGMENT = "fragment";
   var TEMPLATE = "template";
-  var HAS_CONTENT = "content" in create7(TEMPLATE);
+  var HAS_CONTENT = "content" in create5(TEMPLATE);
   var createHTML = HAS_CONTENT ? function(html2) {
-    var template = create7(TEMPLATE);
+    var template = create5(TEMPLATE);
     template.innerHTML = html2;
     return template.content;
   } : function(html2) {
-    var content = create7(FRAGMENT);
-    var template = create7(TEMPLATE);
+    var content = create5(FRAGMENT);
+    var template = create5(TEMPLATE);
     var childNodes = null;
     if (/^[^\S]*?<(col(?:group)?|t(?:head|body|foot|r|d|h))/i.test(html2)) {
       var selector = RegExp.$1;
@@ -57186,16 +50163,16 @@ var createContent = function(document2) {
     return (type === "svg" ? createSVG : createHTML)(markup);
   };
   function append(root2, childNodes) {
-    var length3 = childNodes.length;
-    while (length3--)
+    var length2 = childNodes.length;
+    while (length2--)
       root2.appendChild(childNodes[0]);
   }
-  function create7(element) {
+  function create5(element) {
     return element === FRAGMENT ? document2.createDocumentFragment() : document2.createElementNS("http://www.w3.org/1999/xhtml", element);
   }
   function createSVG(svg2) {
-    var content = create7(FRAGMENT);
-    var template = create7("div");
+    var content = create5(FRAGMENT);
+    var template = create5("div");
     template.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg">' + svg2 + "</svg>";
     append(content, template.firstChild.childNodes);
     return content;
@@ -57268,7 +50245,7 @@ var importNode = function(document2, appendChild, cloneNode, createTextNode, imp
   var content = native ? document2[importNode2](fragment, true) : fragment[cloneNode](true);
   return content.childNodes.length < 2 ? function importNode3(node, deep) {
     var clone = node[cloneNode]();
-    for (var childNodes = node.childNodes || [], length3 = childNodes.length, i2 = 0; deep && i2 < length3; i2++) {
+    for (var childNodes = node.childNodes || [], length2 = childNodes.length, i2 = 0; deep && i2 < length2; i2++) {
       clone[appendChild](importNode3(childNodes[i2], deep));
     }
     return clone;
@@ -57288,17 +50265,17 @@ var normalizeAttributes = UID_IE ? function(attributes, parts) {
   return parts.slice.call(attributes, 0);
 };
 function find(node, path) {
-  var length3 = path.length;
+  var length2 = path.length;
   var i2 = 0;
-  while (i2 < length3)
+  while (i2 < length2)
     node = node.childNodes[path[i2++]];
   return node;
 }
 function parse(node, holes, parts, path) {
   var childNodes = node.childNodes;
-  var length3 = childNodes.length;
+  var length2 = childNodes.length;
   var i2 = 0;
-  while (i2 < length3) {
+  while (i2 < length2) {
     var child = childNodes[i2];
     switch (child.nodeType) {
       case ELEMENT_NODE$1:
@@ -57319,7 +50296,7 @@ function parse(node, holes, parts, path) {
             case "\u{1F47B}":
               node.removeChild(child);
               i2--;
-              length3--;
+              length2--;
           }
         }
         break;
@@ -57338,9 +50315,9 @@ function parseAttributes(node, holes, parts, path) {
   var cache2 = [];
   var remove2 = [];
   var array = normalizeAttributes(attributes, parts);
-  var length3 = array.length;
+  var length2 = array.length;
   var i2 = 0;
-  while (i2 < length3) {
+  while (i2 < length2) {
     var attribute2 = array[i2++];
     var direct = attribute2.value === UID;
     var sparse;
@@ -57353,8 +50330,8 @@ function parseAttributes(node, holes, parts, path) {
         if (direct)
           holes.push(Attr(value, path, realName, null));
         else {
-          var skip4 = sparse.length - 2;
-          while (skip4--)
+          var skip3 = sparse.length - 2;
+          while (skip3--)
             parts.shift();
           holes.push(Attr(value, path, realName, sparse));
         }
@@ -57362,10 +50339,10 @@ function parseAttributes(node, holes, parts, path) {
       remove2.push(attribute2);
     }
   }
-  length3 = remove2.length;
+  length2 = remove2.length;
   i2 = 0;
-  var cleanValue = 0 < length3 && UID_IE && !("ownerSVGElement" in node);
-  while (i2 < length3) {
+  var cleanValue = 0 < length2 && UID_IE && !("ownerSVGElement" in node);
+  while (i2 < length2) {
     var attr = remove2[i2++];
     if (cleanValue)
       attr.value = "";
@@ -57374,9 +50351,9 @@ function parseAttributes(node, holes, parts, path) {
   var nodeName = node.nodeName;
   if (/^script$/i.test(nodeName)) {
     var script = document.createElement(nodeName);
-    length3 = attributes.length;
+    length2 = attributes.length;
     i2 = 0;
-    while (i2 < length3)
+    while (i2 < length2)
       script.setAttributeNode(attributes[i2++].cloneNode(true));
     script.textContent = node.textContent;
     node.parentNode.replaceChild(script, node);
@@ -57421,7 +50398,7 @@ function createInfo(options2, template) {
       var updates = [];
       var len = holes.length;
       var i2 = 0;
-      var off3 = 0;
+      var off2 = 0;
       while (i2 < len) {
         var info = holes[i2++];
         var node = find(content2, info.path);
@@ -57435,7 +50412,7 @@ function createInfo(options2, template) {
             if (sparse === null)
               updates.push({ fn, sparse: false });
             else {
-              off3 += sparse.length - 2;
+              off2 += sparse.length - 2;
               updates.push({ fn, sparse: true, values: sparse });
             }
             break;
@@ -57445,22 +50422,22 @@ function createInfo(options2, template) {
             break;
         }
       }
-      len += off3;
+      len += off2;
       return function() {
-        var length3 = arguments.length;
-        if (len !== length3 - 1) {
-          throw new Error(length3 - 1 + " values instead of " + len + "\n" + template.join("${value}"));
+        var length2 = arguments.length;
+        if (len !== length2 - 1) {
+          throw new Error(length2 - 1 + " values instead of " + len + "\n" + template.join("${value}"));
         }
         var i3 = 1;
-        var off4 = 1;
-        while (i3 < length3) {
-          var update = updates[i3 - off4];
+        var off3 = 1;
+        while (i3 < length2) {
+          var update = updates[i3 - off3];
           if (update.sparse) {
             var values2 = update.values;
             var value = values2[0];
             var j = 1;
             var l = values2.length;
-            off4 += l - 2;
+            off3 += l - 2;
             while (j < l)
               value += arguments[i3++] + values2[j++];
             update.fn(value);
@@ -57837,8 +50814,8 @@ const outer = (type, Tagger2) => {
   }
 };
 const unroll = (Tagger2, info, { type, template, values: values2 }) => {
-  const { length: length3 } = values2;
-  unrollValues(Tagger2, info, values2, length3);
+  const { length: length2 } = values2;
+  unrollValues(Tagger2, info, values2, length2);
   let { entry } = info;
   if (!entry || (entry.template !== template || entry.type !== type)) {
     const tag = new Tagger2(type);
@@ -57852,8 +50829,8 @@ const unroll = (Tagger2, info, { type, template, values: values2 }) => {
     entry.tag(template, ...values2);
   return entry.wire;
 };
-const unrollValues = (Tagger2, { stack }, values2, length3) => {
-  for (let i2 = 0; i2 < length3; i2++) {
+const unrollValues = (Tagger2, { stack }, values2, length2) => {
+  for (let i2 = 0; i2 < length2; i2++) {
     const hole = values2[i2];
     if (hole instanceof Hole)
       values2[i2] = unroll(Tagger2, stack[i2] || (stack[i2] = createCache()), hole);
@@ -57862,8 +50839,8 @@ const unrollValues = (Tagger2, { stack }, values2, length3) => {
     else
       stack[i2] = null;
   }
-  if (length3 < stack.length)
-    stack.splice(length3);
+  if (length2 < stack.length)
+    stack.splice(length2);
 };
 freeze(LighterHole);
 function LighterHole(type, args) {
@@ -57874,8 +50851,8 @@ function LighterHole(type, args) {
 const Hole = LighterHole;
 const { render: render$1, html, svg } = createRender(Tagger);
 function tta() {
-  let out = [], i2 = 0, { length: length3 } = arguments;
-  while (i2 < length3)
+  let out = [], i2 = 0, { length: length2 } = arguments;
+  while (i2 < length2)
     out.push(arguments[i2++]);
   return out;
 }
@@ -61147,5 +54124,5 @@ const load = async (accessToken) => {
   trigger("UserLoaded", loadResult);
   return loadResult;
 };
-export { commands$1 as Command, Compositor, context$1 as Context, events$2 as Events, index as Helpers, requests as Request, index$1 as Room, types as SDK, init };
+export { commands$1 as Command, Compositor, context as Context, events$2 as Events, index as Helpers, requests as Request, index$1 as Room, types as SDK, init };
 //# sourceMappingURL=index.es.js.map
