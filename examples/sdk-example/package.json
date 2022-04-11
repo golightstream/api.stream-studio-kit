@@ -1,6 +1,6 @@
 {
-  "name": "sdk-example",
-  "version": "1.6.0",
+  "name": "studio-kit-example",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -8,7 +8,7 @@
     "proxy": "npx browser-sync start --proxy \"localhost:3006\" --tunnel studio"
   },
   "dependencies": {
-    "@api.stream/studio-kit": "^1.0.0",
+    "@api.stream/studio-kit": "file:../..",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },

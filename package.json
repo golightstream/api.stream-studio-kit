@@ -51,8 +51,6 @@
 		"watch:types": "tsc-watch -p ./tsconfig.json --declaration --skipLibCheck --emitDeclarationOnly --jsx react --esModuleInterop --outDir types"
 	},
 	"bundledDependencies": [
-		"@api.stream/studio-kit",
-		"@api.stream/protocol-layout-api",
 		"@api.stream/livekit-server-sdk"
 	],
 	"dependencies": {
@@ -83,8 +81,6 @@
 		"license-check-and-add": "^4.0.3",
 		"npm-run-all": "^4.1.5",
 		"prettier": "^2.2.1",
-		"react": "^18.0.0",
-		"react-dom": "^18.0.0",
 		"rollup-plugin-polyfill-node": "^0.7.0",
 		"tsc-alias": "^1.3.7",
 		"tsc-watch": "^4.5.0",
