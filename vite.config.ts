@@ -23,9 +23,6 @@ export default defineConfig({
   resolve: {},
   root: './',
   build: {
-    terserOptions: {
-      mangle: false,
-    },
     rollupOptions: {
       // Externalize deps that shouldn't be bundled
       external: ['react', 'react-dom'],

@@ -10,6 +10,6 @@ type Config = {
 const LOCAL_ENV: Config['env'] = 'stage'
 
 export default {
-  env: location.hostname === 'cloud.golightstream.com' ? 'prod' : LOCAL_ENV,
+  env: LOCAL_ENV,
   logLevel: 'Debug',
 } as Config
