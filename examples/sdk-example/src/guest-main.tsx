@@ -6,7 +6,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { GuestView } from './guest/guest'
 import { AppProvider } from './shared/context'
-import { Helpers } from '@golightstream/studio-sdk'
+import { Helpers } from '@api.stream/studio-kit'
 import url from '../logo.png'
 import './index.css'
 

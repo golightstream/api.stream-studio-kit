@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved. 
  * Licensed under the MIT License. See License.txt in the project root for license information. 
  * -------------------------------------------------------------------------------------------- */
-import { init, Helpers } from '@golightstream/studio-sdk'
+import { init, Helpers } from '@api.stream/studio-kit'
 
 export const DEFAULT_LAYOUT = 'Grid'
 

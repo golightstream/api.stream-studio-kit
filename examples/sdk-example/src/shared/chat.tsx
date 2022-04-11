@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information. 
  * -------------------------------------------------------------------------------------------- */
 import { useEffect, useRef, useState } from 'react'
-import { Helpers, SDK } from '@golightstream/studio-sdk'
+import { Helpers, SDK } from '@api.stream/studio-kit'
 import Style from './chat.module.css'
 
 const { useStudio } = Helpers.React

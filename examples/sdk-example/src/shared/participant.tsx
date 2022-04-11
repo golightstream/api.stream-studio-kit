@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved. 
  * Licensed under the MIT License. See License.txt in the project root for license information. 
  * -------------------------------------------------------------------------------------------- */
-import { Helpers, SDK } from '@golightstream/studio-sdk'
+import { Helpers, SDK } from '@api.stream/studio-kit'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppContext } from './context'
 import Style from './shared.module.css'

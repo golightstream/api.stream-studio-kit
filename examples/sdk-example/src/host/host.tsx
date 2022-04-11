@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information. 
  * -------------------------------------------------------------------------------------------- */
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { init, Helpers } from '@golightstream/studio-sdk'
+import { init, Helpers } from '@api.stream/studio-kit'
 import { Participants } from '../shared/participant'
 import Style from '../shared/shared.module.css'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'

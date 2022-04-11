@@ -13,3 +13,4 @@ db
 log.txt
 *.local
 docs/
+.npmrc
