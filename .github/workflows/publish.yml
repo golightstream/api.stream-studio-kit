@@ -1,0 +1,30 @@
+# ---------------------------------------------------------------------------------------------
+# Copyright (c) Infiniscene, Inc. All rights reserved.
+# Licensed under the MIT License. See License.txt in the project root for license information.
+# ---------------------------------------------------------------------------------------------
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - main
+
+name: Publish Package
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_NPM_AUTH_TOKEN }}" >> ~/.npmrc
+          echo "\"@golightstream:registry\"=https://npm.pkg.github.com" >> ~/.npmrc
+      - run: npm ci
+      - run: npm run build
+      - uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          access: public

@@ -1,0 +1,57 @@
+/* --------------------------------------------------------------------------------------------- 
+ * Copyright (c) Infiniscene, Inc. All rights reserved. 
+ * Licensed under the MIT License. See License.txt in the project root for license information. 
+ * -------------------------------------------------------------------------------------------- */
+.chatUsernameCell {
+  color: white;
+  font-weight: 700;
+}
+
+.chatTimeCell {
+  font-size: 9px;
+  margin-left: 6px;
+  opacity: 0.5;
+}
+
+.chatItem {
+  margin-bottom: 8px;
+}
+
+.chatTop {
+  display: flex;
+  align-items: baseline;
+}
+
+.scrollbox {
+  background: rgb(18, 18, 22);
+  height: 100px;
+  width: 100%;
+  overflow-y: scroll;
+  flex-grow: 1;
+  font-size: 13px;
+  padding: 12px;
+}
+
+.textarea {
+  width: 100%;
+  height: 60px;
+  font-family: sans-serif;
+  margin: 5px 0;
+  padding: 8px;
+  line-height: 1.2;
+  resize: none;
+}
+
+.chatbox {
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: flex-end;
+  height: 100%;
+  width: 300px;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 8px;
+}

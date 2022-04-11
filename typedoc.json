@@ -1,0 +1,20 @@
+{
+  "entryPoints": ["./src/index.ts"],
+  "customCss": "./docs.css",
+  "tsconfig": "./tsconfig.json",
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": false,
+  "readme": "README.md",
+  "sort": [
+    "kind",
+    "alphabetical"
+  ],
+  "plugin": ["@golightstream/typedoc-plugin-exclude-variables"],
+  "listInvalidSymbolLinks": true,
+  "entryPointStrategy": "expand",
+  "disableSources": true,
+  "name": "Lightstream Studio SDK",
+  "categoryOrder": ["Core", "WebRTC", "*"],
+  "includeVersion": true
+}
