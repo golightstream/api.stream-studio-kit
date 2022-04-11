@@ -1,6 +1,6 @@
-/* --------------------------------------------------------------------------------------------- 
- * Copyright (c) Infiniscene, Inc. All rights reserved. 
- * Licensed under the MIT License. See License.txt in the project root for license information. 
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { Helpers, SDK } from '@api.stream/studio-kit'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
@@ -137,7 +137,12 @@ export const ParticipantScreenshare = ({
   return (
     <div
       className={Style.column}
-      style={{ padding: 6, borderRadius: 3, background: 'rgba(0, 0, 0, 0.1)' }}
+      style={{
+        padding: 6,
+        borderRadius: 3,
+        background: '#000000cc',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+      }}
     >
       <div>{displayName} (Screen)</div>
       <div
