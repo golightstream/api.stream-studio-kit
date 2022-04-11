@@ -1,0 +1,50 @@
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * -------------------------------------------------------------------------------------------- */
+h4 {
+  margin: 1.33em 0 !important;
+  font-weight: bold !important;
+}
+h6 {
+  margin: 1.5em 0 0.8em !important;
+  opacity: 0.6 !important;
+  font-size: 0.9em !important;
+}
+.tsd-parameters .tsd-parameters {
+  font-weight: normal !important;
+  font-size: 14px !important;
+  margin-bottom: 1.5em !important;
+}
+.tsd-parameters .tsd-parameters .tsd-parameter h5 {
+  font-size: 14px !important;
+  opacity: 0.8 !important;
+  margin: 0.5em 0 0.5em !important;
+  font-weight: 500 !important;
+}
+.tsd-filter-group,
+.tsd-generator {
+  display: none !important;
+}
+.tsd-flag {
+  font-size: 12px !important;
+}
+.tsd-signature-type {
+  font-weight: 600 !important;
+}
+.tsd-navigation.primary .tsd-is-external {
+  text-transform: uppercase;
+  font-size: 11px;
+}
+.tsd-navigation.primary li.current > a {
+  opacity: 1;
+}
+
+[href='Lapi.html'],
+[href='Vapi.html'] {
+  opacity: 0.3;
+}
+[href='Lapi.html']:hover,
+[href='Vapi.html']:hover {
+  opacity: 0.5;
+}

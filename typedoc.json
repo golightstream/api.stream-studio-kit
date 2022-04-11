@@ -1,0 +1,21 @@
+{
+  "entryPoints": ["./src/index.ts"],
+  "customCss": "./docs.css",
+  "tsconfig": "./tsconfig.json",
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeExternals": false,
+  "readme": "README.md",
+  "sort": [
+    "kind",
+    "alphabetical"
+  ],
+  "plugin": ["@golightstream/typedoc-plugin-exclude-variables"],
+  "listInvalidSymbolLinks": true,
+  "entryPointStrategy": "expand",
+  "gitRemote": "https://github.com/golightstream/api.stream-studio-kit.git",
+  "disableSources": false,
+  "name": "Studio Kit",
+  "categoryOrder": ["Core", "WebRTC", "*"],
+  "includeVersion": true
+}

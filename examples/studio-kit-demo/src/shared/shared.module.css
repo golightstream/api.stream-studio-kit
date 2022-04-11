@@ -1,0 +1,14 @@
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * -------------------------------------------------------------------------------------------- */
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
