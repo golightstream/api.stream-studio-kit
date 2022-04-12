@@ -135,6 +135,9 @@ export const init = async (
       })
   }
 
+  /**
+   * Collection events from the Event API
+   */
   client.LiveApi().on(EventType.EVENT_TYPE_COLLECTION, (event, type) => {
     log.info('Received: Collection event', type, event)
     switch (type) {
@@ -145,6 +148,9 @@ export const init = async (
     }
   })
 
+  /**
+   * Destination events from the Event API
+   */
   client.LiveApi().on(EventType.EVENT_TYPE_DESTINATION, (event, type) => {
     log.info('Received: Destination event', type, event)
     switch (type) {
@@ -165,6 +171,9 @@ export const init = async (
     }
   })
 
+  /**
+   * Source events from the Event API
+   */
   client.LiveApi().on(EventType.EVENT_TYPE_SOURCE, (source, type) => {
     log.info('Received: Source event', type, source)
     switch (type) {
@@ -181,6 +190,9 @@ export const init = async (
     }
   })
 
+  /**
+   * Project events from the Event API
+   */
   client.LiveApi().on(EventType.EVENT_TYPE_PROJECT, (event, type) => {
     log.info('Received: Project event', type, event)
     switch (type) {
@@ -237,7 +249,10 @@ export const init = async (
     }
   })
 
-  // Listen for remote changes to Layout / nodes
+  /**
+   * Layout events from the Event API
+   * Listen for remote changes to nodes within a project.
+   **/ 
   client
     .LayoutApi()
     .on(LayoutApiModel.EventType.EVENT_TYPE_LAYER, (layer, type) => {

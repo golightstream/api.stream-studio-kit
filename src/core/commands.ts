@@ -121,8 +121,6 @@ export const updateProjectMeta = async (payload: {
     updateMask: ['metadata'],
     metadata,
   })
-
-  // Update state
   return metadata
 }
 
