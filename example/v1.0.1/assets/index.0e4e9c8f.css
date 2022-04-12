@@ -84,7 +84,7 @@
 
 @font-face {
   font-family: 'SpaceGrotesk';
-  src: local('../Font.ttf'), url(/studiosdk/v2/example/v1.0.1/assets/Font.aa515219.ttf) format('truetype');
+  src: local('../Font.ttf'), url(/studiokit/example/assets/Font.aa515219.ttf) format('truetype');
 }
 
 body {

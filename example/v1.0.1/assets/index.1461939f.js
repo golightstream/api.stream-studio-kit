@@ -53559,7 +53559,7 @@ var config = {
   env: LOCAL_ENV,
   logLevel: "Debug"
 };
-var url = "/studiosdk/v2/example/v1.0.1/assets/logo.eb248bd6.png";
+var url = "/studiokit/example/assets/logo.eb248bd6.png";
 var index = "";
 export { AppProvider as A, ControlPanel as C, DeviceSelection as D, Participants as P, ReactDOM as R, Style$1 as S, init as a, jsxs as b, Chat as c, config as d, Participant as e, index$1 as i, jsx as j, react$1 as r, url as u };
 //# sourceMappingURL=index.1461939f.js.map
