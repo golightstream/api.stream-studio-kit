@@ -1,18 +1,26 @@
 {
-    "ignore": ["*.md", ".prettierrc", "docs", "dist", "**/*.ttf"],
-    "license": "build/LICENSE.header.txt",
-    "licenseFormats": {
-		"js|ts|tsx|jsx|npmrc|css": {
-			"prepend": "",
-			"append": "",
-			"file": "build/LICENSE.header-formatted.txt"
-		},
-		"yml|yaml": {
-			"append": "",
-			"eachLine": {
-				"prepend": "# "
-			}
-		}
+  "ignore": [
+    "docs",
+    "dist",
+    "**/.prettierrc",
+    "**/*.md",
+    "**/*.ttf",
+    "**/*.woff",
+    "**/*.woff2"
+  ],
+  "license": "build/LICENSE.header.txt",
+  "licenseFormats": {
+    "js|ts|tsx|jsx|npmrc|css": {
+      "prepend": "",
+      "append": "",
+      "file": "build/LICENSE.header-formatted.txt"
     },
-    "trailingWhitespace": "TRIM"
+    "yml|yaml": {
+      "append": "",
+      "eachLine": {
+        "prepend": "# "
+      }
+    }
+  },
+  "trailingWhitespace": "TRIM"
 }
