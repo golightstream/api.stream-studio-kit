@@ -10,13 +10,9 @@ A browser-based JavaScript client for <a href="https://api.stream/">api.stream</
 npm install @golightstream/studio-sdk
 ```
 
-#### Demo
+#### Live Demo
 
-###### Live
 https://cloud.golightstream.com/studiosdk/v2/example/latest/
-
-###### Code
-https://github.com/golightstream/studio-sdk/tree/main/examples/sdk-example
 
 #### Quick start
 

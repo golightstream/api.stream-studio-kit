@@ -2,41 +2,26 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { CoreContext } from './context'
-import { Context } from './namespaces'
-import { getAccessTokenData, hydrateProject } from './data'
+/**
+ * Requests provide single-concern abstractions
+ *  over the various backend APIs (Layout/Live).
+ * 
+ * Not every external request is represented here. In some cases 
+ *  it is simpler to use the API SDK client interface directly.
+ */
+import { CoreContext, InternalProject, InternalUser } from './context'
+import { getAccessTokenData, getProject, getUser, hydrateProject } from './data'
 import { Helpers } from '.'
 import { Metadata } from './types'
 import { LiveApiModel } from '@api.stream/sdk'
 
-export const updateProject = async (request: {
-  collectionId: string
-  projectId: string
-  props?: Metadata
-}) => {
-  const { projectId, collectionId, props = {} } = request
-  const { project } = await CoreContext.clients.LiveApi().project.getProject({
-    collectionId,
-    projectId,
-  })
-  const metadata = project.metadata
-  const existingProps = metadata.props || {}
-  const newProps = { ...existingProps, ...props }
-  CoreContext.clients.LiveApi().project.updateProject({
-    collectionId: project.collectionId,
-    projectId: project.projectId,
-    updateMask: ['metadata'],
-    metadata: { layoutId: metadata.layoutId, props: newProps },
-  })
-}
-
 export const createProject = async (request: {
-  collectionId: string
   props?: { [prop: string]: any }
   meta?: Metadata // Arbitrary metadata (e.g. 'name')
   size?: { x: number; y: number }
   type?: 'sceneless' | 'freeform'
 }) => {
+  const collectionId = getUser().id
   const type = request.type || 'sceneless'
   const size = request.size || {
     x: 1280,
@@ -48,7 +33,7 @@ export const createProject = async (request: {
   let createProjectResponse = await CoreContext.clients
     .LiveApi()
     .project.createProject({
-      collectionId: request.collectionId,
+      collectionId,
       rendering: {
         video: {
           width: size.x,
@@ -86,7 +71,7 @@ export const createProject = async (request: {
   let projectResponse = await CoreContext.clients
     .LiveApi()
     .project.updateProject({
-      collectionId: request.collectionId,
+      collectionId,
       projectId: createProjectResponse.project.projectId,
       updateMask: ['metadata'],
       metadata,
@@ -114,7 +99,30 @@ export const createProject = async (request: {
   return createProjectResponse
 }
 
-export const loadProjects = async () => {
+export const deleteProject = async (request: { projectId: string }) => {
+  const { projectId } = request
+  const project = getProject(projectId)
+  const collectionId = getUser().id
+
+  await Promise.all([
+    CoreContext.clients.LiveApi().project.deleteProject({
+      collectionId,
+      projectId,
+    }),
+    CoreContext.clients.LayoutApi().layout.deleteLayout({
+      layoutId: project.layoutApi.layoutId,
+    }),
+  ])
+}
+
+/**
+ * Load the user data from whatever access token has been registered
+ *  with the API.
+ */
+export const loadUser = async (): Promise<{
+  user: InternalUser
+  projects: InternalProject[]
+}> => {
   const collections = await loadCollections()
 
   let collection: LiveApiModel.Collection
@@ -148,15 +156,16 @@ export const loadProjects = async () => {
   )
 
   return {
-    collectionId: collection.collectionId,
-    userProps: collection.metadata || {},
+    user: {
+      id: collection.collectionId,
+      props: collection.metadata || {},
+      name: displayName,
+    },
     projects,
   }
 }
 
 export const loadCollections = async () => {
-  let result = await CoreContext.clients
-    .LiveApi()
-    .collection.getCollections({})
+  let result = await CoreContext.clients.LiveApi().collection.getCollections({})
   return result.collections
 }

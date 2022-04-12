@@ -3,19 +3,19 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 /**
- * Events are emitted as a result of {@link Commands} or other 
+ * Events are emitted as a result of {@link Commands} or other
  * external forces, indicating that state should change.
- * 
+ *
  * **{@link EventMap}** for a full list of events.
- * 
+ *
  * Subscribe to events using {@link Studio.subscribe subscribe()} or {@link Studio.on on()}.
- * 
+ *
  * @module Events
  */
 
-import { Compositor, SDK } from './namespaces'
+import { SDK } from './namespaces'
 import { LiveApiModel } from '@api.stream/sdk'
-import { Disposable } from './types'
+import { Disposable, ProjectBroadcastPhase } from './types'
 import { log } from './context'
 
 let currentSubId = 0
@@ -25,14 +25,14 @@ function createSubscribe<Obj extends { [index: string]: any }>() {
   return function (
     cb: <Key extends keyof Obj>(
       name: Key,
-      /** 
+      /**
        * {payload} currently does not have type validation. Please refer to {@link EventMap}
-       * 
+       *
        * TODO: We'll have to change the format of this callback to { name, payload }
        *  in order to preserve type safety - in its current state payload: Obj[Key]
        *  resolves to a union of all possible payloads (effectively yielding "never")
        */
-      payload: any
+      payload: any,
     ) => void,
   ): Disposable {
     if (typeof cb !== 'function') return
@@ -89,6 +89,11 @@ export const subscribe = createSubscribe<EventMap>()
 /** @private */
 export const on = createOn<EventMap>()
 
+/** @private Global event bus */
+export const triggerInternal = createTrigger<InternalEventMap>()
+/** @private */
+export const subscribeInternal = createSubscribe<InternalEventMap>()
+
 /** @private */
 export type On = typeof on
 /** @private */
@@ -97,15 +102,22 @@ export type Subscribe = typeof subscribe
 export type Trigger = typeof trigger
 
 /**
- * A list of all events available for subscription.
- * 
+ * A list of all external events available for subscription.
+ *
  * Subscribe to events using {@link Studio.subscribe subscribe()} or {@link Studio.on on()}.
  */
 export interface EventMap {
   /**
    * @category User
+   * @local
    */
   UserLoaded: SDK.User
+  /**
+   * @category User
+   */
+  UserChanged: {
+    user: SDK.User
+  }
   /**
    * @category Project
    */
@@ -114,10 +126,18 @@ export interface EventMap {
   }
   /**
    * @category Project
+   * @private
+   * @deprecated Use ProjectChanged
    */
   ProjectMetaUpdated: {
     projectId: SDK.Project['id']
     meta: SDK.Metadata
+  }
+  /**
+   * @category Project
+   */
+  ProjectChanged: {
+    project: SDK.Project
   }
   /**
    * @category Project
@@ -127,6 +147,7 @@ export interface EventMap {
   }
   /**
    * @category Project
+   * @local
    */
   RoomJoined: {
     projectId: SDK.Project['id']
@@ -134,33 +155,10 @@ export interface EventMap {
   }
   /**
    * @category Project
+   * @local
    */
   ActiveProjectChanged: {
     projectId: SDK.Project['id']
-  }
-  /**
-   * @internal
-   * @category Node
-   */
-  NodeAdded: {
-    projectId: SDK.Project['id']
-    nodeId: Compositor.SceneNode['id']
-  }
-  /**
-   * @internal
-   * @category Node
-   */
-  NodeChanged: {
-    projectId: SDK.Project['id']
-    nodeId: Compositor.SceneNode['id']
-  }
-  /**
-   * @internal
-   * @category Node
-   */
-  NodeRemoved: {
-    projectId: SDK.Project['id']
-    nodeId: Compositor.SceneNode['id']
   }
   /**
    * @category Broadcast
@@ -197,6 +195,8 @@ export interface EventMap {
   }
   /**
    * @category Destination
+   * @private
+   * @deprecated Use DestinationChanged
    */
   DestinationEnabled: {
     projectId: SDK.Project['id']
@@ -204,6 +204,8 @@ export interface EventMap {
   }
   /**
    * @category Destination
+   * @private
+   * @deprecated Use DestinationChanged
    */
   DestinationDisabled: {
     projectId: SDK.Project['id']
@@ -212,18 +214,61 @@ export interface EventMap {
   /**
    * @category Destination
    */
-  DestinationUpdated: {
+  DestinationChanged: {
     projectId: SDK.Project['id']
-    destinationId: SDK.Destination['id']
-    rtmpUrl: string
-    rtmpKey: string
+    destination: SDK.Destination
   }
   /**
-   * @category Destination
+   * @category Source
    */
-  DestinationSet: {
-    projectId: SDK.Project['id']
-    rtmpUrl: string
-    rtmpKey: string
+  SourceAdded: {
+    source: SDK.Source
+  }
+  /**
+   * @category Source
+   */
+  SourceChanged: {
+    source: SDK.Source
+  }
+  /**
+   * @category Source
+   */
+  SourceRemoved: {
+    source: SDK.Source['id']
+  }
+}
+
+/**
+ * @private
+ * @internal
+ */
+export interface InternalEventMap {
+  UserChanged: LiveApiModel.Collection
+  ProjectAdded: LiveApiModel.Project
+  ProjectChanged: {
+    project: LiveApiModel.Project
+    phase: ProjectBroadcastPhase
+  }
+  ProjectRemoved: LiveApiModel.Project['projectId']
+  ActiveProjectChanged: {
+    projectId: LiveApiModel.Project['projectId']
+  }
+  DestinationAdded: LiveApiModel.Destination
+  DestinationChanged: LiveApiModel.Destination
+  DestinationRemoved: LiveApiModel.Destination['destinationId']
+  SourceAdded: LiveApiModel.Source
+  SourceChanged: LiveApiModel.Source
+  SourceRemoved: LiveApiModel.Source['sourceId']
+  NodeAdded: {
+    projectId: LiveApiModel.Project['projectId']
+    nodeId: SDK.SceneNode['id']
+  }
+  NodeChanged: {
+    projectId: LiveApiModel.Project['projectId']
+    nodeId: SDK.SceneNode['id']
+  }
+  NodeRemoved: {
+    projectId: LiveApiModel.Project['projectId']
+    nodeId: SDK.SceneNode['id']
   }
 }

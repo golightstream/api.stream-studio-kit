@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { init, Helpers } from '@api.stream/studio-kit'
+import { init, Helpers, SDK } from '@api.stream/studio-kit'
 import { Participants } from '../shared/participant'
 import Style from '../shared/shared.module.css'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
@@ -103,6 +103,7 @@ const Project = () => {
   const [previewUrl, setPreviewUrl] = useState('')
   const [guestUrl, setGuestUrl] = useState('')
   const [isLive, setIsLive] = useState(false)
+  const [pendingLive, setPendingLive] = useState(false)
 
   // Get custom layout name from metadata we store
   const layout = project.props.layout
@@ -113,8 +114,14 @@ const Project = () => {
     return project.subscribe((event, payload) => {
       if (event === 'BroadcastStarted') {
         setIsLive(true)
+        setPendingLive(false)
       } else if (event === 'BroadcastStopped') {
         setIsLive(false)
+        setPendingLive(false)
+      } else if (event === 'BroadcastError') {
+        console.warn('Broadcast error:', payload.error)
+        setIsLive(false)
+        setPendingLive(false)
       }
     })
   }, [])
@@ -122,7 +129,9 @@ const Project = () => {
   // Generate project links
   useEffect(() => {
     studio.createPreviewLink().then(setPreviewUrl)
-    studio.createGuestLink(getUrl() + 'guest/').then(setGuestUrl)
+    studio
+      .createGuestLink(getUrl() + 'guest/', { role: SDK.Role.ROLE_GUEST })
+      .then(setGuestUrl)
   }, [])
 
   useEffect(() => {
@@ -172,6 +181,7 @@ const Project = () => {
         >
           {!isLive ? (
             <button
+              disabled={pendingLive}
               onClick={async () => {
                 await Command.setDestination({
                   projectId: project.id,
@@ -181,6 +191,7 @@ const Project = () => {
                 Command.startBroadcast({
                   projectId: project.id,
                 })
+                setPendingLive(true)
               }}
             >
               Go Live
@@ -191,6 +202,7 @@ const Project = () => {
                 Command.stopBroadcast({
                   projectId: project.id,
                 })
+                setPendingLive(true)
               }}
             >
               End broadcast
@@ -246,10 +258,7 @@ const Project = () => {
               ))}
             </select>
           </div>
-          <div
-            ref={renderContainer}
-            style={{ width: 840, height: 500 }}
-          ></div>
+          <div ref={renderContainer} style={{ width: 840, height: 500 }}></div>
           <div className={Style.row}>
             <DeviceSelection />
             <div

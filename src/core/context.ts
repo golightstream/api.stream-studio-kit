@@ -4,9 +4,15 @@
  * -------------------------------------------------------------------------------------------- */
 import config from '../../config'
 import type { ApiStream, LiveApiModel } from '@api.stream/sdk'
-import type { Request, Command, Compositor } from './namespaces'
-import { LogLevel, Metadata } from './types'
-import { on, subscribe, trigger } from './events'
+import type { Request, Command, Compositor, SDK } from './namespaces'
+import { Disposable, LogLevel, Metadata } from './types'
+import {
+  on,
+  subscribe,
+  subscribeInternal,
+  trigger,
+  triggerInternal,
+} from './events'
 import log from 'loglevel'
 
 const connectionId = (Math.random() * 1e20).toString(36)
@@ -25,6 +31,8 @@ export const CoreContext = {
   Command: {} as typeof Command,
   /** @private @internal */
   trigger,
+  /** @private @internal */
+  triggerInternal,
   state: {} as AppState,
   connectionId,
   version,
@@ -34,9 +42,6 @@ export const CoreContext = {
 
 export { log }
 
-// @ts-ignore
-window.LS_trigger = CoreContext.trigger
-
 export const setAppState = (state: AppState) => {
   Object.keys(state).forEach((name: keyof AppState) => {
     // @ts-ignore
@@ -44,12 +49,13 @@ export const setAppState = (state: AppState) => {
   })
 }
 
-export type User = {
+export type InternalUser = {
+  id: string
   name: string
   props: Metadata
 }
 
-export type Project = {
+export type InternalProject = {
   // ID comes from vapi
   id: string
   compositor: Compositor.Project
@@ -70,9 +76,10 @@ export type Project = {
 }
 
 export type AppState = {
-  user: User
-  projects: Project[]
-  collectionId: string
+  user: InternalUser
+  projects: InternalProject[]
+  // TODO: InternalSources[]
+  sources: any[]
   activeProjectId: string
   accessToken?: string
 }

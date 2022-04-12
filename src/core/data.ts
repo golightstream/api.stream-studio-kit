@@ -11,11 +11,24 @@ import { getRoom } from './webrtc/simple-room'
 const { state } = CoreContext
 
 export const getAccessTokenData = () => {
-  // @ts-ignore Type not exposed by Lighstream API
+  // @ts-ignore Type not exposed by API
   return CoreContext.clients.accessTokenClaims?.user
 }
 
-export const toBaseProject = (project: Context.Project): SDK.Project => {
+// Pulls the external User from internal state
+export const getBaseUser = (): SDK.User => {
+  if (!state.user) return null
+  const projects = state.projects.map(toBaseProject)
+
+  return {
+    ...state.user,
+    projects,
+    // TODO:
+    sources: [],
+  }
+}
+
+export const toBaseProject = (project: Context.InternalProject): SDK.Project => {
   const { compositor, videoApi, props } = project
   const { destinations, encoding, rendering, sources } = videoApi.project
 
@@ -30,7 +43,12 @@ export const toBaseProject = (project: Context.Project): SDK.Project => {
     },
   })
 
+  // TODO: Check project root node type and extend functionality
+  //  e.g. ScenelessProject
+
   return {
+    // TODO: Pull from Video API reseponse
+    state: null,
     scene: scene as SDK.Scene,
     joinRoom: async (settings = {}) => {
       return CoreContext.Command.joinRoom({
@@ -89,7 +107,7 @@ export const hydrateProject = async (project: LiveApiModel.Project) => {
       layoutId: metadata.layoutId,
     },
     props: metadata,
-  } as Context.Project
+  } as Context.InternalProject
 }
 
 export const sceneNodeToLayer = (
@@ -158,12 +176,22 @@ export const layoutToProject = async (
  * Queries
  */
 
-export const getProjectByLayoutId = (id: string) => {
-  return state.projects.find((x) => x.compositor.id === id)
+export const getUser = () => {
+  const user = state.user
+  if (!user) {
+    // If we try to get the user and they don't exist,
+    //  it's fair to assume we are in an unexpected situation.
+    throw new Error('User not loaded')
+  }
+  return user
 }
 
 export const getProject = (id: string) => {
   return state.projects.find((x) => x.id === id)
+}
+
+export const getProjectByLayoutId = (id: string) => {
+  return state.projects.find((x) => x.compositor.id === id)
 }
 
 export const getProjectRoom = (id: string) => {
