@@ -1,6 +1,6 @@
-/* --------------------------------------------------------------------------------------------- 
- * Copyright (c) Infiniscene, Inc. All rights reserved. 
- * Licensed under the MIT License. See License.txt in the project root for license information. 
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { useContext, useEffect, useRef, useState } from 'react'
 import { init, Helpers, SDK } from '@api.stream/studio-kit'

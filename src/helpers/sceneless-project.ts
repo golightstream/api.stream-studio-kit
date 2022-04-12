@@ -1,6 +1,6 @@
-/* --------------------------------------------------------------------------------------------- 
- * Copyright (c) Infiniscene, Inc. All rights reserved. 
- * Licensed under the MIT License. See License.txt in the project root for license information. 
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 /**
  * Create and manage a project with a {@link ScenelessProject.Commands simple and opinionated interface}.

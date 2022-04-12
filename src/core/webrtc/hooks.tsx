@@ -1,6 +1,6 @@
-/* --------------------------------------------------------------------------------------------- 
- * Copyright (c) Infiniscene, Inc. All rights reserved. 
- * Licensed under the MIT License. See License.txt in the project root for license information. 
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useCallback, useState, useEffect, useReducer, useContext } from 'react'
 import { RoomContext, LSRoomContext, SpecialEvent, ChatObject } from './room-context'
