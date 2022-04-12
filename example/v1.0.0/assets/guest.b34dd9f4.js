@@ -1,4 +1,4 @@
-import { i as index, r as react, a as init, j as jsx, b as jsxs, S as Style, D as DeviceSelection, e as Participant, c as Chat, C as ControlPanel, d as config, R as ReactDOM, u as url, A as AppProvider } from "./index.449122c9.js";
+import { i as index, r as react, a as init, j as jsx, b as jsxs, S as Style, D as DeviceSelection, e as Participant, c as Chat, C as ControlPanel, d as config, R as ReactDOM, u as url, A as AppProvider } from "./index.b204158e.js";
 const {
   Room
 } = index;
@@ -203,4 +203,4 @@ const Content = () => {
   });
 };
 ReactDOM.render(/* @__PURE__ */ jsx(Content, {}), document.getElementById("root"));
-//# sourceMappingURL=guest.718ea706.js.map
+//# sourceMappingURL=guest.b34dd9f4.js.map

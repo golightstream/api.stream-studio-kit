@@ -53191,8 +53191,8 @@ const AppProvider = ({
     children
   });
 };
-const column = "_column_41rdh_5";
-const row = "_row_41rdh_11";
+const column = "_column_xzlw3_5";
+const row = "_row_xzlw3_11";
 var Style$1 = {
   column,
   row
@@ -53606,14 +53606,14 @@ const ControlPanel = () => {
     })]
   });
 };
-const chatUsernameCell = "_chatUsernameCell_i6o4j_5";
-const chatTimeCell = "_chatTimeCell_i6o4j_10";
-const chatItem = "_chatItem_i6o4j_16";
-const chatTop = "_chatTop_i6o4j_20";
-const scrollbox = "_scrollbox_i6o4j_25";
-const textarea = "_textarea_i6o4j_35";
-const chatbox = "_chatbox_i6o4j_45";
-const emptyMessage = "_emptyMessage_i6o4j_54";
+const chatUsernameCell = "_chatUsernameCell_ooyxe_5";
+const chatTimeCell = "_chatTimeCell_ooyxe_10";
+const chatItem = "_chatItem_ooyxe_16";
+const chatTop = "_chatTop_ooyxe_20";
+const scrollbox = "_scrollbox_ooyxe_25";
+const textarea = "_textarea_ooyxe_35";
+const chatbox = "_chatbox_ooyxe_45";
+const emptyMessage = "_emptyMessage_ooyxe_54";
 var Style = {
   chatUsernameCell,
   chatTimeCell,
@@ -53713,4 +53713,4 @@ var config = {
 var url = "/studiosdk/v2/example/v1.0.0/assets/logo.eb248bd6.png";
 var index = "";
 export { AppProvider as A, ControlPanel as C, DeviceSelection as D, Participants as P, ReactDOM as R, Style$1 as S, init as a, jsxs as b, Chat as c, config as d, Participant as e, index$1 as i, jsx as j, react$1 as r, url as u };
-//# sourceMappingURL=index.449122c9.js.map
+//# sourceMappingURL=index.b204158e.js.map

@@ -1,42 +1,42 @@
-/* --------------------------------------------------------------------------------------------- 
- * Copyright (c) Infiniscene, Inc. All rights reserved. 
- * Licensed under the MIT License. See License.txt in the project root for license information. 
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-._column_41rdh_5 {
+._column_xzlw3_5 {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
-._row_41rdh_11 {
+._row_xzlw3_11 {
   display: flex;
   flex-direction: row;
 }
-/* --------------------------------------------------------------------------------------------- 
- * Copyright (c) Infiniscene, Inc. All rights reserved. 
- * Licensed under the MIT License. See License.txt in the project root for license information. 
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-._chatUsernameCell_i6o4j_5 {
+._chatUsernameCell_ooyxe_5 {
   color: white;
   font-weight: 700;
 }
 
-._chatTimeCell_i6o4j_10 {
+._chatTimeCell_ooyxe_10 {
   font-size: 9px;
   margin-left: 6px;
   opacity: 0.5;
 }
 
-._chatItem_i6o4j_16 {
+._chatItem_ooyxe_16 {
   margin-bottom: 8px;
 }
 
-._chatTop_i6o4j_20 {
+._chatTop_ooyxe_20 {
   display: flex;
   align-items: baseline;
 }
 
-._scrollbox_i6o4j_25 {
+._scrollbox_ooyxe_25 {
   background: rgb(18, 18, 22);
   height: 100px;
   width: 100%;
@@ -46,7 +46,7 @@
   padding: 12px;
 }
 
-._textarea_i6o4j_35 {
+._textarea_ooyxe_35 {
   width: 100%;
   height: 60px;
   font-family: sans-serif;
@@ -56,7 +56,7 @@
   resize: none;
 }
 
-._chatbox_i6o4j_45 {
+._chatbox_ooyxe_45 {
   display: flex;
   flex-direction: column;
   justify-content: stretch;
@@ -65,13 +65,13 @@
   width: 300px;
 }
 
-._emptyMessage_i6o4j_54 {
+._emptyMessage_ooyxe_54 {
   text-align: center;
   padding: 8px;
 }
-/* --------------------------------------------------------------------------------------------- 
- * Copyright (c) Infiniscene, Inc. All rights reserved. 
- * Licensed under the MIT License. See License.txt in the project root for license information. 
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 :root {
   --dark: #1d1e26;
@@ -84,7 +84,7 @@
 
 @font-face {
   font-family: 'SpaceGrotesk';
-  src: local('../Font.ttf'), url(/studiosdk/v2/example/v1.0.0/assets/Font.aa515219.ttf) format('truetype');
+  src: local('../Font.ttf'), url(/studiosdk/v2/example/v1.0.0/assets/Font.ccfbc240.ttf) format('truetype');
 }
 
 body {
