@@ -7079,9 +7079,9 @@ var loglevel = { exports: {} };
         if (typeof storedLevel === undefinedType) {
           try {
             var cookie = window.document.cookie;
-            var location2 = cookie.indexOf(encodeURIComponent(storageKey) + "=");
-            if (location2 !== -1) {
-              storedLevel = /^([^;]+)/.exec(cookie.slice(location2))[1];
+            var location = cookie.indexOf(encodeURIComponent(storageKey) + "=");
+            if (location !== -1) {
+              storedLevel = /^([^;]+)/.exec(cookie.slice(location))[1];
             }
           } catch (ignore) {
           }
@@ -53327,7 +53327,8 @@ const ParticipantScreenshare = ({
     style: {
       padding: 6,
       borderRadius: 3,
-      background: "rgba(0, 0, 0, 0.1)"
+      background: "#000000cc",
+      border: "1px solid rgba(255, 255, 255, 0.2)"
     },
     children: [/* @__PURE__ */ jsxs("div", {
       children: [displayName, " (Screen)"]
@@ -53706,10 +53707,10 @@ const Chat = () => {
 };
 const LOCAL_ENV = "stage";
 var config = {
-  env: location.hostname === "cloud.golightstream.com" ? "prod" : LOCAL_ENV,
+  env: LOCAL_ENV,
   logLevel: "Debug"
 };
 var url = "/studiosdk/v2/example/v1.0.0/assets/logo.eb248bd6.png";
 var index = "";
 export { AppProvider as A, ControlPanel as C, DeviceSelection as D, Participants as P, ReactDOM as R, Style$1 as S, init as a, jsxs as b, Chat as c, config as d, Participant as e, index$1 as i, jsx as j, react$1 as r, url as u };
-//# sourceMappingURL=index.9f60308d.js.map
+//# sourceMappingURL=index.449122c9.js.map

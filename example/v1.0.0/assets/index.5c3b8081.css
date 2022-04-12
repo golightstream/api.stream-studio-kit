@@ -113,8 +113,9 @@ input[type='text'] {
   border: none;
   height: 26px;
   padding: 0 5px;
-  background: var(--medium);
   color: var(--white);
+  border: 1px solid var(--light);
+  background: var(--dark);
 }
 
 textarea::placeholder {
