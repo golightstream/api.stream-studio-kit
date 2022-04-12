@@ -13,7 +13,7 @@
 
 @font-face {
   font-family: 'SpaceGrotesk';
-  src: local('../Font.ttf'), url(../Font.ttf) format('truetype');
+  src: url(../Font.ttf) format('truetype');
 }
 
 body {
@@ -109,6 +109,10 @@ button {
   height: 24px;
   border: none;
   cursor: pointer;
+}
+button[disabled] {
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 #header {

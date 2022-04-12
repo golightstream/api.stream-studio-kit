@@ -9,7 +9,6 @@ import { AppProvider } from './shared/context'
 import { Helpers } from '@api.stream/studio-kit'
 import url from '../logo.png'
 import './index.css'
-import '../Font.ttf'
 
 const StudioProvider = Helpers.React.StudioProvider
 
