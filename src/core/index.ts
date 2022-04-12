@@ -313,14 +313,9 @@ export const init = async (
       'state',
       'trigger',
     ]),
-    createDemoToken: async (options) => {
-      const response = await client
-        .LiveApi()
-        .publicAuthentication.createDemoAccessToken({
-          serviceName: options.serviceName,
-          serviceUserId: options.userId,
-        })
-      return response.accessToken
+    createDemoToken: async () => {
+      console.warn('createDemoToken() is currently unavailable.')
+      return ''
     },
     createPreviewLink: async (request = {}) => {
       const { maxDuration, projectId = CoreContext.state.activeProjectId } =

@@ -538,6 +538,7 @@ export const addDestination = async (payload: {
     projectId,
     destination,
   })
+  return destination
 }
 
 /**
