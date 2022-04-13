@@ -7,12 +7,18 @@ import { toSceneTree } from '../logic'
 import { Context, SDK, Compositor } from './namespaces'
 import { LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
 import { getRoom } from './webrtc/simple-room'
+import decode from 'jwt-decode'
 
 const { state } = CoreContext
 
 export const getAccessTokenData = () => {
   // @ts-ignore Type not exposed by Lighstream API
-  return CoreContext.clients.accessTokenClaims?.user
+  const { user } = decode(CoreContext.clients.LiveApi().accessToken) || {}
+  return {
+    displayName: user?.name,
+    serviceName: user?.serviceName,
+    serviceUserId: user?.serviceUserId,
+  }
 }
 
 export const toBaseProject = (project: Context.Project): SDK.Project => {
