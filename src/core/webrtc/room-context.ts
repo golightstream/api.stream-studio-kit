@@ -2,8 +2,20 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { connect, ParticipantEvent, Room, RoomEvent, Participant, DataPacket_Kind, ConnectOptions, AudioTrack, RoomState, RemoteParticipant } from 'livekit-client'
-import { LiveKitServer, ApiStream, LiveKitUtils } from '@api.stream/sdk'
+import {
+  connect,
+  ParticipantEvent,
+  Room,
+  RoomEvent,
+  Participant,
+  DataPacket_Kind,
+  ConnectOptions,
+  AudioTrack,
+  RoomState,
+  RemoteParticipant,
+} from 'livekit-client'
+import { ApiStream, LiveKitUtils } from '@api.stream/sdk'
+import * as LiveKitServer from '@api.stream/livekit-server-sdk'
 import decode from 'jwt-decode'
 import { log } from '../context'
 export * as Livekit from 'livekit-client'
@@ -12,7 +24,7 @@ export * as Livekit from 'livekit-client'
  * Types of data messages that are sent/received via websocket
  */
 enum DataType {
-  ChatMessage = 'ChatMessage'
+  ChatMessage = 'ChatMessage',
 }
 
 /**
@@ -20,7 +32,7 @@ enum DataType {
  */
 export enum SpecialEvent {
   /** Chat event listener is of type (x: ChatObject) => void */
-  Chat = 'Chat'
+  Chat = 'Chat',
 }
 
 /**
@@ -73,10 +85,8 @@ export interface ChatObject extends ChatDataObject {
   displayName: string
 }
 
-
 const decoder = new TextDecoder()
 const encoder = new TextEncoder()
-
 
 /**
  * RoomsManager is essentially a singleton for accessing all livekit rooms
@@ -111,7 +121,7 @@ export interface LSRoomContext {
   bindApiClient: (client: ApiStream) => void
   connect: (options?: ConnectOptions) => Promise<Room>
   /**
-   * Array of chat messages in ascending chronological order 
+   * Array of chat messages in ascending chronological order
    */
   chatHistory: ChatObject[]
   /**
@@ -120,7 +130,11 @@ export interface LSRoomContext {
    * Only specify for private messages.
    * Do not include the local participant's identity in this.
    */
-  sendChatMessage(data: { message:  string, recipients?: string[], metadata?: object | string }): void
+  sendChatMessage(data: {
+    message: string
+    recipients?: string[]
+    metadata?: object | string
+  }): void
   /**
    * Is the localParticipant a room admin?
    */
@@ -150,21 +164,30 @@ export interface LSRoomContext {
    * @param {RoomEvent} evt the room event
    * @param listener event listener to be called
    */
-  subscribeToRoomEvent(evt: RoomEvent, listener: (...args: any[]) => void): () => void
+  subscribeToRoomEvent(
+    evt: RoomEvent,
+    listener: (...args: any[]) => void,
+  ): () => void
   /**
    * Subscribe to a local participant event event. Returns a function that will unsubscribe from the event when invoked.
    * Use this method because it is safe to use even if room does not exist yet.
    * @param {ParticipantEvent} evt the local participant event
    * @param listener event listener to be called
    */
-  subscribeToLocalParticipantEvent(evt: string, listener: (...args: any[]) => void): () => void
+  subscribeToLocalParticipantEvent(
+    evt: string,
+    listener: (...args: any[]) => void,
+  ): () => void
   /**
    * Subscribe to a special event event such as a chat event. Returns a function that will unsubscribe from the event when invoked.
    * Use this method because it is safe to use even if room does not exist yet.
    * @param {string} evt the local participant event
    * @param listener event listener to be called
    */
-  subscribeToSpecialEvent(evt: SpecialEvent, listener: (...args: any[]) => void): () => void
+  subscribeToSpecialEvent(
+    evt: SpecialEvent,
+    listener: (...args: any[]) => void,
+  ): () => void
 
   /**
    * should be the same as the sfu token
@@ -181,21 +204,30 @@ export interface LSRoomContext {
    * @param {RoomEvent} evt the room event
    * @param listener event listener to be removed
    */
-  unsubscribeFromRoomEvent(evt: RoomEvent, listener: (...args: any[]) => void): void
+  unsubscribeFromRoomEvent(
+    evt: RoomEvent,
+    listener: (...args: any[]) => void,
+  ): void
   /**
    * Unsubscribe from a local participant event
    * Use this method because it is safe to use even if room does not exist yet.
    * @param {ParticipantEvent} evt the room event right now there is only 'Chat'
    * @param listener event listener to be removed
    */
-  unsubscribeFromLocalParticipantEvent(evt: string, listener: (...args: any[]) => void): void
+  unsubscribeFromLocalParticipantEvent(
+    evt: string,
+    listener: (...args: any[]) => void,
+  ): void
   /**
    * Unsubscribe from a speceal event
    * Use this method because it is safe to use even if room does not exist yet.
    * @param {SpecialEvent} evt the room event right now there is only 'Chat'
    * @param listener event listener to be removed
    */
-  unsubscribeFromSpecialEvent(evt: SpecialEvent, listener: (...args: any[]) => void): void
+  unsubscribeFromSpecialEvent(
+    evt: SpecialEvent,
+    listener: (...args: any[]) => void,
+  ): void
 }
 
 /**
@@ -300,7 +332,12 @@ export class RoomContext implements LSRoomContext {
    * @param baseUrl base url for the webrtc server
    * @param token get
    */
-  constructor(baseUrl: string, roomName: string, token: string, manager: IRoomsManager) {
+  constructor(
+    baseUrl: string,
+    roomName: string,
+    token: string,
+    manager: IRoomsManager,
+  ) {
     this._baseUrl = baseUrl
     this._connectListeners = []
     this._roomEventListenerRegistry = {}
@@ -319,42 +356,69 @@ export class RoomContext implements LSRoomContext {
     this.audioTracks = []
     this.participants = []
     this.isConnecting = false
-    this.subscribeToRoomEvent(RoomEvent.DataReceived, (payload: Uint8Array, participant: Participant, kind: DataPacket_Kind) => {
-      const strData = decoder.decode(payload)
-      const data: DataObject = JSON.parse(strData)
-      switch (data.type) {
-        case DataType.ChatMessage: {
-          return this._appendChat(payload, participant, kind)
+    this.subscribeToRoomEvent(
+      RoomEvent.DataReceived,
+      (
+        payload: Uint8Array,
+        participant: Participant,
+        kind: DataPacket_Kind,
+      ) => {
+        const strData = decoder.decode(payload)
+        const data: DataObject = JSON.parse(strData)
+        switch (data.type) {
+          case DataType.ChatMessage: {
+            return this._appendChat(payload, participant, kind)
+          }
+          default:
+            return
         }
-        default:
-          return
-      }
-    })
-
+      },
+    )
 
     // Bind instance methods
 
     this.connect = this.connect.bind(this)
     this.subscribeToRoomEvent = this.subscribeToRoomEvent.bind(this)
     this.subscribeToConnect = this.subscribeToConnect.bind(this)
-    this.subscribeToLocalParticipantEvent = this.subscribeToLocalParticipantEvent.bind(this)
+    this.subscribeToLocalParticipantEvent =
+      this.subscribeToLocalParticipantEvent.bind(this)
     this.subscribeToSpecialEvent = this.subscribeToSpecialEvent.bind(this)
     this.unsubscribeFromRoomEvent = this.unsubscribeFromRoomEvent.bind(this)
-    this.unsubscribeFromSpecialEvent = this.unsubscribeFromSpecialEvent.bind(this)
+    this.unsubscribeFromSpecialEvent =
+      this.unsubscribeFromSpecialEvent.bind(this)
     this.unsubscribeFromConnect = this.unsubscribeFromConnect.bind(this)
-    this.unsubscribeFromLocalParticipantEvent = this.unsubscribeFromLocalParticipantEvent.bind(this)
+    this.unsubscribeFromLocalParticipantEvent =
+      this.unsubscribeFromLocalParticipantEvent.bind(this)
     this.sendChatMessage = this.sendChatMessage.bind(this)
     this.kickParticipant = this.kickParticipant.bind(this)
     this.muteTrackAsAdmin = this.muteTrackAsAdmin.bind(this)
     this._updateParticipants = this._updateParticipants.bind(this)
 
     // Permanently watch for updates to participants
-    this.subscribeToRoomEvent(RoomEvent.ParticipantConnected, this._updateParticipants)
-    this.subscribeToRoomEvent(RoomEvent.ParticipantDisconnected, this._updateParticipants)
-    this.subscribeToRoomEvent(RoomEvent.TrackSubscribed, this._updateParticipants)
-    this.subscribeToRoomEvent(RoomEvent.TrackUnsubscribed, this._updateParticipants)
-    this.subscribeToRoomEvent(RoomEvent.LocalTrackPublished, this._updateParticipants)
-    this.subscribeToRoomEvent(RoomEvent.LocalTrackUnpublished, this._updateParticipants)
+    this.subscribeToRoomEvent(
+      RoomEvent.ParticipantConnected,
+      this._updateParticipants,
+    )
+    this.subscribeToRoomEvent(
+      RoomEvent.ParticipantDisconnected,
+      this._updateParticipants,
+    )
+    this.subscribeToRoomEvent(
+      RoomEvent.TrackSubscribed,
+      this._updateParticipants,
+    )
+    this.subscribeToRoomEvent(
+      RoomEvent.TrackUnsubscribed,
+      this._updateParticipants,
+    )
+    this.subscribeToRoomEvent(
+      RoomEvent.LocalTrackPublished,
+      this._updateParticipants,
+    )
+    this.subscribeToRoomEvent(
+      RoomEvent.LocalTrackUnpublished,
+      this._updateParticipants,
+    )
     this.subscribeToRoomEvent(RoomEvent.Disconnected, () => {
       this.livekitRoom.removeAllListeners()
       this.livekitRoom = null
@@ -388,8 +452,7 @@ export class RoomContext implements LSRoomContext {
     return this._baseUrl
   }
 
-  set url(value: string) {
-  }
+  set url(value: string) {}
 
   get chatHistory() {
     return this._chatHistory
@@ -400,7 +463,10 @@ export class RoomContext implements LSRoomContext {
   }
 
   private _updateParticipants() {
-    if (!this.livekitRoom || this.livekitRoom.state === RoomState.Disconnected) {
+    if (
+      !this.livekitRoom ||
+      this.livekitRoom.state === RoomState.Disconnected
+    ) {
       this.participants = []
       return
     } else {
@@ -408,10 +474,8 @@ export class RoomContext implements LSRoomContext {
       const parts = [this.livekitRoom.localParticipant] as Participant[]
       parts.push(...remotes)
       this.participants = parts
-
     }
   }
-
 
   /**
    * @param identity Identity of the user that you wish to kick
@@ -426,16 +490,27 @@ export class RoomContext implements LSRoomContext {
 
   muteTrackAsAdmin(trackSid: string) {
     if (this._admin) {
-      const participant = this.participants.find(p => (
-        Array.from(p.audioTracks.values()).find(pub => pub.trackSid === trackSid)
-      ))
-      this._admin.mutePublishedTrack(this.roomName, participant?.identity, trackSid, true)
+      const participant = this.participants.find((p) =>
+        Array.from(p.audioTracks.values()).find(
+          (pub) => pub.trackSid === trackSid,
+        ),
+      )
+      this._admin.mutePublishedTrack(
+        this.roomName,
+        participant?.identity,
+        trackSid,
+        true,
+      )
     } else {
       throw new Error('no admin permissions')
     }
   }
 
-  private _appendChat(payload: Uint8Array, participant: Participant, kind: DataPacket_Kind) {
+  private _appendChat(
+    payload: Uint8Array,
+    participant: Participant,
+    kind: DataPacket_Kind,
+  ) {
     const strData = decoder.decode(payload)
     const data: ChatDataObject = JSON.parse(strData)
     const sender = participant.identity
@@ -445,10 +520,7 @@ export class RoomContext implements LSRoomContext {
       displayName,
       sender,
     }
-    this.chatHistory = [
-      ...this.chatHistory,
-      fullData,
-    ]
+    this.chatHistory = [...this.chatHistory, fullData]
     this._triggerSpecialEvents(SpecialEvent.Chat, fullData)
   }
 
@@ -458,10 +530,15 @@ export class RoomContext implements LSRoomContext {
   }
 
   unsubscribeFromConnect(listener: (room: Room) => void) {
-    this._connectListeners = this._connectListeners.filter(cb => cb !== listener)
+    this._connectListeners = this._connectListeners.filter(
+      (cb) => cb !== listener,
+    )
   }
 
-  subscribeToSpecialEvent(evt: SpecialEvent, listener: (...args: any[]) => void) {
+  subscribeToSpecialEvent(
+    evt: SpecialEvent,
+    listener: (...args: any[]) => void,
+  ) {
     if (!this._specialEventListenerRegistry[evt]) {
       this._specialEventListenerRegistry[evt] = new Set()
     }
@@ -471,7 +548,10 @@ export class RoomContext implements LSRoomContext {
     }
   }
 
-  unsubscribeFromSpecialEvent(evt: SpecialEvent, listener: (...args: any[]) => void) {
+  unsubscribeFromSpecialEvent(
+    evt: SpecialEvent,
+    listener: (...args: any[]) => void,
+  ) {
     if (!this._specialEventListenerRegistry[evt]) {
       this._specialEventListenerRegistry[evt] = new Set()
     }
@@ -507,30 +587,35 @@ export class RoomContext implements LSRoomContext {
       // Bind registered events to the webrtc room
       Object.values(RoomEvent).forEach((eventName) => {
         this.livekitRoom.on(eventName, (...args: any[]) => {
-          this._roomEventListenerRegistry[eventName]
-            .forEach((cb) => {
-              cb(...args)
-            })
+          this._roomEventListenerRegistry[eventName].forEach((cb) => {
+            cb(...args)
+          })
         })
       })
 
       // Bind registered eventws to the localParticipant
       Object.values(ParticipantEvent).forEach((eventName) => {
         this.livekitRoom.localParticipant.on(eventName, (...args: any[]) => {
-          this._localParticipantEventListenerRegistry[eventName]
-            .forEach((cb) => {
+          this._localParticipantEventListenerRegistry[eventName].forEach(
+            (cb) => {
               cb(...args)
-            })
+            },
+          )
         })
       })
 
       this._updateParticipants()
-      this._connectListeners.forEach(cb => cb(this.livekitRoom))
+      this._connectListeners.forEach((cb) => cb(this.livekitRoom))
 
       if (LiveKitUtils.isRoomAdmin(this._jwt)) {
         log.info('Room: Granting admin permissions')
         log.debug('Livekit server: ', this._apiClient?.getLiveKitServer())
-        this._admin = new LiveKitServer.RoomServiceClient(this._apiClient?.getLiveKitServer(), undefined, undefined, this._jwt)
+        this._admin = new LiveKitServer.RoomServiceClient(
+          this._apiClient?.getLiveKitServer(),
+          undefined,
+          undefined,
+          this._jwt,
+        )
       } else {
         log.debug('Room: Not an admin')
       }
@@ -542,9 +627,14 @@ export class RoomContext implements LSRoomContext {
     }
   }
 
-  subscribeToLocalParticipantEvent(evt: string, listener: (...args: any[]) => void): () => void {
+  subscribeToLocalParticipantEvent(
+    evt: string,
+    listener: (...args: any[]) => void,
+  ): () => void {
     if (!this._localParticipantEventListenerRegistry[evt]) {
-      this._localParticipantEventListenerRegistry[evt] = new Set<(...args: any[]) => void>()
+      this._localParticipantEventListenerRegistry[evt] = new Set<
+        (...args: any[]) => void
+      >()
     }
     this._localParticipantEventListenerRegistry[evt].add(listener)
     return () => {
@@ -552,14 +642,22 @@ export class RoomContext implements LSRoomContext {
     }
   }
 
-  unsubscribeFromLocalParticipantEvent(evt: string, listener: (...args: any[]) => void): void {
+  unsubscribeFromLocalParticipantEvent(
+    evt: string,
+    listener: (...args: any[]) => void,
+  ): void {
     if (!this._localParticipantEventListenerRegistry[evt]) {
-      this._localParticipantEventListenerRegistry[evt] = new Set<(...args: any[]) => void>()
+      this._localParticipantEventListenerRegistry[evt] = new Set<
+        (...args: any[]) => void
+      >()
     }
     this._localParticipantEventListenerRegistry[evt].delete(listener)
   }
 
-  subscribeToRoomEvent(evt: RoomEvent, listener: (...args: any[]) => void): () => void {
+  subscribeToRoomEvent(
+    evt: RoomEvent,
+    listener: (...args: any[]) => void,
+  ): () => void {
     if (!this._roomEventListenerRegistry[evt]) {
       this._roomEventListenerRegistry[evt] = new Set<(...args: any[]) => void>()
     }
@@ -569,7 +667,10 @@ export class RoomContext implements LSRoomContext {
     }
   }
 
-  unsubscribeFromRoomEvent(evt: RoomEvent, listener: (...args: any[]) => void): void {
+  unsubscribeFromRoomEvent(
+    evt: RoomEvent,
+    listener: (...args: any[]) => void,
+  ): void {
     if (!this._roomEventListenerRegistry[evt]) {
       this._roomEventListenerRegistry[evt] = new Set<(...args: any[]) => void>()
     }
@@ -582,7 +683,11 @@ export class RoomContext implements LSRoomContext {
    * Only specify for private messages.
    * Do not include the local participant's identity in this.
    */
-  sendChatMessage(data: { message:  string, recipients?: string[], metadata?: object | string }) {
+  sendChatMessage(data: {
+    message: string
+    recipients?: string[]
+    metadata?: object | string
+  }) {
     const { message, recipients, metadata } = data
     if (!this.livekitRoom || this.livekitRoom.state !== 'connected') {
       return
@@ -602,25 +707,31 @@ export class RoomContext implements LSRoomContext {
       displayName: this.livekitRoom.localParticipant.identity,
     }
     if (Boolean(recipients)) {
-      const participants = recipients.map(this.livekitRoom.getParticipantByIdentity) as RemoteParticipant[]
+      const participants = recipients.map(
+        this.livekitRoom.getParticipantByIdentity,
+      ) as RemoteParticipant[]
 
-      this.livekitRoom.localParticipant.publishData(
-        encodedData,
-        DataPacket_Kind.RELIABLE,
-        participants,
-      ).then(() => {
-        // TODO trigger event
-        this._appendChat(encodedData, this.livekitRoom.localParticipant, DataPacket_Kind.RELIABLE)
-      })
-    }
-    else {
-      this.livekitRoom.localParticipant.publishData(
-        encodedData,
-        DataPacket_Kind.RELIABLE,
-      ).then(() => {
-        // TODO trigger event
-        this._appendChat(encodedData, this.livekitRoom.localParticipant, DataPacket_Kind.RELIABLE)
-      })
+      this.livekitRoom.localParticipant
+        .publishData(encodedData, DataPacket_Kind.RELIABLE, participants)
+        .then(() => {
+          // TODO trigger event
+          this._appendChat(
+            encodedData,
+            this.livekitRoom.localParticipant,
+            DataPacket_Kind.RELIABLE,
+          )
+        })
+    } else {
+      this.livekitRoom.localParticipant
+        .publishData(encodedData, DataPacket_Kind.RELIABLE)
+        .then(() => {
+          // TODO trigger event
+          this._appendChat(
+            encodedData,
+            this.livekitRoom.localParticipant,
+            DataPacket_Kind.RELIABLE,
+          )
+        })
     }
   }
 }
