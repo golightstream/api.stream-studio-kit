@@ -56,7 +56,7 @@
   ],
   "dependencies": {
     "@api.stream/livekit-server-sdk": "^0.5.7",
-    "@api.stream/sdk": "1.0.8",
+    "@api.stream/sdk": "1.0.9",
     "csx": "^10.0.2",
     "fast-deep-equal": "^3.1.3",
     "heresy": "^1.0.4",
