@@ -13,7 +13,6 @@ import * as Sources from './sources/index'
 
 // Register default scene components
 import {
-  getAccessTokenData,
   getProject,
   getProjectByLayoutId,
   hydrateProject,
@@ -367,7 +366,7 @@ const load = async (accessToken: string): Promise<SDK.User> => {
   const { collectionId, projects, userProps } =
     await CoreContext.Request.loadProjects()
 
-  const { displayName } = getAccessTokenData()
+  const { displayName } = client.getAccessToken()
 
   setAppState({
     user: {

@@ -4,7 +4,7 @@
  * -------------------------------------------------------------------------------------------- */
 import { CoreContext } from './context'
 import { Context } from './namespaces'
-import { getAccessTokenData, hydrateProject } from './data'
+import { hydrateProject } from './data'
 import { Helpers } from '.'
 import { Metadata } from './types'
 import { LiveApiModel } from '@api.stream/sdk'
@@ -72,7 +72,7 @@ export const createProject = async (request: {
     },
   })
 
-  const { displayName } = getAccessTokenData()
+  const { displayName } = CoreContext.clients.getAccessToken()
 
   // Save the layoutId on the project (no need to await)
   const metadata = {
@@ -117,7 +117,7 @@ export const loadProjects = async () => {
 
   let collection: LiveApiModel.Collection
 
-  const { displayName, serviceUserId } = getAccessTokenData()
+  const { displayName, serviceUserId } = CoreContext.clients.getAccessToken()
 
   // Get a single collection, corresponding to a user
   if (collections.length === 0) {

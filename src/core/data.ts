@@ -11,16 +11,6 @@ import decode from 'jwt-decode'
 
 const { state } = CoreContext
 
-export const getAccessTokenData = () => {
-  // @ts-ignore Type not exposed by Lighstream API
-  const { user } = decode(CoreContext.clients.LiveApi().accessToken) || {}
-  return {
-    displayName: user?.name,
-    serviceName: user?.serviceName,
-    serviceUserId: user?.serviceUserId,
-  }
-}
-
 export const toBaseProject = (project: Context.Project): SDK.Project => {
   const { compositor, videoApi, props } = project
   const { destinations, encoding, rendering, sources } = videoApi.project
