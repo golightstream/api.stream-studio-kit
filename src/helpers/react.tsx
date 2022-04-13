@@ -135,7 +135,7 @@ export const StudioProvider = ({
   )
   const projectCommands = useMemo(
     () =>
-      project ? ScenelessProject.commands(project) : ({} as ScenelessProject.Commands),
+      project ? ScenelessProject.commands(project) : null,
     [project],
   )
 

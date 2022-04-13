@@ -353,8 +353,8 @@ export const HostView = () => {
           displayName: localStorage.userName,
         })
 
-        setProject(activeProject)
         setRoom(room)
+        setProject(activeProject)
       })
       .catch((e) => {
         console.warn(e)

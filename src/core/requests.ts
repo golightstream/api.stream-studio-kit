@@ -57,9 +57,7 @@ export const createProject = async (request: {
         },
       },
       composition: {
-        studioSdk: {
-          rendererUrl: CoreContext.config.compositorUrl,
-        },
+        studioSdk: {},
       },
       metadata: {},
       webrtc: {
@@ -155,8 +153,6 @@ export const loadProjects = async () => {
 }
 
 export const loadCollections = async () => {
-  let result = await CoreContext.clients
-    .LiveApi()
-    .collection.getCollections({})
+  let result = await CoreContext.clients.LiveApi().collection.getCollections({})
   return result.collections
 }

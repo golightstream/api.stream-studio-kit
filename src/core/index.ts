@@ -4,11 +4,7 @@
  * -------------------------------------------------------------------------------------------- */
 import { CoreContext, setAppState, log } from './context'
 import { omit, toDataNode, toSceneTree } from '../logic'
-import {
-  ApiStream,
-  LiveApiModel,
-  LayoutApiModel,
-} from '@api.stream/sdk'
+import { ApiStream, LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
 import { compositorAdapter } from './compositor-adapter'
 import config from '../../config'
 import * as Transforms from './transforms/index'
@@ -321,6 +317,7 @@ export const init = async (
       const { maxDuration, projectId = CoreContext.state.activeProjectId } =
         request
       const project = getProject(projectId)
+      const url = project.videoApi.project.composition.studioSdk.rendererUrl
       let response = await client
         .LiveApi()
         .authentication.createGuestAccessToken({
@@ -330,7 +327,7 @@ export const init = async (
               displayName: 'Preview',
             },
           },
-          url: CoreContext.config.compositorUrl,
+          url,
           collectionId: project.videoApi.project.collectionId,
           maxDuration:
             maxDuration || CoreContext.config.defaults.previewTokenDuration,
