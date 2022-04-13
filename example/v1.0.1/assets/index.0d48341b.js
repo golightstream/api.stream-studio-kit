@@ -51796,7 +51796,7 @@ const StudioProvider = ({ children }) => {
   const [studio, setStudio] = react$1.exports.useState();
   const [webcamId, setWebcamId] = react$1.exports.useState(localStorage.getItem("__LS_webcam"));
   const [microphoneId, setMicrophoneId] = react$1.exports.useState(localStorage.getItem("__LS_microphone"));
-  const projectCommands = react$1.exports.useMemo(() => project ? commands(project) : {}, [project]);
+  const projectCommands = react$1.exports.useMemo(() => project ? commands(project) : null, [project]);
   react$1.exports.useEffect(() => {
     if (!room)
       return;
@@ -52631,7 +52631,7 @@ const createProject = async (request3) => {
   const type = request3.type || "sceneless";
   const size = request3.size || { x: 1280, y: 720 };
   const props = request3.props || {};
-  let createProjectResponse = await CoreContext.clients.LiveApi().project.createProject({ collectionId: request3.collectionId, rendering: { video: { width: size.x, height: size.y, framerate: 30 } }, composition: { studioSdk: { rendererUrl: CoreContext.config.compositorUrl } }, metadata: {}, webrtc: { hosted: {} } });
+  let createProjectResponse = await CoreContext.clients.LiveApi().project.createProject({ collectionId: request3.collectionId, rendering: { video: { width: size.x, height: size.y, framerate: 30 } }, composition: { studioSdk: {} }, metadata: {}, webrtc: { hosted: {} } });
   const layout = await CoreContext.clients.LayoutApi().layout.createLayout({ layout: { projectId: createProjectResponse.project.projectId, collectionId: createProjectResponse.project.collectionId } });
   const { displayName } = getAccessTokenData();
   const metadata = __spreadValues({ type, layoutId: layout.id, hostDisplayName: displayName }, request3.meta || {});
@@ -52996,7 +52996,8 @@ const init = async (settings = {}) => {
   }, createPreviewLink: async (request3 = {}) => {
     const { maxDuration, projectId = CoreContext.state.activeProjectId } = request3;
     const project = getProject(projectId);
-    let response = await client.LiveApi().authentication.createGuestAccessToken({ projectId, token: { direct: { displayName: "Preview" } }, url: CoreContext.config.compositorUrl, collectionId: project.videoApi.project.collectionId, maxDuration: maxDuration || CoreContext.config.defaults.previewTokenDuration, role: lib$2.LiveApiModel.Role.ROLE_VIEWER });
+    const url2 = project.videoApi.project.composition.studioSdk.rendererUrl;
+    let response = await client.LiveApi().authentication.createGuestAccessToken({ projectId, token: { direct: { displayName: "Preview" } }, url: url2, collectionId: project.videoApi.project.collectionId, maxDuration: maxDuration || CoreContext.config.defaults.previewTokenDuration, role: lib$2.LiveApiModel.Role.ROLE_VIEWER });
     return response.url;
   }, createGuestLink: async (baseUrl, options2 = {}) => {
     const response = await createGuestToken(options2, baseUrl);
@@ -53562,4 +53563,4 @@ var config = {
 var url = "/studiokit/example/assets/logo.eb248bd6.png";
 var index = "";
 export { AppProvider as A, ControlPanel as C, DeviceSelection as D, Participants as P, ReactDOM as R, Style$1 as S, init as a, jsxs as b, Chat as c, config as d, Participant as e, index$1 as i, jsx as j, react$1 as r, url as u };
-//# sourceMappingURL=index.1461939f.js.map
+//# sourceMappingURL=index.0d48341b.js.map

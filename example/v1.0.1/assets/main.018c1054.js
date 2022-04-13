@@ -1,4 +1,4 @@
-import { i as index, r as react, a as init, j as jsx, b as jsxs, S as Style, P as Participants, D as DeviceSelection, C as ControlPanel, c as Chat, d as config, R as ReactDOM, u as url, A as AppProvider } from "./index.1461939f.js";
+import { i as index, r as react, a as init, j as jsx, b as jsxs, S as Style, P as Participants, D as DeviceSelection, C as ControlPanel, c as Chat, d as config, R as ReactDOM, u as url, A as AppProvider } from "./index.0d48341b.js";
 const DEFAULT_LAYOUT = "Grid";
 const layouts = ["Grid", "Grid-Cover", "Half", "Half-Cover", "Presentation-Right", "Presentation-Bottom", "Presentation-Cover", "Column", "Column-Cover", "Row", "Row-Cover"];
 const getLayout = (name) => {
@@ -436,8 +436,8 @@ const HostView = () => {
       const room2 = await activeProject.joinRoom({
         displayName: localStorage.userName
       });
-      setProject(activeProject);
       setRoom(room2);
+      setProject(activeProject);
     }).catch((e) => {
       console.warn(e);
       setToken(null);
@@ -501,4 +501,4 @@ const Content = () => {
   });
 };
 ReactDOM.render(/* @__PURE__ */ jsx(Content, {}), document.getElementById("root"));
-//# sourceMappingURL=main.b789a55a.js.map
+//# sourceMappingURL=main.018c1054.js.map

@@ -51860,7 +51860,7 @@ const StudioProvider = ({
   const [studio, setStudio] = useState();
   const [webcamId, setWebcamId] = useState(localStorage.getItem("__LS_webcam"));
   const [microphoneId, setMicrophoneId] = useState(localStorage.getItem("__LS_microphone"));
-  const projectCommands = useMemo(() => project ? commands(project) : {}, [project]);
+  const projectCommands = useMemo(() => project ? commands(project) : null, [project]);
   useEffect(() => {
     if (!room)
       return;
@@ -53187,9 +53187,7 @@ const createProject = async (request3) => {
       }
     },
     composition: {
-      studioSdk: {
-        rendererUrl: CoreContext.config.compositorUrl
-      }
+      studioSdk: {}
     },
     metadata: {},
     webrtc: {
@@ -53853,6 +53851,7 @@ const init = async (settings = {}) => {
         projectId = CoreContext.state.activeProjectId
       } = request3;
       const project = getProject(projectId);
+      const url = project.videoApi.project.composition.studioSdk.rendererUrl;
       let response = await client.LiveApi().authentication.createGuestAccessToken({
         projectId,
         token: {
@@ -53860,7 +53859,7 @@ const init = async (settings = {}) => {
             displayName: "Preview"
           }
         },
-        url: CoreContext.config.compositorUrl,
+        url,
         collectionId: project.videoApi.project.collectionId,
         maxDuration: maxDuration || CoreContext.config.defaults.previewTokenDuration,
         role: lib$2.LiveApiModel.Role.ROLE_VIEWER
