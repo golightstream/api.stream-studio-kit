@@ -330,7 +330,6 @@ const CoreContext = {
   log: log$1,
   logLevel: null
 };
-window.LS_trigger = CoreContext.trigger;
 const setAppState = (state2) => {
   Object.keys(state2).forEach((name2) => {
     CoreContext.state[name2] = state2[name2];
@@ -52745,7 +52744,9 @@ const init = async (settings = {}) => {
   CoreContext.Command = await Promise.resolve().then(function() {
     return commands$1;
   });
-  window.__StudioKit = __spreadValues({}, CoreContext);
+  if (window) {
+    window.__StudioKit = __spreadValues({}, CoreContext);
+  }
   setDefaultTransforms(__spreadValues(__spreadValues({}, defaultTransforms), CoreContext.config.defaults.transforms));
   registerSource([...Object.values(Sources), ...sources2]);
   registerTransform([...Object.values(Transforms), ...transforms]);
