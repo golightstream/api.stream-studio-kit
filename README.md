@@ -7,7 +7,7 @@ A browser-based JavaScript client for <a href="https://api.stream/">api.stream</
 #### Installation
 
 ``` text
-npm install @golightstream/studio-sdk
+npm install @api.stream/studio-kit
 ```
 
 #### Demo
@@ -22,7 +22,7 @@ https://github.com/golightstream/studio-sdk/tree/main/examples/sdk-example
 
 ###### Initialize the SDK
 ```typescript
-import * as SDK from '@golightstream/studio-sdk'
+import * as SDK from '@api.stream/studio-kit'
 
 const studio = await SDK.init()
 
@@ -110,7 +110,7 @@ const guestLink = await studio.createGuestLink(
 On the guest page, we can have the guest join the WebRTC room. Let's demonstrate how to accomplish this in the context of a React component.
 ###### Guest Page (React)
 ```jsx
-import { init, Helpers, SDK } from '@golightstream/studio-sdk'
+import { init, Helpers, SDK } from '@api.stream/studio-kit'
 const { useStudio, StudioProvider, useDevices } = Helpers.React
 
 // In order to make use of the helpful useStudio hook, our component must be a child of StudioProvider
@@ -358,7 +358,7 @@ Once have an access token for our host, we send it to the client, where we can i
 ###### Client-side
 
 ```typescript
-import { init } from '@golightstream/studio-sdk'
+import { init } from '@api.stream/studio-kit'
 
 const studio = await init()
 const user = await studio.load(accessToken)
