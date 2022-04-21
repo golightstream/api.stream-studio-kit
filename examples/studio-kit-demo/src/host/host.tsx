@@ -11,6 +11,10 @@ import { Chat } from '../shared/chat'
 import Style from '../shared/shared.module.css'
 import config from '../../config'
 
+import ReCAPTCHA from "react-google-recaptcha";
+import axios, { AxiosResponse } from 'axios';
+import { nanoid } from 'nanoid';
+
 const { ScenelessProject } = Helpers
 const { useStudio } = Helpers.React
 
@@ -21,39 +25,70 @@ const getUrl = () =>
   window.location.pathname
 
 const storage = {
-  userName: localStorage.getItem('userName') || '',
-  // Use the service name in memory or generate a new (pseudo)-random
-  serviceName:
-    localStorage.getItem('serviceName') ||
-    'Example-' + Math.floor(Math.random() * 1e6),
+  userName: localStorage.getItem('userName') || ''
 }
+
+let recaptchaToken : string | undefined = undefined
 
 const Login = (props: {
   onLogin: ({
     token,
-    userName,
-    serviceName,
+    userName
   }: {
     token: string
     userName: string
-    serviceName: string
   }) => void
 }) => {
   const { studio } = useStudio()
   const { onLogin } = props
   const [userName, setUserName] = useState(storage.userName)
-  const [serviceName, setServiceName] = useState(storage.serviceName)
 
-  const login = async (e: any) => {
-    e.preventDefault()
-    const token = await studio.createDemoToken({
-      // Replace this with a unique identifier of your service.
-      //  It has been randomized for the purposes of this demo.
-      serviceName,
-      userId: userName,
-      name: userName,
-    })
-    onLogin({ token, userName, serviceName })
+  const login = async ( e: any ) => {
+    e.preventDefault();
+
+    let token: string;
+    // if this demo is running on API.stream, use captcha login
+    if ( ( location.host === "live.api.stream" ) || ( location.host == "live.stream.horse" ) || ( location.host.includes("localhost") ) ) {
+      const http = axios.create( {
+        baseURL: ( location.host.includes("localhost") )?'https://live.stream.horse/live/v2':`https://${location.host}/live/v2`,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json; charset=utf-8"
+        }
+      } )
+      let res = await http.post(
+        `/demo/token`,
+        {
+          serviceUserId: nanoid( 21 ),
+          displayName: userName,
+          recaptchaToken: recaptchaToken,
+        }
+      )
+      token = res.data.accessToken as string;
+    } 
+    // if you are running this demo locally, you will need to obtain an access token
+    // as described here: https://www.api.stream/docs/api/auth/
+    else 
+    {
+      // for R&D purposes, you may use a trial access token in your frontend
+      // this is NOT permitted in production 
+      const APISTREAM_API_KEY = 'abc123'; // CHANGEME 
+      const http = axios.create( {
+        baseURL: `https://${location.host}/live/v2`,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json; charset=utf-8",
+          "X-Api-Key": `${ APISTREAM_API_KEY }`
+        }
+      } )
+      let res = await http.post(
+        `/authentication/token`,
+        { serviceUserId: nanoid( 21 ), displayName: userName }
+      )
+      token = res.data.accessToken as string;
+    }
+
+    onLogin( { token, userName } );
   }
 
   return (
@@ -63,24 +98,19 @@ const Login = (props: {
       style={{ width: 316, alignItems: 'flex-end' }}
     >
       <div className={Style.column}>
-        <label>Service identifier</label>
-        <input
-          type="text"
-          autoFocus={true}
-          defaultValue={serviceName}
-          onChange={(e) => {
-            setServiceName(e.target.value)
-          }}
-        />
-      </div>
-      <div className={Style.column}>
         <label>Username</label>
         <input
           type="text"
           autoFocus={true}
           defaultValue={userName}
-          onChange={(e) => {
-            setUserName(e.target.value)
+          onChange={( e ) => {
+            setUserName( e.target.value )
+          }}
+        />
+        <ReCAPTCHA
+          sitekey="6Lc0HIUfAAAAAIdsyq7vB_3c3skiVvltzdUTCUSx"
+          onChange={( token ) => {
+            recaptchaToken = token
           }}
         />
       </div>
@@ -375,10 +405,8 @@ export const HostView = () => {
   if (studio && !token) {
     return (
       <Login
-        onLogin={({ userName, serviceName, token }) => {
+        onLogin={({ userName, token }) => {
           setToken(token)
-          // Update storage/session data
-          localStorage.setItem('serviceName', serviceName)
           localStorage.setItem('userName', userName)
           localStorage.setItem('token', token)
         }}
