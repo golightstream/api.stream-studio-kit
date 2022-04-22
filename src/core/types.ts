@@ -708,7 +708,7 @@ export type GuestOptions = {
    * @default 172800000 (48 hours) 
    **/
   maxDuration?: number | undefined
-  role?: Role
+  role?: Role | `${Role}`
 }
 
 /**

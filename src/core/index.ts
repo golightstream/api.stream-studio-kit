@@ -5,7 +5,7 @@
 import { CoreContext, setAppState, log } from './context'
 import { omit, toDataNode, toSceneTree } from '../logic'
 import { ApiStream, LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
-import { compositorAdapter } from './compositor-adapter'
+import { compositorAdapter, latestUpdateVersion } from './compositor-adapter'
 import config from '../../config'
 import * as Transforms from './transforms/index'
 import * as Layouts from './layouts/index'
@@ -217,10 +217,24 @@ export const init = async (
         trigger('NodeAdded', { projectId: project.id, nodeId: node.id })
       } else if (type == LayoutApiModel.EventSubType.EVENT_SUB_TYPE_UPDATE) {
         log.debug('Received: Node Update', layer.update)
-        const { connectionId, layoutId } = layer.update.requestMetadata
+        const {
+          connectionId,
+          layoutId,
+          updateVersions = {},
+        } = layer.update.requestMetadata
         if (CoreContext.connectionId === connectionId) return
 
         const node = layerToNode(layer.update)
+
+        // Check whether we have a more recent change and ignore if we do
+        const latestUpdateId = latestUpdateVersion[node.id] || 0
+        if (latestUpdateId > updateVersions[node.id]) {
+          return log.info(
+            'Ignoring node update - updateID is less than latest.',
+          )
+        }
+        latestUpdateVersion[node.id] = updateVersions[node.id]
+
         const project = getProjectByLayoutId(layoutId)
         project.compositor.local.update(
           layer.update.id,
@@ -241,7 +255,11 @@ export const init = async (
         })
       } else if (type == LayoutApiModel.EventSubType.EVENT_SUB_TYPE_BATCH) {
         log.debug('Received: Node Batch Update', layer.batch)
-        const { connectionId, layoutId } = layer.batch.requestMetadata
+        const {
+          connectionId,
+          layoutId,
+          updateVersions = {},
+        } = layer.batch.requestMetadata
         if (CoreContext.connectionId === connectionId) return
 
         const project = getProjectByLayoutId(layoutId)
@@ -253,6 +271,16 @@ export const init = async (
             trigger('NodeAdded', { projectId: project.id, nodeId: node.id })
           } else if (type === 'update') {
             const node = layerToNode(args)
+
+            // Check whether we have a more recent change and ignore if we do
+            const latestUpdateId = latestUpdateVersion[node.id] || 0
+            if (latestUpdateId > updateVersions[node.id]) {
+              return log.info(
+                'Ignoring node update - updateID is less than latest.',
+              )
+            }
+            latestUpdateVersion[node.id] = updateVersions[node.id]
+
             project.compositor.local.update(node.id, node.props, node.childIds)
             trigger('NodeChanged', { projectId: project.id, nodeId: node.id })
           } else if (type === 'delete') {
@@ -297,7 +325,7 @@ export const init = async (
       url,
       collectionId: project.videoApi.project.collectionId,
       maxDuration,
-      role: role || LiveApiModel.Role.ROLE_GUEST,
+      role: (role || LiveApiModel.Role.ROLE_GUEST) as LiveApiModel.Role,
     })
   }
 

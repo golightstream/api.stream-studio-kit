@@ -15,6 +15,12 @@ type Action = [type: ActionType, layer: Partial<LayoutApiModel.Layer>]
 
 const { connectionId } = CoreContext
 
+export const latestUpdateVersion = {} as { [id: string]: number }
+const getNextNodeVersion = (id: string) => {
+  if (!latestUpdateVersion[id]) latestUpdateVersion[id] = 0
+  return ++latestUpdateVersion[id]
+}
+
 const request = (layoutId: string, actions: Action[]) => {
   const layers = actions.map((action) => {
     const [type, layer] = action
@@ -25,12 +31,18 @@ const request = (layoutId: string, actions: Action[]) => {
     } as BatchItem
   }) as Batch
 
+  log.debug('Batch request', layers)
   return CoreContext.clients.LayoutApi().layer.batch({
     layoutId,
     layers,
     requestMetadata: {
       connectionId,
       layoutId,
+      updateVersions: actions
+        .filter(([type]) => type === 'update')
+        .map(([_, layer]) => ({
+          [layer.id]: getNextNodeVersion(layer.id),
+        })),
     },
   })
 }
@@ -51,6 +63,7 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
       layer.type = 'child'
     }
 
+    log.debug('Insert layer', layer)
     // Save the layer to the database
     const result = await CoreContext.clients.LayoutApi().layer.createLayer({
       layoutId,
@@ -79,6 +92,9 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
           requestMetadata: {
             connectionId,
             layoutId,
+            updateVersion: {
+              [layer.id]: getNextNodeVersion(layer.id),
+            },
           },
         },
       }
@@ -109,9 +125,13 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
         requestMetadata: {
           connectionId,
           layoutId,
+          updateVersions: {
+            [layer.id]: getNextNodeVersion(layer.id),
+          },
         },
       },
     }
+    log.debug('Update layer', update)
 
     // Update the database
     await CoreContext.clients.LayoutApi().layer.updateLayer(update)
@@ -131,6 +151,9 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
           requestMetadata: {
             connectionId,
             layoutId,
+            updateVersions: {
+              [parent.id]: getNextNodeVersion(parent.id),
+            },
           },
         },
       }
@@ -160,6 +183,7 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
       ...node,
       childIds,
     })
+    log.debug('Reorder layer children', layer)
 
     // Update the database
     await CoreContext.clients.LayoutApi().layer.updateLayer({
@@ -170,6 +194,9 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
         requestMetadata: {
           connectionId,
           layoutId,
+          updateVersions: {
+            [layer.id]: getNextNodeVersion(layer.id),
+          },
         },
       },
     })
@@ -189,6 +216,8 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
       childIds: insertAt(index, node.id, newParentNode.childIds),
     })
 
+    log.debug('Move layers')
+
     // TODO: Batch
     // Update the database
     await Promise.all([
@@ -200,6 +229,9 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
           requestMetadata: {
             connectionId,
             layoutId,
+            updateVersions: {
+              [prevParentLayer.id]: getNextNodeVersion(prevParentLayer.id),
+            },
           },
         },
       }),
@@ -211,6 +243,9 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
           requestMetadata: {
             connectionId,
             layoutId,
+            updateVersions: {
+              [newParentLayer.id]: getNextNodeVersion(newParentLayer.id),
+            },
           },
         },
       }),
