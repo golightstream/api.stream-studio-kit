@@ -48500,6 +48500,12 @@ const getProjectRoom = (id) => {
 const {
   connectionId
 } = CoreContext;
+const latestUpdateVersion = {};
+const getNextNodeVersion = (id) => {
+  if (!latestUpdateVersion[id])
+    latestUpdateVersion[id] = 0;
+  return ++latestUpdateVersion[id];
+};
 const request = (layoutId, actions) => {
   const layers = actions.map((action) => {
     const [type, layer] = action;
@@ -48507,12 +48513,16 @@ const request = (layoutId, actions) => {
       [type]: layer
     };
   });
+  log$1.debug("Batch request", layers);
   return CoreContext.clients.LayoutApi().layer.batch({
     layoutId,
     layers,
     requestMetadata: {
       connectionId,
-      layoutId
+      layoutId,
+      updateVersions: actions.filter(([type]) => type === "update").map(([_, layer]) => ({
+        [layer.id]: getNextNodeVersion(layer.id)
+      }))
     }
   });
 };
@@ -48528,6 +48538,7 @@ const compositorAdapter = (layoutId, methods) => ({
     } else {
       layer.type = "child";
     }
+    log$1.debug("Insert layer", layer);
     const result = await CoreContext.clients.LayoutApi().layer.createLayer({
       layoutId,
       layer: __spreadProps(__spreadValues({}, layer), {
@@ -48552,7 +48563,10 @@ const compositorAdapter = (layoutId, methods) => ({
           children,
           requestMetadata: {
             connectionId,
-            layoutId
+            layoutId,
+            updateVersion: {
+              [layer.id]: getNextNodeVersion(layer.id)
+            }
           }
         }
       };
@@ -48571,10 +48585,14 @@ const compositorAdapter = (layoutId, methods) => ({
       layer: __spreadProps(__spreadValues({}, layer), {
         requestMetadata: {
           connectionId,
-          layoutId
+          layoutId,
+          updateVersions: {
+            [layer.id]: getNextNodeVersion(layer.id)
+          }
         }
       })
     };
+    log$1.debug("Update layer", update);
     await CoreContext.clients.LayoutApi().layer.updateLayer(update);
   },
   async remove(id) {
@@ -48589,7 +48607,10 @@ const compositorAdapter = (layoutId, methods) => ({
           children,
           requestMetadata: {
             connectionId,
-            layoutId
+            layoutId,
+            updateVersions: {
+              [parent2.id]: getNextNodeVersion(parent2.id)
+            }
           }
         }
       };
@@ -48611,6 +48632,7 @@ const compositorAdapter = (layoutId, methods) => ({
     const layer = nodeToLayer(__spreadProps(__spreadValues({}, node), {
       childIds
     }));
+    log$1.debug("Reorder layer children", layer);
     await CoreContext.clients.LayoutApi().layer.updateLayer({
       layoutId,
       layerId: layer.id,
@@ -48618,7 +48640,10 @@ const compositorAdapter = (layoutId, methods) => ({
         children: layer.children,
         requestMetadata: {
           connectionId,
-          layoutId
+          layoutId,
+          updateVersions: {
+            [layer.id]: getNextNodeVersion(layer.id)
+          }
         }
       }
     });
@@ -48633,6 +48658,7 @@ const compositorAdapter = (layoutId, methods) => ({
     const newParentLayer = nodeToLayer(__spreadProps(__spreadValues({}, newParentNode), {
       childIds: insertAt$1(index2, node.id, newParentNode.childIds)
     }));
+    log$1.debug("Move layers");
     await Promise.all([CoreContext.clients.LayoutApi().layer.updateLayer({
       layoutId,
       layerId: prevParentLayer.id,
@@ -48640,7 +48666,10 @@ const compositorAdapter = (layoutId, methods) => ({
         children: prevParentLayer.children,
         requestMetadata: {
           connectionId,
-          layoutId
+          layoutId,
+          updateVersions: {
+            [prevParentLayer.id]: getNextNodeVersion(prevParentLayer.id)
+          }
         }
       }
     }), CoreContext.clients.LayoutApi().layer.updateLayer({
@@ -48650,7 +48679,10 @@ const compositorAdapter = (layoutId, methods) => ({
         children: newParentLayer.children,
         requestMetadata: {
           connectionId,
-          layoutId
+          layoutId,
+          updateVersions: {
+            [newParentLayer.id]: getNextNodeVersion(newParentLayer.id)
+          }
         }
       }
     })]);
@@ -52843,11 +52875,17 @@ const init = async (settings = {}) => {
       log$1.debug("Received: Node Update", layer.update);
       const {
         connectionId: connectionId2,
-        layoutId
+        layoutId,
+        updateVersions = {}
       } = layer.update.requestMetadata;
       if (CoreContext.connectionId === connectionId2)
         return;
       const node = layerToNode(layer.update);
+      const latestUpdateId = latestUpdateVersion[node.id] || 0;
+      if (latestUpdateId > updateVersions[node.id]) {
+        return log$1.info("Ignoring node update - updateID is less than latest.");
+      }
+      latestUpdateVersion[node.id] = updateVersions[node.id];
       const project = getProjectByLayoutId(layoutId);
       project.compositor.local.update(layer.update.id, node.props, node.childIds);
       trigger("NodeChanged", {
@@ -52872,7 +52910,8 @@ const init = async (settings = {}) => {
       log$1.debug("Received: Node Batch Update", layer.batch);
       const {
         connectionId: connectionId2,
-        layoutId
+        layoutId,
+        updateVersions = {}
       } = layer.batch.requestMetadata;
       if (CoreContext.connectionId === connectionId2)
         return;
@@ -52888,6 +52927,11 @@ const init = async (settings = {}) => {
           });
         } else if (type2 === "update") {
           const node = layerToNode(args);
+          const latestUpdateId = latestUpdateVersion[node.id] || 0;
+          if (latestUpdateId > updateVersions[node.id]) {
+            return log$1.info("Ignoring node update - updateID is less than latest.");
+          }
+          latestUpdateVersion[node.id] = updateVersions[node.id];
           project.compositor.local.update(node.id, node.props, node.childIds);
           trigger("NodeChanged", {
             projectId: project.id,
