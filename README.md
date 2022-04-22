@@ -9,10 +9,10 @@ The Studio Kit provides your users with everything they need to produce professi
 
 <sub>This is a simple and opinionated interface for API.stream services. It implements the [API.stream SDK](https://github.com/golightstream/api.stream-sdk).</sub>
 
-📖 [Read the documentation](https://www.api.stream/docs/sdk/studio/docs/)  
+📖 [Read the documentation](https://www.api.stream/docs/sdk/studiokit/docs/)  
 🔍 [View the live demo](https://live.api.stream/studiokit/example/)
 
-<sub>[View demo code](/examples/studio-kit-demo)</sub>
+<sub>[View demo code](https://github.com/golightstream/api.stream-studio-kit/tree/main/examples/studio-kit-demo)</sub>
 
 ----
 #### Installation
