@@ -1851,6 +1851,7 @@ const Login = (props) => {
         }
       });
       let res = await http.post(`/demo/token`, {
+        serviceId: "DEMO_STUDIOKIT",
         serviceUserId: nanoid(21),
         displayName: userName,
         recaptchaToken
@@ -2238,4 +2239,4 @@ const Content = () => {
   });
 };
 ReactDOM.render(/* @__PURE__ */ jsx(Content, {}), document.getElementById("root"));
-//# sourceMappingURL=main.c2f208d2.js.map
+//# sourceMappingURL=main.f4df3244.js.map
