@@ -11,9 +11,9 @@ import { Chat } from '../shared/chat'
 import Style from '../shared/shared.module.css'
 import config from '../../config'
 
-import ReCAPTCHA from "react-google-recaptcha";
-import axios, { AxiosResponse } from 'axios';
-import { nanoid } from 'nanoid';
+import ReCAPTCHA from 'react-google-recaptcha'
+import axios from 'axios'
+import { nanoid } from 'nanoid'
 
 const { ScenelessProject } = Helpers
 const { useStudio } = Helpers.React
@@ -24,78 +24,75 @@ const getUrl = () =>
   window.location.host +
   window.location.pathname
 
-const storage = {
-  userName: localStorage.getItem('userName') || ''
+// Determine whether this is running on API.stream
+const isLiveURL = () => {
+  return ['live.api.stream', 'live.stream.horse', 'localhost'].some((x) =>
+    location.host.includes(x),
+  )
 }
 
-let recaptchaToken : string | undefined = undefined
+const storage = {
+  userName: localStorage.getItem('userName') || '',
+}
 
 const Login = (props: {
-  onLogin: ({
-    token,
-    userName
-  }: {
-    token: string
-    userName: string
-  }) => void
+  onLogin: ({ token, userName }: { token: string; userName: string }) => void
 }) => {
-  const { studio } = useStudio()
   const { onLogin } = props
   const [userName, setUserName] = useState(storage.userName)
+  const [recaptchaToken, setRecaptchaToken] = useState<string>()
 
-  const login = async ( e: any ) => {
-    e.preventDefault();
+  const login = async (e: any) => {
+    e.preventDefault()
 
-    let token: string;
-    // if this demo is running on API.stream, use captcha login
-    if ( ( location.host === "live.api.stream" ) || ( location.host == "live.stream.horse" ) || ( location.host.includes("localhost") ) ) {
-      const http = axios.create( {
-        baseURL: ( location.host.includes("localhost") )?'https://live.stream.horse/live/v2':`https://${location.host}/live/v2`,
+    let token: string
+    // If this demo is running on API.stream, use captcha login
+    if (isLiveURL()) {
+      const http = axios.create({
+        baseURL: location.host.includes('localhost')
+          ? 'https://live.stream.horse/live/v2'
+          : `https://${location.host}/live/v2`,
         headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json; charset=utf-8"
-        }
-      } )
-      let res = await http.post(
-        `/demo/token`,
-        {
-          serviceUserId: nanoid( 21 ),
-          displayName: userName,
-          recaptchaToken: recaptchaToken,
-        }
-      )
-      token = res.data.accessToken as string;
-    } 
-    // if you are running this demo locally, you will need to obtain an access token
+          Accept: 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+      })
+      let res = await http.post(`/demo/token`, {
+        serviceUserId: nanoid(21),
+        displayName: userName,
+        recaptchaToken: recaptchaToken,
+      })
+      token = res.data.accessToken as string
+    }
+    // If you are running this demo locally, you will need to obtain an access token
     // as described here: https://www.api.stream/docs/api/auth/
-    else 
-    {
-      // for R&D purposes, you may use a trial access token in your frontend
-      // this is NOT permitted in production 
-      const APISTREAM_API_KEY = 'abc123'; // CHANGEME 
-      const http = axios.create( {
+    else {
+      // For R&D purposes, you may use a trial access token in your frontend.
+      // This is NOT permitted in production
+      const APISTREAM_API_KEY = 'abc123' // CHANGEME
+      const http = axios.create({
         baseURL: `https://${location.host}/live/v2`,
         headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json; charset=utf-8",
-          "X-Api-Key": `${ APISTREAM_API_KEY }`
-        }
-      } )
-      let res = await http.post(
-        `/authentication/token`,
-        { serviceUserId: nanoid( 21 ), displayName: userName }
-      )
-      token = res.data.accessToken as string;
+          Accept: 'application/json',
+          'Content-Type': 'application/json; charset=utf-8',
+          'X-Api-Key': `${APISTREAM_API_KEY}`,
+        },
+      })
+      let res = await http.post(`/authentication/token`, {
+        serviceUserId: nanoid(21),
+        displayName: userName,
+      })
+      token = res.data.accessToken as string
     }
 
-    onLogin( { token, userName } );
+    onLogin({ token, userName })
   }
 
   return (
     <form
       className={Style.column}
       onSubmit={login}
-      style={{ width: 316, alignItems: 'flex-end' }}
+      style={{ width: 310, alignItems: 'flex-end' }}
     >
       <div className={Style.column}>
         <label>Username</label>
@@ -103,26 +100,34 @@ const Login = (props: {
           type="text"
           autoFocus={true}
           defaultValue={userName}
-          onChange={( e ) => {
-            setUserName( e.target.value )
+          style={{ width: 302 }}
+          onChange={(e) => {
+            setUserName(e.target.value)
           }}
         />
-        <ReCAPTCHA
-          sitekey="6Lc0HIUfAAAAAIdsyq7vB_3c3skiVvltzdUTCUSx"
-          onChange={( token ) => {
-            recaptchaToken = token
-          }}
-        />
+        <div style={{ marginTop: 10, height: 78 }}>
+          <ReCAPTCHA
+            theme="dark"
+            sitekey={config.recaptchaKey}
+            onChange={(token: string) => {
+              setRecaptchaToken(token)
+            }}
+          />
+        </div>
       </div>
-      <button onClick={login} style={{ marginTop: 8, width: 70 }}>
-        Login
+      <button
+        disabled={!recaptchaToken}
+        onClick={login}
+        style={{ marginTop: 8, width: 70 }}
+      >
+        Log in
       </button>
     </form>
   )
 }
 
 const Project = () => {
-  const { studio, project, room, projectCommands } = useStudio()
+  const { studio, project, projectCommands } = useStudio()
   const renderContainer = useRef()
   const destination = project.destinations[0]
   const destinationAddress = destination?.address.rtmpPush
@@ -276,10 +281,7 @@ const Project = () => {
               ))}
             </select>
           </div>
-          <div
-            ref={renderContainer}
-            style={{ width: 840, height: 500 }}
-          ></div>
+          <div ref={renderContainer} style={{ width: 840, height: 500 }}></div>
           <div className={Style.row}>
             <DeviceSelection />
             <div
