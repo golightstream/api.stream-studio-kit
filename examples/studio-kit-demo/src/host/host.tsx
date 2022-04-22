@@ -58,6 +58,7 @@ const Login = (props: {
         },
       })
       let res = await http.post(`/demo/token`, {
+        serviceId: "DEMO_STUDIOKIT",
         serviceUserId: nanoid(21),
         displayName: userName,
         recaptchaToken: recaptchaToken,
