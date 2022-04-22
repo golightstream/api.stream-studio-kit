@@ -7079,9 +7079,9 @@ var loglevel = { exports: {} };
         if (typeof storedLevel === undefinedType) {
           try {
             var cookie = window.document.cookie;
-            var location = cookie.indexOf(encodeURIComponent(storageKey) + "=");
-            if (location !== -1) {
-              storedLevel = /^([^;]+)/.exec(cookie.slice(location))[1];
+            var location2 = cookie.indexOf(encodeURIComponent(storageKey) + "=");
+            if (location2 !== -1) {
+              storedLevel = /^([^;]+)/.exec(cookie.slice(location2))[1];
             }
           } catch (ignore) {
           }
@@ -52816,10 +52816,11 @@ const Chat = () => {
 };
 const LOCAL_ENV = "stage";
 var config = {
-  env: LOCAL_ENV,
-  logLevel: "Debug"
+  env: location.hostname === "live.api.stream" ? "prod" : LOCAL_ENV,
+  logLevel: "Debug",
+  recaptchaKey: "6Lc0HIUfAAAAAIdsyq7vB_3c3skiVvltzdUTCUSx"
 };
 var url = "/studiokit/example/assets/logo.eb248bd6.png";
 var index = "";
-export { AppProvider as A, ControlPanel as C, DeviceSelection as D, Participants as P, ReactDOM as R, Style$1 as S, init as a, jsxs as b, Chat as c, config as d, Participant as e, index$1 as i, jsx as j, react$1 as r, url as u };
-//# sourceMappingURL=index.f36f44f7.js.map
+export { AppProvider as A, ControlPanel as C, DeviceSelection as D, Participants as P, React as R, Style$1 as S, init as a, jsxs as b, config as c, Chat as d, ReactDOM as e, Participant as f, index$1 as i, jsx as j, react$1 as r, url as u };
+//# sourceMappingURL=index.9ca1db68.js.map

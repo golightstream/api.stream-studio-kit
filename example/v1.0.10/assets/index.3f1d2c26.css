@@ -182,6 +182,11 @@ button {
   cursor: pointer;
 }
 
+button[disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 #header {
   margin-bottom: 10px;
   border-bottom: 1px solid var(--medium);
