@@ -10,14 +10,16 @@ import config from '../../config'
 import * as Transforms from './transforms/index'
 import * as Layouts from './layouts/index'
 import * as Sources from './sources/index'
+import './internal-events'
 
 // Register default scene components
 import {
+  getAccessTokenData,
+  getBaseUser,
   getProject,
   getProjectByLayoutId,
   hydrateProject,
   layerToNode,
-  toBaseProject,
 } from './data'
 import { render } from '../helpers/compositor'
 
@@ -32,7 +34,10 @@ const { registerTransform, setDefaultTransforms } = Compositor.Transform
 const { registerLayout } = Compositor.Layout
 const { registerSource } = Compositor.Source
 
-const { trigger } = CoreContext
+const { trigger, triggerInternal } = CoreContext
+
+const EventType = LiveApiModel.EventType
+const EventSubType = LiveApiModel.EventSubType
 
 /**
  * Basic application settings.
@@ -99,10 +104,8 @@ export const init = async (
   CoreContext.Command = await import('./commands')
 
   // Tie context to global scope for debugging purposes
-  if (window) {
-    window.__StudioKit = {
-      ...CoreContext,
-    }
+  window.__StudioKit = {
+    ...CoreContext,
   }
 
   setDefaultTransforms({
@@ -132,118 +135,153 @@ export const init = async (
       })
   }
 
-  client
-    .LiveApi()
-    .on(LiveApiModel.EventType.EVENT_TYPE_COLLECTION, (collection, type) => {
-      log.info('Received: Collection event', type, collection)
-    })
-
-  client
-    .LiveApi()
-    .on(LiveApiModel.EventType.EVENT_TYPE_DESTINATION, (destinationEvent, type) => {
-      log.info('Received: Destination event', type, destinationEvent)
-      switch (type) {
-        case LiveApiModel.EventSubType.EVENT_SUB_TYPE_CREATE: {
-          const { destination, projectId } = destinationEvent.create
-          const project = getProject(projectId)
-          const { enabled, address, metadata, destinationId } = destination
-          trigger('DestinationAdded',{
-            destination: {
-              id: destinationId,
-              enabled,
-              props: metadata,
-              address,
-            },
-            projectId,
-          })
-          break
-        }
-        case LiveApiModel.EventSubType.EVENT_SUB_TYPE_DELETE: {
-          const { destinationId, projectId } = destinationEvent.delete
-          trigger('DestinationRemoved', {
-            destinationId,
-            projectId,
-          })
-          break
-        }
-        case LiveApiModel.EventSubType.EVENT_SUB_TYPE_UPDATE: {
-          const { updateMask, destination, destinationId, projectId } = destinationEvent.update
-          const { enabled, metadata, address } = destination
-          trigger('DestinationChanged', {
-            projectId,
-            destination: {
-              id: destinationId,
-              enabled,
-              props: metadata,
-              address,
-            },
-          })
-        }
-        default: break
+  /**
+   * Collection events from the Event API
+   */
+  client.LiveApi().on(EventType.EVENT_TYPE_COLLECTION, (event, type) => {
+    log.info('Received: Collection event', type, event)
+    switch (type) {
+      case EventSubType.EVENT_SUB_TYPE_UPDATE: {
+        triggerInternal('UserChanged', event.update.collection)
+        return
       }
-    })
+    }
+  })
 
-  client
-    .LiveApi()
-    .on(LiveApiModel.EventType.EVENT_TYPE_SOURCE, (source, type) => {
-      log.info('Received: Source event', type, source)
-    })
-
-  client
-    .LiveApi()
-    .on(LiveApiModel.EventType.EVENT_TYPE_PROJECT, (projectEvent, type) => {
-      log.info('Received: Project event', type, projectEvent)
-      switch (type) {
-        case LiveApiModel.EventSubType.EVENT_SUB_TYPE_UPDATE: {
-          const { projectId, updateMask, project } = projectEvent.update
-
-          if (updateMask.includes('metadata')) {
-            trigger('ProjectMetaUpdated', {
-              projectId,
-              meta: project.metadata,
-            })
-          }
-
-          // Update state
-          const localProject = getProject(projectEvent.update?.projectId)
-          if (!localProject) return
-          localProject.videoApi.project = project
-          localProject.props = project.metadata
-        }
-        case LiveApiModel.EventSubType.EVENT_SUB_TYPE_STATE: {
-          const project = getProject(projectEvent.state?.projectId)
-          if (!project) return
-
-          if (projectEvent.state.error) {
-            trigger('BroadcastError', {
-              projectId: project.id,
-              error: projectEvent.state.error,
-            })
-            return
-          }
-          if (projectEvent.state.phase) {
-            const phase = projectEvent.state.phase
-            if (phase === BroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING) {
-              trigger('BroadcastStarted', { projectId: project.id })
-            } else if (
-              phase === BroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPED
-            ) {
-              trigger('BroadcastStopped', { projectId: project.id })
-            }
-
-            // Update state
-            project.videoApi.phase = projectEvent.state.phase
-          }
-          break
-        }
+  /**
+   * Destination events from the Event API
+   */
+  client.LiveApi().on(EventType.EVENT_TYPE_DESTINATION, (event, type) => {
+    log.info('Received: Destination event', type, event)
+    switch (type) {
+      case EventSubType.EVENT_SUB_TYPE_CREATE: {
+        const { destination } = event.create
+        triggerInternal('DestinationAdded', destination)
+        return
       }
-    })
+      case EventSubType.EVENT_SUB_TYPE_UPDATE: {
+        const { destination } = event.update
+        triggerInternal('DestinationChanged', destination)
+        return
+      }
+      case EventSubType.EVENT_SUB_TYPE_DELETE: {
+        triggerInternal('DestinationRemoved', event.delete.destinationId)
+        return
+      }
+    }
+  })
 
-  // Listen for remote changes to Layout / nodes
+  /**
+   * Source events from the Event API
+   */
+  client.LiveApi().on(EventType.EVENT_TYPE_SOURCE, (event, type) => {
+    log.info('Received: Source event', type, event)
+    switch (type) {
+      case EventSubType.EVENT_SUB_TYPE_CREATE: {
+        triggerInternal('SourceAdded', event.create.source)
+        return
+      }
+      case EventSubType.EVENT_SUB_TYPE_UPDATE: {
+        triggerInternal('SourceChanged', event.update.source)
+        return
+      }
+      case EventSubType.EVENT_SUB_TYPE_DELETE: {
+        triggerInternal('SourceRemoved', event.delete.sourceId)
+        return
+      }
+      case EventSubType.EVENT_SUB_TYPE_ADD: {
+        triggerInternal('ProjectSourceAdded', {
+          projectId: event.add.projectId,
+          source: event.add.source,
+        })
+        return
+      }
+      case EventSubType.EVENT_SUB_TYPE_REMOVE: {
+        triggerInternal('ProjectSourceRemoved', {
+          projectId: event.add.projectId,
+          sourceId: event.add.sourceId,
+        })
+        return
+      }
+    }
+  })
+
+  /**
+   * Project events from the Event API
+   */
+  client.LiveApi().on(EventType.EVENT_TYPE_PROJECT, (event, type) => {
+    log.info('Received: Project event', type, event)
+    switch (type) {
+      case EventSubType.EVENT_SUB_TYPE_CREATE: {
+        const project = event.create.project
+        // Ignore the event if we already have the project in state
+        if (getProject(project.projectId)) return
+        triggerInternal('ProjectAdded', project)
+        return
+      }
+      case EventSubType.EVENT_SUB_TYPE_UPDATE: {
+        const { projectId, updateMask, project } = event.update
+        const existingProject = getProject(project.projectId)
+        if (!existingProject) return
+
+        if (updateMask.includes('metadata')) {
+          /**
+           * @deprecated Use ProjectChanged
+           */
+          trigger('ProjectMetaUpdated', {
+            projectId,
+            meta: project.metadata,
+          })
+        }
+
+        triggerInternal('ProjectChanged', {
+          project,
+          phase: existingProject.videoApi.phase,
+        })
+        return
+      }
+      case EventSubType.EVENT_SUB_TYPE_DELETE: {
+        triggerInternal('ProjectRemoved', event.delete.projectId)
+        return
+      }
+      case EventSubType.EVENT_SUB_TYPE_STATE: {
+        // Get the project from memory since it is not included in event subtype `state`
+        const project = getProject(event.state?.projectId)
+        if (!project) return
+
+        triggerInternal('ProjectChanged', {
+          project: project.videoApi.project,
+          phase: event.state.phase,
+        })
+
+        // Emit explicit external events for broadcast start/stop/error
+        if (event.state.error) {
+          trigger('BroadcastError', {
+            projectId: project.id,
+            error: event.state.error,
+          })
+        }
+        if (event.state.phase) {
+          const phase = event.state.phase
+          if (phase === BroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING) {
+            trigger('BroadcastStarted', { projectId: project.id })
+          } else if (phase === BroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPED) {
+            trigger('BroadcastStopped', { projectId: project.id })
+          }
+        }
+        return
+      }
+    }
+  })
+
+  /**
+   * Layout events from the Event API
+   * Listen for remote changes to nodes within a project.
+   **/
   client
     .LayoutApi()
     .on(LayoutApiModel.EventType.EVENT_TYPE_LAYER, (layer, type) => {
-      if (type == LayoutApiModel.EventSubType.EVENT_SUB_TYPE_CREATE) {
+      if (type === LayoutApiModel.EventSubType.EVENT_SUB_TYPE_CREATE) {
         log.debug('Received: Node Insert', layer.create)
         const { connectionId, layoutId } = layer.create.requestMetadata
         if (CoreContext.connectionId === connectionId) return
@@ -253,8 +291,8 @@ export const init = async (
         const nodes = [node, ...project.compositor.nodes.map(toDataNode)]
         const tree = toSceneTree(nodes, node.id)
         project.compositor.local.insert(tree)
-        trigger('NodeAdded', { projectId: project.id, nodeId: node.id })
-      } else if (type == LayoutApiModel.EventSubType.EVENT_SUB_TYPE_UPDATE) {
+        triggerInternal('NodeAdded', { projectId: project.id, nodeId: node.id })
+      } else if (type === LayoutApiModel.EventSubType.EVENT_SUB_TYPE_UPDATE) {
         log.debug('Received: Node Update', layer.update)
         const {
           connectionId,
@@ -280,19 +318,22 @@ export const init = async (
           node.props,
           node.childIds,
         )
-        trigger('NodeChanged', { projectId: project.id, nodeId: node.id })
-      } else if (type == LayoutApiModel.EventSubType.EVENT_SUB_TYPE_DELETE) {
+        triggerInternal('NodeChanged', {
+          projectId: project.id,
+          nodeId: node.id,
+        })
+      } else if (type === LayoutApiModel.EventSubType.EVENT_SUB_TYPE_DELETE) {
         log.debug('Received: Node Delete', layer.delete)
         const { connectionId, layoutId } = layer.delete.requestMetadata
         if (CoreContext.connectionId === connectionId) return
 
         const project = getProjectByLayoutId(layoutId)
         project.compositor.local.remove(layer.delete.id)
-        trigger('NodeRemoved', {
+        triggerInternal('NodeRemoved', {
           projectId: project.id,
           nodeId: layer.delete.id,
         })
-      } else if (type == LayoutApiModel.EventSubType.EVENT_SUB_TYPE_BATCH) {
+      } else if (type === LayoutApiModel.EventSubType.EVENT_SUB_TYPE_BATCH) {
         log.debug('Received: Node Batch Update', layer.batch)
         const {
           connectionId,
@@ -307,7 +348,10 @@ export const init = async (
           if (type === 'create') {
             const node = layerToNode(args)
             project.compositor.local.insert(node)
-            trigger('NodeAdded', { projectId: project.id, nodeId: node.id })
+            triggerInternal('NodeAdded', {
+              projectId: project.id,
+              nodeId: node.id,
+            })
           } else if (type === 'update') {
             const node = layerToNode(args)
 
@@ -321,16 +365,22 @@ export const init = async (
             latestUpdateVersion[node.id] = updateVersions[node.id]
 
             project.compositor.local.update(node.id, node.props, node.childIds)
-            trigger('NodeChanged', { projectId: project.id, nodeId: node.id })
+            triggerInternal('NodeChanged', {
+              projectId: project.id,
+              nodeId: node.id,
+            })
           } else if (type === 'delete') {
             project.compositor.local.remove(args)
-            trigger('NodeRemoved', { projectId: project.id, nodeId: args.id })
+            triggerInternal('NodeRemoved', {
+              projectId: project.id,
+              nodeId: args.id,
+            })
           }
         })
 
         // Trigger a single change on the root node
         if (project)
-          trigger('NodeChanged', {
+          triggerInternal('NodeChanged', {
             projectId: project.id,
             nodeId: project.compositor.getRoot().id,
           })
@@ -417,9 +467,16 @@ export const init = async (
   }
 }
 
-let loadResult: SDK.User
+/**
+ * Register the access token and make API request to gather user data.
+ */
 const load = async (accessToken: string): Promise<SDK.User> => {
-  if (loadResult) return loadResult
+  let user = getBaseUser()
+  if (user) {
+    log.info('Attempted to load user again - returning existing user')
+    return user
+  }
+
   if (!accessToken) {
     log.warn('Access token required for load()')
     return
@@ -428,35 +485,21 @@ const load = async (accessToken: string): Promise<SDK.User> => {
 
   const client = CoreContext.clients
 
-  // Init api clients (vapi and lapi) with this jwt
+  // Init API clients with this jwt
   await client.load(accessToken)
 
   // Load the projects and user data
-  const { collectionId, projects, userProps } =
-    await CoreContext.Request.loadProjects()
+  const result = await CoreContext.Request.loadUser()
 
-  const { displayName } = client.getAccessToken()
-
+  // TODO: Move to UserLoaded event handler
   setAppState({
-    user: {
-      name: displayName,
-      props: {},
-    },
-    projects,
-    collectionId,
+    user: result.user,
+    sources: result.sources,
+    projects: result.projects,
     activeProjectId: null,
   })
 
-  const projectMap = projects.map(toBaseProject)
-
-  loadResult = {
-    id: collectionId,
-    projects: projectMap,
-    // Append user props in case it is being used for storage
-    props: userProps,
-  }
-  CoreContext.state.user.props = userProps
-
-  trigger('UserLoaded', loadResult)
-  return loadResult
+  user = getBaseUser()
+  trigger('UserLoaded', user)
+  return user
 }

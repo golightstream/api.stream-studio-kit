@@ -4,9 +4,16 @@
  * -------------------------------------------------------------------------------------------- */
 import config from '../../config'
 import type { ApiStream, LiveApiModel } from '@api.stream/sdk'
-import type { Request, Command, Compositor } from './namespaces'
+import type { Request, Command, Compositor, SDK } from './namespaces'
 import { LogLevel, Metadata } from './types'
-import { on, subscribe, trigger } from './events'
+import {
+  on,
+  onInternal,
+  subscribe,
+  subscribeInternal,
+  trigger,
+  triggerInternal,
+} from './events'
 import log from 'loglevel'
 
 const connectionId = (Math.random() * 1e20).toString(36)
@@ -18,14 +25,21 @@ export const CoreContext = {
   config: null as ReturnType<typeof config>,
   // TODO: Rename to client
   clients: null as ApiStream,
-  on,
-  subscribe,
-  compositor: {} as Compositor.CompositorInstance,
   Request: {} as typeof Request,
   Command: {} as typeof Command,
+  on,
+  subscribe,
+  /** @private @internal */
+  onInternal,
+  /** @private @internal */
+  subscribeInternal,
   /** @private @internal */
   trigger,
+  /** @private @internal */
+  triggerInternal,
+  /** @private @internal */
   state: {} as AppState,
+  compositor: {} as Compositor.CompositorInstance,
   connectionId,
   version,
   log,
@@ -41,12 +55,13 @@ export const setAppState = (state: AppState) => {
   })
 }
 
-export type User = {
+export type InternalUser = {
+  id: string
   name: string
   props: Metadata
 }
 
-export type Project = {
+export type InternalProject = {
   // ID comes from vapi
   id: string
   compositor: Compositor.Project
@@ -60,16 +75,26 @@ export type Project = {
     layoutId: string
   }
   sfuToken?: string
+  /**
+   * @private The room 
+   */
   isInitial?: boolean
+  /**
+   * @private
+   * @deprecated
+   */
   roomId?: string
   // From Vapi project metadata
   props: Metadata
 }
 
+export type InternalSource = LiveApiModel.Source
+
 export type AppState = {
-  user: User
-  projects: Project[]
-  collectionId: string
+  user: InternalUser
+  projects: InternalProject[]
+  // TODO: InternalSources[]
+  sources: any[]
   activeProjectId: string
   accessToken?: string
 }

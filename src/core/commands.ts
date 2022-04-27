@@ -29,15 +29,17 @@
  * _Note: Commands marked `internal` are low-level commands that should only be
  * used with caution. Higher-level abstractions should be used to manipulate Nodes
  * (elements on the stream canvas)._
- * 
- * _See: **{@link ScenelessProject.Commands}**_
+ *
+ * @private This module is currently hidden from users of the Studio Kit.
+ *  Favor the creation of helpers when supporting developers who require
+ *  functionality contained in this module.
  *
  * @module Commands
  */
 
-import { Project } from './context'
 import {
   getProject,
+  getUser,
   hydrateProject,
   toBaseDestination,
   toBaseProject,
@@ -45,22 +47,20 @@ import {
 import { CoreContext } from './context'
 import decode from 'jwt-decode'
 import { Metadata } from './types'
-import { SDK, Events, Compositor } from './namespaces'
+import { SDK } from './namespaces'
 import { webrtcManager } from './webrtc'
 import { getRoom } from './webrtc/simple-room'
+import { trigger, triggerInternal } from './events'
 
-const { trigger, state } = CoreContext
+const { state } = CoreContext
 
 /**
  * Create a project with optional metadata.
- * 
+ *
  * ----
  * _Note: This is a low level function that necessitates careful management
  *  of the nodes within. Consider {@link ScenelessProject.create} instead._
  *
- * **Emits {@link ProjectAdded}**
- *
- * @internal _Use with caution_
  * @category Project
  */
 export const createProject = async (
@@ -74,60 +74,58 @@ export const createProject = async (
   } = {},
 ) => {
   const { props = {}, size, meta = {} } = payload
-  const collectionId = state.collectionId
-  const vapiProject = await CoreContext.Request.createProject({
-    collectionId,
+  const response = await CoreContext.Request.createProject({
     props,
     meta,
     size,
   })
-  const project = await hydrateProject(vapiProject.project)
-  const baseProject = toBaseProject(project)
 
-  // Update state
-  state.projects = [...state.projects, project]
-  /** @event ProjectAdded */
-  trigger('ProjectAdded', {
-    project: baseProject,
+  // For responsiveness, emit this event locally and ignore it from the EventAPI
+  await triggerInternal('ProjectAdded', response.project)
+
+  // Return the base project directly, for convenience
+  const internalProject = await hydrateProject(response.project)
+  return toBaseProject(internalProject)
+}
+
+/**
+ * Delete a project.
+ *
+ * @category Project
+ */
+export const deleteProject = async (payload: {
+  projectId: SDK.Project['id']
+}) => {
+  const { projectId } = payload
+  await CoreContext.Request.deleteProject({
+    projectId,
   })
-  return baseProject
+  return
 }
 
 /**
  * Update a project's metadata with custom data opaque to the SDK.
- * 
- * ----
- * **Emits {@link ProjectMetaUpdated}**
  *
  * @category Project
  */
 export const updateProjectMeta = async (payload: {
-  projectId: Project['id']
+  projectId: SDK.Project['id']
   /** Arbitrary metadata to associate with this project */
   meta?: Metadata
 }) => {
   const { projectId, meta = {} } = payload
-  const project = state.projects.find((x) => x.id === payload.projectId)
-  if (!project) {
-    return
-  }
+  const collectionId = getUser().id
+  const project = getProject(projectId)
 
   const metadata = {
     ...project.props,
     ...meta,
   }
   await CoreContext.clients.LiveApi().project.updateProject({
-    collectionId: project.videoApi.project.collectionId,
+    collectionId,
     projectId,
     updateMask: ['metadata'],
     metadata,
-  })
-
-  // Update state
-  project.props = metadata
-  trigger('ProjectMetaUpdated', {
-    projectId,
-    meta: project.props,
   })
   return metadata
 }
@@ -138,19 +136,16 @@ export const updateProjectMeta = async (payload: {
  * 
  * This project will be used as the default project 
  *  for commands that do not specify `payload.projectId`
- * 
- * ----
- * **Emits {@link ActiveProjectChanged}**
  *
  * @category Project
  */
 export const setActiveProject = async (payload: {
-  projectId: Project['id']
+  projectId: SDK.Project['id']
 }) => {
   const project = state.projects.find((x) => x.id === payload.projectId)
   if (!project) {
     state.activeProjectId = null
-    trigger('ActiveProjectChanged', null)
+    triggerInternal('ActiveProjectChanged', { projectId: null })
     return
   }
 
@@ -182,17 +177,22 @@ export const setActiveProject = async (payload: {
       project.videoApi.project.projectId,
     )
 
-  // get current project state
-  let response = await CoreContext.clients.LiveApi().project.getProject({
-    collectionId: project.videoApi.project.collectionId,
-    projectId: project.videoApi.project.projectId,
-    status: true,
-  })
-  project.videoApi.phase = response.status.phase
+  // Asynchronously ensure latest project state
+  CoreContext.clients
+    .LiveApi()
+    .project.getProject({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+      status: true,
+    })
+    .then((response) => {
+      triggerInternal('ProjectChanged', {
+        project: response.project,
+        phase: response.status?.phase,
+      })
+    })
 
-  // Update state
-  state.activeProjectId = project.id
-  trigger('ActiveProjectChanged', {
+  triggerInternal('ActiveProjectChanged', {
     projectId: project.id,
   })
   return toBaseProject(project)
@@ -200,14 +200,11 @@ export const setActiveProject = async (payload: {
 
 /**
  * Initiate WebRTC connection to the room associated with this project.
- * 
- * ----
- * **Emits {@link RoomJoined}**
  *
  * @category Project
  */
 export const joinRoom = async (payload: {
-  projectId: Project['id']
+  projectId: SDK.Project['id']
   /** A public name for other guests will see associated with your {@link Participant} */
   displayName?: string
 }) => {
@@ -253,10 +250,8 @@ export const joinRoom = async (payload: {
  * If a node is given data the renderer is not aware of, it will accomplish nothing.
  *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- *
- * **Emits {@link NodeAdded}, {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -278,19 +273,17 @@ export const createNode = async (payload: {
 
   // Update state
   const nodeId = await project.compositor.insert(props, parentId, index)
-  trigger('NodeAdded', { projectId, nodeId })
-  trigger('NodeChanged', { projectId, nodeId: parentId })
+  triggerInternal('NodeAdded', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentId })
   return project.compositor.get(nodeId)
 }
 
 /**
  * Remove a node from the project's scene tree.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeRemoved}, {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -305,19 +298,17 @@ export const deleteNode = async (payload: {
 
   // Update state
   project.compositor.remove(nodeId)
-  trigger('NodeRemoved', { projectId, nodeId })
-  trigger('NodeChanged', { projectId, nodeId: parentId })
+  triggerInternal('NodeRemoved', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentId })
 }
 
 /**
  * Update the properties of a node.
  * `payload.props` will be shallowly merged onto its existing `props`.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -336,7 +327,7 @@ export const updateNode = async (payload: {
 
   // Update state
   project.compositor.update(nodeId, props)
-  trigger('NodeChanged', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId })
   return project.compositor.get(nodeId)
 }
 
@@ -344,10 +335,8 @@ export const updateNode = async (payload: {
  * Update the layout of a node.
  *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -371,17 +360,15 @@ export const setNodeLayout = async (payload: {
     layout,
     layoutProps,
   })
-  trigger('NodeChanged', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId })
 }
 
 /**
  * Move a node to a different parent node.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -398,17 +385,15 @@ export const moveNode = async (payload: {
   // Update state
   project.compositor.move(nodeId, parentId, index)
   // TODO: Determine if this is necessary (likely need only the events from Event API)
-  trigger('NodeChanged', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId })
 }
 
 /**
  * Swap the positions of two nodes, changing parents if necessary.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -426,18 +411,16 @@ export const swapNodes = async (payload: {
 
   // Update state
   project.compositor.swap(nodeAId, nodeBId)
-  trigger('NodeChanged', { projectId, nodeId: parentAId })
-  trigger('NodeChanged', { projectId, nodeId: parentBId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentAId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentBId })
 }
 
 /**
  * Change the order of a node's children.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -452,17 +435,15 @@ export const reorderNodes = async (payload: {
 
   // Update state
   project.compositor.reorder(parentId, childIds)
-  trigger('NodeChanged', { projectId, nodeId: parentId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentId })
 }
 
 /**
  * Start broadcasting a project.
- * 
+ *
  * ----
  * _Note: Destination, encoding, and rendering details will be read from the Project
  * at time of broadcast, so they should be updated ahead of time._
- *
- * **Emits {@link BroadcastStarted}**
  *
  * @category Broadcast
  */
@@ -478,9 +459,6 @@ export const startBroadcast = async (payload: { projectId?: string }) => {
 
 /**
  * Stop broadcasting a project.
- * 
- * ----
- * **Emits {@link BroadcastStopped}**
  *
  * @category Broadcast
  */
@@ -496,9 +474,6 @@ export const stopBroadcast = async (payload: { projectId?: string }) => {
 
 /**
  * Add a {@link Destination} to a project.
- * 
- * ----
- * **Emits {@link DestinationAdded}**
  *
  * @category Destination
  */
@@ -536,20 +511,11 @@ export const addDestination = async (payload: {
 
   // Update state
   project.videoApi.project.destinations.push(result.destination)
-
-  const destination = toBaseDestination(result.destination)
-  trigger('DestinationAdded', {
-    projectId,
-    destination,
-  })
-  return destination
+  return toBaseDestination(result.destination)
 }
 
 /**
  * Remove a {@link Destination} from the project.
- * 
- * ----
- * **Emits {@link DestinationRemoved}**
  *
  * @category Destination
  */
@@ -571,11 +537,6 @@ export const removeDestination = async (payload: {
     project.videoApi.project.destinations.filter(
       (x) => x.destinationId !== destinationId,
     )
-
-  trigger('DestinationRemoved', {
-    projectId,
-    destinationId,
-  })
 }
 
 /**
@@ -671,9 +632,6 @@ export const updateDestinationMeta = async (payload: {
 
 /**
  * Enable or disable an existing {@link Destination} on the project.
- * 
- * ----
- * **Emits {@link DestinationEnabled}**
  *
  * @category Destination
  */
@@ -697,10 +655,10 @@ export const setDestinationEnabled = async (payload: {
     enabled,
   })
 
-  // Update state
-  destination.enabled = enabled
-
   const event = enabled ? 'DestinationEnabled' : 'DestinationDisabled'
+  /**
+   * @deprecated Use DestinationChanged
+   */
   trigger(event, {
     projectId,
     destinationId,
@@ -713,9 +671,6 @@ export const setDestinationEnabled = async (payload: {
  *
  * This is a helper to manage a single-destination project. For greater control,
  *  use {@link addDestination}, {@link removeDestination}, or {@link updateDestination}
- * 
- * ----
- * **Emits {@link DestinationSet}**
  *
  * @category Destination
  */

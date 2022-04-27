@@ -296,7 +296,7 @@ export const commands = (project: ScenelessProject) => {
       sendState()
 
       // Watch for changes to the parent children
-      return CoreContext.on('NodeChanged', (payload) => {
+      return CoreContext.onInternal('NodeChanged', (payload) => {
         if (payload.nodeId !== content.id) return
         sendState()
       })
@@ -381,7 +381,7 @@ export const commands = (project: ScenelessProject) => {
       }
 
       // Watch for changes to the parent children
-      const childListener = CoreContext.on('NodeChanged', (payload) => {
+      const childListener = CoreContext.onInternal('NodeChanged', (payload) => {
         if (payload.nodeId !== content.id) return
         const previous = participantNode
         participantNode = commands.getParticipantNode(participantId)
@@ -391,10 +391,13 @@ export const commands = (project: ScenelessProject) => {
       })
 
       // Watch for changes to the participant node
-      const participantListener = CoreContext.on('NodeChanged', (payload) => {
-        if (!participantNode || payload.nodeId !== participantNode.id) return
-        sendState()
-      })
+      const participantListener = CoreContext.onInternal(
+        'NodeChanged',
+        (payload) => {
+          if (!participantNode || payload.nodeId !== participantNode.id) return
+          sendState()
+        },
+      )
 
       sendState()
 

@@ -121,7 +121,7 @@ export interface LSRoomContext {
   bindApiClient: (client: ApiStream) => void
   connect: (options?: ConnectOptions) => Promise<Room>
   /**
-   * Array of chat messages in ascending chronological order
+   * Array of chat messages in ascending chronological order 
    */
   chatHistory: ChatObject[]
   /**
@@ -363,15 +363,15 @@ export class RoomContext implements LSRoomContext {
         participant: Participant,
         kind: DataPacket_Kind,
       ) => {
-        const strData = decoder.decode(payload)
-        const data: DataObject = JSON.parse(strData)
-        switch (data.type) {
-          case DataType.ChatMessage: {
-            return this._appendChat(payload, participant, kind)
-          }
-          default:
-            return
+      const strData = decoder.decode(payload)
+      const data: DataObject = JSON.parse(strData)
+      switch (data.type) {
+        case DataType.ChatMessage: {
+          return this._appendChat(payload, participant, kind)
         }
+        default:
+          return
+      }
       },
     )
 
@@ -596,8 +596,8 @@ export class RoomContext implements LSRoomContext {
       Object.values(RoomEvent).forEach((eventName) => {
         this.livekitRoom.on(eventName, (...args: any[]) => {
           this._roomEventListenerRegistry[eventName].forEach((cb) => {
-            cb(...args)
-          })
+              cb(...args)
+            })
         })
       })
 
@@ -724,22 +724,22 @@ export class RoomContext implements LSRoomContext {
         .then(() => {
           // TODO trigger event
           this._appendChat(
-            encodedData,
+        encodedData,
             this.livekitRoom.localParticipant,
-            DataPacket_Kind.RELIABLE,
+        DataPacket_Kind.RELIABLE,
           )
         })
     } else {
       this.livekitRoom.localParticipant
         .publishData(encodedData, DataPacket_Kind.RELIABLE)
         .then(() => {
-          // TODO trigger event
+        // TODO trigger event
           this._appendChat(
-            encodedData,
+        encodedData,
             this.livekitRoom.localParticipant,
-            DataPacket_Kind.RELIABLE,
+        DataPacket_Kind.RELIABLE,
           )
-        })
+      })
     }
   }
 }

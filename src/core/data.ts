@@ -2,16 +2,34 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { CoreContext } from './context'
+import { CoreContext, InternalSource } from './context'
 import { toSceneTree } from '../logic'
 import { Context, SDK, Compositor } from './namespaces'
 import { LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
 import { getRoom } from './webrtc/simple-room'
-import decode from 'jwt-decode'
+import { ProjectBroadcastPhase } from './types'
 
 const { state } = CoreContext
 
-export const toBaseProject = (project: Context.Project): SDK.Project => {
+export const getAccessTokenData = () => {
+  // @ts-ignore Type not exposed by API
+  return CoreContext.clients.accessTokenClaims?.user || {}
+}
+
+// Pulls the external User from internal state
+export const getBaseUser = (): SDK.User => {
+  if (!state.user) return null
+
+  return {
+    ...state.user,
+    projects: state.projects.map(toBaseProject),
+    sources: state.sources.map(toBaseSource),
+  }
+}
+
+export const toBaseProject = (
+  project: Context.InternalProject,
+): SDK.Project => {
   const { compositor, videoApi, props } = project
   const { destinations, encoding, rendering, sources } = videoApi.project
 
@@ -26,7 +44,18 @@ export const toBaseProject = (project: Context.Project): SDK.Project => {
     },
   })
 
+  const broadcastPhase = project.videoApi.phase
+
+  // TODO: Check project root node type and extend functionality
+  //  e.g. ScenelessProject
+
   return {
+    // TODO: Pull from Video API reseponse
+    broadcastPhase,
+    isLive: [
+      ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING,
+      ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPING,
+    ].includes(broadcastPhase),
     scene: scene as SDK.Scene,
     joinRoom: async (settings = {}) => {
       return CoreContext.Command.joinRoom({
@@ -65,11 +94,11 @@ export const toBaseDestination = (
   }
 }
 
-export const toBaseSource = (source: LiveApiModel.Source): SDK.Source => {
+export const toBaseSource = (source: InternalSource): SDK.Source => {
   return {
     id: source.sourceId,
     address: source.address,
-    props: source.metadata,
+    props: source.metadata || {},
   }
 }
 
@@ -85,7 +114,7 @@ export const hydrateProject = async (project: LiveApiModel.Project) => {
       layoutId: metadata.layoutId,
     },
     props: metadata,
-  } as Context.Project
+  } as Context.InternalProject
 }
 
 export const sceneNodeToLayer = (
@@ -154,12 +183,22 @@ export const layoutToProject = async (
  * Queries
  */
 
-export const getProjectByLayoutId = (id: string) => {
-  return state.projects.find((x) => x.compositor.id === id)
+export const getUser = () => {
+  const user = state.user
+  if (!user) {
+    // If we try to get the user and they don't exist,
+    //  it's fair to assume we are in an unexpected situation.
+    throw new Error('User not loaded')
+  }
+  return user
 }
 
 export const getProject = (id: string) => {
   return state.projects.find((x) => x.id === id)
+}
+
+export const getProjectByLayoutId = (id: string) => {
+  return state.projects.find((x) => x.compositor.id === id)
 }
 
 export const getProjectRoom = (id: string) => {

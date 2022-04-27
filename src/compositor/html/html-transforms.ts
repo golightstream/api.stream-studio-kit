@@ -151,7 +151,7 @@ export const getElement = (node: SceneNode) => {
     // Bind to compositor events
     result.onEvent && compositor.subscribe(result.onEvent),
     // Update when node changes
-    CoreContext.on('NodeChanged', ({ nodeId }) => {
+    CoreContext.onInternal('NodeChanged', ({ nodeId }) => {
       if (nodeId === node.id) {
         const node = compositor.getNode(nodeId)
         result.onUpdate?.(node.props)
@@ -161,7 +161,7 @@ export const getElement = (node: SceneNode) => {
       }
     }),
     // Dispose when node is removed
-    CoreContext.on('NodeRemoved', ({ nodeId }) => {
+    CoreContext.onInternal('NodeRemoved', ({ nodeId }) => {
       if (nodeId === node.id) {
         const node = compositor.getNode(nodeId)
         const { sourceType = 'Element' } = node.props

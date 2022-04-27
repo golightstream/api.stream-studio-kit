@@ -75,6 +75,7 @@ import RenderingQuality = LiveApiModel.RenderingQuality
 import Encoding = LiveApiModel.Encoding
 import VideoEncoding = LiveApiModel.VideoEncoding
 import AudioEncoding = LiveApiModel.AudioEncoding
+import ProjectBroadcastPhase = LiveApiModel.ProjectBroadcastPhase
 /**
  * @category Core
  */
@@ -85,7 +86,7 @@ import AudioCodec = LiveApiModel.AudioCodec
 import VideoCodecRateControl = LiveApiModel.VideoCodecRateControl
 import VideoCodecProfile = LiveApiModel.VideoCodecProfile
 
-export type {
+export {
   Rendering,
   VideoRendering,
   AudioRendering,
@@ -99,7 +100,10 @@ export type {
   AudioCodec,
   VideoCodecRateControl,
   VideoCodecProfile,
+  ProjectBroadcastPhase,
 }
+
+export type SceneNode = Compositor.SceneNode
 
 /**
  * A **Project** provides
@@ -114,6 +118,15 @@ export interface Project {
    * Corresponds to a Live API `project_id`.
    */
   id: string
+  /**
+   * Phase of the project's broadcast.
+   */
+  broadcastPhase: ProjectBroadcastPhase
+  /**
+   * Boolean representation of project's broadcast phase,
+   *  indicating whether the project is currently being broadcast.
+   */
+  isLive: boolean
   /**
    * Destinations are RTMP destinations where you can send your broadcast.
    * Examples: a YouTube channel or a Twitch channel.
@@ -135,6 +148,9 @@ export interface Project {
    * Use this method to join the WebRTC {@link Room}
    */
   joinRoom: (settings?: { displayName?: string }) => Promise<Room>
+  /**
+   * @private
+   */
   scene: Scene
   /**
    * Field to store arbitrary data. Not used by the SDK.
@@ -544,9 +560,13 @@ export type User = {
    */
   id: string
   /**
-   * Array of {@link Project Projects} belonging to the User.
+   * Array of Projects belonging to the User.
    */
   projects: Project[]
+  /**
+   * Array of Sources belonging to the User.
+   */
+  sources: Source[]
   /**
    * Arbitrary data stored on the user. Opaque to the SDK.
    */
