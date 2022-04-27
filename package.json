@@ -1,6 +1,6 @@
 {
   "name": "@api.stream/studio-kit",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Client SDK for building studio experiences with API.stream",
   "license": "MIT",
   "private": false,
@@ -23,7 +23,6 @@
     "url": "ssh://git@github.com:golightstream/api.stream-studio-kit.git"
   },
   "homepage": "https://api.stream",
-  "type": "module",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
   "types": "./types/src/index.d.ts",
