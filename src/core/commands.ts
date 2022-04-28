@@ -509,8 +509,6 @@ export const addDestination = async (payload: {
       metadata,
     })
 
-  // Update state
-  project.videoApi.project.destinations.push(result.destination)
   return toBaseDestination(result.destination)
 }
 

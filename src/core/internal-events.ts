@@ -2,10 +2,17 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { getBaseUser, getProject, hydrateProject, toBaseProject } from './data'
-import { subscribeInternal, trigger } from './events'
+import {
+  getBaseUser,
+  getProject,
+  hydrateProject,
+  toBaseDestination,
+  toBaseProject,
+} from './data'
+import { InternalEventMap, subscribeInternal, trigger } from './events'
 import { SDK } from './namespaces'
 import { CoreContext } from './context'
+import { Destination } from '@api.stream/sdk/lib/liveapi/proto/ts/live/v21/api'
 
 const { state } = CoreContext
 
@@ -23,7 +30,12 @@ subscribeInternal(async (event, payload) => {
      * User
      */
     case 'UserChanged': {
-      state.user.props = payload.metadata
+      const { metadata } = payload as InternalEventMap['UserChanged']
+
+      // Update state
+      state.user.props = metadata
+
+      // Emit public event
       trigger('UserChanged', {
         user: getBaseUser(),
       })
@@ -33,32 +45,50 @@ subscribeInternal(async (event, payload) => {
      * Project
      */
     case 'ActiveProjectChanged': {
-      state.activeProjectId = payload.projectId
+      const { projectId } = payload as InternalEventMap['ActiveProjectChanged']
+
+      // Update state
+      state.activeProjectId = projectId
+
+      // Emit public event
       trigger('ActiveProjectChanged', {
-        projectId: payload.projectId,
+        projectId,
       })
       return
     }
     case 'ProjectAdded': {
-      const internalProject = await hydrateProject(payload)
+      const project = payload as InternalEventMap['ProjectAdded']
+      const internalProject = await hydrateProject(project)
       const baseProject = toBaseProject(internalProject)
+
+      // Update state
       state.projects = [...state.projects, internalProject]
+
+      // Emit public event
       trigger('ProjectAdded', { project: baseProject })
       return
     }
     case 'ProjectRemoved': {
+      const projectId = payload as InternalEventMap['ProjectRemoved']
+
+      // Update state
+      state.projects = state.projects.filter((x) => x.id === projectId)
+
+      // Emit public event
+      trigger('ProjectRemoved', { projectId: payload })
       return
     }
     case 'ProjectChanged': {
-      // Update state
-      const internalProject = getProject(payload.projectId)
+      const { project, phase } = payload as InternalEventMap['ProjectChanged']
+      const internalProject = getProject(project.projectId)
       if (!internalProject) return
 
+      // Update state
+      internalProject.videoApi.phase = phase
       internalProject.videoApi.project = payload
       internalProject.props = payload.metadata
 
-      // Re-emit the event for public consumption
-      // TODO: Trigger public ProjectChanged (data.toBaseProject)
+      // Emit public event
       trigger('ProjectChanged', {
         project: toBaseProject(internalProject),
       })
@@ -66,16 +96,37 @@ subscribeInternal(async (event, payload) => {
     }
     /**
      * Destination
-      // TODO: Update state.projects[].videoApi.destinations with the full dest
-      // TODO: Remove state updates from Destination commands
      */
     case 'DestinationAdded': {
+      const destination = payload as InternalEventMap['DestinationAdded']
+      const { projectId } = destination
+      const internalProject = getProject(projectId)
+      if (!internalProject) return
+
+      // Update state
+      internalProject.videoApi.project.destinations.push(payload)
+
+      // Emit public event
+      trigger('DestinationAdded', {
+        projectId,
+        destination: toBaseDestination(payload),
+      })
       return
     }
     case 'DestinationRemoved': {
+      // Update state
+
+      // Emit public event
+
+      // TODO: Remove state updates from Destination commands
       return
     }
     case 'DestinationUpdated': {
+      // Update state
+
+      // Emit public event
+
+      // TODO: Remove state updates from Destination commands
       return
     }
     /**
@@ -85,12 +136,24 @@ subscribeInternal(async (event, payload) => {
       // TODO: Update state.projects[].videoApi.sources with the full source?
      */
     case 'SourceAdded': {
+      // Update state
+
+      // Emit public event
+
       return
     }
     case 'SourceRemoved': {
+      // Update state
+
+      // Emit public event
+
       return
     }
     case 'SourceUpdated': {
+      // Update state
+
+      // Emit public event
+
       return
     }
     /**
@@ -98,12 +161,24 @@ subscribeInternal(async (event, payload) => {
      * TODO: Make sure this doesn't conflict with commands
      */
     case 'NodeAdded': {
+      // Update state
+
+      // Emit public event
+
       return
     }
     case 'NodeRemoved': {
+      // Update state
+
+      // Emit public event
+
       return
     }
     case 'NodeUpdated': {
+      // Update state
+
+      // Emit public event
+
       return
     }
   }
