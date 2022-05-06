@@ -18,8 +18,6 @@ const getEnv = () => {
 }
 
 const run = async () => {
-  // TODO: Remove when possible
-  await new Promise((resolve) => window.setTimeout(resolve, 3000))
   const sdk = await init({
     env: getEnv(),
     logLevel: 'Debug',
