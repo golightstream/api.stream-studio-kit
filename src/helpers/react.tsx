@@ -3,11 +3,11 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 /**
- * Utilities to assist in implementation to a React-based project 
+ * Utilities to assist in implementation to a React-based project
  * implementing a {@link ScenelessProject} workflow.
- * 
+ *
  * These functions are intended to be helpful and are not necessary to use.
- * 
+ *
  * @module React
  */
 import React, { useContext, useEffect, useMemo, useState } from 'react'
@@ -22,7 +22,7 @@ export const useActiveProjectRoom = (): SDK.Room => {
 }
 
 /**
- * React hook which implements {@link Room.watchDevices} and returns 
+ * React hook which implements {@link Room.watchDevices} and returns
  * the result as a value.
  */
 export const useDevices = () => {
@@ -57,25 +57,25 @@ export type StudioContext = {
   setRoom: (room: SDK.Room) => void
   webcamId: string
   /**
-   * Set the user's active webcam, which will be sent to other 
+   * Set the user's active webcam, which will be sent to other
    * guests and eligible to display on the stream canvas.
-   * 
+   *
    * Delegates to {@link Room.setCamera Room.setCamera()}
    */
   setWebcamId: (deviceId: string) => void
   microphoneId: string
   /**
-   * Set the user's active webcam, which will be sent to other 
+   * Set the user's active webcam, which will be sent to other
    * guests and eligible to display on the stream canvas.
-   * 
+   *
    * Delegates to {@link Room.setMicrophone Room.setMicrophone()}
    */
   setMicrophoneId: (deviceId: string) => void
   /**
    * An interface of functions important to a project
    * under the {@link ScenelessProject} workflow.
-   * 
-   * Equivalent to 
+   *
+   * Equivalent to
    * ```typescript
    * ScenelessProject.commands(project)
    * ```
@@ -98,11 +98,11 @@ export const StudioContext = React.createContext<StudioContext>({
 
 /**
  * React hook which returns the latest {@link StudioContext}.
- * 
+ *
  * ```typescript
  * const App = () => {
  *   const { studio, project, room } = useStudio()
- * 
+ *
  *   // Return some React that depends on studio state
  *   return <></>
  * }
@@ -110,9 +110,21 @@ export const StudioContext = React.createContext<StudioContext>({
  */
 export const useStudio = () => useContext(StudioContext)
 
+let stored = {
+  webcamId: null,
+  microphoneId: null,
+} as {
+  webcamId: string
+  microphoneId: string
+}
+try {
+  stored.webcamId = localStorage?.getItem('__LS_webcam')
+  stored.microphoneId = localStorage?.getItem('__LS_microphone')
+} catch {}
+
 /**
  * StudioContext provider
- * 
+ *
  * ```typescript
  * <StudioProvider>
  *   <App />
@@ -127,15 +139,10 @@ export const StudioProvider = ({
   const [room, setRoom] = useState<SDK.Room>()
   const [project, setProject] = useState<SDK.Project>()
   const [studio, setStudio] = useState<SDK.Studio>()
-  const [webcamId, setWebcamId] = useState<string>(
-    localStorage.getItem('__LS_webcam'),
-  )
-  const [microphoneId, setMicrophoneId] = useState<string>(
-    localStorage.getItem('__LS_microphone'),
-  )
+  const [webcamId, setWebcamId] = useState<string>(stored.webcamId)
+  const [microphoneId, setMicrophoneId] = useState<string>(stored.microphoneId)
   const projectCommands = useMemo(
-    () =>
-      project ? ScenelessProject.commands(project) : null,
+    () => (project ? ScenelessProject.commands(project) : null),
     [project],
   )
 
@@ -166,11 +173,15 @@ export const StudioProvider = ({
         setProject,
         setRoom,
         setWebcamId: (id: string) => {
-          localStorage.setItem('__LS_webcam', id)
+          try {
+            localStorage?.setItem('__LS_webcam', id)
+          } catch (e) {}
           setWebcamId(id)
         },
         setMicrophoneId: (id: string) => {
-          localStorage.setItem('__LS_microphone', id)
+          try {
+            localStorage?.setItem('__LS_microphone', id)
+          } catch (e) {}
           setMicrophoneId(id)
         },
         projectCommands,
