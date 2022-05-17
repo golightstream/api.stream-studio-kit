@@ -506,12 +506,14 @@ export const addDestination = async (payload: {
   rtmpUrl: string
   rtmpKey: string
   enabled: boolean
+  metadata?: object
 }) => {
   const {
     rtmpUrl,
     rtmpKey,
     enabled,
     projectId = state.activeProjectId,
+    metadata,
   } = payload
   const project = getProject(projectId)
   const address = {
@@ -528,6 +530,7 @@ export const addDestination = async (payload: {
       projectId: project.videoApi.project.projectId,
       address,
       enabled,
+      metadata,
     })
 
   // Update state
