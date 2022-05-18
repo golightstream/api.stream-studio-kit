@@ -212,11 +212,9 @@ export interface EventMap {
   /**
    * @category Destination
    */
-  DestinationUpdated: {
+  DestinationChanged: {
     projectId: SDK.Project['id']
-    destinationId: SDK.Destination['id']
-    rtmpUrl: string
-    rtmpKey: string
+    destination: SDK.Destination
   }
   /**
    * @category Destination
