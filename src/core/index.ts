@@ -140,8 +140,47 @@ export const init = async (
 
   client
     .LiveApi()
-    .on(LiveApiModel.EventType.EVENT_TYPE_DESTINATION, (destination, type) => {
-      log.info('Received: Destination event', type, destination)
+    .on(LiveApiModel.EventType.EVENT_TYPE_DESTINATION, (destinationEvent, type) => {
+      log.info('Received: Destination event', type, destinationEvent)
+      switch (type) {
+        case LiveApiModel.EventSubType.EVENT_SUB_TYPE_CREATE: {
+          const { destination, projectId } = destinationEvent.create
+          const project = getProject(projectId)
+          const { enabled, address, metadata, destinationId } = destination
+          trigger('DestinationAdded',{
+            destination: {
+              id: destinationId,
+              enabled,
+              props: metadata,
+              address,
+            },
+            projectId,
+          })
+          break
+        }
+        case LiveApiModel.EventSubType.EVENT_SUB_TYPE_DELETE: {
+          const { destinationId, projectId } = destinationEvent.delete
+          trigger('DestinationRemoved', {
+            destinationId,
+            projectId,
+          })
+          break
+        }
+        case LiveApiModel.EventSubType.EVENT_SUB_TYPE_UPDATE: {
+          const { updateMask, destination, destinationId, projectId } = destinationEvent.update
+          const { enabled, metadata, address } = destination
+          trigger('DestinationChanged', {
+            projectId,
+            destination: {
+              id: destinationId,
+              enabled,
+              props: metadata,
+              address,
+            },
+          })
+        }
+        default: break
+      }
     })
 
   client

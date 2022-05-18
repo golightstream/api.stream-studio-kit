@@ -537,10 +537,6 @@ export const addDestination = async (payload: {
   project.videoApi.project.destinations.push(result.destination)
 
   const destination = toBaseDestination(result.destination)
-  trigger('DestinationAdded', {
-    projectId,
-    destination,
-  })
   return destination
 }
 
@@ -570,18 +566,13 @@ export const removeDestination = async (payload: {
     project.videoApi.project.destinations.filter(
       (x) => x.destinationId !== destinationId,
     )
-
-  trigger('DestinationRemoved', {
-    projectId,
-    destinationId,
-  })
 }
 
 /**
  * Update an existing {@link Destination} on the project.
  * 
  * ----
- * **Emits {@link DestinationUpdated}**
+ * **Emits {@link DestinationChanged}**
  *
  * @category Destination
  */
@@ -618,20 +609,13 @@ export const updateDestination = async (payload: {
     (x) => destinationId === x.destinationId,
   )
   destination.address.rtmpPush = rtmpPush
-
-  trigger('DestinationUpdated', {
-    projectId,
-    destinationId,
-    rtmpKey,
-    rtmpUrl,
-  })
 }
 
 /**
  * Enable or disable an existing {@link Destination} on the project.
  * 
  * ----
- * **Emits {@link DestinationUpdated}**
+ * **Emits {@link DestinationChanged}**
  *
  * @category Destination
  */
