@@ -128,7 +128,7 @@ const Login = (props: {
 }
 
 const Project = () => {
-  const { studio, project, projectCommands } = useStudio()
+  const { studio, project, room, projectCommands } = useStudio()
   const renderContainer = useRef()
   const destination = project.destinations[0]
   const destinationAddress = destination?.address.rtmpPush
@@ -168,6 +168,8 @@ const Project = () => {
       dragAndDrop: true,
     })
   }, [renderContainer.current])
+  
+  if (!room) return null
 
   return (
     <div className={Style.column}>

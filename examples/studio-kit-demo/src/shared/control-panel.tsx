@@ -63,8 +63,9 @@ export const ControlPanel = () => {
 
   // Listen for room participants
   useEffect(() => {
+    if (!room) return
     return room.useParticipant(room.participantId, setParticipant)
-  }, [])
+  }, [room])
 
   useEffect(() => {
     if (!participant) return

@@ -43,6 +43,8 @@ const Project = () => {
     })
   }, [renderContainer.current])
 
+  if (!room) return null
+
   return (
     <div className={Style.column} style={{ marginLeft: 10 }}>
       <div ref={renderContainer}></div>
@@ -115,6 +117,12 @@ export const GuestView = () => {
         displayName,
       })
       .then((room) => {
+        room.useParticipants((p) =>
+          p.map((x) =>
+            console.log('tracks', x.trackIds.map((y) => room.getTrack(y).isMuted)),
+          ),
+        )
+
         setJoining(false)
         setRoom(room)
       })

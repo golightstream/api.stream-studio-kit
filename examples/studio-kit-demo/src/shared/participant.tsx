@@ -17,12 +17,13 @@ export const Participants = () => {
 
   // Listen for room participants
   useEffect(() => {
+    if (!room) return
     return room.useParticipants((participants) => {
       setParticipants(participants)
       // Prune non-existent guests from the project
       if (isHost) projectCommands.pruneParticipants()
     })
-  }, [])
+  }, [room])
 
   return (
     <div className={Style.column}>
