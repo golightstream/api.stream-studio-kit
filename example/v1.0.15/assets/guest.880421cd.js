@@ -106,7 +106,6 @@ const GuestView = () => {
     project.joinRoom({
       displayName
     }).then((room2) => {
-      room2.useParticipants((p) => p.map((x) => console.log("tracks", x.trackIds.map((y) => room2.getTrack(y).isMuted))));
       setJoining(false);
       setRoom(room2);
     }).catch((e) => {
@@ -206,4 +205,4 @@ const Content = () => {
   });
 };
 ReactDOM.render(/* @__PURE__ */ jsx(Content, {}), document.getElementById("root"));
-//# sourceMappingURL=guest.9bc8fba6.js.map
+//# sourceMappingURL=guest.880421cd.js.map
