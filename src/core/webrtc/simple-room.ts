@@ -30,6 +30,10 @@ export const getRoom = (id: string) => {
 
   const livekit = room.livekitRoom
   const localParticipant = livekit.localParticipant
+
+  // @ts-ignore
+  window.__StudioRoom = livekit
+
   if (!localParticipant) log.warn('No local participant!')
 
   const listeners = {
@@ -314,6 +318,12 @@ export const getRoom = (id: string) => {
       room.livekitRoom.on(RoomEvent.DataReceived, fn)
       return () => {
         room.livekitRoom.off(RoomEvent.DataReceived, fn)
+      }
+    },
+    onDisconnected: (cb) => {
+      room.livekitRoom.on(RoomEvent.Disconnected, cb)
+      return () => {
+        room.livekitRoom.off(RoomEvent.DataReceived, cb)
       }
     },
   } as SDK.Room
