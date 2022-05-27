@@ -52322,12 +52322,14 @@ const Participants = () => {
   } = react$1.exports.useContext(AppContext);
   const [participants, setParticipants] = react$1.exports.useState([]);
   react$1.exports.useEffect(() => {
+    if (!room)
+      return;
     return room.useParticipants((participants2) => {
       setParticipants(participants2);
       if (isHost)
         projectCommands.pruneParticipants();
     });
-  }, []);
+  }, [room]);
   return /* @__PURE__ */ jsx("div", {
     className: Style$1.column,
     children: participants.map((x2) => /* @__PURE__ */ jsx("div", {
@@ -52664,8 +52666,10 @@ const ControlPanel = () => {
   const [isSharingScreen, setIsSharingScreen] = react$1.exports.useState(false);
   const [participant, setParticipant] = react$1.exports.useState();
   react$1.exports.useEffect(() => {
+    if (!room)
+      return;
     return room.useParticipant(room.participantId, setParticipant);
-  }, []);
+  }, [room]);
   react$1.exports.useEffect(() => {
     if (!participant)
       return;
@@ -52823,4 +52827,4 @@ var config = {
 var url = "/studiokit/example/assets/logo.eb248bd6.png";
 var index = "";
 export { AppProvider as A, ControlPanel as C, DeviceSelection as D, Participants as P, React as R, Style$1 as S, init as a, jsxs as b, config as c, Chat as d, ReactDOM as e, Participant as f, index$1 as i, jsx as j, react$1 as r, url as u };
-//# sourceMappingURL=index.9ca1db68.js.map
+//# sourceMappingURL=index.7a709a76.js.map

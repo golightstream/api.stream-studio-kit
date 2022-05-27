@@ -1,4 +1,4 @@
-import { i as index, r as react, a as init, j as jsx, b as jsxs, S as Style, D as DeviceSelection, f as Participant, d as Chat, C as ControlPanel, c as config, e as ReactDOM, u as url, A as AppProvider } from "./index.9ca1db68.js";
+import { i as index, r as react, a as init, j as jsx, b as jsxs, S as Style, D as DeviceSelection, f as Participant, d as Chat, C as ControlPanel, c as config, e as ReactDOM, u as url, A as AppProvider } from "./index.7a709a76.js";
 const {
   Room
 } = index;
@@ -33,6 +33,8 @@ const Project = () => {
       dragAndDrop: false
     });
   }, [renderContainer.current]);
+  if (!room)
+    return null;
   return /* @__PURE__ */ jsxs("div", {
     className: Style.column,
     style: {
@@ -104,6 +106,7 @@ const GuestView = () => {
     project.joinRoom({
       displayName
     }).then((room2) => {
+      room2.useParticipants((p) => p.map((x) => console.log("tracks", x.trackIds.map((y) => room2.getTrack(y).isMuted))));
       setJoining(false);
       setRoom(room2);
     }).catch((e) => {
@@ -203,4 +206,4 @@ const Content = () => {
   });
 };
 ReactDOM.render(/* @__PURE__ */ jsx(Content, {}), document.getElementById("root"));
-//# sourceMappingURL=guest.304307e3.js.map
+//# sourceMappingURL=guest.9bc8fba6.js.map

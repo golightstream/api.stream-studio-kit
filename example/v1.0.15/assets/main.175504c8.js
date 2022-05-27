@@ -1,4 +1,4 @@
-import { R as React, r as react, i as index, a as init, j as jsx, b as jsxs, S as Style, c as config, P as Participants, D as DeviceSelection, C as ControlPanel, d as Chat, e as ReactDOM, u as url, A as AppProvider } from "./index.9ca1db68.js";
+import { R as React, r as react, i as index, a as init, j as jsx, b as jsxs, S as Style, c as config, P as Participants, D as DeviceSelection, C as ControlPanel, d as Chat, e as ReactDOM, u as url, A as AppProvider } from "./index.7a709a76.js";
 const DEFAULT_LAYOUT = "Grid";
 const layouts = ["Grid", "Grid-Cover", "Half", "Half-Cover", "Presentation-Right", "Presentation-Bottom", "Presentation-Cover", "Column", "Column-Cover", "Row", "Row-Cover"];
 const getLayout = (name) => {
@@ -1927,6 +1927,7 @@ const Project = () => {
   const {
     studio,
     project,
+    room,
     projectCommands
   } = useStudio();
   const renderContainer = react.exports.useRef();
@@ -1962,6 +1963,8 @@ const Project = () => {
       dragAndDrop: true
     });
   }, [renderContainer.current]);
+  if (!room)
+    return null;
   return /* @__PURE__ */ jsxs("div", {
     className: Style.column,
     children: [/* @__PURE__ */ jsxs("div", {
@@ -2239,4 +2242,4 @@ const Content = () => {
   });
 };
 ReactDOM.render(/* @__PURE__ */ jsx(Content, {}), document.getElementById("root"));
-//# sourceMappingURL=main.f4df3244.js.map
+//# sourceMappingURL=main.175504c8.js.map
