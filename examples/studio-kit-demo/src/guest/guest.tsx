@@ -117,12 +117,6 @@ export const GuestView = () => {
         displayName,
       })
       .then((room) => {
-        room.useParticipants((p) =>
-          p.map((x) =>
-            console.log('tracks', x.trackIds.map((y) => room.getTrack(y).isMuted)),
-          ),
-        )
-
         setJoining(false)
         setRoom(room)
       })
