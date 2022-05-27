@@ -483,6 +483,12 @@ export interface Room {
     cb: (data: any, senderId: string) => void
   ) => void
   /**
+   * Handle disconnection from the room.
+   */
+  onDisconnected: (
+    cb: () => void
+  ) => void
+  /**
    * similar to {@link Room.useParticipants useParticipants}, except we also specify a {@link Participant} id. The callback then only uses the Participant which has the specified Participant id.
    * @param id A {@link Participant} id.
    * @param cb Callback which essentially serves as an event listener that is called whenever the Participant is updated.

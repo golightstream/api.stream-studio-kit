@@ -111,7 +111,7 @@ export const GuestView = () => {
 
   // Initialize room
   useEffect(() => {
-    if (!project) return
+    if (!project || room) return
     project
       .joinRoom({
         displayName,
@@ -123,7 +123,7 @@ export const GuestView = () => {
       .catch((e) => {
         setError(e.message)
       })
-  }, [project])
+  }, [project, room])
 
   if (error) {
     return <div>{error}</div>

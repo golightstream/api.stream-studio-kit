@@ -469,7 +469,7 @@ export class RoomContext implements LSRoomContext {
     ) {
       this.participants = []
       return
-    } else {
+    } else {  
       const remotes = Array.from(this.livekitRoom.participants.values())
       const parts = [this.livekitRoom.localParticipant] as Participant[]
       parts.push(...remotes)
@@ -609,9 +609,9 @@ export class RoomContext implements LSRoomContext {
 
       if (LiveKitUtils.isRoomAdmin(this._jwt)) {
         log.info('Room: Granting admin permissions')
-        log.debug('Livekit server: ', this._apiClient?.getLiveKitServer())
+        log.debug('Livekit server: ', this._apiClient?.getLiveKitServer(true))
         this._admin = new LiveKitServer.RoomServiceClient(
-          this._apiClient?.getLiveKitServer(),
+          this._apiClient?.getLiveKitServer(true),
           undefined,
           undefined,
           this._jwt,
