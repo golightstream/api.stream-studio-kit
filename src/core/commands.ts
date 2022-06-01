@@ -537,6 +537,10 @@ export const addDestination = async (payload: {
   project.videoApi.project.destinations.push(result.destination)
 
   const destination = toBaseDestination(result.destination)
+  trigger('DestinationAdded', {
+    projectId,
+    destination,
+  })
   return destination
 }
 
@@ -566,6 +570,11 @@ export const removeDestination = async (payload: {
     project.videoApi.project.destinations.filter(
       (x) => x.destinationId !== destinationId,
     )
+
+  trigger('DestinationRemoved', {
+    projectId,
+    destinationId,
+  })
 }
 
 /**
@@ -609,13 +618,61 @@ export const updateDestination = async (payload: {
     (x) => destinationId === x.destinationId,
   )
   destination.address.rtmpPush = rtmpPush
+  trigger('DestinationChanged', {
+    projectId,
+    destination: {
+      id: destination.destinationId,
+      enabled: destination.enabled,
+      address: destination.address,
+      props: destination.metadata,
+    },
+  })
+}
+
+/**
+ * Update the metadata of an existing {@link Destination} on the project.
+ * 
+ * ----
+ * **Emits {@link DestinationChanged}**
+ *
+ * @category Destination
+ */
+export const updateDestinationMeta = async (payload: {
+  projectId: string
+  destinationId: string
+  metadata: SDK.Destination['props']
+}) => {
+  const { projectId, destinationId, metadata } = payload
+  const project = getProject(projectId)
+  
+  await CoreContext.clients.LiveApi().destination?.updateDestination({
+    collectionId: project.videoApi.project.collectionId,
+    projectId: project.videoApi.project.projectId,
+    destinationId,
+    updateMask: ['metadata'],
+    metadata,
+  })
+
+  const destination = project.videoApi.project.destinations.find(
+    (x) => destinationId === x.destinationId,
+  )
+  destination.metadata = metadata
+  trigger('DestinationChanged', {
+    projectId,
+    destination: {
+      id: destination.destinationId,
+      enabled: destination.enabled,
+      address: destination.address,
+      props: destination.metadata,
+    },
+  })
 }
 
 /**
  * Enable or disable an existing {@link Destination} on the project.
  * 
  * ----
- * **Emits {@link DestinationChanged}**
+ * **Emits {@link DestinationEnabled}**
  *
  * @category Destination
  */
