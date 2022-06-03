@@ -488,7 +488,7 @@ export class RoomContext implements LSRoomContext {
     }
   }
 
-  muteTrackAsAdmin(trackSid: string) {
+  muteTrackAsAdmin(trackSid: string, mute: boolean = true) {
     if (this._admin) {
       const participant = this.participants.find((p) =>
         Array.from(p.audioTracks.values()).find(
@@ -499,7 +499,7 @@ export class RoomContext implements LSRoomContext {
         this.roomName,
         participant?.identity,
         trackSid,
-        true,
+        mute,
       )
     } else {
       throw new Error('no admin permissions')
