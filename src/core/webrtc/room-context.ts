@@ -17,7 +17,7 @@ import {
 import { ApiStream, LiveKitUtils } from '@api.stream/sdk'
 import * as LiveKitServer from '@api.stream/livekit-server-sdk'
 import decode from 'jwt-decode'
-import { log } from '../context'
+import { log, CoreContext } from '../context'
 export * as Livekit from 'livekit-client'
 
 /**
@@ -469,7 +469,7 @@ export class RoomContext implements LSRoomContext {
     ) {
       this.participants = []
       return
-    } else {  
+    } else {
       const remotes = Array.from(this.livekitRoom.participants.values())
       const parts = [this.livekitRoom.localParticipant] as Participant[]
       parts.push(...remotes)
@@ -491,10 +491,15 @@ export class RoomContext implements LSRoomContext {
   muteTrackAsAdmin(trackSid: string, mute: boolean = true) {
     if (this._admin) {
       const participant = this.participants.find((p) =>
-        Array.from(p.audioTracks.values()).find(
+        [...p.audioTracks.values(), ...p.videoTracks.values()].find(
           (pub) => pub.trackSid === trackSid,
         ),
       )
+      if (!participant) {
+        log.warn('Could not find participant for track:', { trackSid })
+        return
+      }
+
       this._admin.mutePublishedTrack(
         this.roomName,
         participant?.identity,
@@ -571,17 +576,20 @@ export class RoomContext implements LSRoomContext {
    * connect to livekit webrtc room
    * @param {string} identity unique user name to be displayed to other users
    */
-  async connect(options?: ConnectOptions) {
+  async connect(options: ConnectOptions = {}) {
     try {
       if (this.livekitRoom && this.livekitRoom.state === 'connected') {
         return this.livekitRoom
       }
       if (this.isConnecting) return null
       this.isConnecting = true
-      // Fetch token
-      const room = await connect(`wss://${this._baseUrl}`, this._jwt, options)
 
-      this.livekitRoom = room
+      // Fetch token
+      this.livekitRoom = await connect(`wss://${this._baseUrl}`, this._jwt, {
+        logLevel: CoreContext.logLevel as any,
+        ...options,
+      })
+
       this.isConnecting = false
 
       // Bind registered events to the webrtc room
@@ -619,7 +627,7 @@ export class RoomContext implements LSRoomContext {
       } else {
         log.debug('Room: Not an admin')
       }
-      return room
+      return this.livekitRoom
     } catch (err) {
       this.isConnecting = false
       // TODO: handle error

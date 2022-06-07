@@ -229,9 +229,7 @@ export const joinRoom = async (payload: {
   const baseUrl = url.host + url.pathname
   const roomContext = webrtcManager.ensureRoom(baseUrl, roomName, token)
   roomContext.bindApiClient(CoreContext.clients)
-  await roomContext.connect({
-    logLevel: CoreContext.logLevel as any
-  })
+  await roomContext.connect()
 
   project.sfuToken = token
   project.roomId = roomName
