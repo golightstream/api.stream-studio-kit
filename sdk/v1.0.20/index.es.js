@@ -49607,6 +49607,9 @@ const getRoom = (id) => {
         room.livekitRoom.off(dist$1.RoomEvent.DataReceived, fn);
       };
     },
+    connect: () => {
+      return room.connect();
+    },
     disconnect: () => {
       return room.livekitRoom.disconnect();
     },
