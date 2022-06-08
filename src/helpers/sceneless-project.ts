@@ -159,7 +159,10 @@ export interface Commands {
    * @deprecated Use removeParticipant() with parameter `type`
    */
   removeParticipantScreenshare(participantId: string): void
-  /** @private */
+  /** 
+   * @private 
+   * Get the node associated with a room participant
+   * */
   getParticipantNode(
     id: string,
     /** @default `'camera'` */
@@ -353,7 +356,6 @@ export const commands = (project: ScenelessProject) => {
     removeParticipantScreenshare(participantId: string) {
       return commands.removeParticipant(participantId, 'screen')
     },
-    /** @private */
     getParticipantNode(id: string, type: ParticipantType = 'camera') {
       return content.children.find(
         (x) =>

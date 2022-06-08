@@ -133,8 +133,11 @@ export const updateProjectMeta = async (payload: {
 }
 
 /**
- * Set the active project for the user. This project will be used as the
- *  default project for commands that do not specify `payload.projectId`
+ * Set the active project for the user, setting up event handlers and
+ *  disposing of event listeners for the previous active project. 
+ * 
+ * This project will be used as the default project 
+ *  for commands that do not specify `payload.projectId`
  * 
  * ----
  * **Emits {@link ActiveProjectChanged}**

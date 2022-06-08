@@ -320,6 +320,9 @@ export const getRoom = (id: string) => {
         room.livekitRoom.off(RoomEvent.DataReceived, fn)
       }
     },
+    connect: () => {
+      return room.connect()
+    },
     disconnect: () => {
       return room.livekitRoom.disconnect()
     },
