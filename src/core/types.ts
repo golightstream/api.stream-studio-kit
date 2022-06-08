@@ -4,47 +4,47 @@
  * -------------------------------------------------------------------------------------------- */
 /**
  * Repository of interfaces and types provided by the Studio SDK.
- * 
+ *
  * Core models
  * ----
  * **{@link Studio}**
- * 
- * Represents a singleton of the initialized Studio SDK, the basis 
+ *
+ * Represents a singleton of the initialized Studio SDK, the basis
  * of all core functionality.
- * 
+ *
  * ```typescript
  * import { init, Helpers } from `@api.stream/studio-kit`
- * 
+ *
  * // Initialize the studio
  * const studio = await init()
  * ```
- * 
+ *
  * **{@link Project}**
- * 
- * Represents a single project owned by a user. A project provides 
+ *
+ * Represents a single project owned by a user. A project provides
  * access to a unique WebRTC room for video conferencing, and contains
  * information about all elements of a stream configuration.
- * 
+ *
  * ```typescript
  * // Authenticate a user and fetch their existing projects
  * const { projects } = await studio.load(accessToken)
- * 
+ *
  * // Create a new project
- * const project = await Helpers.ScenelessProject.create() 
+ * const project = await Helpers.ScenelessProject.create()
  * ```
- * 
+ *
  * _Related: {@link ScenelessProject}_
- * 
+ *
  * **{@link Room}**
- * 
+ *
  * Represents a WebRTC video conferencing room that allows multiple participants
  * to join and share video feeds using webcam and screenshare.
- * 
+ *
  * ```typescript
  * // Join the WebRTC room associated with a project
  * const room = await project.joinRoom()
  * ```
- * 
+ *
  * @module SDK
  */
 import { Command, Events } from './namespaces'
@@ -102,7 +102,7 @@ export type {
 }
 
 /**
- * A **Project** provides 
+ * A **Project** provides
  * access to a unique WebRTC room for video conferencing, and contains
  * information about all elements of a stream configuration.
  *
@@ -261,17 +261,18 @@ import VideoResolution = Livekit.VideoResolution
 import AudioCaptureOptions = Livekit.AudioCaptureOptions
 import ScreenShareCaptureOptions = Livekit.ScreenShareCaptureOptions
 
-export type {
-  ChatObject,
-  ConnectionQuality,
-  TrackSource,
-}
+export type { ChatObject, ConnectionQuality, TrackSource }
 
-export type { VideoCaptureOptions, VideoResolution, AudioCaptureOptions, ScreenShareCaptureOptions }
+export type {
+  VideoCaptureOptions,
+  VideoResolution,
+  AudioCaptureOptions,
+  ScreenShareCaptureOptions,
+}
 
 /**
  * The WebRTC **Room** is a virtual meeting place for {@link Participant **Participants**}, who can send video/audio streams (ie, {@link Track **Tracks**}) to each other in real time.
- * 
+ *
  * *Note: The Room model includes several "Hooks". For more detailed information, including examples, on how to use these hooks, please see the entry for {@link Room.useParticipants useParticipants}.*
  * @category WebRTC
  */
@@ -309,7 +310,7 @@ export interface Room {
    * This method is used to mute/unmute {@link Track Tracks} belonging to the *local* {@link Participant}.
    * Method will not work on tracks belonging to remote participants. To mute a Track belonging to a remote Participant, see the {@link Room.muteTrackAsAdmin muteTrackAsAdmin} method.
    * @category Media
-   * 
+   *
    * @param id - {@link Track} id which you wish to enable/disable
    */
   setTrackEnabled: (id: string, enabled: boolean) => void
@@ -339,7 +340,7 @@ export interface Room {
     /**
      * @param tracks Array of all {@link Track Tracks} in the {@link Room}.
      */
-    cb: (tracks: Track[]) => void
+    cb: (tracks: Track[]) => void,
   ) => Disposable
   /**
    * similar to {@link Room.useTracks useTracks}, except we also specify a {@link Track} id. The callback then only uses the track which has the specified track id.
@@ -353,7 +354,7 @@ export interface Room {
     /**
      * @param media The {@link Track} which matches the supplied id.
      */
-    cb: (media: Track) => void
+    cb: (media: Track) => void,
   ) => Disposable
   /**
    * @returns All {@link Track Tracks} in the Room.
@@ -440,11 +441,11 @@ export interface Room {
     /**
      * @param participants Array of all {@link Participant Participants} in the {@link Room}
      */
-    cb: (participants: Participant[]) => void
+    cb: (participants: Participant[]) => void,
   ) => Disposable
   /**
    * Sends chat message to entire Room, or a private message (if specified) from local participant.
-   * 
+   *
    * To display these messages, see: {@link Room.useChatMessage useChatMessage}
    *
    * @category Message
@@ -480,14 +481,16 @@ export interface Room {
      * @param data The data that is received. This will be equal to the `data` parameter from the corresponding invokation of {@link Room.sendData sendData} which triggers this event.
      * @param senderId ID of the {@link Participant} who sent the message.
      */
-    cb: (data: any, senderId: string) => void
+    cb: (data: any, senderId: string) => void,
   ) => void
+  /**
+   * Disconnect from the room.
+   */
+  disconnect: () => void
   /**
    * Handle disconnection from the room.
    */
-  onDisconnected: (
-    cb: () => void
-  ) => void
+  onDisconnected: (cb: () => void) => void
   /**
    * similar to {@link Room.useParticipants useParticipants}, except we also specify a {@link Participant} id. The callback then only uses the Participant which has the specified Participant id.
    * @param id A {@link Participant} id.
@@ -526,7 +529,7 @@ export interface Room {
     /**
      * @param chatHistory Array of {@link ChatObject ChatObjects} in ascending chronological order (ie, most recent message is last in the array).
      */
-    cb: (chatHistory: ChatObject[]) => void
+    cb: (chatHistory: ChatObject[]) => void,
   ) => Disposable
 }
 
@@ -554,21 +557,21 @@ export type User = {
  * The root of the initialized SDK.
  *
  * Created by a call to **{@link init init()}**.
- * 
+ *
  * Typically, this should be followed by a call to {@link Studio.load Studio.load()}.
- * 
+ *
  * ```typescript
  * import SDK from `@api.stream/studio-kit`
- * 
+ *
  * // Get a Studio instance
  * const studio = await SDK.init()
- * 
+ *
  * // Invoke studio.load() to load the current user's projects
  * const { projects } = await SDK.load(accessToken)
  * ```
- * 
+ *
  * ----
- * _Note: If the user is acccessing a project using a guest access token, 
+ * _Note: If the user is acccessing a project using a guest access token,
  * loading the user is not neccessary. The associated project will be
  * accessible via {@link Studio.initialProject}._
  * @category Core
@@ -580,10 +583,10 @@ export interface Studio {
   Command: typeof Command
   /**
    * The project associated with a guest access token.
-   * 
+   *
    * ----
    * This is relevant only to a guest's workflow.
-   * 
+   *
    * If an access token is not detected from the URL or passed in
    * explicitly to {@link init init()}, this field will be empty.
    */
@@ -594,7 +597,7 @@ export interface Studio {
   compositor: Compositor.CompositorInstance
   /**
    * Subscribe to all {@link EventMap Events} emitted by the intialized Studio.
-   * 
+   *
    * View the {@link EventMap} to see the `payload` associated with each event.
    *
    * ```typescript
@@ -626,14 +629,14 @@ export interface Studio {
   on: Events.On
   /**
    * Create a token that is valid only for demo purposes.
-   * 
+   *
    * ----
-   * _Note: In a production system, this token must be granted as part of the user 
-   * login flow (wherein a partner front-end logs into a partner backend, 
-   * which in turn connects to the Lightstream backend to obtain an appropriate 
-   * access token, which is then returned by the partner backend to the partner 
+   * _Note: In a production system, this token must be granted as part of the user
+   * login flow (wherein a partner front-end logs into a partner backend,
+   * which in turn connects to the Lightstream backend to obtain an appropriate
+   * access token, which is then returned by the partner backend to the partner
    * front-end for SDK use)._
-   * 
+   *
    * Pass into {@link Studio.load} to receive the assocaited demo {@link User}.
    */
   createDemoToken: (options: {
@@ -642,24 +645,24 @@ export interface Studio {
     name: string
   }) => Promise<string>
   /**
-   * Create an access token valid for another user to interact 
+   * Create an access token valid for another user to interact
    * with the project as a guest.
-   * 
+   *
    * This access token should be passed into {@link init init()} at the entrypoint
    * of the guest experience.
    */
   createGuestToken: (options?: GuestOptions) => Promise<string>
   /**
    * Similar to {@link createGuestToken}, creates a guest access token.
-   * This token is embedded into a shortened link, which the host 
+   * This token is embedded into a shortened link, which the host
    * may distribute to invite guests to their stream
    * (typically as WebRTC {@link Participant Participants}).
    */
   createGuestLink: (baseUrl: string, options?: GuestOptions) => Promise<string>
   /**
-   * Create a link with an embedded access token. 
+   * Create a link with an embedded access token.
    * This link resolves to a URL demonstrating the stream output.
-   * 
+   *
    * This preview link does not require the project to be live.
    */
   createPreviewLink: (options?: {
@@ -669,7 +672,7 @@ export interface Studio {
   }) => Promise<string>
   /**
    * Load the {@link User} associated with the supplied access token.
-   * 
+   *
    * ----
    * **Emits {@link UserLoaded}**
    */
@@ -690,8 +693,8 @@ export type CompositorSettings = {
   /**
    * Indicates whether the compositor should have interactive Drag'n'drop
    * controls. This is recommended for the host/owner of a {@link Project}.
-   * 
-   * _Note: If the user's access token does not grant permissions for 
+   *
+   * _Note: If the user's access token does not grant permissions for
    * updating a project, it may result in issues._
    */
   dragAndDrop?: boolean
@@ -708,10 +711,10 @@ export type CompositorSettings = {
 export type GuestOptions = {
   projectId?: string
   displayName?: string
-  /** 
-   * Requested duration of token before it expires. 
+  /**
+   * Requested duration of token before it expires.
    * Measured in milliseconds.
-   * @default 172800000 (48 hours) 
+   * @default 172800000 (48 hours)
    **/
   maxDuration?: number | undefined
   role?: Role | `${Role}`
