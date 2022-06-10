@@ -250,6 +250,15 @@ export interface Participant {
    */
   isSpeaking: boolean
   /**
+   * The timestamp that the participant joined the room.
+   */
+  joinedAt: Date
+  /**
+   * The permission role of the participant.
+   * https://www.api.stream/docs/api/auth/#permission-roles
+   */
+  role: LiveApiModel.Role
+  /**
    * Array of {@link Track} IDs belonging to the Participant.
    */
   trackIds: string[]
