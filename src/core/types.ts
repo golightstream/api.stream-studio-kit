@@ -155,7 +155,7 @@ export interface Project {
   /**
    * Field to store arbitrary data. Not used by the SDK.
    */
-  props: Metadata
+  props: Props
   hostDisplayName: string
 }
 
@@ -176,7 +176,7 @@ export type Destination = {
   /**
    * Field to store arbitrary data. Not used by the SDK.
    */
-  props: Metadata
+  props: Props
 }
 
 /**
@@ -192,7 +192,7 @@ export type Source = {
   /**
    * Field to store arbitrary data. Not used by the SDK.
    */
-  props: Metadata
+  props: Props
 }
 
 /**
@@ -570,7 +570,7 @@ export type User = {
   /**
    * Arbitrary data stored on the user. Opaque to the SDK.
    */
-  props: Metadata
+  props: Props
 }
 
 /**
@@ -751,6 +751,6 @@ export type Disposable = () => void
 /**
  * Represents arbitrary data that may be stored on {@link User} or {@link Project}
  */
-export type Metadata = { [prop: string]: any }
+export type Props = { [prop: string]: any }
 
 export type LogLevel = 'Debug' | 'Info' | 'Warn' | 'Error'

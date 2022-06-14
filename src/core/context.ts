@@ -5,7 +5,7 @@
 import config from '../../config'
 import type { ApiStream, LiveApiModel } from '@api.stream/sdk'
 import type { Request, Command, Compositor, SDK } from './namespaces'
-import { LogLevel, Metadata } from './types'
+import { LogLevel, Props } from './types'
 import {
   on,
   onInternal,
@@ -58,7 +58,8 @@ export const setAppState = (state: AppState) => {
 export type InternalUser = {
   id: string
   name: string
-  props: Metadata
+  props: Props
+  metadata: { [prop: string]: any }
 }
 
 export type InternalProject = {
@@ -67,7 +68,7 @@ export type InternalProject = {
   compositor: Compositor.Project
   // Video API props
   videoApi: {
-    project: Omit<LiveApiModel.Project, 'metadata'>
+    project: LiveApiModel.Project
     phase?: LiveApiModel.ProjectBroadcastPhase
   }
   // Layout API props
@@ -76,7 +77,7 @@ export type InternalProject = {
   }
   sfuToken?: string
   /**
-   * @private The room 
+   * @private The room
    */
   isInitial?: boolean
   /**
@@ -85,7 +86,7 @@ export type InternalProject = {
    */
   roomId?: string
   // From Vapi project metadata
-  props: Metadata
+  props: Props
 }
 
 export type InternalSource = LiveApiModel.Source

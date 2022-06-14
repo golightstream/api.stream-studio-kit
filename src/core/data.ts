@@ -109,11 +109,16 @@ export const hydrateProject = async (project: LiveApiModel.Project) => {
   return {
     id: project.projectId,
     compositor: compositorProject,
-    videoApi: { project: { ...project } },
+    videoApi: {
+      project,
+      phase: ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_UNSPECIFIED,
+    },
     layoutApi: {
       layoutId: metadata.layoutId,
     },
-    props: metadata,
+    // For backward compatibility, fall back to "metadata" as props.
+    //  All new projects have a dedicated "props" field
+    props: metadata?.props || metadata,
   } as Context.InternalProject
 }
 

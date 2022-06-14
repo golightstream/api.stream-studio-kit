@@ -165,7 +165,7 @@ export const init = async (
         return
       }
       case EventSubType.EVENT_SUB_TYPE_DELETE: {
-        triggerInternal('DestinationRemoved', event.delete.destinationId)
+        triggerInternal('DestinationRemoved', event.delete)
         return
       }
     }

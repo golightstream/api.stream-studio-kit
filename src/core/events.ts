@@ -80,7 +80,8 @@ function createTrigger<Obj extends { [index: string]: any }>(
     ...args: Obj[Key] extends undefined ? [] : [Obj[Key]]
   ) {
     let action = { type: name, payload: args[0] } as any
-    log.debug('Event:', action, { internal: Boolean(options.internal) })
+    const eventType = Boolean(options.internal) ? 'Internal' : 'External'
+    log.debug(`${eventType} Event:`, action)
     await Promise.all(
       Array.from(watchers.values()).map((x) => x(action.type, action.payload)),
     )
@@ -156,7 +157,7 @@ export interface ExternalEventMap {
    */
   ProjectMetaUpdated: {
     projectId: SDK.Project['id']
-    meta: SDK.Metadata
+    meta: SDK.Props
   }
   /**
    * @category Project
@@ -169,6 +170,12 @@ export interface ExternalEventMap {
    */
   ProjectRemoved: {
     projectId: SDK.Project['id']
+  }
+  /**
+   * @category Project
+   */
+  ProjectListChanged: {
+    projectIds: Array<SDK.Project['id']>
   }
   /**
    * @category Project
@@ -224,6 +231,13 @@ export interface ExternalEventMap {
   DestinationRemoved: {
     projectId: SDK.Project['id']
     destinationId: SDK.Destination['id']
+  }
+  /**
+   * @category Project
+   */
+  DestinationListChanged: {
+    projectId: SDK.Project['id']
+    destinationIds: Array<SDK.Project['id']>
   }
   /**
    * @category Destination
@@ -298,7 +312,10 @@ export interface InternalEventMap {
   }
   DestinationAdded: LiveApiModel.Destination
   DestinationChanged: LiveApiModel.Destination
-  DestinationRemoved: LiveApiModel.Destination['destinationId']
+  DestinationRemoved: { 
+    projectId: LiveApiModel.Project['projectId']
+    destinationId: LiveApiModel.Destination['destinationId']
+  }
   SourceAdded: LiveApiModel.Source
   SourceChanged: LiveApiModel.Source
   SourceRemoved: LiveApiModel.Source['sourceId']

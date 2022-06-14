@@ -487,7 +487,7 @@ export type LayoutProps = {
   barPosition?: 'bottom' | 'side'
   useGrid?: boolean
 }
-type ScenelessProps = {
+type ScenelessSettings = {
   backgroundImage?: string
   layout?: string
   layoutProps?: LayoutProps
@@ -501,12 +501,12 @@ type ScenelessProps = {
  * **Emits: ProjectAdded**
  */
 export const create = async (
-  props: ScenelessProps = {},
-  meta: SDK.Metadata = {},
+  settings: ScenelessSettings = {},
+  props: SDK.Props = {},
 ) => {
   return CoreContext.Command.createProject({
+    settings,
     props,
-    meta,
   }) as Promise<ScenelessProject>
 }
 
@@ -514,9 +514,9 @@ export const create = async (
 export const createCompositor = async (
   layoutId: string,
   size: { x: number; y: number },
-  props: ScenelessProps,
+  settings: ScenelessSettings,
 ) => {
-  const { backgroundImage, layout, layoutProps = {} } = props
+  const { backgroundImage, layout, layoutProps = {} } = settings
 
   // TODO: Batch insert
   const project = await CoreContext.compositor.createProject(

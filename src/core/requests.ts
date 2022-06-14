@@ -9,15 +9,20 @@
  * Not every external request is represented here. In some cases
  *  it is simpler to use the API SDK client interface directly.
  */
-import { CoreContext, InternalProject, InternalSource, InternalUser } from './context'
+import {
+  CoreContext,
+  InternalProject,
+  InternalSource,
+  InternalUser,
+} from './context'
 import { getAccessTokenData, getProject, getUser, hydrateProject } from './data'
 import { Helpers } from '.'
-import { Metadata } from './types'
+import { Props } from './types'
 import { LiveApiModel } from '@api.stream/sdk'
 
 export const createProject = async (request: {
-  props?: { [prop: string]: any }
-  meta?: Metadata // Arbitrary metadata (e.g. 'name')
+  settings?: { [prop: string]: any }
+  props?: Props // Arbitrary metadata (e.g. 'name')
   size?: { x: number; y: number }
   type?: 'sceneless' | 'freeform'
 }) => {
@@ -27,7 +32,7 @@ export const createProject = async (request: {
     x: 1280,
     y: 720,
   }
-  const props = request.props || {}
+  const settings = request.settings || {}
 
   // Create a project to go with the collection
   let createProjectResponse = await CoreContext.clients
@@ -64,7 +69,7 @@ export const createProject = async (request: {
     type,
     layoutId: layout.id,
     hostDisplayName: displayName,
-    ...(request.meta || {}),
+    props: request.props || {},
   }
   let projectResponse = await CoreContext.clients
     .LiveApi()
@@ -78,14 +83,14 @@ export const createProject = async (request: {
   createProjectResponse.project.metadata = metadata
 
   if (type === 'sceneless') {
-    await Helpers.ScenelessProject.createCompositor(layout.id, size, props)
+    await Helpers.ScenelessProject.createCompositor(layout.id, size, settings)
   } else {
     await CoreContext.compositor.createProject(
       {
         props: {
           name: 'Root',
           layout: 'Free',
-          ...props,
+          ...settings,
           isRoot: true,
           size,
         },
@@ -137,6 +142,7 @@ export const loadUser = async (): Promise<{
         metadata: {
           serviceUserId,
           displayName,
+          props: {},
         },
       })
     collection = response.collection
@@ -157,7 +163,8 @@ export const loadUser = async (): Promise<{
   return {
     user: {
       id: collection.collectionId,
-      props: collection.metadata || {},
+      metadata: collection.metadata,
+      props: collection.metadata?.props || {},
       name: displayName,
     },
     projects,

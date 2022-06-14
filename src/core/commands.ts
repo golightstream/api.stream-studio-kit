@@ -46,13 +46,53 @@ import {
 } from './data'
 import { CoreContext } from './context'
 import decode from 'jwt-decode'
-import { Metadata } from './types'
+import { Props } from './types'
 import { SDK } from './namespaces'
 import { webrtcManager } from './webrtc'
 import { getRoom } from './webrtc/simple-room'
 import { trigger, triggerInternal } from './events'
 
 const { state } = CoreContext
+
+/**
+ * Update the current user's metadata with custom data opaque to the SDK.
+ * Existing props are not affected unless explicitly overwritten.
+ *
+ * @category User
+ */
+export const updateUserProps = async (payload: {
+  /** Arbitrary metadata to associate with the user */
+  props?: Props
+}) => {
+  const collection = getUser()
+  if (!collection) return
+
+  const props = {
+    ...collection.props,
+    ...payload.props,
+  }
+  await CoreContext.clients.LiveApi().collection.updateCollection({
+    collectionId: collection.id,
+    updateMask: ['metadata'],
+    metadata: {
+      ...collection.metadata,
+      props,
+    },
+  })
+
+  // TODO: This should be handled by event receiver - since the event
+  //  for CollectionUpdate is not coming through, we'll instead fetch
+  //  and trigger manually
+  CoreContext.clients
+    .LiveApi()
+    .collection.getCollection({
+      collectionId: collection.id,
+    })
+    .then((response) => {
+      triggerInternal('UserChanged', response.collection)
+    })
+  return props
+}
 
 /**
  * Create a project with optional metadata.
@@ -65,18 +105,18 @@ const { state } = CoreContext
  */
 export const createProject = async (
   payload: {
-    /** @private Props associated with ScenelessProject (or other such wrapper) */
-    props?: Metadata
+    /** @private Settings associated with ScenelessProject (or other such wrapper) */
+    settings?: { [prop: string]: any }
     /** Arbitrary metadata to associate with this project */
-    meta?: Metadata
+    props?: Props
     /** Pixel dimenions of the canvas (default: `{ x: 1280, y: 720 }`) */
     size?: { x: number; y: number }
   } = {},
 ) => {
-  const { props = {}, size, meta = {} } = payload
+  const { props = {}, size, settings = {} } = payload
   const response = await CoreContext.Request.createProject({
+    settings,
     props,
-    meta,
     size,
   })
 
@@ -105,36 +145,48 @@ export const deleteProject = async (payload: {
 
 /**
  * Update a project's metadata with custom data opaque to the SDK.
+ * Existing props are not affected unless explicitly overwritten.
  *
  * @category Project
  */
-export const updateProjectMeta = async (payload: {
+export const updateProjectProps = async (payload: {
   projectId: SDK.Project['id']
   /** Arbitrary metadata to associate with this project */
-  meta?: Metadata
+  props?: Props
 }) => {
-  const { projectId, meta = {} } = payload
+  const { projectId } = payload
   const collectionId = getUser().id
   const project = getProject(projectId)
 
-  const metadata = {
+  const props = {
     ...project.props,
-    ...meta,
+    ...payload.props,
   }
   await CoreContext.clients.LiveApi().project.updateProject({
     collectionId,
     projectId,
     updateMask: ['metadata'],
-    metadata,
+    metadata: {
+      ...project.videoApi.project.metadata,
+      props,
+    },
   })
-  return metadata
+  return props
 }
+/**
+ * @deprecated Use updateProjectProps
+ */
+export const updateProjectMeta = (payload: {
+  projectId: SDK.Project['id']
+  /** Arbitrary metadata to associate with this project */
+  meta?: Props
+}) => updateProjectProps({ projectId: payload.projectId, props: payload.meta })
 
 /**
  * Set the active project for the user, setting up event handlers and
- *  disposing of event listeners for the previous active project. 
- * 
- * This project will be used as the default project 
+ *  disposing of event listeners for the previous active project.
+ *
+ * This project will be used as the default project
  *  for commands that do not specify `payload.projectId`
  *
  * @category Project
@@ -529,19 +581,10 @@ export const removeDestination = async (payload: {
     projectId: project.videoApi.project.projectId,
     destinationId,
   })
-
-  // Update state
-  project.videoApi.project.destinations =
-    project.videoApi.project.destinations.filter(
-      (x) => x.destinationId !== destinationId,
-    )
 }
 
 /**
  * Update an existing {@link Destination} on the project.
- * 
- * ----
- * **Emits {@link DestinationChanged}**
  *
  * @category Destination
  */
@@ -591,20 +634,17 @@ export const updateDestination = async (payload: {
 
 /**
  * Update the metadata of an existing {@link Destination} on the project.
- * 
- * ----
- * **Emits {@link DestinationChanged}**
  *
  * @category Destination
  */
-export const updateDestinationMeta = async (payload: {
+export const updateDestinationProps = async (payload: {
   projectId: string
   destinationId: string
   metadata: SDK.Destination['props']
 }) => {
   const { projectId, destinationId, metadata } = payload
   const project = getProject(projectId)
-  
+
   await CoreContext.clients.LiveApi().destination?.updateDestination({
     collectionId: project.videoApi.project.collectionId,
     projectId: project.videoApi.project.projectId,
@@ -627,6 +667,10 @@ export const updateDestinationMeta = async (payload: {
     },
   })
 }
+/**
+ * @deprecated Use updateProjectProps
+ */
+export const updateDestinationMeta = updateDestinationProps
 
 /**
  * Enable or disable an existing {@link Destination} on the project.
