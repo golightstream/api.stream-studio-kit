@@ -533,7 +533,7 @@ export const addDestination = async (payload: {
   rtmpUrl: string
   rtmpKey: string
   enabled: boolean
-  props: Props
+  props?: Props
   /** @deprecated Use `props` */
   metadata?: Props
 }) => {
@@ -682,12 +682,12 @@ export const updateDestinationProps = async (payload: {
 export const updateDestinationMeta = (payload: {
   projectId: string
   destinationId: string
-  meta?: Props
+  metadata?: Props
 }) =>
   updateDestinationProps({
     projectId: payload.projectId,
     destinationId: payload.destinationId,
-    props: payload.meta,
+    props: payload.metadata,
   })
 
 /**
