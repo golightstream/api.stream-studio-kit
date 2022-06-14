@@ -332,6 +332,9 @@ export const getRoom = (id: string) => {
         room.livekitRoom.off(RoomEvent.DataReceived, cb)
       }
     },
+    setAudioOutput: (deviceId: string) => {
+      return room.livekitRoom.switchActiveDevice('audiooutput', deviceId)
+    },
   } as SDK.Room
 
   update()

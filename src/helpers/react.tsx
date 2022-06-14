@@ -11,6 +11,7 @@
  * @module React
  */
 import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { on } from '../core/events'
 import { SDK } from '../core/namespaces'
 import { Callback, ScenelessProject } from './index'
 import { watchDevices } from './webrtc'
@@ -145,6 +146,16 @@ export const StudioProvider = ({
     () => (project ? ScenelessProject.commands(project) : null),
     [project],
   )
+
+  // Listen for project changes
+  useEffect(() => {
+    if (!project) return
+    return on('ProjectChanged', (payload) => {
+      if (payload.project.id === project.id) {
+        setProject(payload.project)
+      }
+    })
+  }, [project])
 
   // Set webcam and microphone
   useEffect(() => {

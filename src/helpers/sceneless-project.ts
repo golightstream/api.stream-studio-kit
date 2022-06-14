@@ -296,7 +296,7 @@ export const commands = (project: ScenelessProject) => {
       sendState()
 
       // Watch for changes to the parent children
-      return CoreContext.on('NodeChanged', (payload) => {
+      return CoreContext.onInternal('NodeChanged', (payload) => {
         if (payload.nodeId !== content.id) return
         sendState()
       })
@@ -381,7 +381,7 @@ export const commands = (project: ScenelessProject) => {
       }
 
       // Watch for changes to the parent children
-      const childListener = CoreContext.on('NodeChanged', (payload) => {
+      const childListener = CoreContext.onInternal('NodeChanged', (payload) => {
         if (payload.nodeId !== content.id) return
         const previous = participantNode
         participantNode = commands.getParticipantNode(participantId)
@@ -391,10 +391,13 @@ export const commands = (project: ScenelessProject) => {
       })
 
       // Watch for changes to the participant node
-      const participantListener = CoreContext.on('NodeChanged', (payload) => {
-        if (!participantNode || payload.nodeId !== participantNode.id) return
-        sendState()
-      })
+      const participantListener = CoreContext.onInternal(
+        'NodeChanged',
+        (payload) => {
+          if (!participantNode || payload.nodeId !== participantNode.id) return
+          sendState()
+        },
+      )
 
       sendState()
 
@@ -484,7 +487,7 @@ export type LayoutProps = {
   barPosition?: 'bottom' | 'side'
   useGrid?: boolean
 }
-type ScenelessProps = {
+type ScenelessSettings = {
   backgroundImage?: string
   layout?: string
   layoutProps?: LayoutProps
@@ -498,12 +501,12 @@ type ScenelessProps = {
  * **Emits: ProjectAdded**
  */
 export const create = async (
-  props: ScenelessProps = {},
-  meta: SDK.Metadata = {},
+  settings: ScenelessSettings = {},
+  props: SDK.Props = {},
 ) => {
   return CoreContext.Command.createProject({
+    settings,
     props,
-    meta,
   }) as Promise<ScenelessProject>
 }
 
@@ -511,9 +514,9 @@ export const create = async (
 export const createCompositor = async (
   layoutId: string,
   size: { x: number; y: number },
-  props: ScenelessProps,
+  settings: ScenelessSettings,
 ) => {
-  const { backgroundImage, layout, layoutProps = {} } = props
+  const { backgroundImage, layout, layoutProps = {} } = settings
 
   // TODO: Batch insert
   const project = await CoreContext.compositor.createProject(

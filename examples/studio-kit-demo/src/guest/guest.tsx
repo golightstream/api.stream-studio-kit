@@ -70,6 +70,7 @@ export const GuestView = () => {
   const [displayName, setDisplayName] = useState(DEFAULT_GUEST_NAME)
   const [participant, setParticipant] = useState<SDK.Participant>()
   const [error, setError] = useState<string>()
+  const [inRoom, setInRoom] = useState<boolean>(false)
 
   // Store as a global for debugging in console
   window.SDK = useStudio()
@@ -111,7 +112,8 @@ export const GuestView = () => {
 
   // Initialize room
   useEffect(() => {
-    if (!project || room) return
+    if (!project || inRoom) return
+    setInRoom(true)
     project
       .joinRoom({
         displayName,
@@ -122,6 +124,7 @@ export const GuestView = () => {
       })
       .catch((e) => {
         setError(e.message)
+        setInRoom(false)
       })
   }, [project, room])
 

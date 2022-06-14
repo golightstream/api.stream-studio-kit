@@ -29,128 +29,174 @@
  * _Note: Commands marked `internal` are low-level commands that should only be
  * used with caution. Higher-level abstractions should be used to manipulate Nodes
  * (elements on the stream canvas)._
- * 
- * _See: **{@link ScenelessProject.Commands}**_
+ *
+ * @private This module is currently hidden from users of the Studio Kit.
+ *  Favor the creation of helpers when supporting developers who require
+ *  functionality contained in this module.
  *
  * @module Commands
  */
 
-import { Project } from './context'
 import {
   getProject,
+  getUser,
   hydrateProject,
   toBaseDestination,
   toBaseProject,
 } from './data'
 import { CoreContext } from './context'
 import decode from 'jwt-decode'
-import { Metadata } from './types'
-import { SDK, Events, Compositor } from './namespaces'
+import { Props } from './types'
+import { SDK } from './namespaces'
 import { webrtcManager } from './webrtc'
 import { getRoom } from './webrtc/simple-room'
+import { trigger, triggerInternal } from './events'
 
-const { trigger, state } = CoreContext
+const { state } = CoreContext
+
+/**
+ * Update the current user's metadata with custom data opaque to the SDK.
+ * Existing props are not affected unless explicitly overwritten.
+ *
+ * @category User
+ */
+export const updateUserProps = async (payload: {
+  /** Arbitrary metadata to associate with the user */
+  props?: Props
+}) => {
+  const collection = getUser()
+  if (!collection) return
+
+  const props = {
+    ...collection.props,
+    ...payload.props,
+  }
+  const response = await CoreContext.clients
+    .LiveApi()
+    .collection.updateCollection({
+      collectionId: collection.id,
+      updateMask: ['metadata'],
+      metadata: {
+        ...collection.metadata,
+        props,
+      },
+    })
+
+  // Trigger event to update state
+  await triggerInternal('UserChanged', response.collection)
+  return
+}
 
 /**
  * Create a project with optional metadata.
- * 
+ *
  * ----
  * _Note: This is a low level function that necessitates careful management
  *  of the nodes within. Consider {@link ScenelessProject.create} instead._
  *
- * **Emits {@link ProjectAdded}**
- *
- * @internal _Use with caution_
  * @category Project
  */
 export const createProject = async (
   payload: {
-    /** @private Props associated with ScenelessProject (or other such wrapper) */
-    props?: Metadata
+    /** @private Settings associated with ScenelessProject (or other such wrapper) */
+    settings?: { [prop: string]: any }
     /** Arbitrary metadata to associate with this project */
-    meta?: Metadata
+    props?: Props
     /** Pixel dimenions of the canvas (default: `{ x: 1280, y: 720 }`) */
     size?: { x: number; y: number }
   } = {},
 ) => {
-  const { props = {}, size, meta = {} } = payload
-  const collectionId = state.collectionId
-  const vapiProject = await CoreContext.Request.createProject({
-    collectionId,
+  const { props = {}, size, settings = {} } = payload
+  const response = await CoreContext.Request.createProject({
+    settings,
     props,
-    meta,
     size,
   })
-  const project = await hydrateProject(vapiProject.project)
-  const baseProject = toBaseProject(project)
 
-  // Update state
-  state.projects = [...state.projects, project]
-  /** @event ProjectAdded */
-  trigger('ProjectAdded', {
-    project: baseProject,
+  // Trigger event to update state
+  await triggerInternal('ProjectAdded', response.project)
+
+  // Return the base project directly, for convenience
+  const internalProject = await hydrateProject(response.project)
+  return toBaseProject(internalProject)
+}
+
+/**
+ * Delete a project.
+ *
+ * @category Project
+ */
+export const deleteProject = async (payload: {
+  projectId: SDK.Project['id']
+}) => {
+  const { projectId } = payload
+  await CoreContext.Request.deleteProject({
+    projectId,
   })
-  return baseProject
+
+  // Trigger event to update state
+  await triggerInternal('ProjectRemoved', { projectId })
+  return
 }
 
 /**
  * Update a project's metadata with custom data opaque to the SDK.
- * 
- * ----
- * **Emits {@link ProjectMetaUpdated}**
+ * Existing props are not affected unless explicitly overwritten.
  *
  * @category Project
  */
-export const updateProjectMeta = async (payload: {
-  projectId: Project['id']
+export const updateProjectProps = async (payload: {
+  projectId: SDK.Project['id']
   /** Arbitrary metadata to associate with this project */
-  meta?: Metadata
+  props?: Props
 }) => {
-  const { projectId, meta = {} } = payload
-  const project = state.projects.find((x) => x.id === payload.projectId)
-  if (!project) {
-    return
-  }
+  const { projectId } = payload
+  const collectionId = getUser().id
+  const project = getProject(projectId)
 
-  const metadata = {
+  const props = {
     ...project.props,
-    ...meta,
+    ...payload.props,
   }
-  await CoreContext.clients.LiveApi().project.updateProject({
-    collectionId: project.videoApi.project.collectionId,
+  const response = await CoreContext.clients.LiveApi().project.updateProject({
+    collectionId,
     projectId,
     updateMask: ['metadata'],
-    metadata,
+    metadata: {
+      ...project.videoApi.project.metadata,
+      props,
+    },
   })
 
-  // Update state
-  project.props = metadata
-  trigger('ProjectMetaUpdated', {
-    projectId,
-    meta: project.props,
-  })
-  return metadata
+  // Trigger event to update state
+  await triggerInternal('ProjectChanged', { project: response.project })
+  return
 }
+/**
+ * @deprecated Use updateProjectProps
+ */
+export const updateProjectMeta = (payload: {
+  projectId: SDK.Project['id']
+  /** Arbitrary metadata to associate with this project */
+  meta?: Props
+}) => updateProjectProps({ projectId: payload.projectId, props: payload.meta })
 
 /**
  * Set the active project for the user, setting up event handlers and
- *  disposing of event listeners for the previous active project. 
- * 
- * This project will be used as the default project 
+ *  disposing of event listeners for the previous active project.
+ *
+ * This project will be used as the default project
  *  for commands that do not specify `payload.projectId`
- * 
- * ----
- * **Emits {@link ActiveProjectChanged}**
  *
  * @category Project
  */
 export const setActiveProject = async (payload: {
-  projectId: Project['id']
+  projectId: SDK.Project['id']
 }) => {
   const project = state.projects.find((x) => x.id === payload.projectId)
   if (!project) {
     state.activeProjectId = null
-    trigger('ActiveProjectChanged', null)
+    triggerInternal('ActiveProjectChanged', { projectId: null })
     return
   }
 
@@ -182,17 +228,22 @@ export const setActiveProject = async (payload: {
       project.videoApi.project.projectId,
     )
 
-  // get current project state
-  let response = await CoreContext.clients.LiveApi().project.getProject({
-    collectionId: project.videoApi.project.collectionId,
-    projectId: project.videoApi.project.projectId,
-    status: true,
-  })
-  project.videoApi.phase = response.status.phase
+  // Asynchronously ensure latest project state
+  CoreContext.clients
+    .LiveApi()
+    .project.getProject({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+      status: true,
+    })
+    .then((response) => {
+      triggerInternal('ProjectChanged', {
+        project: response.project,
+        phase: response.status?.phase,
+      })
+    })
 
-  // Update state
-  state.activeProjectId = project.id
-  trigger('ActiveProjectChanged', {
+  triggerInternal('ActiveProjectChanged', {
     projectId: project.id,
   })
   return toBaseProject(project)
@@ -200,14 +251,11 @@ export const setActiveProject = async (payload: {
 
 /**
  * Initiate WebRTC connection to the room associated with this project.
- * 
- * ----
- * **Emits {@link RoomJoined}**
  *
  * @category Project
  */
 export const joinRoom = async (payload: {
-  projectId: Project['id']
+  projectId: SDK.Project['id']
   /** A public name for other guests will see associated with your {@link Participant} */
   displayName?: string
 }) => {
@@ -253,10 +301,8 @@ export const joinRoom = async (payload: {
  * If a node is given data the renderer is not aware of, it will accomplish nothing.
  *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- *
- * **Emits {@link NodeAdded}, {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -278,19 +324,17 @@ export const createNode = async (payload: {
 
   // Update state
   const nodeId = await project.compositor.insert(props, parentId, index)
-  trigger('NodeAdded', { projectId, nodeId })
-  trigger('NodeChanged', { projectId, nodeId: parentId })
+  triggerInternal('NodeAdded', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentId })
   return project.compositor.get(nodeId)
 }
 
 /**
  * Remove a node from the project's scene tree.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeRemoved}, {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -305,19 +349,17 @@ export const deleteNode = async (payload: {
 
   // Update state
   project.compositor.remove(nodeId)
-  trigger('NodeRemoved', { projectId, nodeId })
-  trigger('NodeChanged', { projectId, nodeId: parentId })
+  triggerInternal('NodeRemoved', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentId })
 }
 
 /**
  * Update the properties of a node.
  * `payload.props` will be shallowly merged onto its existing `props`.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -336,7 +378,7 @@ export const updateNode = async (payload: {
 
   // Update state
   project.compositor.update(nodeId, props)
-  trigger('NodeChanged', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId })
   return project.compositor.get(nodeId)
 }
 
@@ -344,10 +386,8 @@ export const updateNode = async (payload: {
  * Update the layout of a node.
  *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -371,17 +411,15 @@ export const setNodeLayout = async (payload: {
     layout,
     layoutProps,
   })
-  trigger('NodeChanged', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId })
 }
 
 /**
  * Move a node to a different parent node.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -398,17 +436,15 @@ export const moveNode = async (payload: {
   // Update state
   project.compositor.move(nodeId, parentId, index)
   // TODO: Determine if this is necessary (likely need only the events from Event API)
-  trigger('NodeChanged', { projectId, nodeId })
+  triggerInternal('NodeChanged', { projectId, nodeId })
 }
 
 /**
  * Swap the positions of two nodes, changing parents if necessary.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -426,18 +462,16 @@ export const swapNodes = async (payload: {
 
   // Update state
   project.compositor.swap(nodeAId, nodeBId)
-  trigger('NodeChanged', { projectId, nodeId: parentAId })
-  trigger('NodeChanged', { projectId, nodeId: parentBId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentAId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentBId })
 }
 
 /**
  * Change the order of a node's children.
- * 
+ *
  * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject} 
+ * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
- * **Emits {@link NodeChanged}**
  *
  * @internal _Use with caution_
  * @category Node
@@ -452,17 +486,15 @@ export const reorderNodes = async (payload: {
 
   // Update state
   project.compositor.reorder(parentId, childIds)
-  trigger('NodeChanged', { projectId, nodeId: parentId })
+  triggerInternal('NodeChanged', { projectId, nodeId: parentId })
 }
 
 /**
  * Start broadcasting a project.
- * 
+ *
  * ----
  * _Note: Destination, encoding, and rendering details will be read from the Project
  * at time of broadcast, so they should be updated ahead of time._
- *
- * **Emits {@link BroadcastStarted}**
  *
  * @category Broadcast
  */
@@ -478,9 +510,6 @@ export const startBroadcast = async (payload: { projectId?: string }) => {
 
 /**
  * Stop broadcasting a project.
- * 
- * ----
- * **Emits {@link BroadcastStopped}**
  *
  * @category Broadcast
  */
@@ -496,9 +525,6 @@ export const stopBroadcast = async (payload: { projectId?: string }) => {
 
 /**
  * Add a {@link Destination} to a project.
- * 
- * ----
- * **Emits {@link DestinationAdded}**
  *
  * @category Destination
  */
@@ -507,14 +533,17 @@ export const addDestination = async (payload: {
   rtmpUrl: string
   rtmpKey: string
   enabled: boolean
-  metadata?: object
+  props?: Props
+  /** @deprecated Use `props` */
+  metadata?: Props
 }) => {
   const {
     rtmpUrl,
     rtmpKey,
     enabled,
     projectId = state.activeProjectId,
-    metadata,
+    metadata = {},
+    props = {},
   } = payload
   const project = getProject(projectId)
   const address = {
@@ -524,32 +553,26 @@ export const addDestination = async (payload: {
     },
   } as SDK.Destination['address']
 
-  const result = await CoreContext.clients
+  const response = await CoreContext.clients
     .LiveApi()
     .destination?.createDestination({
       collectionId: project.videoApi.project.collectionId,
       projectId: project.videoApi.project.projectId,
       address,
       enabled,
-      metadata,
+      metadata: {
+        ...metadata,
+        ...props,
+      },
     })
 
-  // Update state
-  project.videoApi.project.destinations.push(result.destination)
-
-  const destination = toBaseDestination(result.destination)
-  trigger('DestinationAdded', {
-    projectId,
-    destination,
-  })
-  return destination
+  // Trigger event to update state
+  await triggerInternal('DestinationAdded', response.destination)
+  return toBaseDestination(response.destination)
 }
 
 /**
  * Remove a {@link Destination} from the project.
- * 
- * ----
- * **Emits {@link DestinationRemoved}**
  *
  * @category Destination
  */
@@ -566,23 +589,13 @@ export const removeDestination = async (payload: {
     destinationId,
   })
 
-  // Update state
-  project.videoApi.project.destinations =
-    project.videoApi.project.destinations.filter(
-      (x) => x.destinationId !== destinationId,
-    )
-
-  trigger('DestinationRemoved', {
-    projectId,
-    destinationId,
-  })
+  // Trigger event to update state
+  await triggerInternal('DestinationRemoved', { projectId, destinationId })
+  return
 }
 
 /**
  * Update an existing {@link Destination} on the project.
- * 
- * ----
- * **Emits {@link DestinationChanged}**
  *
  * @category Destination
  */
@@ -599,81 +612,86 @@ export const updateDestination = async (payload: {
     projectId = state.activeProjectId,
   } = payload
   const project = getProject(projectId)
+
   const rtmpPush = {
     key: rtmpKey,
     url: rtmpUrl,
   }
 
-  await CoreContext.clients.LiveApi().destination?.updateDestination({
-    collectionId: project.videoApi.project.collectionId,
-    projectId: project.videoApi.project.projectId,
-    destinationId,
-    updateMask: ['address.rtmpPush'],
-    address: {
-      rtmpPush,
-    },
-  })
+  const response = await CoreContext.clients
+    .LiveApi()
+    .destination?.updateDestination({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+      destinationId,
+      updateMask: ['address.rtmpPush'],
+      address: {
+        rtmpPush,
+      },
+    })
 
-  // Update state
-  const destination = project.videoApi.project.destinations.find(
-    (x) => destinationId === x.destinationId,
-  )
-  destination.address.rtmpPush = rtmpPush
-  trigger('DestinationChanged', {
-    projectId,
-    destination: {
-      id: destination.destinationId,
-      enabled: destination.enabled,
-      address: destination.address,
-      props: destination.metadata,
-    },
-  })
+  // Trigger event to update state
+  await triggerInternal('DestinationChanged', response.destination)
+  return
 }
 
 /**
  * Update the metadata of an existing {@link Destination} on the project.
- * 
- * ----
- * **Emits {@link DestinationChanged}**
  *
  * @category Destination
  */
-export const updateDestinationMeta = async (payload: {
+export const updateDestinationProps = async (payload: {
   projectId: string
   destinationId: string
-  metadata: SDK.Destination['props']
+  props: Props
 }) => {
-  const { projectId, destinationId, metadata } = payload
-  const project = getProject(projectId)
-  
-  await CoreContext.clients.LiveApi().destination?.updateDestination({
-    collectionId: project.videoApi.project.collectionId,
-    projectId: project.videoApi.project.projectId,
+  const {
+    projectId = state.activeProjectId,
     destinationId,
-    updateMask: ['metadata'],
-    metadata,
-  })
-
+    props = {},
+  } = payload
+  const project = getProject(projectId)
   const destination = project.videoApi.project.destinations.find(
-    (x) => destinationId === x.destinationId,
+    (x) => x.destinationId === destinationId,
   )
-  destination.metadata = metadata
-  trigger('DestinationChanged', {
-    projectId,
-    destination: {
-      id: destination.destinationId,
-      enabled: destination.enabled,
-      address: destination.address,
-      props: destination.metadata,
-    },
-  })
+  if (!destination) return
+
+  const response = await CoreContext.clients
+    .LiveApi()
+    .destination?.updateDestination({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+      destinationId,
+      updateMask: ['metadata'],
+      metadata: {
+        ...(destination.metadata || {}),
+        props: {
+          ...(destination.metadata?.props || {}),
+          ...props,
+        },
+      },
+    })
+
+  // Trigger event to update state
+  await triggerInternal('DestinationChanged', response.destination)
+  return
 }
+/**
+ * @deprecated Use updateDestinationProps
+ */
+export const updateDestinationMeta = (payload: {
+  projectId: string
+  destinationId: string
+  metadata?: Props
+}) =>
+  updateDestinationProps({
+    projectId: payload.projectId,
+    destinationId: payload.destinationId,
+    props: payload.metadata,
+  })
 
 /**
  * Enable or disable an existing {@link Destination} on the project.
- * 
- * ----
- * **Emits {@link DestinationEnabled}**
  *
  * @category Destination
  */
@@ -689,22 +707,26 @@ export const setDestinationEnabled = async (payload: {
   )
   if (destination.enabled === enabled) return
 
-  await CoreContext.clients.LiveApi().destination?.updateDestination({
-    collectionId: project.videoApi.project.collectionId,
-    projectId: project.videoApi.project.projectId,
-    destinationId,
-    updateMask: ['enabled'],
-    enabled,
-  })
+  const response = await CoreContext.clients
+    .LiveApi()
+    .destination?.updateDestination({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+      destinationId,
+      updateMask: ['enabled'],
+      enabled,
+    })
 
-  // Update state
-  destination.enabled = enabled
+  // Trigger event to update state
+  await triggerInternal('DestinationChanged', response.destination)
 
   const event = enabled ? 'DestinationEnabled' : 'DestinationDisabled'
+  /** @deprecated Use DestinationChanged */
   trigger(event, {
     projectId,
     destinationId,
   })
+  return
 }
 
 /**
@@ -713,9 +735,6 @@ export const setDestinationEnabled = async (payload: {
  *
  * This is a helper to manage a single-destination project. For greater control,
  *  use {@link addDestination}, {@link removeDestination}, or {@link updateDestination}
- * 
- * ----
- * **Emits {@link DestinationSet}**
  *
  * @category Destination
  */
@@ -734,20 +753,21 @@ export const setDestination = async (payload: {
 
   if (project.videoApi.project.destinations.length > 0) {
     // Update existing
-    await CoreContext.clients.LiveApi().destination?.updateDestination({
-      collectionId: project.videoApi.project.collectionId,
-      projectId: project.videoApi.project.projectId,
-      destinationId: project.videoApi.project.destinations[0].destinationId,
-      updateMask: ['address.rtmpPush'],
-      address: { rtmpPush },
-    })
+    const response = await CoreContext.clients
+      .LiveApi()
+      .destination?.updateDestination({
+        collectionId: project.videoApi.project.collectionId,
+        projectId: project.videoApi.project.projectId,
+        destinationId: project.videoApi.project.destinations[0].destinationId,
+        updateMask: ['address.rtmpPush'],
+        address: { rtmpPush },
+      })
 
-    // Update state
-    const destination = project.videoApi.project.destinations[0]
-    destination.address.rtmpPush = rtmpPush
+    // Trigger event to update state
+    await triggerInternal('DestinationChanged', response.destination)
   } else {
     // Create new
-    const result = await CoreContext.clients
+    const response = await CoreContext.clients
       .LiveApi()
       .destination?.createDestination({
         collectionId: project.videoApi.project.collectionId,
@@ -756,13 +776,15 @@ export const setDestination = async (payload: {
         enabled,
       })
 
-    // Update state
-    project.videoApi.project.destinations.push(result.destination)
+    // Trigger event to update state
+    await triggerInternal('DestinationAdded', response.destination)
   }
 
+  /** @deprecated */
   trigger('DestinationSet', {
     projectId,
     rtmpUrl,
     rtmpKey,
   })
+  return
 }

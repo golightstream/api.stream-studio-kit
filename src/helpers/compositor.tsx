@@ -6,13 +6,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { swapItems } from '../logic'
 import { getProject } from '../core/data'
-import { CoreContext, log, Project } from '../core/context'
+import { CoreContext, log, InternalProject } from '../core/context'
 import { Compositor } from '../core/namespaces'
 import { CompositorSettings } from '../core/types'
 const { Transform } = Compositor
 
 class ErrorBoundary extends React.Component<
-  { children: React.ReactChild },
+  { children: React.PropsWithChildren<any> },
   { error?: Error }
 > {
   constructor(props: any) {
@@ -35,7 +35,7 @@ const onDrop = async (
   data: {
     dropNodeId: string
     dropType: 'layout' | 'transform'
-    project: Project
+    project: InternalProject
   },
   e: React.DragEvent,
 ) => {
@@ -89,7 +89,7 @@ const onDrop = async (
 let foundDropTarget = false
 const ElementTree = (props: {
   nodeId: string
-  project: Project
+  project: InternalProject
   interactive: boolean
   drag: boolean
   drop: boolean
@@ -268,7 +268,7 @@ const useForceUpdate = () => {
 }
 
 const Root = (props: {
-  project: Project
+  project: InternalProject
   dragAndDrop: boolean
   dblClickShowcase: boolean
 }) => {
@@ -276,7 +276,7 @@ const Root = (props: {
   const forceUpdate = useForceUpdate()
 
   useEffect(() => {
-    return CoreContext.on('NodeChanged', () => {
+    return CoreContext.onInternal('NodeChanged', () => {
       forceUpdate()
     })
   }, [])
