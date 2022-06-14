@@ -12,7 +12,7 @@ import { CompositorSettings } from '../core/types'
 const { Transform } = Compositor
 
 class ErrorBoundary extends React.Component<
-  { children: React.ReactChild },
+  { children: React.PropsWithChildren<any> },
   { error?: Error }
 > {
   constructor(props: any) {
