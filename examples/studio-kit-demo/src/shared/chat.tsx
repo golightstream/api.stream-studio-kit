@@ -2,11 +2,11 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { Helpers, SDK } from '@api.stream/studio-kit'
 import Style from './chat.module.css'
 
-const { useStudio } = Helpers.React
+const { StudioContext } = Helpers.React
 
 const displayTimeComponent = (component: number) =>
   component < 10 ? `0${component}` : String(component)
@@ -30,7 +30,7 @@ const ChatMessage = ({ message }: { message: SDK.ChatObject }) => {
 }
 
 export const Chat = () => {
-  const { room } = useStudio()
+  const { room } = useContext(StudioContext)
   const [chatHistory, setChatHistory] = useState<SDK.ChatObject[]>([])
   const [draft, setDraft] = useState('')
 

@@ -173,10 +173,15 @@ export const ParticipantScreenshare = ({
 
 export const Participant = ({ participant }: ParticipantProps) => {
   const { room } = useStudio()
-  const tracks = participant.trackIds.map(room.getTrack)
+  const [tracks, setTracks] = useState([])
   const screenshare = tracks.find((x) => x.type === 'screen_share')
   const webcam = tracks.find((x) => x.type === 'camera')
   const microphone = tracks.find((x) => x.type === 'microphone')
+
+  useEffect(() => {
+    if (!room) return
+    setTracks(participant.trackIds.map(room.getTrack))
+  }, [participant?.trackIds, room])
 
   return (
     <>
