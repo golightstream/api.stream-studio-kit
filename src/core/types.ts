@@ -571,6 +571,10 @@ export type User = {
    * Arbitrary data stored on the user. Opaque to the SDK.
    */
   props: Props
+  /**
+   * Name associated with an access token, if any
+   */
+  name: string
 }
 
 /**

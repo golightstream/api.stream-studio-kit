@@ -241,7 +241,7 @@ export const init = async (
         return
       }
       case EventSubType.EVENT_SUB_TYPE_DELETE: {
-        triggerInternal('ProjectRemoved', event.delete.projectId)
+        triggerInternal('ProjectRemoved', { projectId: event.delete.projectId })
         return
       }
       case EventSubType.EVENT_SUB_TYPE_STATE: {

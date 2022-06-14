@@ -12,6 +12,7 @@ import {
 import { InternalEventMap, subscribeInternal, trigger } from './events'
 import { SDK } from './namespaces'
 import { CoreContext, log } from './context'
+import internal from 'stream'
 
 const { state } = CoreContext
 
@@ -31,7 +32,7 @@ subscribeInternal(async (event, payload) => {
     case 'UserChanged': {
       const { metadata } = payload as InternalEventMap['UserChanged']
 
-      // Update state
+      // Update internal state
       state.user.metadata = metadata || {}
       state.user.props = metadata?.props || {}
 
@@ -47,7 +48,7 @@ subscribeInternal(async (event, payload) => {
     case 'ActiveProjectChanged': {
       const { projectId } = payload as InternalEventMap['ActiveProjectChanged']
 
-      // Update state
+      // Update internal state
       state.activeProjectId = projectId
 
       // Emit public event
@@ -61,27 +62,21 @@ subscribeInternal(async (event, payload) => {
       const internalProject = await hydrateProject(project)
       const baseProject = toBaseProject(internalProject)
 
-      // Update state
+      // Update internal state
       state.projects = [...state.projects, internalProject]
 
       // Emit public event
       trigger('ProjectAdded', { project: baseProject })
-      trigger('ProjectListChanged', {
-        projectIds: state.projects.map((x) => x.id),
-      })
       return
     }
     case 'ProjectRemoved': {
-      const projectId = payload as InternalEventMap['ProjectRemoved']
+      const { projectId } = payload as InternalEventMap['ProjectRemoved']
 
-      // Update state
+      // Update internal state
       state.projects = state.projects.filter((x) => x.id !== projectId)
 
       // Emit public event
-      trigger('ProjectRemoved', { projectId: payload })
-      trigger('ProjectListChanged', {
-        projectIds: state.projects.map((x) => x.id),
-      })
+      trigger('ProjectRemoved', { projectId })
       return
     }
     case 'ProjectChanged': {
@@ -89,10 +84,12 @@ subscribeInternal(async (event, payload) => {
       const internalProject = getProject(project.projectId)
       if (!internalProject) return
 
-      // Update state
-      internalProject.videoApi.phase = phase
+      // Update internal state
+      if (phase) {
+        internalProject.videoApi.phase = phase
+      }
       internalProject.videoApi.project = project
-      internalProject.props = project.metadata
+      internalProject.props = project.metadata?.props
 
       // Emit public event
       trigger('ProjectChanged', {
@@ -108,7 +105,7 @@ subscribeInternal(async (event, payload) => {
       const internalProject = getProject(projectId)
       if (!internalProject) return
 
-      // Update state
+      // Update internal state
       internalProject.videoApi.project.destinations.push(payload)
 
       // Emit public event
@@ -120,11 +117,11 @@ subscribeInternal(async (event, payload) => {
     }
     case 'DestinationRemoved': {
       const { projectId, destinationId } =
-        payload as InternalEventMap['DestinationAdded']
+        payload as InternalEventMap['DestinationRemoved']
       const internalProject = getProject(projectId)
       if (!internalProject) return
 
-      // Update state
+      // Update internal state
       internalProject.videoApi.project.destinations =
         internalProject.videoApi.project.destinations.filter(
           (x) => x.destinationId !== destinationId,
@@ -132,22 +129,28 @@ subscribeInternal(async (event, payload) => {
 
       // Emit public event
       trigger('DestinationRemoved', { projectId, destinationId })
-      trigger('DestinationListChanged', {
-        projectId,
-        destinationIds: internalProject.videoApi.project.destinations.map(
-          (x) => x.destinationId,
-        ),
-      })
-
-      // TODO: Remove state updates from Destination commands
       return
     }
     case 'DestinationChanged': {
-      // Update state
+      const destination = payload as InternalEventMap['DestinationChanged']
+      const { projectId, destinationId } = destination
+      const internalProject = getProject(projectId)
+      if (!internalProject) return
+
+      const internalDestination =
+        internalProject.videoApi.project.destinations.find(
+          (x) => x.destinationId === destinationId,
+        )
+      if (!internalDestination) return
+
+      // Update internal state
+      Object.assign(internalDestination, destination)
 
       // Emit public event
-
-      // TODO: Remove state updates from Destination commands
+      trigger('DestinationChanged', {
+        projectId,
+        destination: toBaseDestination(internalDestination),
+      })
       return
     }
     /**
@@ -157,21 +160,21 @@ subscribeInternal(async (event, payload) => {
       // TODO: Update state.projects[].videoApi.sources with the full source?
      */
     case 'SourceAdded': {
-      // Update state
+      // Update internal state
 
       // Emit public event
 
       return
     }
     case 'SourceRemoved': {
-      // Update state
+      // Update internal state
 
       // Emit public event
 
       return
     }
     case 'SourceUpdated': {
-      // Update state
+      // Update internal state
 
       // Emit public event
 
@@ -182,21 +185,21 @@ subscribeInternal(async (event, payload) => {
      * TODO: Make sure this doesn't conflict with commands
      */
     case 'NodeAdded': {
-      // Update state
+      // Update internal state
 
       // Emit public event
 
       return
     }
     case 'NodeRemoved': {
-      // Update state
+      // Update internal state
 
       // Emit public event
 
       return
     }
     case 'NodeUpdated': {
-      // Update state
+      // Update internal state
 
       // Emit public event
 

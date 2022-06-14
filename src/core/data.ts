@@ -21,7 +21,9 @@ export const getBaseUser = (): SDK.User => {
   if (!state.user) return null
 
   return {
-    ...state.user,
+    id: state.user.id,
+    props: state.user.props,
+    name: state.user.name,
     projects: state.projects.map(toBaseProject),
     sources: state.sources.map(toBaseSource),
   }
@@ -90,7 +92,9 @@ export const toBaseDestination = (
     id: destination.destinationId,
     enabled: destination.enabled,
     address: destination.address,
-    props: destination.metadata || {},
+    // For backward compatibility, fall back to "metadata" as props.
+    //  All new projects have a dedicated "props" field
+    props: destination.metadata?.props || destination?.metadata || {},
   }
 }
 
@@ -98,7 +102,7 @@ export const toBaseSource = (source: InternalSource): SDK.Source => {
   return {
     id: source.sourceId,
     address: source.address,
-    props: source.metadata || {},
+    props: source.metadata?.props || {},
   }
 }
 

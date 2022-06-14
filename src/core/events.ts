@@ -173,12 +173,6 @@ export interface ExternalEventMap {
   }
   /**
    * @category Project
-   */
-  ProjectListChanged: {
-    projectIds: Array<SDK.Project['id']>
-  }
-  /**
-   * @category Project
    * @local
    */
   RoomJoined: {
@@ -231,13 +225,6 @@ export interface ExternalEventMap {
   DestinationRemoved: {
     projectId: SDK.Project['id']
     destinationId: SDK.Destination['id']
-  }
-  /**
-   * @category Project
-   */
-  DestinationListChanged: {
-    projectId: SDK.Project['id']
-    destinationIds: Array<SDK.Project['id']>
   }
   /**
    * @category Destination
@@ -296,9 +283,11 @@ export interface InternalEventMap {
   ProjectAdded: LiveApiModel.Project
   ProjectChanged: {
     project: LiveApiModel.Project
-    phase: ProjectBroadcastPhase
+    phase?: ProjectBroadcastPhase
   }
-  ProjectRemoved: LiveApiModel.Project['projectId']
+  ProjectRemoved: {
+    projectId: LiveApiModel.Project['projectId']
+  }
   ProjectSourceAdded: {
     projectId: LiveApiModel.Project['projectId']
     source: LiveApiModel.Source

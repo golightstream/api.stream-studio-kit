@@ -71,27 +71,20 @@ export const updateUserProps = async (payload: {
     ...collection.props,
     ...payload.props,
   }
-  await CoreContext.clients.LiveApi().collection.updateCollection({
-    collectionId: collection.id,
-    updateMask: ['metadata'],
-    metadata: {
-      ...collection.metadata,
-      props,
-    },
-  })
-
-  // TODO: This should be handled by event receiver - since the event
-  //  for CollectionUpdate is not coming through, we'll instead fetch
-  //  and trigger manually
-  CoreContext.clients
+  const response = await CoreContext.clients
     .LiveApi()
-    .collection.getCollection({
+    .collection.updateCollection({
       collectionId: collection.id,
+      updateMask: ['metadata'],
+      metadata: {
+        ...collection.metadata,
+        props,
+      },
     })
-    .then((response) => {
-      triggerInternal('UserChanged', response.collection)
-    })
-  return props
+
+  // Trigger event to update state
+  await triggerInternal('UserChanged', response.collection)
+  return
 }
 
 /**
@@ -120,7 +113,7 @@ export const createProject = async (
     size,
   })
 
-  // For responsiveness, emit this event locally and ignore it from the EventAPI
+  // Trigger event to update state
   await triggerInternal('ProjectAdded', response.project)
 
   // Return the base project directly, for convenience
@@ -140,6 +133,9 @@ export const deleteProject = async (payload: {
   await CoreContext.Request.deleteProject({
     projectId,
   })
+
+  // Trigger event to update state
+  await triggerInternal('ProjectRemoved', { projectId })
   return
 }
 
@@ -162,7 +158,7 @@ export const updateProjectProps = async (payload: {
     ...project.props,
     ...payload.props,
   }
-  await CoreContext.clients.LiveApi().project.updateProject({
+  const response = await CoreContext.clients.LiveApi().project.updateProject({
     collectionId,
     projectId,
     updateMask: ['metadata'],
@@ -171,7 +167,10 @@ export const updateProjectProps = async (payload: {
       props,
     },
   })
-  return props
+
+  // Trigger event to update state
+  await triggerInternal('ProjectChanged', { project: response.project })
+  return
 }
 /**
  * @deprecated Use updateProjectProps
@@ -534,14 +533,17 @@ export const addDestination = async (payload: {
   rtmpUrl: string
   rtmpKey: string
   enabled: boolean
-  metadata?: object
+  props: Props
+  /** @deprecated Use `props` */
+  metadata?: Props
 }) => {
   const {
     rtmpUrl,
     rtmpKey,
     enabled,
     projectId = state.activeProjectId,
-    metadata,
+    metadata = {},
+    props = {},
   } = payload
   const project = getProject(projectId)
   const address = {
@@ -551,17 +553,22 @@ export const addDestination = async (payload: {
     },
   } as SDK.Destination['address']
 
-  const result = await CoreContext.clients
+  const response = await CoreContext.clients
     .LiveApi()
     .destination?.createDestination({
       collectionId: project.videoApi.project.collectionId,
       projectId: project.videoApi.project.projectId,
       address,
       enabled,
-      metadata,
+      metadata: {
+        ...metadata,
+        ...props,
+      },
     })
 
-  return toBaseDestination(result.destination)
+  // Trigger event to update state
+  await triggerInternal('DestinationAdded', response.destination)
+  return toBaseDestination(response.destination)
 }
 
 /**
@@ -581,6 +588,10 @@ export const removeDestination = async (payload: {
     projectId: project.videoApi.project.projectId,
     destinationId,
   })
+
+  // Trigger event to update state
+  await triggerInternal('DestinationRemoved', { projectId, destinationId })
+  return
 }
 
 /**
@@ -601,35 +612,27 @@ export const updateDestination = async (payload: {
     projectId = state.activeProjectId,
   } = payload
   const project = getProject(projectId)
+
   const rtmpPush = {
     key: rtmpKey,
     url: rtmpUrl,
   }
 
-  await CoreContext.clients.LiveApi().destination?.updateDestination({
-    collectionId: project.videoApi.project.collectionId,
-    projectId: project.videoApi.project.projectId,
-    destinationId,
-    updateMask: ['address.rtmpPush'],
-    address: {
-      rtmpPush,
-    },
-  })
+  const response = await CoreContext.clients
+    .LiveApi()
+    .destination?.updateDestination({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+      destinationId,
+      updateMask: ['address.rtmpPush'],
+      address: {
+        rtmpPush,
+      },
+    })
 
-  // Update state
-  const destination = project.videoApi.project.destinations.find(
-    (x) => destinationId === x.destinationId,
-  )
-  destination.address.rtmpPush = rtmpPush
-  trigger('DestinationChanged', {
-    projectId,
-    destination: {
-      id: destination.destinationId,
-      enabled: destination.enabled,
-      address: destination.address,
-      props: destination.metadata,
-    },
-  })
+  // Trigger event to update state
+  await triggerInternal('DestinationChanged', response.destination)
+  return
 }
 
 /**
@@ -640,37 +643,52 @@ export const updateDestination = async (payload: {
 export const updateDestinationProps = async (payload: {
   projectId: string
   destinationId: string
-  metadata: SDK.Destination['props']
+  props: Props
 }) => {
-  const { projectId, destinationId, metadata } = payload
-  const project = getProject(projectId)
-
-  await CoreContext.clients.LiveApi().destination?.updateDestination({
-    collectionId: project.videoApi.project.collectionId,
-    projectId: project.videoApi.project.projectId,
+  const {
+    projectId = state.activeProjectId,
     destinationId,
-    updateMask: ['metadata'],
-    metadata,
-  })
-
+    props = {},
+  } = payload
+  const project = getProject(projectId)
   const destination = project.videoApi.project.destinations.find(
-    (x) => destinationId === x.destinationId,
+    (x) => x.destinationId === destinationId,
   )
-  destination.metadata = metadata
-  trigger('DestinationChanged', {
-    projectId,
-    destination: {
-      id: destination.destinationId,
-      enabled: destination.enabled,
-      address: destination.address,
-      props: destination.metadata,
-    },
-  })
+  if (!destination) return
+
+  const response = await CoreContext.clients
+    .LiveApi()
+    .destination?.updateDestination({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+      destinationId,
+      updateMask: ['metadata'],
+      metadata: {
+        ...(destination.metadata || {}),
+        props: {
+          ...(destination.metadata?.props || {}),
+          ...props,
+        },
+      },
+    })
+
+  // Trigger event to update state
+  await triggerInternal('DestinationChanged', response.destination)
+  return
 }
 /**
- * @deprecated Use updateProjectProps
+ * @deprecated Use updateDestinationProps
  */
-export const updateDestinationMeta = updateDestinationProps
+export const updateDestinationMeta = (payload: {
+  projectId: string
+  destinationId: string
+  meta?: Props
+}) =>
+  updateDestinationProps({
+    projectId: payload.projectId,
+    destinationId: payload.destinationId,
+    props: payload.meta,
+  })
 
 /**
  * Enable or disable an existing {@link Destination} on the project.
@@ -689,22 +707,26 @@ export const setDestinationEnabled = async (payload: {
   )
   if (destination.enabled === enabled) return
 
-  await CoreContext.clients.LiveApi().destination?.updateDestination({
-    collectionId: project.videoApi.project.collectionId,
-    projectId: project.videoApi.project.projectId,
-    destinationId,
-    updateMask: ['enabled'],
-    enabled,
-  })
+  const response = await CoreContext.clients
+    .LiveApi()
+    .destination?.updateDestination({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+      destinationId,
+      updateMask: ['enabled'],
+      enabled,
+    })
+
+  // Trigger event to update state
+  await triggerInternal('DestinationChanged', response.destination)
 
   const event = enabled ? 'DestinationEnabled' : 'DestinationDisabled'
-  /**
-   * @deprecated Use DestinationChanged
-   */
+  /** @deprecated Use DestinationChanged */
   trigger(event, {
     projectId,
     destinationId,
   })
+  return
 }
 
 /**
@@ -731,20 +753,21 @@ export const setDestination = async (payload: {
 
   if (project.videoApi.project.destinations.length > 0) {
     // Update existing
-    await CoreContext.clients.LiveApi().destination?.updateDestination({
-      collectionId: project.videoApi.project.collectionId,
-      projectId: project.videoApi.project.projectId,
-      destinationId: project.videoApi.project.destinations[0].destinationId,
-      updateMask: ['address.rtmpPush'],
-      address: { rtmpPush },
-    })
+    const response = await CoreContext.clients
+      .LiveApi()
+      .destination?.updateDestination({
+        collectionId: project.videoApi.project.collectionId,
+        projectId: project.videoApi.project.projectId,
+        destinationId: project.videoApi.project.destinations[0].destinationId,
+        updateMask: ['address.rtmpPush'],
+        address: { rtmpPush },
+      })
 
-    // Update state
-    const destination = project.videoApi.project.destinations[0]
-    destination.address.rtmpPush = rtmpPush
+    // Trigger event to update state
+    await triggerInternal('DestinationChanged', response.destination)
   } else {
     // Create new
-    const result = await CoreContext.clients
+    const response = await CoreContext.clients
       .LiveApi()
       .destination?.createDestination({
         collectionId: project.videoApi.project.collectionId,
@@ -753,13 +776,15 @@ export const setDestination = async (payload: {
         enabled,
       })
 
-    // Update state
-    project.videoApi.project.destinations.push(result.destination)
+    // Trigger event to update state
+    await triggerInternal('DestinationAdded', response.destination)
   }
 
+  /** @deprecated */
   trigger('DestinationSet', {
     projectId,
     rtmpUrl,
     rtmpKey,
   })
+  return
 }
