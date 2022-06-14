@@ -81,7 +81,7 @@ function createTrigger<Obj extends { [index: string]: any }>(
   ) {
     let action = { type: name, payload: args[0] } as any
     const eventType = Boolean(options.internal) ? 'Internal' : 'External'
-    log.debug(`${eventType} Event:`, action)
+    log.info(`${eventType} Event:`, action)
     await Promise.all(
       Array.from(watchers.values()).map((x) => x(action.type, action.payload)),
     )

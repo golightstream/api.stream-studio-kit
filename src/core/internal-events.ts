@@ -12,7 +12,6 @@ import {
 import { InternalEventMap, subscribeInternal, trigger } from './events'
 import { SDK } from './namespaces'
 import { CoreContext, log } from './context'
-import internal from 'stream'
 
 const { state } = CoreContext
 
