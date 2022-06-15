@@ -161,14 +161,22 @@ export const StudioProvider = ({
   useEffect(() => {
     if (!room) return
     if (webcamId) {
-      room.setCamera({
-        deviceId: webcamId,
-      })
+      room
+        .setCamera({
+          deviceId: webcamId,
+        })
+        .catch((e) => {
+          console.warn(e)
+        })
     }
     if (microphoneId) {
-      room.setMicrophone({
-        deviceId: microphoneId,
-      })
+      room
+        .setMicrophone({
+          deviceId: microphoneId,
+        })
+        .catch((e) => {
+          console.warn(e)
+        })
     }
   }, [room, webcamId, microphoneId])
 
