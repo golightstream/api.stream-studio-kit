@@ -52310,10 +52310,14 @@ const StudioProvider = ({ children }) => {
     if (!room)
       return;
     if (webcamId) {
-      room.setCamera({ deviceId: webcamId });
+      room.setCamera({ deviceId: webcamId }).catch((e2) => {
+        console.warn(e2);
+      });
     }
     if (microphoneId) {
-      room.setMicrophone({ deviceId: microphoneId });
+      room.setMicrophone({ deviceId: microphoneId }).catch((e2) => {
+        console.warn(e2);
+      });
     }
   }, [room, webcamId, microphoneId]);
   return /* @__PURE__ */ jsx(StudioContext$1.Provider, { value: { studio, project, room, webcamId, microphoneId, setStudio, setProject, setRoom, setWebcamId: (id2) => {
@@ -54133,4 +54137,4 @@ var config = {
 var url = "/studiokit/example/assets/logo.eb248bd6.png";
 var index = "";
 export { AppProvider as A, ControlPanel as C, DeviceSelection as D, Participants as P, React as R, Style$1 as S, init as a, jsxs as b, config as c, Chat as d, ReactDOM as e, Participant as f, index$1 as i, jsx as j, react$1 as r, url as u };
-//# sourceMappingURL=index.a67fe66a.js.map
+//# sourceMappingURL=index.6661206d.js.map

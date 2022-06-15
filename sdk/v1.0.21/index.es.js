@@ -52546,11 +52546,15 @@ const StudioProvider = ({
     if (webcamId) {
       room.setCamera({
         deviceId: webcamId
+      }).catch((e2) => {
+        console.warn(e2);
       });
     }
     if (microphoneId) {
       room.setMicrophone({
         deviceId: microphoneId
+      }).catch((e2) => {
+        console.warn(e2);
       });
     }
   }, [room, webcamId, microphoneId]);
