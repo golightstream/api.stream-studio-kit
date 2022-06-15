@@ -114,6 +114,11 @@ export type SceneNode = Compositor.SceneNode
  */
 export interface Project {
   /**
+   * The active user's role associated with this project
+   *  https://www.api.stream/docs/api/auth/#permission-roles
+   */
+  role: Role
+  /**
    * Unique alpha-numeric ID. Example: `"1234a56b7890cd12e34f5gh6"`.
    * Corresponds to a Live API `project_id`.
    */

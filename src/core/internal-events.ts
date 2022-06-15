@@ -58,7 +58,7 @@ subscribeInternal(async (event, payload) => {
     }
     case 'ProjectAdded': {
       const project = payload as InternalEventMap['ProjectAdded']
-      const internalProject = await hydrateProject(project)
+      const internalProject = await hydrateProject(project, 'ROLE_HOST' as SDK.Role)
       const baseProject = toBaseProject(internalProject)
 
       // Update internal state

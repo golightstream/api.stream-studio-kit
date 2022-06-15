@@ -117,7 +117,7 @@ export const createProject = async (
   await triggerInternal('ProjectAdded', response.project)
 
   // Return the base project directly, for convenience
-  const internalProject = await hydrateProject(response.project)
+  const internalProject = await hydrateProject(response.project, 'ROLE_HOST' as SDK.Role)
   return toBaseProject(internalProject)
 }
 

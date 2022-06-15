@@ -32,7 +32,7 @@ export const getBaseUser = (): SDK.User => {
 export const toBaseProject = (
   project: Context.InternalProject,
 ): SDK.Project => {
-  const { compositor, videoApi, props } = project
+  const { compositor, videoApi, props, role } = project
   const { destinations, encoding, rendering, sources } = videoApi.project
 
   const scene = {
@@ -52,8 +52,8 @@ export const toBaseProject = (
   //  e.g. ScenelessProject
 
   return {
-    // TODO: Pull from Video API reseponse
     broadcastPhase,
+    role,
     isLive: [
       ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING,
       ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPING,
@@ -106,13 +106,17 @@ export const toBaseSource = (source: InternalSource): SDK.Source => {
   }
 }
 
-export const hydrateProject = async (project: LiveApiModel.Project) => {
+export const hydrateProject = async (
+  project: LiveApiModel.Project,
+  role: SDK.Role,
+) => {
   const metadata = project.metadata || {}
   const compositorProject = await layoutToProject(metadata.layoutId)
 
   return {
     id: project.projectId,
     compositor: compositorProject,
+    role,
     videoApi: {
       project,
       phase: ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_UNSPECIFIED,

@@ -76,6 +76,7 @@ export type InternalProject = {
     layoutId: string
   }
   sfuToken?: string
+  role?: SDK.Role
   /**
    * @private The room
    */

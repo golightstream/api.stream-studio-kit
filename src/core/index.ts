@@ -125,7 +125,7 @@ export const init = async (
     await client
       .LiveApi()
       .project.getProject({ ...guestProject })
-      .then((resp) => hydrateProject(resp.project))
+      .then((resp) => hydrateProject(resp.project, guestProject.role))
       .then(async (project) => {
         project.isInitial = true
         CoreContext.state.projects = [project]

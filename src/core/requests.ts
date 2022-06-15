@@ -17,7 +17,7 @@ import {
 } from './context'
 import { getAccessTokenData, getProject, getUser, hydrateProject } from './data'
 import { Helpers } from '.'
-import { Props } from './types'
+import { Props, Role } from './types'
 import { LiveApiModel } from '@api.stream/sdk'
 
 export const createProject = async (request: {
@@ -157,7 +157,7 @@ export const loadUser = async (): Promise<{
 
   // Take the Vapi Project and hydrate it with Compositor and Lapi project details
   const projects = await Promise.all(
-    collection.projects.map((project) => hydrateProject(project)),
+    collection.projects.map((project) => hydrateProject(project, 'ROLE_HOST' as Role)),
   )
 
   return {
