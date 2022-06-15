@@ -49700,7 +49700,8 @@ const toBaseProject = (project) => {
   const {
     compositor: compositor2,
     videoApi,
-    props
+    props,
+    role
   } = project;
   const {
     destinations,
@@ -49721,6 +49722,7 @@ const toBaseProject = (project) => {
   const broadcastPhase = project.videoApi.phase;
   return __spreadProps(__spreadValues({
     broadcastPhase,
+    role,
     isLive: [ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING, ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPING].includes(broadcastPhase),
     scene,
     joinRoom: async (settings = {}) => {
@@ -49761,12 +49763,13 @@ const toBaseSource = (source2) => {
     props: ((_a = source2.metadata) == null ? void 0 : _a.props) || {}
   };
 };
-const hydrateProject = async (project) => {
+const hydrateProject = async (project, role) => {
   const metadata = project.metadata || {};
   const compositorProject = await layoutToProject(metadata.layoutId);
   return {
     id: project.projectId,
     compositor: compositorProject,
+    role,
     videoApi: {
       project,
       phase: ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_UNSPECIFIED
@@ -51901,7 +51904,7 @@ subscribeInternal(async (event2, payload) => {
     }
     case "ProjectAdded": {
       const project = payload;
-      const internalProject = await hydrateProject(project);
+      const internalProject = await hydrateProject(project, "ROLE_HOST");
       const baseProject = toBaseProject(internalProject);
       state$1.projects = [...state$1.projects, internalProject];
       trigger$1("ProjectAdded", {
@@ -52038,7 +52041,7 @@ const createProject$1 = async (payload = {}) => {
     size
   });
   await triggerInternal$1("ProjectAdded", response.project);
-  const internalProject = await hydrateProject(response.project);
+  const internalProject = await hydrateProject(response.project, "ROLE_HOST");
   return toBaseProject(internalProject);
 };
 const deleteProject$1 = async (payload) => {
@@ -53908,7 +53911,7 @@ const loadUser = async () => {
     collection = collections[0];
   }
   await CoreContext.clients.LiveApi().subscribeToCollection(collection.collectionId);
-  const projects = await Promise.all(collection.projects.map((project) => hydrateProject(project)));
+  const projects = await Promise.all(collection.projects.map((project) => hydrateProject(project, "ROLE_HOST")));
   return {
     user: {
       id: collection.collectionId,
@@ -54326,7 +54329,7 @@ const init = async (settings = {}) => {
   const guestProject = await client.load(guestToken);
   let initialProject;
   if (guestProject) {
-    await client.LiveApi().project.getProject(__spreadValues({}, guestProject)).then((resp) => hydrateProject(resp.project)).then(async (project) => {
+    await client.LiveApi().project.getProject(__spreadValues({}, guestProject)).then((resp) => hydrateProject(resp.project, guestProject.role)).then(async (project) => {
       project.isInitial = true;
       CoreContext.state.projects = [project];
       initialProject = await CoreContext.Command.setActiveProject({

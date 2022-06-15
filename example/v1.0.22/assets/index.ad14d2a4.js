@@ -50632,14 +50632,14 @@ const getBaseUser = () => {
   return { id: state$2.user.id, props: state$2.user.props, name: state$2.user.name, projects: state$2.projects.map(toBaseProject), sources: state$2.sources.map(toBaseSource) };
 };
 const toBaseProject = (project) => {
-  const { compositor: compositor2, videoApi, props } = project;
+  const { compositor: compositor2, videoApi, props, role } = project;
   const { destinations, encoding, rendering, sources: sources2 } = videoApi.project;
   const scene = { get: compositor2.get, getRoot: compositor2.getRoot, getParent: compositor2.getParent };
   Object.defineProperty(scene, "nodes", { get() {
     return compositor2.nodes.filter((x2) => !x2._deleted);
   } });
   const broadcastPhase = project.videoApi.phase;
-  return __spreadProps(__spreadValues({ broadcastPhase, isLive: [ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING, ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPING].includes(broadcastPhase), scene, joinRoom: async (settings = {}) => {
+  return __spreadProps(__spreadValues({ broadcastPhase, role, isLive: [ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING, ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPING].includes(broadcastPhase), scene, joinRoom: async (settings = {}) => {
     return CoreContext.Command.joinRoom(__spreadValues({ projectId: project.id }, settings));
   }, subscribe: (cb2) => CoreContext.subscribe((event2, payload) => {
     if (payload.projectId && (payload == null ? void 0 : payload.projectId) === project.id) {
@@ -50655,10 +50655,10 @@ const toBaseSource = (source2) => {
   var _a;
   return { id: source2.sourceId, address: source2.address, props: ((_a = source2.metadata) == null ? void 0 : _a.props) || {} };
 };
-const hydrateProject = async (project) => {
+const hydrateProject = async (project, role) => {
   const metadata = project.metadata || {};
   const compositorProject = await layoutToProject(metadata.layoutId);
-  return { id: project.projectId, compositor: compositorProject, videoApi: { project, phase: ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_UNSPECIFIED }, layoutApi: { layoutId: metadata.layoutId }, props: (metadata == null ? void 0 : metadata.props) || metadata };
+  return { id: project.projectId, compositor: compositorProject, role, videoApi: { project, phase: ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_UNSPECIFIED }, layoutApi: { layoutId: metadata.layoutId }, props: (metadata == null ? void 0 : metadata.props) || metadata };
 };
 const sceneNodeToLayer = (node) => {
   const { id: id2, props = {}, children = [] } = node;
@@ -51977,7 +51977,7 @@ subscribeInternal(async (event2, payload) => {
     }
     case "ProjectAdded": {
       const project = payload;
-      const internalProject = await hydrateProject(project);
+      const internalProject = await hydrateProject(project, "ROLE_HOST");
       const baseProject = toBaseProject(internalProject);
       state$1.projects = [...state$1.projects, internalProject];
       trigger$1("ProjectAdded", { project: baseProject });
@@ -52068,7 +52068,7 @@ const createProject$1 = async (payload = {}) => {
   const { props = {}, size, settings = {} } = payload;
   const response = await CoreContext.Request.createProject({ settings, props, size });
   await triggerInternal$1("ProjectAdded", response.project);
-  const internalProject = await hydrateProject(response.project);
+  const internalProject = await hydrateProject(response.project, "ROLE_HOST");
   return toBaseProject(internalProject);
 };
 const deleteProject$1 = async (payload) => {
@@ -53155,7 +53155,7 @@ const loadUser = async () => {
     collection = collections[0];
   }
   await CoreContext.clients.LiveApi().subscribeToCollection(collection.collectionId);
-  const projects = await Promise.all(collection.projects.map((project) => hydrateProject(project)));
+  const projects = await Promise.all(collection.projects.map((project) => hydrateProject(project, "ROLE_HOST")));
   return { user: { id: collection.collectionId, metadata: collection.metadata, props: ((_a = collection.metadata) == null ? void 0 : _a.props) || {}, name: displayName }, projects, sources: collection.sources };
 };
 const loadCollections = async () => {
@@ -53380,7 +53380,7 @@ const init = async (settings = {}) => {
   const guestProject = await client.load(guestToken);
   let initialProject;
   if (guestProject) {
-    await client.LiveApi().project.getProject(__spreadValues({}, guestProject)).then((resp) => hydrateProject(resp.project)).then(async (project) => {
+    await client.LiveApi().project.getProject(__spreadValues({}, guestProject)).then((resp) => hydrateProject(resp.project, guestProject.role)).then(async (project) => {
       project.isInitial = true;
       CoreContext.state.projects = [project];
       initialProject = await CoreContext.Command.setActiveProject({ projectId: project.id });
@@ -54137,4 +54137,4 @@ var config = {
 var url = "/studiokit/example/assets/logo.eb248bd6.png";
 var index = "";
 export { AppProvider as A, ControlPanel as C, DeviceSelection as D, Participants as P, React as R, Style$1 as S, init as a, jsxs as b, config as c, Chat as d, ReactDOM as e, Participant as f, index$1 as i, jsx as j, react$1 as r, url as u };
-//# sourceMappingURL=index.5990b114.js.map
+//# sourceMappingURL=index.ad14d2a4.js.map
