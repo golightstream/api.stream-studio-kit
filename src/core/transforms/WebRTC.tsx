@@ -9,20 +9,27 @@ import { useEffect, useRef } from 'react'
 import { CoreContext } from '../context'
 import { Compositor } from '../namespaces'
 import { getRoom } from '../webrtc/simple-room'
+import { RoomParticipantSource } from '../sources'
 
 type Props = {
   volume: number
   isMuted: boolean
+  isHidden: boolean
 }
 
-const Participant = ({ props, source }: { props: Props; source: any }) => {
-  const { volume = 1 } = props
+const Participant = ({ props, source }: { props: Props; source: RoomParticipantSource }) => {
+  const { volume = 1, isHidden = false } = props
   const ref = useRef<HTMLVideoElement>()
   const room = getRoom(CoreContext.state.activeProjectId)
   const isSelf = source?.id === room.participantId
 
-  // Mute if explicitly isMuted or the participant is our local participant
-  const muted = isSelf || props.isMuted
+  // Mute audio if explicitly isMuted by host, 
+  //  or the participant is our local participant
+  const muteAudio = isSelf || props.isMuted
+
+  // Hide video if explicitly isHidden by host or
+  //  if the participant is sending no video
+  const hasVideo = !props.isHidden && source?.props.videoEnabled
 
   useEffect(() => {
     if (!ref.current) return
@@ -63,7 +70,7 @@ const Participant = ({ props, source }: { props: Props; source: any }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          opacity: source?.props.videoEnabled ? '0' : '1',
+          opacity: hasVideo ? '0' : '1',
         }}
       >
         <div
@@ -85,7 +92,7 @@ const Participant = ({ props, source }: { props: Props; source: any }) => {
       <video
         ref={ref}
         autoPlay={true}
-        muted={muted}
+        muted={muteAudio}
         disablePictureInPicture={true}
         playsInline={true}
         style={{
@@ -94,7 +101,7 @@ const Participant = ({ props, source }: { props: Props; source: any }) => {
           position: 'relative',
           transform: 'translate3d(-50%, -50%, 0)',
           height: '100%',
-          opacity: source?.props.videoEnabled ? '1' : '0',
+          opacity: hasVideo ? '1' : '0',
           objectFit: source?.props.type === 'screen' ? 'contain' : 'cover',
           background: 'rgba(0,0,0,0.6)',
         }}

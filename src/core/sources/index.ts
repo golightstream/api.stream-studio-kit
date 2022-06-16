@@ -158,6 +158,22 @@ CoreContext.on('RoomJoined', ({ room }) => {
   })
 })
 
+export type RoomParticipantSource = {
+  // Equivalent to room participantId
+  id: string
+  value: MediaStream
+  props: {
+    // Equivalent to room participantId
+    id: string
+    type: 'screen' | 'camera'
+    displayName: string
+    // Video track muted by owner
+    videoEnabled: boolean
+    // Audio track muted by owner
+    audioEnabled: boolean
+  }
+}
+
 export const RoomParticipant = {
   type: 'RoomParticipant',
   valueType: MediaStream,

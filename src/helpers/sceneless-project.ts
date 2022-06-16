@@ -51,6 +51,7 @@ export type { LayoutName }
 export type ParticipantProps = {
   volume: number
   isMuted: boolean
+  isHidden: boolean
 }
 
 // Local cache to track participants being added
@@ -159,8 +160,8 @@ export interface Commands {
    * @deprecated Use removeParticipant() with parameter `type`
    */
   removeParticipantScreenshare(participantId: string): void
-  /** 
-   * @private 
+  /**
+   * @private
    * Get the node associated with a room participant
    * */
   getParticipantNode(
@@ -200,9 +201,26 @@ export interface Commands {
   ): void
   /**
    * Mute a participant without changing their volume.
-   * This does not affect the underlying MediaStreamTrack.
+   *  This does not affect the underlying MediaStreamTrack.
+   *
+   * Participants muted in this way will not stop sending
+   *  audio data, but it will not play on the receiving end.
+   *
+   * A host may use this to override a guest's settings
+   *  for the stream output.
    */
   setParticipantMuted(participantId: string, isMuted: boolean): void
+  /**
+   * Hide a participant video feed from the stream.
+   *  This does not affect the underlying MediaStreamTrack.
+   *
+   * Participants hidden in this way will not stop sending
+   *  video data, but it will not play on the receiving end.
+   *
+   * A host may use this to override a guest's settings
+   *  for the stream output.
+   */
+  setParticipantHidden(participantId: string, isHidden: boolean): void
   /**
    * Remove all participants from the stream canvas who are not actively
    * sending a MediaStreamTrack for display.
@@ -308,7 +326,7 @@ export const commands = (project: ScenelessProject) => {
     ) {
       if (addingCache[type].has(participantId)) return
 
-      const { isMuted = false, volume = 1 } = props
+      const { isMuted = false, isHidden = false, volume = 1 } = props
       const existing = content.children.find(
         (x) =>
           x.props.sourceProps?.id === participantId &&
@@ -326,6 +344,7 @@ export const commands = (project: ScenelessProject) => {
           },
           volume,
           isMuted,
+          isHidden,
         },
         parentId: content.id,
         index: content.children.length,
@@ -407,6 +426,16 @@ export const commands = (project: ScenelessProject) => {
         participantListener()
       }
     },
+    setParticipantVolume(participantId: string, volume: number) {
+      const node = commands.getParticipantNode(participantId)
+      if (!node) return
+      CoreContext.Command.updateNode({
+        nodeId: node.id,
+        props: {
+          volume,
+        },
+      })
+    },
     setParticipantMuted(participantId: string, isMuted: boolean) {
       const node = commands.getParticipantNode(participantId)
       if (!node) return
@@ -417,13 +446,13 @@ export const commands = (project: ScenelessProject) => {
         },
       })
     },
-    setParticipantVolume(participantId: string, volume: number) {
+    setParticipantHidden(participantId: string, isHidden: boolean) {
       const node = commands.getParticipantNode(participantId)
       if (!node) return
       CoreContext.Command.updateNode({
         nodeId: node.id,
         props: {
-          volume,
+          isHidden,
         },
       })
     },
