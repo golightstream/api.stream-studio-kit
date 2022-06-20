@@ -55,7 +55,6 @@ export type ParticipantProps = {
   isHidden: boolean
 }
 
-
 export type HTMLVideoElementAttributes = {
   loop?: boolean
   autoplay?: boolean
@@ -71,14 +70,14 @@ const addingCache = {
 export type ParticipantType = 'camera' | 'screen'
 
 interface PlaybackOptions {
-  playsinline? : boolean
-  disablepictureinpicture? : boolean
+  playsinline?: boolean
+  disablepictureinpicture?: boolean
   muted?: boolean
   loop?: boolean
   autoplay?: boolean
 }
 
-interface ScenelessProject extends SDK.Project { }
+interface ScenelessProject extends SDK.Project {}
 
 // Note: Assume project is a valid sceneless project
 // Note: In the future commands will be returned by an argument of SceneNode
@@ -123,8 +122,8 @@ export interface Commands {
    */
   setLayout(layout: LayoutName, layoutProps: LayoutProps): void
   /**
- * Get the active background image
- */
+   * Get the active background image
+   */
   getBackgroundVideo(): string
   /**
    * Get the active background image
@@ -135,8 +134,8 @@ export interface Commands {
    */
   setBackgroundImage(src: string): void
   /**
- * Set the active background image
- */
+   * Set the active background image
+   */
   setBackgroundVideo(src: string, attributes?: HTMLVideoElementAttributes): void
 
   /**
@@ -144,26 +143,30 @@ export interface Commands {
    */
   getImageOverlay(): string | string[]
   /**
-    * Get the active foreground overlay
-    */
+   * Get the active foreground overlay
+   */
   getVideoOverlay(): string | string[]
   /**
-    * Set the active foreground overlay
-    */
-  addImageOverlay(overlayId : string , src : string): Promise<void>
-  /** 
-   * set image overlay on foreground layer 
+   * Set the active foreground overlay
    */
-  addVideoOverlay(overlayId: string, src: string, playbackOptions?: PlaybackOptions): Promise<void>
+  addImageOverlay(overlayId: string, src: string): Promise<void>
+  /**
+   * set image overlay on foreground layer
+   */
+  addVideoOverlay(
+    overlayId: string,
+    src: string,
+    playbackOptions?: PlaybackOptions,
+  ): Promise<void>
 
-  /** 
-   * remove image overlay from foreground layer 
-  */
+  /**
+   * remove image overlay from foreground layer
+   */
   removeVideoOverlay(overlayId: string): Promise<void>
 
-  /** 
-   * remove image overlay from foreground layer 
-  */
+  /**
+   * remove image overlay from foreground layer
+   */
   removeImageOverlay(overlayId: string): Promise<void>
 
   /**
@@ -171,7 +174,7 @@ export interface Commands {
    */
   playOverlay(src: string): void
 
-   /** Set one participant to "showcase". This participant will expand to fill
+  /** Set one participant to "showcase". This participant will expand to fill
    * the space of the stream without affecting the underlying layout.
    */
   setShowcase(
@@ -303,8 +306,12 @@ export const commands = (project: ScenelessProject) => {
   const background = root.children.find((x) => x.props.id === 'bg')
   const content = root.children.find((x) => x.props.id === 'content')
   const foreground = root.children.find((x) => x.props.id === 'foreground')
-  const foregroundImageContainer = foreground.children.find((x) => x.props.id === 'fg-image');
-  const foregroundVideoContainer = foreground.children.find((x) => x.props.id === 'fg-video');
+  const foregroundImageContainer = foreground.children.find(
+    (x) => x.props.id === 'fg-image',
+  )
+  const foregroundVideoContainer = foreground.children.find(
+    (x) => x.props.id === 'fg-video',
+  )
 
   const commands: Commands = {
     getBackground() {
@@ -321,53 +328,63 @@ export const commands = (project: ScenelessProject) => {
     },
 
     getParticipants(room: SDK.Room) {
-      return content.children
-        .filter((node) => {
-          if (node.props.sourceType !== 'RoomParticipant') return false
-          return true;
-        })
+      return content.children.filter((node) => {
+        if (node.props.sourceType !== 'RoomParticipant') return false
+        return true
+      })
     },
 
     getImageOverlay(): string | string[] {
-      const foregroundImageIds = foregroundImageContainer.children.map((x) => x?.props?.sourceProps?.id);
-      return foregroundImageIds.length > 1 ? foregroundImageIds : foregroundImageIds[0];
+      const foregroundImageIds = foregroundImageContainer.children.map(
+        (x) => x?.props?.sourceProps?.id,
+      )
+      return foregroundImageIds.length > 1
+        ? foregroundImageIds
+        : foregroundImageIds[0]
     },
 
     getVideoOverlay(): string | string[] {
-      const foregroundVideoIds = foregroundVideoContainer.children.map((x) => x?.props?.sourceProps?.id);
-      return foregroundVideoIds.length > 1 ? foregroundVideoIds : foregroundVideoIds[0];
+      const foregroundVideoIds = foregroundVideoContainer.children.map(
+        (x) => x?.props?.sourceProps?.id,
+      )
+      return foregroundVideoIds.length > 1
+        ? foregroundVideoIds
+        : foregroundVideoIds[0]
     },
-    
-    playOverlay(overlayId: string) {
 
+    playOverlay(overlayId: string) {
       // find overlay node by id
-      const overlay = foregroundVideoContainer.children.find((x) => x.props?.sourceProps?.id === overlayId)
+      const overlay = foregroundVideoContainer.children.find(
+        (x) => x.props?.sourceProps?.id === overlayId,
+      )
 
       // if overlay is not found, return
       if (!overlay) {
-        return;
+        return
       }
 
       // check if overlay is of type video
-      if(overlay.props.sourceProps.type === 'video') {
+      if (overlay.props.sourceProps.type === 'video') {
         // autoPlay overlay with muted audio
         // chrome will let muted audio autoplay on load -  https://developer.chrome.com/blog/autoplay/
-        overlay.props.attributes.muted = true;
-        overlay.props.attributes.autoplay = true;
+        overlay.props.attributes.muted = true
+        overlay.props.attributes.autoplay = true
 
         // update overlay node with new attributes
         CoreContext.Command.updateNode({
           nodeId: overlay.id,
           props: {
-            ...overlay.props
-          }
+            ...overlay.props,
+          },
         })
       }
     },
 
     async removeImageOverlay(overlayId: string) {
       // find overlay node by id
-      const overlay = foregroundImageContainer.children.find((x) => x.props?.sourceProps?.id === overlayId)
+      const overlay = foregroundImageContainer.children.find(
+        (x) => x.props?.sourceProps?.id === overlayId,
+      )
       // if overlay exists, remove it
       if (overlay) {
         CoreContext.Command.deleteNode({
@@ -377,10 +394,11 @@ export const commands = (project: ScenelessProject) => {
     },
 
     async removeVideoOverlay(overlayId: string) {
-
       // find overlay node by id
-      const overlay = foregroundVideoContainer.children.find((x) => x.props?.sourceProps?.id === overlayId)
-      
+      const overlay = foregroundVideoContainer.children.find(
+        (x) => x.props?.sourceProps?.id === overlayId,
+      )
+
       // if overlay exists, remove it
       if (overlay) {
         CoreContext.Command.deleteNode({
@@ -394,38 +412,41 @@ export const commands = (project: ScenelessProject) => {
         if (!room) return
 
         // get all participants in the room and unmute them
-        const participants = commands.getParticipants(room);
+        const participants = commands.getParticipants(room)
 
         participants.forEach((node) => {
-          commands.setParticipantMuted(node.props.sourceProps?.id, false);
-        });
+          commands.setParticipantMuted(node.props.sourceProps?.id, false)
+        })
 
         // get all children of the overlay node and update their opacity attributes
-        const allForegroundChildrens = foreground.children.filter((f) => f.props.id !== 'fg-video');
+        const allForegroundChildrens = foreground.children.filter(
+          (f) => f.props.id !== 'fg-video',
+        )
         allForegroundChildrens.forEach((nodes) => {
-            nodes.children.forEach((node) => {
-              if (node.props?.fields?.style?.opacity === 0) {
-                node.props.fields.style.opacity = 1;
-                CoreContext.Command.updateNode({
-                  nodeId: node.id,
-                  props: {
-                    ...node.props,
-                  }
-                })
-              }
-            })
-        });
+          nodes.children.forEach((node) => {
+            if (node.props?.fields?.style?.opacity === 0) {
+              node.props.fields.style.opacity = 1
+              CoreContext.Command.updateNode({
+                nodeId: node.id,
+                props: {
+                  ...node.props,
+                },
+              })
+            }
+          })
+        })
       }
     },
 
-    async addImageOverlay(overlayId: string,src:string) {
-
+    async addImageOverlay(overlayId: string, src: string) {
       // Get the image overlay node from the foreground layer
-      const imageOverlay = foregroundImageContainer.children.find((x) => x.props.id === 'img-overlay')
+      const imageOverlay = foregroundImageContainer.children.find(
+        (x) => x.props.id === 'img-overlay',
+      )
 
       // if the overlayid matches the image overlay id passed, return
       if (imageOverlay && imageOverlay?.props?.sourceProps?.id === overlayId) {
-        return;
+        return
       }
 
       //set the source of the image overlay node to the image src
@@ -442,30 +463,31 @@ export const commands = (project: ScenelessProject) => {
         },
         fields: {
           style: {
-            "transition": "opacity 300ms ease 0ms, transform, width, height",
-            "-webkit-transition": "opacity 300ms ease 0ms, transform, width, height",
+            transition: 'opacity 300ms ease 0ms, transform, width, height',
+            '-webkit-transition':
+              'opacity 300ms ease 0ms, transform, width, height',
             opacity: 1,
             objectFit: 'cover',
           },
-        }
+        },
       }
       // get video overlay node from the foreground layer
-      const vidOverlay = foregroundVideoContainer.children.find((x) => x.props.id === 'vid-overlay');
+      const vidOverlay = foregroundVideoContainer.children.find(
+        (x) => x.props.id === 'vid-overlay',
+      )
 
       // if the video overlay node exists, change the image overlay node to opacity 0
       if (vidOverlay) {
-        imageProps.fields.style.opacity = 0;
+        imageProps.fields.style.opacity = 0
       }
 
       // If the overlay doesn't exist, create it
       if (!imageOverlay) {
-
         await CoreContext.Command.createNode({
           props: imageProps,
           parentId: foregroundImageContainer.id,
           index: foregroundImageContainer.children.length,
-        });
-
+        })
       } else {
         // Otherwise, update the overlay node
         CoreContext.Command.updateNode({
@@ -473,21 +495,26 @@ export const commands = (project: ScenelessProject) => {
           props: {
             ...imageOverlay.props,
             ...imageProps,
-          }
+          },
         })
       }
     },
 
-    async addVideoOverlay(overlayId: string,src:string , playbackOptions : PlaybackOptions) {
-
+    async addVideoOverlay(
+      overlayId: string,
+      src: string,
+      playbackOptions: PlaybackOptions,
+    ) {
       // Get the video overlay node from the foreground layer
-      const videoOverlay = foregroundVideoContainer.children.find((x) => x.props.id === 'vid-overlay');
+      const videoOverlay = foregroundVideoContainer.children.find(
+        (x) => x.props.id === 'vid-overlay',
+      )
 
       // if the video overlay node exists, and the overlay id matches the overlay id passed in, return
-      if(videoOverlay && videoOverlay?.props?.sourceProps?.id === overlayId) {
-        return;
+      if (videoOverlay && videoOverlay?.props?.sourceProps?.id === overlayId) {
+        return
       }
-      
+
       //set the source of the video overlay node to the src
       let videoProps = {
         id: 'vid-overlay',
@@ -502,8 +529,8 @@ export const commands = (project: ScenelessProject) => {
           playsinline: true,
           disablepictureinpicture: true,
           autoplay: true,
-          ...playbackOptions
-        }
+          ...playbackOptions,
+        },
       }
 
       // get room details from project
@@ -511,27 +538,29 @@ export const commands = (project: ScenelessProject) => {
       if (!room) return
 
       // get all participants in the room and mute them
-      const participants = commands.getParticipants(room);
+      const participants = commands.getParticipants(room)
 
       participants.forEach((node) => {
-        commands.setParticipantMuted(node.props.sourceProps?.id, true);
-      });
+        commands.setParticipantMuted(node.props.sourceProps?.id, true)
+      })
 
       // get all children of the overlay node and update their opacity attributes
-      const allForegroundChildrens = foreground.children.filter((f) => f.props.id !== 'fg-video');
+      const allForegroundChildrens = foreground.children.filter(
+        (f) => f.props.id !== 'fg-video',
+      )
       allForegroundChildrens.forEach((nodes) => {
         nodes.children.forEach((node) => {
           if (node.props?.fields?.style?.opacity === 1) {
-            node.props.fields.style.opacity = 0;
+            node.props.fields.style.opacity = 0
             CoreContext.Command.updateNode({
               nodeId: node.id,
               props: {
                 ...node.props,
-              }
+              },
             })
           }
         })
-      });
+      })
 
       // If the overlay doesn't exist, create it
       if (!videoOverlay) {
@@ -539,8 +568,7 @@ export const commands = (project: ScenelessProject) => {
           props: videoProps,
           parentId: foregroundVideoContainer.id,
           index: foregroundVideoContainer.children.length,
-        });
-
+        })
       } else {
         // Otherwise, update the overlay node
         CoreContext.Command.updateNode({
@@ -548,7 +576,7 @@ export const commands = (project: ScenelessProject) => {
           props: {
             ...videoOverlay.props,
             ...videoProps,
-          }
+          },
         })
       }
     },
@@ -800,7 +828,7 @@ export const commands = (project: ScenelessProject) => {
             // Get the source type as it corresponds to the track's type
             const sourceType =
               track.type === Track.Source.Camera ||
-                track.type === Track.Source.Microphone
+              track.type === Track.Source.Microphone
                 ? 'camera'
                 : 'screen'
 
@@ -819,7 +847,6 @@ export const commands = (project: ScenelessProject) => {
   }
   return commands
 }
-
 
 export type LayoutProps = {
   cover?: boolean
@@ -860,7 +887,12 @@ export const createCompositor = async (
   size: { x: number; y: number },
   settings: ScenelessSettings,
 ) => {
-  const { backgroundImage, layout, layoutProps = {}, backgroundVideo } = settings
+  const {
+    backgroundImage,
+    layout,
+    layoutProps = {},
+    backgroundVideo,
+  } = settings
 
   // TODO: Batch insert
   const project = await CoreContext.compositor.createProject(
@@ -915,14 +947,14 @@ export const createCompositor = async (
   ])
   await project.reorder(root.id, baseLayers)
 
-  const foreground =  root.children.find((x) => x.props.id === 'foreground')
+  const foreground = root.children.find((x) => x.props.id === 'foreground')
 
   const baseForegroundLayers = await Promise.all([
     project.insert(
       {
         name: 'ImageOverlay',
         id: 'fg-image',
-        layout: 'Free'
+        layout: 'Free',
       },
       foreground.id,
     ),
@@ -930,13 +962,13 @@ export const createCompositor = async (
       {
         name: 'VideoOverlay',
         id: 'fg-video',
-        layout: 'Free'
+        layout: 'Free',
       },
       foreground.id,
     ),
   ])
 
-  await project.reorder(foreground.id, baseForegroundLayers);
+  await project.reorder(foreground.id, baseForegroundLayers)
 
   return project
 }
