@@ -77,7 +77,7 @@ interface PlaybackOptions {
   autoplay?: boolean
 }
 
-interface ScenelessProject extends SDK.Project { }
+interface ScenelessProject extends SDK.Project {}
 
 // Note: Assume project is a valid sceneless project
 // Note: In the future commands will be returned by an argument of SceneNode
@@ -604,7 +604,9 @@ export const commands = (project: ScenelessProject) => {
     },
 
     getBackgroundMedia() {
-      return backgroundImageContainer?.props?.fields?.style?.opacity ? backgroundImageContainer.props.attributes.src : backgroundVideoContainer.props.attributes.src
+      return backgroundImageContainer?.props?.fields?.style?.opacity
+        ? backgroundImageContainer.props.attributes.src
+        : backgroundVideoContainer.props.attributes.src
     },
 
     getBackgroundImage() {
@@ -615,7 +617,6 @@ export const commands = (project: ScenelessProject) => {
       return backgroundVideoContainer?.props?.attributes?.src
     },
 
-
     setBackgroundImage(src: string) {
       if (backgroundVideoContainer?.props?.fields?.style?.opacity === 1) {
         CoreContext.Command.updateNode({
@@ -623,11 +624,11 @@ export const commands = (project: ScenelessProject) => {
           props: {
             fields: {
               style: {
-                opacity: 0
-              }
-            }
-          }
-        });
+                opacity: 0,
+              },
+            },
+          },
+        })
       }
 
       CoreContext.Command.updateNode({
@@ -635,8 +636,8 @@ export const commands = (project: ScenelessProject) => {
         props: {
           fields: {
             style: {
-              opacity: 1
-            }
+              opacity: 1,
+            },
           },
           attributes: {
             ...backgroundImageContainer.props.attributes,
@@ -644,7 +645,6 @@ export const commands = (project: ScenelessProject) => {
           },
         },
       })
-
     },
 
     setBackgroundVideo(src: string, attributes?: HTMLVideoElementAttributes) {
@@ -654,29 +654,28 @@ export const commands = (project: ScenelessProject) => {
           props: {
             fields: {
               style: {
-                opacity: 0
-              }
-            }
-          }
-        });
+                opacity: 0,
+              },
+            },
+          },
+        })
       }
       CoreContext.Command.updateNode({
         nodeId: backgroundVideoContainer.id,
         props: {
           fields: {
             style: {
-              opacity: 1
-            }
+              opacity: 1,
+            },
           },
           attributes: {
             ...backgroundVideoContainer.props.attributes,
             ...attributes,
             src,
-            autoplay : true,
+            autoplay: true,
           },
         },
       })
-
     },
     setShowcase(participantId: string, type: ParticipantType = 'camera') {
       const node = commands.getParticipantNode(participantId, type)
@@ -884,7 +883,7 @@ export const commands = (project: ScenelessProject) => {
             // Get the source type as it corresponds to the track's type
             const sourceType =
               track.type === Track.Source.Camera ||
-                track.type === Track.Source.Microphone
+              track.type === Track.Source.Microphone
                 ? 'camera'
                 : 'screen'
 
@@ -1033,12 +1032,12 @@ export const createCompositor = async (
         },
         fields: {
           style: {
-            opacity: 1
-          }
+            opacity: 1,
+          },
         },
         style: {
           objectFit: 'cover',
-          opacity : 1
+          opacity: 1,
         },
       },
       background.id,
@@ -1054,18 +1053,17 @@ export const createCompositor = async (
         },
         fields: {
           style: {
-            opacity: 0
-          }
+            opacity: 0,
+          },
         },
         style: {
           objectFit: 'cover',
-          opacity : 0
+          opacity: 0,
         },
       },
       background.id,
     ),
   ])
-
 
   await project.reorder(background.id, baseBackgroundLayers)
 
