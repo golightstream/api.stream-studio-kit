@@ -261,8 +261,8 @@ const HostControls = ({
   )
 
   useEffect(() => {
-      const videoOverlayId = projectCommands.getOverlay('video');
-      if (videoOverlayId) {
+      const videoOverlayId = projectCommands.getVideoOverlay();
+      if (typeof videoOverlayId === 'string') {
         projectCommands.playOverlay(videoOverlayId)
       }
   },[])
@@ -364,9 +364,9 @@ const HostControls = ({
             (<li key={overlay.id} onClick={() => {
               if (selectedImage !== overlay.id) {
                 setSelectedImage(overlay.id);
-                projectCommands.addOverlay(overlay.id, overlay.url, "image");
+                projectCommands.addImageOverlay(overlay.id, overlay.url);
               } else {
-                projectCommands.removeOverlay(selectedImage);
+                projectCommands.removeImageOverlay(selectedImage);
                 setSelectedImage(null);
               }
 
@@ -385,9 +385,9 @@ const HostControls = ({
             (<li key={overlay.id} onClick={() => {
               if (selectedVideo !== overlay.id) {
                 setSelectedVideo(overlay.id);
-                projectCommands.addOverlay(overlay.id, overlay.url, "video");
+                projectCommands.addVideoOverlay(overlay.id, overlay.url);
               } else {
-                projectCommands.removeOverlay(selectedVideo);
+                projectCommands.removeVideoOverlay(selectedVideo);
                 setSelectedVideo(null);
               }
 
