@@ -39,6 +39,7 @@
   ],
   "scripts": {
     "dev": "vite",
+    "prepare": "npm run build",
     "dev:renderer": "cd ./renderer && vite --config ./renderer.vite.config.ts",
     "add-license": "license-check-and-add add -f build/license-header.json",
     "build": "npm run add-license && tsc -p ./tsconfig.json --declaration --skipLibCheck --emitDeclarationOnly --jsx react --esModuleInterop --outDir types && vite build",
