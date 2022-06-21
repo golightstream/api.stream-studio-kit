@@ -69,7 +69,6 @@ export const getRoom = (id: string) => {
         id: x.identity,
         isSelf: x === localParticipant,
         connectionQuality: x.connectionQuality,
-        isSpeaking: x.isSpeaking,
         displayName: x.name,
         trackIds: tracks
           .filter((p) => p.participant.sid === x.sid)
@@ -111,8 +110,6 @@ export const getRoom = (id: string) => {
   const updateEvents = [
     RoomEvent.ParticipantConnected,
     RoomEvent.ParticipantDisconnected,
-    RoomEvent.ActiveSpeakersChanged,
-    RoomEvent.AudioPlaybackStatusChanged,
     RoomEvent.Disconnected,
     RoomEvent.TrackSubscribed,
     RoomEvent.TrackUnsubscribed,
@@ -125,7 +122,7 @@ export const getRoom = (id: string) => {
   ]
 
   const unsubscribers = updateEvents.map((evt) =>
-    room.subscribeToRoomEvent(evt, update),
+    room.subscribeToRoomEvent(evt, () => update()),
   )
   // Also subscribe to chat
   unsubscribers.push(room.subscribeToSpecialEvent(SpecialEvent.Chat, update))
@@ -297,6 +294,17 @@ export const getRoom = (id: string) => {
       cb(latest.chat)
       return () => {
         listeners.useChatHistory.delete(cb)
+      }
+    },
+    useActiveSpeakers: (cb) => {
+      const fn = (activeSpeakers: Participant[]) => {
+        cb(activeSpeakers.map((x) => x.identity))
+      }
+
+      room.livekitRoom.on(RoomEvent.ActiveSpeakersChanged, fn)
+      fn(room.livekitRoom.activeSpeakers)
+      return () => {
+        room.livekitRoom.off(RoomEvent.ActiveSpeakersChanged, fn)
       }
     },
     sendData: (data, recipientIds) => {

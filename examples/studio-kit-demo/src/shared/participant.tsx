@@ -180,7 +180,7 @@ export const Participant = ({ participant }: ParticipantProps) => {
 
   useEffect(() => {
     if (!room) return
-    setTracks(participant.trackIds.map(room.getTrack))
+    setTracks(participant.trackIds.map(room.getTrack).filter(Boolean))
   }, [participant?.trackIds, room])
 
   return (
@@ -219,7 +219,6 @@ const HostControls = ({
   const [isMuted, setIsMuted] = useState(projectParticipant?.isMuted ?? false)
   const [volume, setVolume] = useState(projectParticipant?.volume ?? 1)
   const [isShowcase, setIsShowcase] = useState(false)
-
   // Monitor whether the participant has been removed from the stream
   //  from some other means (e.g. dragged off canvas by host)
   useEffect(() => {
