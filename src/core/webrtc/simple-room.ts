@@ -70,6 +70,8 @@ export const getRoom = (id: string) => {
         isSelf: x === localParticipant,
         connectionQuality: x.connectionQuality,
         displayName: x.name,
+        joinedAt: x.joinedAt,
+        role: JSON.parse(x.metadata).participantRole,
         trackIds: tracks
           .filter((p) => p.participant.sid === x.sid)
           .map((x) => x.trackSid),
