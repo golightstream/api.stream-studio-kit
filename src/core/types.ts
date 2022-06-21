@@ -513,6 +513,13 @@ export interface Room {
    */
   onDisconnected: (cb: () => void) => void
   /**
+   * Calls back with a list of active speaker IDs 
+   *  ordered from loudest to quietest.
+   * 
+   * Callback will be invoked any time the list of speakers changes.
+   */
+  useActiveSpeakers: (cb: (participantIds: string[]) => void) => Disposable
+  /**
    * similar to {@link Room.useParticipants useParticipants}, except we also specify a {@link Participant} id. The callback then only uses the Participant which has the specified Participant id.
    * @param id A {@link Participant} id.
    * @param cb Callback which essentially serves as an event listener that is called whenever the Participant is updated.

@@ -195,7 +195,7 @@ export const Participant = ({ participant }: ParticipantProps) => {
 
   useEffect(() => {
     if (!room) return
-    setTracks(participant.trackIds.map(room.getTrack))
+    setTracks(participant.trackIds.map(room.getTrack).filter(Boolean))
   }, [participant?.trackIds, room])
 
   return (
