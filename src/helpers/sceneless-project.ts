@@ -604,20 +604,20 @@ export const commands = (project: ScenelessProject) => {
     },
 
     getBackgroundMedia() {
-      return backgroundImageContainer.props.fields.style.opacity ? backgroundImageContainer.props.attributes.src : backgroundVideoContainer.props.attributes.src
+      return backgroundImageContainer?.props?.fields?.style?.opacity ? backgroundImageContainer.props.attributes.src : backgroundVideoContainer.props.attributes.src
     },
 
     getBackgroundImage() {
-      return backgroundImageContainer.props.attributes.src
+      return backgroundImageContainer?.props?.attributes?.src
     },
 
     getBackgroundVideo() {
-      return backgroundVideoContainer.props.attributes.src
+      return backgroundVideoContainer?.props?.attributes?.src
     },
 
 
     setBackgroundImage(src: string) {
-      if (backgroundVideoContainer.props.fields.style.opacity === 1) {
+      if (backgroundVideoContainer?.props?.fields?.style?.opacity === 1) {
         CoreContext.Command.updateNode({
           nodeId: backgroundVideoContainer.id,
           props: {
@@ -648,7 +648,7 @@ export const commands = (project: ScenelessProject) => {
     },
 
     setBackgroundVideo(src: string, attributes?: HTMLVideoElementAttributes) {
-      if (backgroundImageContainer.props.fields.style.opacity === 1) {
+      if (backgroundImageContainer?.props?.fields?.style?.opacity === 1) {
         CoreContext.Command.updateNode({
           nodeId: backgroundImageContainer.id,
           props: {
