@@ -21,7 +21,7 @@ export default defineConfig({
     SDK_VERSION: JSON.stringify(packageJSON.version),
   },
   resolve: {},
-  root: __dirname + '/',
+  root: './',
   build: {
     rollupOptions: {
       // Externalize deps that shouldn't be bundled

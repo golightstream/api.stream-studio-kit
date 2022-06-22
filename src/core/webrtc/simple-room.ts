@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { webrtcManager } from './'
+import { webrtcManager } from './index'
 import { SpecialEvent } from './room-context'
 import {
   RoomEvent,
