@@ -15,27 +15,29 @@ type Props = {
 export const Video = {
   name: 'LS-Video',
   sourceType: 'LS-Video',
-  create() {
+  create({ onUpdate }) {
     const el = document.createElement('video')
+
+    onUpdate(({ attributes = {}, fields = {} }: Props) => {
+      Object.keys(attributes).forEach((attr) => {
+        el.setAttribute(attr, attributes[attr])
+      })
+      if (attributes['muted']) {
+        el.onloadedmetadata = () => {
+          el.muted = true
+          el.play()
+        }
+      }
+
+      el.loop = Boolean(attributes['loop'])
+
+      Object.keys(fields).forEach((field) => {
+        Object.assign(el[field as keyof HTMLElement], fields[field])
+      })
+    })
+
     return {
       root: el,
-      onUpdate({ attributes = {}, fields = {} }: Props) {
-        Object.keys(attributes).forEach((attr) => {
-          el.setAttribute(attr, attributes[attr])
-        })
-        if (attributes['muted']) {
-          el.onloadedmetadata = () => {
-            el.muted = true
-            el.play()
-          }
-        }
-
-        el.loop = Boolean(attributes['loop']);
-      
-        Object.keys(fields).forEach((field) => {
-          Object.assign(el[field as keyof HTMLElement], fields[field])
-        })
-      },
     }
   },
 } as Compositor.Transform.TransformDeclaration
