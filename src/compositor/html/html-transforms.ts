@@ -5,6 +5,7 @@
 import { asArray } from '../../logic'
 import type { CompositorInstance, SceneNode } from '../compositor'
 import {
+  Filter,
   runFilters,
   TransformDeclaration,
   TransformElement,
@@ -81,7 +82,7 @@ export const init = (
     const element = getElement(node)
 
     // Run children through node's filter pipeline
-    const filters = transforms[element.transformName]?.filters
+    const filters = [] as Filter[]
     const result = runFilters(node, filters)
 
     // Pass update to the existing element
