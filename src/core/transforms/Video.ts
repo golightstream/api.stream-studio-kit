@@ -29,6 +29,10 @@ export const Video = {
             el.play()
           }
         }
+        if((attributes['loop'])) {
+          el.loop = attributes['loop'] === 'true';
+        }
+        
         Object.keys(fields).forEach((field) => {
           Object.assign(el[field as keyof HTMLElement], fields[field])
         })
