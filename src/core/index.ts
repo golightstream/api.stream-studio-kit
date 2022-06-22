@@ -26,13 +26,8 @@ import { render } from '../helpers/compositor'
 export * from './namespaces'
 import { Compositor, SDK } from './namespaces'
 import { GuestOptions, LogLevel } from './types'
-import { LayoutDeclaration } from '../compositor/html/html-layouts'
 
 const BroadcastPhase = LiveApiModel.ProjectBroadcastPhase
-
-const { registerTransform, setDefaultTransforms } = Compositor.Transform
-const { registerLayout } = Compositor.Layout
-const { registerSource } = Compositor.Source
 
 const { trigger, triggerInternal } = CoreContext
 
@@ -96,9 +91,21 @@ export const init = async (
     logLevel,
   })
 
-  CoreContext.config = config(env)
+  const conf = config(env)
+
+  const compositor = Compositor.start({
+    dbAdapter: compositorAdapter,
+    transformSettings: {
+      defaultTransforms: {
+        ...defaultTransforms,
+        ...conf.defaults.transforms,
+      },
+    },
+  })
+
+  CoreContext.config = conf
   CoreContext.clients = client
-  CoreContext.compositor = Compositor.start({ dbAdapter: compositorAdapter })
+  CoreContext.compositor = compositor
   CoreContext.logLevel = logLevel
   CoreContext.Request = await import('./requests')
   CoreContext.Command = await import('./commands')
@@ -108,16 +115,9 @@ export const init = async (
     ...CoreContext,
   }
 
-  setDefaultTransforms({
-    ...defaultTransforms,
-    ...CoreContext.config.defaults.transforms,
-  })
-  registerSource([...Object.values(Sources), ...sources])
-  registerTransform([...Object.values(Transforms), ...transforms])
-  registerLayout([
-    ...(Object.values(Layouts) as LayoutDeclaration[]),
-    ...layouts,
-  ])
+  compositor.registerSource([...Object.values(Sources), ...sources])
+  compositor.registerTransform([...Object.values(Transforms), ...transforms])
+  compositor.registerLayout([...Object.values(Layouts), ...layouts])
 
   const guestProject = await client.load(guestToken)
   let initialProject: SDK.Project
