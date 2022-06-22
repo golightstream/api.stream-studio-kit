@@ -77,7 +77,7 @@ interface PlaybackOptions {
   autoplay?: boolean
 }
 
-interface ScenelessProject extends SDK.Project {}
+interface ScenelessProject extends SDK.Project { }
 
 // Note: Assume project is a valid sceneless project
 // Note: In the future commands will be returned by an argument of SceneNode
@@ -121,6 +121,10 @@ export interface Commands {
    * Set the active layout and associated layoutProps
    */
   setLayout(layout: LayoutName, layoutProps: LayoutProps): void
+  /**
+   * Get background media, it can be video or image
+   */
+  getBackgroundMedia(): string
   /**
    * Get the active background image
    */
@@ -312,6 +316,12 @@ export const commands = (project: ScenelessProject) => {
   const foregroundVideoContainer = foreground.children.find(
     (x) => x.props.id === 'fg-video',
   )
+  const backgroundImageContainer = background.children.find(
+    (x) => x.props.id === 'bg-image',
+  )
+  const backgroundVideoContainer = background.children.find(
+    (x) => x.props.id === 'bg-video',
+  )
 
   const commands: Commands = {
     getBackground() {
@@ -412,11 +422,11 @@ export const commands = (project: ScenelessProject) => {
         if (!room) return
 
         // get all participants in the room and unmute them
-        const participants = commands.getParticipants(room)
+        // const participants = commands.getParticipants(room)
 
-        participants.forEach((node) => {
-          commands.setParticipantMuted(node.props.sourceProps?.id, false)
-        })
+        // participants.forEach((node) => {
+        //   commands.setParticipantMuted(node.props.sourceProps?.id, false)
+        // })
 
         // get all children of the overlay node and update their opacity attributes
         const allForegroundChildrens = foreground.children.filter(
@@ -538,11 +548,11 @@ export const commands = (project: ScenelessProject) => {
       if (!room) return
 
       // get all participants in the room and mute them
-      const participants = commands.getParticipants(room)
+      // const participants = commands.getParticipants(room)
 
-      participants.forEach((node) => {
-        commands.setParticipantMuted(node.props.sourceProps?.id, true)
-      })
+      // participants.forEach((node) => {
+      //   commands.setParticipantMuted(node.props.sourceProps?.id, true)
+      // })
 
       // get all children of the overlay node and update their opacity attributes
       const allForegroundChildrens = foreground.children.filter(
@@ -592,35 +602,81 @@ export const commands = (project: ScenelessProject) => {
         },
       })
     },
-    getBackgroundImage() {
-      return background.props.attributes.src
+
+    getBackgroundMedia() {
+      return backgroundImageContainer.props.fields.style.opacity ? backgroundImageContainer.props.attributes.src : backgroundVideoContainer.props.attributes.src
     },
 
+    getBackgroundImage() {
+      return backgroundImageContainer.props.attributes.src
+    },
+
+    getBackgroundVideo() {
+      return backgroundVideoContainer.props.attributes.src
+    },
+
+
     setBackgroundImage(src: string) {
+      if (backgroundVideoContainer.props.fields.style.opacity === 1) {
+        CoreContext.Command.updateNode({
+          nodeId: backgroundVideoContainer.id,
+          props: {
+            fields: {
+              style: {
+                opacity: 0
+              }
+            }
+          }
+        });
+      }
+
       CoreContext.Command.updateNode({
-        nodeId: background.id,
+        nodeId: backgroundImageContainer.id,
         props: {
+          fields: {
+            style: {
+              opacity: 1
+            }
+          },
           attributes: {
-            ...background.props.attributes,
+            ...backgroundImageContainer.props.attributes,
             src,
           },
         },
       })
+
     },
-    getBackgroundVideo() {
-      return background.props.attributes.src
-    },
+
     setBackgroundVideo(src: string, attributes?: HTMLVideoElementAttributes) {
+      if (backgroundImageContainer.props.fields.style.opacity === 1) {
+        CoreContext.Command.updateNode({
+          nodeId: backgroundImageContainer.id,
+          props: {
+            fields: {
+              style: {
+                opacity: 0
+              }
+            }
+          }
+        });
+      }
       CoreContext.Command.updateNode({
-        nodeId: background.id,
+        nodeId: backgroundVideoContainer.id,
         props: {
+          fields: {
+            style: {
+              opacity: 1
+            }
+          },
           attributes: {
-            ...background.props.attributes,
+            ...backgroundVideoContainer.props.attributes,
             ...attributes,
             src,
+            autoplay : true,
           },
         },
       })
+
     },
     setShowcase(participantId: string, type: ParticipantType = 'camera') {
       const node = commands.getParticipantNode(participantId, type)
@@ -828,7 +884,7 @@ export const commands = (project: ScenelessProject) => {
             // Get the source type as it corresponds to the track's type
             const sourceType =
               track.type === Track.Source.Camera ||
-              track.type === Track.Source.Microphone
+                track.type === Track.Source.Microphone
                 ? 'camera'
                 : 'screen'
 
@@ -915,14 +971,7 @@ export const createCompositor = async (
       {
         name: 'Background',
         id: 'bg',
-        tagName: 'img',
-        sourceType: 'Element',
-        attributes: {
-          src: backgroundImage,
-        },
-        style: {
-          objectFit: 'cover',
-        },
+        layout: 'Free',
       },
       root.id,
     ),
@@ -969,6 +1018,56 @@ export const createCompositor = async (
   ])
 
   await project.reorder(foreground.id, baseForegroundLayers)
+
+  const background = root.children.find((x) => x.props.id === 'bg')
+
+  const baseBackgroundLayers = await Promise.all([
+    project.insert(
+      {
+        name: 'ImageBackground',
+        id: 'bg-image',
+        tagName: 'img',
+        sourceType: 'Element',
+        attributes: {
+          src: backgroundImage,
+        },
+        fields: {
+          style: {
+            opacity: 1
+          }
+        },
+        style: {
+          objectFit: 'cover',
+          opacity : 1
+        },
+      },
+      background.id,
+    ),
+    project.insert(
+      {
+        name: 'VideoBackground',
+        id: 'bg-video',
+        tagName: 'video',
+        sourceType: 'LS-Video',
+        attributes: {
+          src: backgroundImage,
+        },
+        fields: {
+          style: {
+            opacity: 0
+          }
+        },
+        style: {
+          objectFit: 'cover',
+          opacity : 0
+        },
+      },
+      background.id,
+    ),
+  ])
+
+
+  await project.reorder(background.id, baseBackgroundLayers)
 
   return project
 }
