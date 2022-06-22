@@ -12,53 +12,14 @@ import {
   sizeToNum,
 } from '../../logic'
 import { log } from '../../core/context'
-
-// A string representation of percent/px (e.g. 100px/10%), or a number (px)
-type Size = { x: string | number; y: string | number }
-// A string representation of percent/px (e.g. 100px/10%), or a number (px)
-type Position = { x: string | number; y: string | number }
-// Any valid CSS duration unit (ms/s, etc)
-type Duration = string | number
-
-type ChildPosition = {
-  position: Position
-  size: Size
-  opacity: number
-  borderRadius: number
-  zIndex: number
-  entryTransition: Transition
-  exitTransition: Transition
-  // The child node's current offset from the topmost Layer
-  rootOffset?: { x: number; y: number }
-}
-type ChildPositionIndex = {
-  [nodeId: string]: ChildPosition
-}
-type Transition = {
-  delay?: Duration
-  offset?: Position
-  scale?: { x?: number; y?: number }
-  opacity?: number
-  timingFn?: CSS.StandardProperties['transitionTimingFunction'] | 'exit'
-}
-export type TransitionInfo = {
-  entry: Transition
-  exit: Transition
-}
-type LayoutChild = HTMLElement & {
-  data: TransitionInfo & {
-    borderRadius: number
-    dimensions: number
-    fit: 'contain' | 'cover'
-  }
-}
-type LayoutProps = Partial<DataNode['props']>
-export type LayoutArgs = {
-  props: LayoutProps
-  children: SceneNode[]
-  size: { x: number; y: number }
-}
-type LayoutResult = ChildPositionIndex | HTMLElement
+import {
+  ChildPosition,
+  ChildPositionIndex,
+  LayoutArgs,
+  LayoutChild,
+  LayoutMap,
+  LayoutRegister,
+} from '../layouts'
 
 const TRANSITION_DURATION = 300
 
@@ -731,36 +692,13 @@ export const layoutChildren = ({
   return positions
 }
 
-export type LayoutDefinition = ({
-  props,
-  children,
-  size,
-}: LayoutArgs) => LayoutResult
-export type LayoutMap = {
-  [name: string]: LayoutDeclaration
-}
-export type LayoutName =
-  | 'Grid'
-  | 'Free'
-  | 'Column'
-  | 'Row'
-  | 'Presentation'
-  | 'Layered'
-export type LayoutDeclaration = {
-  name: LayoutName
-  props?: any
-  layout: LayoutDefinition
-}
-
 // A global index of all nodes and their dynamic positional data
 const positionIndex = {} as ChildPositionIndex
 const finalPositionIndex = {} as ChildPositionIndex
 
 export const htmlLayouts = {} as LayoutMap
 
-export const registerLayout = (
-  declaration: LayoutDeclaration | LayoutDeclaration[],
-) => {
+export const registerLayout: LayoutRegister = (declaration) => {
   asArray(declaration).forEach((x) => {
     // TODO: Validation
     htmlLayouts[x.name] = x

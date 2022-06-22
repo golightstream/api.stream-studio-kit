@@ -7,10 +7,18 @@ import * as HtmlLayouts from './html/html-layouts'
 import * as Sources from './sources'
 import * as Logic from '../logic'
 import { log } from '../core/context'
+import {
+  TransformElementGetter,
+  TransformMap,
+  TransformRegister,
+  TransformSettings,
+} from './transforms'
+import { LayoutMap, LayoutRegister } from './layouts'
 const { forEachDown, insertAt, toDataNode, pull, replaceItem } = Logic
 
-export * as Transform from './html/html-transforms'
-export * as Layout from './html/html-layouts'
+// Export namespaces
+export * as Transform from './transforms'
+export * as Layout from './layouts'
 export * as Source from './sources'
 
 declare global {
@@ -106,20 +114,24 @@ export type DBAdapter = (
 
 export type Settings = {
   dbAdapter: DBAdapter
+  transformSettings?: TransformSettings
+  // TODO: We do not yet offer any settings for layouts
+  // layoutSettings?: LayoutSettings
 }
 
 type ProjectIndex = { [id: NodeId]: Project }
 
 export type CompositorInstance = {
-  layouts: HtmlLayouts.LayoutMap
-  transforms: HtmlTransforms.TransformMap
-  sources: Sources.SourceMap
-  registerLayout: typeof HtmlLayouts.registerLayout
-  registerTransform: typeof HtmlTransforms.registerTransform
+  // layouts: LayoutMap
+  // transforms: TransformMap
+  // sources: Sources.SourceMap
+  registerLayout: LayoutRegister
+  registerTransform: TransformRegister
   registerSource: typeof Sources.registerSource
+  getElement: TransformElementGetter
   triggerEvent: EventHandler
-  subscribe: (cb: EventHandler) => Disposable
-  useEvent: (event: string, cb: EventHandler) => Disposable
+  subscribe: (cb: EventHandler, nodeId?: string) => Disposable
+  on: (event: string, cb: (payload: any) => void, nodeId?: string) => Disposable
   getSources: (type: string) => Sources.Source[]
   addSource: (type: string, source: Sources.NewSource) => void
   setSourceActive: (id: string, value: boolean) => void
@@ -139,6 +151,7 @@ export type Project = DB & {
   nodes: SceneNode[]
   get: (id: NodeId) => SceneNode
   getParent: (id: NodeId) => SceneNode
+  renderTree: () => SceneNode
   // Local database controls will not be forwarded to other connections
   local: LocalDB
   reorder: (
@@ -164,7 +177,7 @@ type Disposable = () => void
 let compositor: CompositorInstance
 export const start = (settings: Settings): CompositorInstance => {
   if (compositor) return
-  const dbAdapter = settings.dbAdapter
+  const { dbAdapter, transformSettings = {} } = settings
 
   type ProjectDbMap = { [id: string]: DB }
   const projectDbMap = {} as ProjectDbMap
@@ -195,53 +208,62 @@ export const start = (settings: Settings): CompositorInstance => {
   }
 
   let currentSubId = 0
-  const subscribers = new Map<number, EventHandler>()
-  const subscribe = (cb: EventHandler): Disposable => {
+  const subscribers = new Map<number, EventHandler & { nodeId?: string }>()
+  const subscribe = (
+    cb: EventHandler & { nodeId?: string },
+    nodeId?: string,
+  ): Disposable => {
     if (typeof cb !== 'function') return
 
     const id = ++currentSubId
     subscribers.set(id, cb)
+    cb.nodeId = nodeId
 
     return () => {
       subscribers.delete(id)
     }
   }
+  const on = (
+    event: string,
+    cb: EventHandler & { nodeId: string },
+    nodeId?: string,
+  ): Disposable => {
+    return subscribe((_event, payload) => {
+      if (_event !== event) return
+      cb(payload)
+    }, nodeId)
+  }
 
   const triggerEvent: EventHandler = (event, payload) => {
-    subscribers.forEach((x) => x(event, payload))
+    subscribers.forEach((handler) => {
+      if (handler.nodeId) {
+        if (payload?.nodeId && payload?.nodeId === handler.nodeId) {
+          handler(event, payload)
+        }
+      } else {
+        handler(event, payload)
+      }
+    })
   }
 
   const handleSourceChanged = (type: string) => {
-    const elements = HtmlTransforms.getElementsBySourceType(type)
-    triggerEvent('AvailableSourcesChanged', { type, sources: sourceTypeIndex[type] })
-
-    // Update all existing node Elements using Source of this type
-    elements.forEach((x) => {
-      HtmlTransforms.updateSourceForNode(x.nodeId)
+    triggerEvent('AvailableSourcesChanged', {
+      type,
+      sources: sourceTypeIndex[type],
     })
   }
 
   compositor = {
-    transforms: HtmlTransforms.htmlTransforms,
-    layouts: HtmlLayouts.htmlLayouts,
     projects: projectIndex,
-    sources: Sources.sourceTypes,
-    registerTransform: HtmlTransforms.registerTransform,
+    getElement: (e) => transformManager.getElement(e),
+    registerTransform: (transform) =>
+      transformManager.registerTransform(transform),
     registerLayout: HtmlLayouts.registerLayout,
     registerSource: Sources.registerSource,
     // TODO: Implement registerType same way as the others
-    registerType: () => {},
+    // registerType: () => {},
     subscribe,
-    useEvent: (event, cb) => {
-      const id = ++currentSubId
-      subscribers.set(id, (name, payload) => {
-        if (event === name) return cb(name, payload)
-      })
-
-      return () => {
-        subscribers.delete(id)
-      }
-    },
+    on,
     triggerEvent,
     addSource: (type, source) => {
       if (!source.id) throw new Error('Cannot add source without field "id"')
@@ -395,6 +417,11 @@ export const start = (settings: Settings): CompositorInstance => {
           if (nodeIndex[id]) {
             nodeIndex[id]._deleted = true
           }
+          // Trigger compositor-only event
+          triggerEvent('NodeRemoved', {
+            projectId: project.id,
+            nodeId: nodeIndex.id,
+          })
         },
       } as LocalDB
 
@@ -406,6 +433,9 @@ export const start = (settings: Settings): CompositorInstance => {
         },
         getParent(id) {
           return nodeIndex[parentIdIndex[id]]
+        },
+        renderTree() {
+          return transformManager.renderTree(root)
         },
         local: dbApi,
         insert: async (props = {}, parentId, index = 0) => {
@@ -523,5 +553,8 @@ export const start = (settings: Settings): CompositorInstance => {
       return project
     },
   } as CompositorInstance
+
+  const transformManager = HtmlTransforms.init(transformSettings, compositor)
+
   return compositor
 }

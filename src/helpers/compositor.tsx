@@ -8,8 +8,7 @@ import { swapItems } from '../logic'
 import { getProject } from '../core/data'
 import { CoreContext, log, InternalProject } from '../core/context'
 import { Compositor } from '../core/namespaces'
-import { CompositorSettings } from '../core/types'
-const { Transform } = Compositor
+import { CompositorSettings, SceneNode } from '../core/types'
 
 class ErrorBoundary extends React.Component<
   { children: React.PropsWithChildren<any> },
@@ -109,7 +108,8 @@ const ElementTree = (props: {
   const node = project.compositor.get(nodeId)
   if (!node) return null
 
-  const element = Transform.getElement(node)
+  // TODO: Should not depend on state outside compositor
+  const element = CoreContext.compositor.getElement(node)
   const layout = node.props.layout || 'Row'
 
   let layoutDragHandlers = drop
@@ -273,15 +273,19 @@ const Root = (props: {
   dblClickShowcase: boolean
 }) => {
   const { project, dragAndDrop, dblClickShowcase } = props
-  const forceUpdate = useForceUpdate()
+  const [tree, setTree] = useState<SceneNode>(null)
 
   useEffect(() => {
+    // Build the entire tree
+    setTree(project.compositor.renderTree())
+
     return CoreContext.onInternal('NodeChanged', () => {
-      forceUpdate()
+      // Traverse and update the tree
+      setTree(project.compositor.renderTree())
     })
   }, [])
 
-  const root = project.compositor.getRoot()
+  if (!tree) return null
 
   return (
     <div
@@ -299,8 +303,8 @@ const Root = (props: {
       }}
       style={{
         userSelect: 'none',
-        width: root.props.size.x + 'px',
-        height: root.props.size.y + 'px',
+        width: tree.props.size.x + 'px',
+        height: tree.props.size.y + 'px',
       }}
     >
       <div
@@ -311,7 +315,7 @@ const Root = (props: {
         }}
       >
         <ElementTree
-          nodeId={root.id}
+          nodeId={tree.id}
           project={project}
           interactive={dragAndDrop}
           dblClickShowcase={dblClickShowcase}
@@ -329,12 +333,12 @@ let wrapperEl: HTMLElement
  * Render the output compositor displaying the stream canvas, which will be used
  * to display the live feed once a user starts their broadcast. Renders into a
  * supplied HTML element.
- * 
+ *
  * This compositor may double as an interactive editor with optional settings.
- * 
+ *
  * _Note: The compositor will automatically render at the largest possible size
- * accomodated by the element that is passed as its container. If the container 
- * is smaller than the project resolution (e.g. 720px x 1280px), all of the canvas 
+ * accomodated by the element that is passed as its container. If the container
+ * is smaller than the project resolution (e.g. 720px x 1280px), all of the canvas
  * elements will scale down automatically to fit._
  */
 export const render = async (settings: CompositorSettings) => {

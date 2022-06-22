@@ -9,18 +9,19 @@ export const Overlay = {
   props: {
     url: {},
   },
-  create() {
+  create({ onUpdate }) {
     const el = document.createElement('iframe')
+
+    onUpdate(({ url }) => {
+      el.setAttribute('src', url)
+      Object.assign(el.style, {
+        width: '100%',
+        height: '100%',
+      })
+    })
 
     return {
       root: el,
-      onUpdate({ url }) {
-        el.setAttribute('src', url)
-        Object.assign(el.style, {
-          width: '100%',
-          height: '100%',
-        })
-      },
     }
   },
 } as Compositor.Transform.TransformDeclaration

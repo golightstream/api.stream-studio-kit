@@ -561,8 +561,10 @@ export const addDestination = async (payload: {
       address,
       enabled,
       metadata: {
-        ...metadata,
-        ...props,
+        props: {
+          ...metadata,
+          ...props,
+        },
       },
     })
 

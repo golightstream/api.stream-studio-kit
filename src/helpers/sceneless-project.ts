@@ -38,15 +38,13 @@
  * @module ScenelessProject
  */
 
-import * as Layout from '../compositor/html/html-layouts'
 import { CoreContext } from '../core/context'
 import { getProjectRoom } from '../core/data'
 import { SDK, Compositor } from '../core/namespaces'
 import { Disposable } from '../core/types'
 import { Track } from 'livekit-client'
 
-import LayoutName = Layout.LayoutName
-import { over } from 'lodash-es'
+import LayoutName = Compositor.Layout.LayoutName
 export type { LayoutName }
 
 export type ParticipantProps = {
@@ -74,7 +72,6 @@ interface PlaybackOptions {
   disablepictureinpicture?: boolean
   muted?: boolean
   loop?: boolean
-  autoplay?: boolean
 }
 
 interface ScenelessProject extends SDK.Project {}
@@ -535,11 +532,11 @@ export const commands = (project: ScenelessProject) => {
         },
         tagName: 'video',
         attributes: {
+          ...playbackOptions,
           src,
           playsinline: true,
           disablepictureinpicture: true,
           autoplay: true,
-          ...playbackOptions,
         },
       }
 

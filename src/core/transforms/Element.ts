@@ -15,19 +15,20 @@ type Props = {
 export const Element = {
   name: 'Element',
   sourceType: 'Element',
-  create({ tagName = 'div' }: Props) {
+  create({ onUpdate }, { tagName }) {
     const el = document.createElement(tagName)
+
+    onUpdate(({ tagName, attributes = {}, fields = {} }: Props) => {
+      Object.keys(attributes).forEach((attr) => {
+        el.setAttribute(attr, attributes[attr])
+      })
+      Object.keys(fields).forEach((field) => {
+        Object.assign(el[field as keyof HTMLElement], fields[field])
+      })
+    })
 
     return {
       root: el,
-      onUpdate({ attributes = {}, fields = {} }: Props) {
-        Object.keys(attributes).forEach((attr) => {
-          el.setAttribute(attr, attributes[attr])
-        })
-        Object.keys(fields).forEach((field) => {
-          Object.assign(el[field as keyof HTMLElement], fields[field])
-        })
-      },
     }
   },
 } as Compositor.Transform.TransformDeclaration

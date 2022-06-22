@@ -11,18 +11,19 @@ export const Square = {
       default: 'green',
     },
   },
-  create() {
+  create({ onUpdate }) {
     const el = document.createElement('div')
+
+    onUpdate(({ color }) => {
+      Object.assign(el.style, {
+        width: '100%',
+        height: '100%',
+        background: color || 'red',
+      })
+    })
 
     return {
       root: el,
-      onUpdate({ color }) {
-        Object.assign(el.style, {
-          width: '100%',
-          height: '100%',
-          background: color || 'red',
-        })
-      },
     }
   },
 } as Compositor.Transform.TransformDeclaration
