@@ -10,19 +10,20 @@ export const Image = {
     src: {},
     fit: {},
   },
-  create() {
+  create({ onUpdate }) {
     const el = document.createElement('img')
+    
+    onUpdate(({ src, fit }) => {
+      el.setAttribute('src', src)
+      Object.assign(el.style, {
+        width: '100%',
+        height: '100%',
+        objectFit: fit,
+      })
+    })
 
     return {
       root: el,
-      onUpdate({ src, fit }) {
-        el.setAttribute('src', src)
-        Object.assign(el.style, {
-          width: '100%',
-          height: '100%',
-          objectFit: fit,
-        })
-      },
     }
   },
 } as Compositor.Transform.TransformDeclaration
