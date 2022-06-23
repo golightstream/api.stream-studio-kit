@@ -11,6 +11,7 @@ export default (env: 'dev' | 'stage' | 'prod') => ({
     transforms: {
       RoomParticipant: 'LS-Room-Participant',
       Image: 'LS-Image',
+      Banner: 'LS-Banner',
       Text: 'LS-Text',
     } as Compositor.Transform.DefaultTransformMap,
   }

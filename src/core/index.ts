@@ -127,8 +127,23 @@ export const init = async (
       .project.getProject({ ...guestProject })
       .then((resp) => hydrateProject(resp.project, guestProject.role))
       .then(async (project) => {
+        setAppState({
+          // As a contributor, `user` refers to the collection
+          //  that the project belongs to. This will be referenced
+          //  when making requests requiring `collectionId`.
+          user: {
+            id: guestProject.collectionId,
+            props: {},
+            name: null,
+            metadata: {},
+          },
+          // TODO: Populate
+          sources: [],
+          projects: [project],
+          activeProjectId: null,
+        })
+
         project.isInitial = true
-        CoreContext.state.projects = [project]
         initialProject = await CoreContext.Command.setActiveProject({
           projectId: project.id,
         })

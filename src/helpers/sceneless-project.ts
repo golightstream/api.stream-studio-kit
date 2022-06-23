@@ -39,13 +39,17 @@
  */
 
 import { CoreContext } from '../core/context'
-import { getProjectRoom } from '../core/data'
+import { getProject, getProjectRoom } from '../core/data'
 import { SDK, Compositor } from '../core/namespaces'
 import { Disposable } from '../core/types'
 import { Track } from 'livekit-client'
 
 import LayoutName = Compositor.Layout.LayoutName
+import { Banner, BannerProps } from '../core/sources/Banners'
+import { generateId } from '../logic'
+
 export type { LayoutName }
+export type { Banner }
 
 export type ParticipantProps = {
   volume: number
@@ -109,6 +113,10 @@ export interface Commands {
    * @private
    */
   getLayout(): string
+  /**
+   * Get all banners stored on the project
+   */
+  getBanners(): Banner[]
   /**
    * Get all participants in the project
    * @private
@@ -291,6 +299,10 @@ export interface Commands {
    * sending a MediaStreamTrack for display.
    */
   pruneParticipants(): void
+  addBanner(props: BannerProps): void
+  editBanner(id: string, props: BannerProps): void
+  removeBanner(id: string): void
+  setActiveBanner(id: string): void
 }
 
 /**
@@ -307,6 +319,9 @@ export const commands = (project: ScenelessProject) => {
   const background = root.children.find((x) => x.props.id === 'bg')
   const content = root.children.find((x) => x.props.id === 'content')
   const foreground = root.children.find((x) => x.props.id === 'foreground')
+  const bannerContainer = foreground.children.find(
+    (x) => x.props.id === 'fg-banners',
+  )
   const foregroundImageContainer = foreground.children.find(
     (x) => x.props.id === 'fg-image',
   )
@@ -333,11 +348,83 @@ export const commands = (project: ScenelessProject) => {
     getLayout() {
       return content.props.layout
     },
+    getBanners() {
+      return (getProject(project.id).props.banners || []) as Banner[]
+    },
 
     getParticipants(room: SDK.Room) {
       return content.children.filter((node) => {
         if (node.props.sourceType !== 'RoomParticipant') return false
         return true
+      })
+    },
+
+    addBanner(props: BannerProps = {}) {
+      const meta = props.meta || {}
+      const banner = {
+        id: generateId(),
+        props: {
+          ...props,
+          meta,
+        },
+      }
+      const existingBanners = (getProject(project.id).props.banners ||
+        []) as Banner[]
+      return Command.updateProjectProps({
+        projectId: project.id,
+        props: {
+          banners: [...existingBanners, banner],
+        },
+      })
+    },
+    editBanner(id: string, props: BannerProps = {}) {
+      const existingBanners = commands.getBanners()
+      const banners = existingBanners.map((x) => {
+        if (x.id !== id) return x
+        return {
+          ...x,
+          props,
+        }
+      })
+      return Command.updateProjectProps({
+        projectId: project.id,
+        props: {
+          banners,
+        },
+      })
+    },
+    removeBanner(id: string) {
+      const existingBanners = commands.getBanners()
+      // Remove dependent nodes from stream
+      bannerContainer.children.forEach((x) => {
+        if (x.id !== id) return
+        CoreContext.Command.deleteNode({
+          nodeId: x.id,
+        })
+      })
+
+      return Command.updateProjectProps({
+        projectId: project.id,
+        props: {
+          banners: existingBanners.filter((x) => x.id !== id),
+        },
+      })
+    },
+    setActiveBanner(id: string) {
+      const existingBanners = commands.getBanners()
+      const banner = existingBanners.find((x) => x.id === id)
+      bannerContainer.children.forEach((x) => {
+        CoreContext.Command.deleteNode({
+          nodeId: x.id,
+        })
+      })
+      if (!banner) return
+      return CoreContext.Command.createNode({
+        parentId: bannerContainer.id,
+        props: {
+          sourceType: 'Banner',
+          bannerId: banner.id,
+        },
       })
     },
 
@@ -952,9 +1039,14 @@ export const createCompositor = async (
       props: {
         name: 'Root',
         type: 'sceneless-project',
+        sourceType: 'Element',
         layout: 'Layered',
         size,
         isRoot: true,
+        tagName: 'div',
+        fields: {
+          style: { background: 'black' }
+        }
       },
     },
     layoutId,
@@ -1005,6 +1097,14 @@ export const createCompositor = async (
     ),
     project.insert(
       {
+        name: 'BannerContainer',
+        id: 'fg-banners',
+        layout: 'Free',
+      },
+      foreground.id,
+    ),
+    project.insert(
+      {
         name: 'VideoOverlay',
         id: 'fg-video',
         layout: 'Free',
@@ -1046,7 +1146,7 @@ export const createCompositor = async (
         tagName: 'video',
         sourceType: 'LS-Video',
         attributes: {
-          src: "",
+          src: '',
         },
         fields: {
           style: {
