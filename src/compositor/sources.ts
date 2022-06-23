@@ -8,6 +8,7 @@ import type { PropsDefinition, CompositorInstance } from './compositor'
 
 type SourceMethods = Pick<
   CompositorInstance,
+  | 'getSource'
   | 'removeSource'
   | 'updateSource'
   | 'setSourceActive'
@@ -17,7 +18,13 @@ type SourceMethods = Pick<
 export type SourceDeclaration = {
   /** The type to declare support for (e.g. 'MediaStreamVideo') */
   type: string
-  /** The value-type constructor of a Source (e.g. MediaStream) */
+  /** 
+   * The value-type constructor of a Source (e.g. MediaStream) 
+   *  Used for run-time validation.
+   * 
+   * This is an approximation of the actual type 
+   *  definition of Source.value
+  */
   valueType: any
   /** The properties associated with an individual Source */
   props?: PropsDefinition
@@ -56,6 +63,7 @@ export const registerSource = (
     // TODO: Dispose of existing sources if a new one is registered with the same type
     x.init?.({
       ...pick(CoreContext.compositor, [
+        'getSource',
         'removeSource',
         'updateSource',
         'setSourceActive',
