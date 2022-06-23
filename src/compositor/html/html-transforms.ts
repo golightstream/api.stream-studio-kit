@@ -116,6 +116,12 @@ export const init = (
       )
     }
 
+    if (!transform) {
+      throw new Error(
+        'Could not find matching transform for sourceType: ' + sourceType,
+      )
+    }
+
     const _onNewSourceHandlers: Function[] = []
     const _onUpdateHandlers: Function[] = []
 
@@ -152,11 +158,7 @@ export const init = (
     ]
 
     if (transform.useSource) {
-      window.setTimeout(() => {
-        // TODO: React doesn't like this, so we defer it.
-        // Once our compositor is not React based we should inline
-        updateSourceForNode(node.id)
-      })
+      updateSourceForNode(node.id)
     }
 
     // Listen for changes to the node and update the element

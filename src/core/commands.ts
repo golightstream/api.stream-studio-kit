@@ -309,7 +309,7 @@ export const joinRoom = async (payload: {
  */
 export const createNode = async (payload: {
   projectId?: string
-  props: { [prop: string]: any }
+  props?: { [prop: string]: any }
   parentId: string
   index?: number
 }) => {

@@ -132,7 +132,12 @@ export type CompositorInstance = {
   triggerEvent: EventHandler
   subscribe: (cb: EventHandler, nodeId?: string) => Disposable
   on: (event: string, cb: (payload: any) => void, nodeId?: string) => Disposable
+  getSource: (id: string) => Sources.Source
   getSources: (type: string) => Sources.Source[]
+  useSources: (
+    type: string,
+    cb: (sources: Sources.Source[]) => void,
+  ) => Disposable
   addSource: (type: string, source: Sources.NewSource) => void
   setSourceActive: (id: string, value: boolean) => void
   updateSource: (id: string, props: Sources.Source['props']) => void
@@ -225,7 +230,7 @@ export const start = (settings: Settings): CompositorInstance => {
   }
   const on = (
     event: string,
-    cb: EventHandler & { nodeId: string },
+    cb: ((payload: any) => void) & { nodeId?: string },
     nodeId?: string,
   ): Disposable => {
     return subscribe((_event, payload) => {
@@ -265,8 +270,12 @@ export const start = (settings: Settings): CompositorInstance => {
     subscribe,
     on,
     triggerEvent,
+    getSource: (id) => {
+      return sourceIndex[id]
+    },
     addSource: (type, source) => {
       if (!source.id) throw new Error('Cannot add source without field "id"')
+      if (sourceIndex[source.id]) return // Already added
       if (!source.value)
         throw new Error('Cannot add source without field "value"')
       const { id, value, props, isActive = true } = source
@@ -307,6 +316,12 @@ export const start = (settings: Settings): CompositorInstance => {
     },
     getSources: (type) => {
       return sourceTypeIndex[type] || []
+    },
+    useSources: (type, cb) => {
+      return on('AvailableSourcesChanged', (payload) => {
+        if (payload.type !== type) return
+        cb(payload.sources)
+      })
     },
     getProject: (id) => projectIndex[id],
     getNodeProject: (id) => projectIndex[projectIdIndex[id]],
