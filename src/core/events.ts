@@ -272,6 +272,18 @@ export interface ExternalEventMap {
   SourceRemoved: {
     source: SDK.Source['id']
   }
+
+  VideoTimeUpdate: {
+    id: string
+    category: string
+    time: number
+  }
+
+  VideoEnded : {
+    id : string,
+    category : string
+  }
+
 }
 
 /**
@@ -301,7 +313,7 @@ export interface InternalEventMap {
   }
   DestinationAdded: LiveApiModel.Destination
   DestinationChanged: LiveApiModel.Destination
-  DestinationRemoved: { 
+  DestinationRemoved: {
     projectId: LiveApiModel.Project['projectId']
     destinationId: LiveApiModel.Destination['destinationId']
   }

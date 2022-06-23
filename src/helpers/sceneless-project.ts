@@ -1046,7 +1046,7 @@ export const createCompositor = async (
         tagName: 'video',
         sourceType: 'LS-Video',
         attributes: {
-          src: backgroundImage,
+          src: "",
         },
         fields: {
           style: {
