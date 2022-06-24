@@ -166,6 +166,10 @@ const Project = () => {
       id: '126',
       url: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
     },
+    {
+      id: '127',
+      url: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
+    },
   ]
 
   // Listen for project events
@@ -180,10 +184,6 @@ const Project = () => {
   }, [])
 
   useEffect(() => {
-    const videoOverlayId = projectCommands.getVideoOverlay()
-    if (typeof videoOverlayId === 'string') {
-      projectCommands.playOverlay(videoOverlayId)
-    }
     studio.compositor.subscribe((event, payload) => {
       if (event === 'VideoTimeUpdate') {
         console.log(payload)
