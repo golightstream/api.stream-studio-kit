@@ -19,9 +19,18 @@ export const Element = {
     const el = document.createElement(tagName)
 
     onUpdate(({ tagName, attributes = {}, fields = {} }: Props) => {
-      Object.keys(attributes).forEach((attr) => {
-        el.setAttribute(attr, attributes[attr])
-      })
+      if (tagName === 'img') {
+        if (el?.src !== attributes['src']) {
+          Object.keys(attributes).forEach((attr) => {
+            el.setAttribute(attr, attributes[attr])
+          })
+        }
+      } else {
+        Object.keys(attributes).forEach((attr) => {
+          el.setAttribute(attr, attributes[attr])
+        })
+      }
+
       Object.keys(fields).forEach((field) => {
         Object.assign(el[field as keyof HTMLElement], fields[field])
       })
