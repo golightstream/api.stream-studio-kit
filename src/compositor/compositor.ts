@@ -9,11 +9,11 @@ import * as Logic from '../logic'
 import { log } from '../core/context'
 import {
   TransformElementGetter,
-  TransformMap,
   TransformRegister,
   TransformSettings,
 } from './transforms'
-import { LayoutMap, LayoutRegister } from './layouts'
+import { LayoutRegister } from './layouts'
+import { SourceManager, SourceRegister, SourceSettings } from './sources'
 const { forEachDown, insertAt, toDataNode, pull, replaceItem } = Logic
 
 // Export namespaces
@@ -115,33 +115,18 @@ export type DBAdapter = (
 export type Settings = {
   dbAdapter: DBAdapter
   transformSettings?: TransformSettings
+  sourceSettings?: SourceSettings
   // TODO: We do not yet offer any settings for layouts
   // layoutSettings?: LayoutSettings
 }
 
 type ProjectIndex = { [id: NodeId]: Project }
 
-export type CompositorInstance = {
-  // layouts: LayoutMap
-  // transforms: TransformMap
-  // sources: Sources.SourceMap
-  registerLayout: LayoutRegister
-  registerTransform: TransformRegister
-  registerSource: typeof Sources.registerSource
-  getElement: TransformElementGetter
+export type CompositorBase = {
+  projects: ProjectIndex
   triggerEvent: EventHandler
   subscribe: (cb: EventHandler, nodeId?: string) => Disposable
   on: (event: string, cb: (payload: any) => void, nodeId?: string) => Disposable
-  getSource: (id: string) => Sources.Source
-  getSources: (type: string) => Sources.Source[]
-  useSources: (
-    type: string,
-    cb: (sources: Sources.Source[]) => void,
-  ) => Disposable
-  addSource: (type: string, source: Sources.NewSource) => void
-  setSourceActive: (id: string, value: boolean) => void
-  updateSource: (id: string, props: Sources.Source['props']) => void
-  removeSource: (id: string) => void
   createProject: (props?: any, id?: NodeId) => Promise<Project>
   loadProject: (root: SceneNode, id?: NodeId) => Project
   getProject: (id: string) => Project
@@ -149,6 +134,17 @@ export type CompositorInstance = {
   getNodeParent: (id: string) => SceneNode
   getNode: (id: string) => SceneNode
 }
+
+export type CompositorInstance = {
+  registerLayout: LayoutRegister
+  registerTransform: TransformRegister
+  registerSource: SourceRegister
+  getElement: TransformElementGetter
+  getSource: SourceManager['getSource']
+  getSources: SourceManager['getSources']
+  useSource: SourceManager['useSource']
+  useSources: SourceManager['useSources']
+} & CompositorBase
 
 export type Project = DB & {
   id: NodeId
@@ -182,17 +178,11 @@ type Disposable = () => void
 let compositor: CompositorInstance
 export const start = (settings: Settings): CompositorInstance => {
   if (compositor) return
-  const { dbAdapter, transformSettings = {} } = settings
+  const { dbAdapter, transformSettings = {}, sourceSettings = {} } = settings
 
   type ProjectDbMap = { [id: string]: DB }
   const projectDbMap = {} as ProjectDbMap
   const projectIndex = {} as ProjectIndex
-  const sourceIndex = {} as {
-    [id: string]: Sources.Source
-  }
-  const sourceTypeIndex = {} as {
-    [type: string]: Sources.Source[] // Array of source IDs by type
-  }
 
   // Add ls-layout to the custom element registry
   try {
@@ -251,78 +241,11 @@ export const start = (settings: Settings): CompositorInstance => {
     })
   }
 
-  const handleSourceChanged = (type: string) => {
-    triggerEvent('AvailableSourcesChanged', {
-      type,
-      sources: sourceTypeIndex[type],
-    })
-  }
-
-  compositor = {
+  const compositorBase = {
     projects: projectIndex,
-    getElement: (e) => transformManager.getElement(e),
-    registerTransform: (transform) =>
-      transformManager.registerTransform(transform),
-    registerLayout: HtmlLayouts.registerLayout,
-    registerSource: Sources.registerSource,
-    // TODO: Implement registerType same way as the others
-    // registerType: () => {},
     subscribe,
     on,
     triggerEvent,
-    getSource: (id) => {
-      return sourceIndex[id]
-    },
-    addSource: (type, source) => {
-      if (!source.id) throw new Error('Cannot add source without field "id"')
-      if (sourceIndex[source.id]) return // Already added
-      if (!source.value)
-        throw new Error('Cannot add source without field "value"')
-      const { id, value, props, isActive = true } = source
-      sourceIndex[id] = {
-        id,
-        value,
-        props,
-        isActive,
-        type,
-      }
-      sourceTypeIndex[type] = [
-        ...(sourceTypeIndex[type] || []),
-        sourceIndex[id],
-      ]
-      handleSourceChanged(type)
-    },
-    removeSource: (id) => {
-      const source = sourceIndex[id]
-      if (!source) return
-      delete sourceIndex[id]
-      sourceTypeIndex[source.type] = sourceTypeIndex[source.type].filter(
-        (x) => x.id !== id,
-      )
-      handleSourceChanged(source.type)
-    },
-    updateSource: (id, props) => {
-      const source = sourceIndex[id]
-      source.props = {
-        ...source.props,
-        ...props,
-      }
-      handleSourceChanged(source.type)
-    },
-    setSourceActive: (id, value = true) => {
-      const source = sourceIndex[id]
-      source.isActive = value
-      handleSourceChanged(source.type)
-    },
-    getSources: (type) => {
-      return sourceTypeIndex[type] || []
-    },
-    useSources: (type, cb) => {
-      return on('AvailableSourcesChanged', (payload) => {
-        if (payload.type !== type) return
-        cb(payload.sources)
-      })
-    },
     getProject: (id) => projectIndex[id],
     getNodeProject: (id) => projectIndex[projectIdIndex[id]],
     getNodeParent: (id) => nodeIndex[parentIdIndex[id]],
@@ -567,9 +490,26 @@ export const start = (settings: Settings): CompositorInstance => {
 
       return project
     },
-  } as CompositorInstance
+  } as CompositorBase
 
-  const transformManager = HtmlTransforms.init(transformSettings, compositor)
+  const sourceManager = Sources.init(sourceSettings, compositorBase)
+  const transformManager = HtmlTransforms.init(
+    transformSettings,
+    compositorBase,
+    sourceManager,
+  )
+
+  compositor = {
+    registerLayout: HtmlLayouts.registerLayout,
+    registerTransform: transformManager.registerTransform,
+    registerSource: sourceManager.registerSource,
+    getElement: transformManager.getElement,
+    getSource: sourceManager.getSource,
+    getSources: sourceManager.getSources,
+    useSource: sourceManager.useSource,
+    useSources: sourceManager.useSources,
+    ...compositorBase,
+  } as CompositorInstance
 
   return compositor
 }

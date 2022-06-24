@@ -150,11 +150,6 @@ export const StudioProvider = ({
   // Listen for project changes
   useEffect(() => {
     if (!project) return
-    return on('ProjectChanged', (payload) => {
-      if (payload.project.id === project.id) {
-        setProject(payload.project)
-      }
-    })
   }, [project])
 
   // Set webcam and microphone

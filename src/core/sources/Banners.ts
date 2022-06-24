@@ -14,7 +14,6 @@ export type BannerProps = {
   bodyText?: string
   // Opaque to the SDK
   [prop: string]: any
-  // meta?: { [prop: string]: any }
 }
 
 export type Banner = {
@@ -25,17 +24,21 @@ export type Banner = {
 export type BannerSource = {
   id: string
   value: BannerProps
-  // props: BannerProps
+  // TODO: This shouldn't be necessary
+  props: BannerProps
 }
 
 export const Banner = {
   type: 'Banner',
   valueType: Object,
-  props: {
-    // headerText: {},
-    // bodyText: {},
-  },
-  init({ addSource, removeSource, updateSource, getSource }) {
+  props: {},
+  init({
+    addSource,
+    removeSource,
+    updateSource,
+    getSource,
+    modifySourceValue,
+  }) {
     let previousBanners = [] as Banner[]
 
     const update = (banners: Banner[] = []) => {
@@ -56,18 +59,22 @@ export const Banner = {
       newBanners.forEach((x) =>
         addSource({
           id: x.id,
-          value: x.props,
+          value: {
+            headerText: x.props.headerText,
+            bodyText: x.props.bodyText,
+          },
+          // TODO: It feels odd to have "props" match "value" exactly.
+          //  They probably shouldn't be necessary here.
           props: x.props,
         }),
       )
       removedBanners.forEach((x) => removeSource(x.id))
       changedBanners.forEach((x) => {
-        // TODO: This won't override with null properties
-        Object.assign(getSource(x.id).value, x.props)
-        // TODO: Need to a way to trigger that source was updated
-        // TODO: It probably makes sense to make a
-        //  modifySourceValue() that does exactly all of this
         updateSource(x.id, x.props)
+        modifySourceValue(x.id, (value) => {
+          value.headerText = x.props.headerText
+          value.bodyText = x.props.bodyText
+        })
       })
 
       previousBanners = banners
