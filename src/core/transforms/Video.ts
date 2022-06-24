@@ -24,12 +24,11 @@ export const Video = {
   name: 'LS-Video',
   sourceType: 'LS-Video',
   create({ onUpdate, trigger, onEvent, nodeId }) {
-    const disposeThisEvent = onEvent('NodeRemoved', (payload) => {
-      if (payload.nodeId === nodeId) {
+
+    const disposeThisEvent = onEvent('NodeRemoved', () => {
         clearInterval(interval)
         disposeThisEvent()
-      }
-    })
+    },nodeId)
 
     const el = document.createElement('video')
 
