@@ -1,6 +1,6 @@
 {
   "exclude": ["dist", "docs"],
-  "include": ["src", "./vite.config", "./globals.d.ts"],
+  "include": ["./src", "./vite.config", "./globals.d.ts"],
   "compilerOptions": {
     "experimentalDecorators": true,
     "allowJs": true,
