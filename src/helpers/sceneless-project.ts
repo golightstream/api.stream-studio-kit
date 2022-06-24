@@ -317,6 +317,18 @@ export interface Commands {
    * If no `id` is supplied, existing banners will be removed.
    */
   setActiveBanner(id: string): void
+  /**
+   * Get an arbitrary property from the project (`project.props{}`)
+   */
+  getProp(props: string): any
+  /**
+   * Set an arbitrary property on the project (`project.props{}`)
+   */
+  setProp(props: string, val: any): void
+  /**
+   * Use the latest value of an arbitrary property on the project (`project.props{}`)
+   */
+  useProp(props: string, cb: (val: any) => void): void
 }
 
 /**
@@ -1035,6 +1047,24 @@ export const commands = (project: ScenelessProject) => {
           })
         })
     },
+    getProp(prop) {
+      return project.props[prop]
+    },
+    setProp(prop, val) {
+      return Command.updateProjectProps({
+        projectId: project.id,
+        props: {
+          [prop]: val,
+        },
+      })
+    },
+    useProp(prop, cb) {
+      return CoreContext.on('ProjectChanged', (payload) => {
+        if (project.id === payload.project.id) {
+          cb(payload.project.props[prop])
+        }
+      })
+    },
   }
   return commands
 }
@@ -1047,6 +1077,7 @@ export type LayoutProps = {
   barWidth?: number
   barPosition?: 'bottom' | 'side'
   useGrid?: boolean
+  reverse?: boolean
 }
 type ScenelessSettings = {
   backgroundImage?: string
@@ -1151,7 +1182,10 @@ export const createCompositor = async (
       {
         name: 'BannerContainer',
         id: 'fg-banners',
-        layout: 'Free',
+        layout: 'Column',
+        layoutProps: {
+          reverse: true,
+        },
       },
       foreground.id,
     ),

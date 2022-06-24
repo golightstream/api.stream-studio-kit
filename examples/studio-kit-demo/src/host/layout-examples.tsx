@@ -12,6 +12,7 @@ export const layouts = [
   'Half',
   'Half-Cover',
   'Presentation-Right',
+  'Presentation-Left',
   'Presentation-Bottom',
   'Presentation-Cover',
   'Column',
@@ -76,6 +77,18 @@ export const getLayout = (
           justifyViewers: 'center',
           barPosition: 'side',
           barWidth: 0.2,
+        },
+      }
+    }
+    case 'Presentation-Left': {
+      return {
+        layout: 'Presentation',
+        props: {
+          cover: false,
+          justifyViewers: 'center',
+          barPosition: 'side',
+          barWidth: 0.2,
+          reverse: true,
         },
       }
     }

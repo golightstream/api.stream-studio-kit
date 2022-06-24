@@ -192,7 +192,7 @@ export const updateProjectMeta = (payload: {
  */
 export const setActiveProject = async (payload: {
   projectId: SDK.Project['id']
-}) => {
+}): Promise<SDK.Project> => {
   const project = state.projects.find((x) => x.id === payload.projectId)
   if (!project) {
     state.activeProjectId = null
