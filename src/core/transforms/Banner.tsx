@@ -29,20 +29,41 @@ export const Banner = {
 
       return (
         <div
-          className="Banner"
+          className="BannerContainer"
           style={{
-            padding: 10,
-            background: 'orange',
-            width: 'fit-content',
-            maxWidth: '84%',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-end',
           }}
         >
-          {headerText && (
-            <div style={{ marginBottom: 6, fontSize: '40px' }}>
-              {headerText}
-            </div>
-          )}
-          {bodyText && <div style={{ fontSize: '24px' }}>{bodyText}</div>}
+          <div
+            className="Banner"
+            style={{
+              padding: 10,
+              background: 'orange',
+              width: 'fit-content',
+              height: 'fit-content',
+              maxWidth: '84%',
+              position: 'relative',
+            }}
+          >
+            {headerText && (
+              <div
+                className="Banner-header"
+                style={{ marginBottom: 6, fontSize: '60px' }}
+              >
+                {headerText}
+              </div>
+            )}
+            {bodyText && (
+              <div className="Banner-body" style={{ fontSize: '24px' }}>
+                {bodyText}
+              </div>
+            )}
+          </div>
         </div>
       )
     }

@@ -341,7 +341,7 @@ let wrapperEl: HTMLElement
  * is smaller than the project resolution (e.g. 720px x 1280px), all of the canvas
  * elements will scale down automatically to fit._
  */
-export const render = async (settings: CompositorSettings) => {
+export const render = (settings: CompositorSettings) => {
   const {
     containerEl,
     projectId,
@@ -352,11 +352,13 @@ export const render = async (settings: CompositorSettings) => {
   CoreContext.clients.LayoutApi().subscribeToLayout(project.layoutApi.layoutId)
 
   if (!containerEl || !project) return
+  let customStyleEl: HTMLStyleElement
 
   if (!containerEl.shadowRoot) {
     containerEl.attachShadow({ mode: 'open' })
-    const styleEl = document.createElement('style')
-    styleEl.textContent = getStyle()
+    customStyleEl = document.createElement('style')
+    const baseStyleEl = document.createElement('style')
+    baseStyleEl.textContent = getStyle()
     wrapperEl = document.createElement('div')
     Object.assign(wrapperEl.style, {
       width: '100%',
@@ -366,7 +368,8 @@ export const render = async (settings: CompositorSettings) => {
       justifyContent: 'center',
       transformOrigin: 'center',
     })
-    containerEl.shadowRoot.appendChild(styleEl)
+    containerEl.shadowRoot.appendChild(baseStyleEl)
+    containerEl.shadowRoot.appendChild(customStyleEl)
     containerEl.shadowRoot.appendChild(wrapperEl)
 
     // Scale and center the compositor to fit in the container
@@ -415,6 +418,11 @@ export const render = async (settings: CompositorSettings) => {
   }
 
   setScale()
+  return {
+    setStyle: (CSS: string) => {
+      customStyleEl.textContent = CSS
+    },
+  }
 }
 
 const getStyle = () => `

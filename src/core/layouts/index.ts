@@ -46,6 +46,7 @@ export const Column = {
       cover = false,
       margin = {},
       dimensions = 16 / 9,
+      reverse = false,
     } = props
     const defaultMargin = cover ? 0 : Math.min(size.y / 6, 12)
 
@@ -74,7 +75,7 @@ export const Column = {
         height: '100%',
         width: cover ? size.x + 'px' : 'auto',
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: reverse ? 'column-reverse' : 'column',
         justifyContent: justify,
         alignItems: align,
         paddingLeft: margin.left + 'px',
@@ -123,6 +124,7 @@ export const Row = {
       margin = {},
       dimensions = 16 / 9,
       maxWidth = 1,
+      reverse = false,
     } = props
     const defaultMargin = cover ? 0 : Math.min(size.y / 6, 12)
     margin = {
@@ -150,7 +152,7 @@ export const Row = {
         height: cover ? size.y + 'px' : 'auto',
         width: '100%',
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: reverse ? 'row-reverse' : 'row',
         justifyContent: justify,
         alignItems: align,
         paddingLeft: margin.left + 'px',
@@ -276,6 +278,7 @@ export const Presentation = {
       viewerDimensions = 16 / 9,
       justifyViewers = 'center',
       useGrid = false,
+      reverse = false,
     } = props
     const barWidthPx =
       barPosition === 'side' ? size.x * barWidth : size.y * barWidth
@@ -288,7 +291,7 @@ export const Presentation = {
     if (!presentation) return Grid.layout({ props, children, size })
 
     const hasSidebar = children[1]
-    
+
     const mainSize = { ...size }
     if (hasSidebar) {
       if (barPosition === 'side') {
@@ -327,7 +330,9 @@ export const Presentation = {
     return html.node`
       <div style=${{
         display: 'flex',
-        flexDirection: barPosition === 'side' ? 'row' : 'column',
+        flexDirection:
+          (barPosition === 'side' ? 'row' : 'column') +
+          (reverse ? '-reverse' : ''),
         justifyContent: 'space-around',
         alignItems: 'center',
         position: 'relative',
