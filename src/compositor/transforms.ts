@@ -28,6 +28,8 @@ export type TransformElement = TransformElementBase & {
   nodeId: string
   sourceType: string
   transformName: string
+  // The source currently in use by the element
+  source?: Source
   sourceValue?: any
   _onNewSourceHandlers: Function[]
   _onUpdateHandlers: Function[]
@@ -56,7 +58,9 @@ export type TransformContext = {
   onEvent?: (name: string, payload: any) => void
   /** Called anytime the Source value returned by useSource is different */
   onNewSource?: (cb: (source: Source) => void) => void
-  /** Called anytime the node associated with the element has been updated */
+  /** Called anytime the Source value itself has been modified */
+  onSourceModified?: (cb: (source: Source) => void) => void
+  /** Called anytime the Node associated with the element has been updated */
   onUpdate?: (cb: (nodeProps: any) => void) => void
 }
 
