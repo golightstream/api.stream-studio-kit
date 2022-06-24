@@ -22,9 +22,8 @@ export type TransformDeclaration = {
 
 export type TransformElementBase = {
   root: HTMLElement
-  /** Cleanup to run when node is removed from the scene tree */
-  dispose?: () => void
 }
+
 export type TransformElement = TransformElementBase & {
   nodeId: string
   sourceType: string
@@ -34,6 +33,9 @@ export type TransformElement = TransformElementBase & {
   sourceValue?: any
   _onNewSourceHandlers: Function[]
   _onUpdateHandlers: Function[]
+  _onRemoveHandlers: Function[]
+  // Disposable event listeners associated with this element
+  _disposables: Disposable[]
 }
 
 export type TransformMap = {
@@ -56,15 +58,21 @@ export type TransformElementGetter = (node: SceneNode) => TransformElement
 export type TransformContext = {
   trigger: (event: string, payload: any) => void
   /** Listens for all events emitted by the compositor */
-  onEvent?: (event: string, cb: (payload: any) => void, nodeId?: string) => Disposable
+  onEvent?: (
+    event: string,
+    cb: (payload: any) => void,
+    nodeId?: string,
+  ) => Disposable
   /** Called anytime the Source value returned by useSource is different */
   onNewSource?: (cb: (source: Source) => void) => void
   /** Called anytime the Source value itself has been modified */
   onSourceModified?: (cb: (source: Source) => void) => void
   /** Called anytime the Node associated with the element has been updated */
   onUpdate?: (cb: (nodeProps: any) => void) => void
+  /** Called when the Node associated with the element has been removed */
+  onRemove?: (cb: (nodeProps: any) => void) => void
 
-  nodeId : NodeId
+  nodeId: NodeId
 }
 
 export type Filter = (node: SceneNode) => SceneNode

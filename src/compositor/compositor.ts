@@ -173,7 +173,7 @@ export type Project = DB & {
 type EventHandler = (event: string, payload?: any) => void
 
 // Invoke callback to dispose of an active callback hook
-type Disposable = () => void
+export type Disposable = () => void
 
 let compositor: CompositorInstance
 export const start = (settings: Settings): CompositorInstance => {
@@ -350,15 +350,22 @@ export const start = (settings: Settings): CompositorInstance => {
           if (parent) {
             parent.children = parent.children.filter((x) => x.id !== id)
           }
-          // We do not remove the node from index, to avoid race conditions
-          //  Note: Unknown whether this may become a problem in the future
-          if (nodeIndex[id]) {
-            nodeIndex[id]._deleted = true
-          }
-          // Trigger compositor-only event
-          triggerEvent('NodeRemoved', {
-            projectId: project.id,
-            nodeId: nodeIndex[id].id,
+          const self = nodeIndex[id]
+
+          // Emit NodeRemoved for self and each child node.
+          //  This enables Transforms to clean up instead of becoming
+          //  silently detached from the render tree.
+          forEachDown(self, (node) => {
+            // We do not remove the node from index, to avoid race conditions
+            //  Note: Unknown whether this may become a problem in the future
+            if (nodeIndex[node.id]) {
+              nodeIndex[node.id]._deleted = true
+            }
+            // Trigger compositor-only event
+            triggerEvent('NodeRemoved', {
+              projectId: project.id,
+              nodeId: node.id,
+            })
           })
         },
       } as LocalDB
