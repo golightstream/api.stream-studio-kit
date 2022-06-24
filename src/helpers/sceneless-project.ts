@@ -1,3 +1,4 @@
+import { getElementAttributes } from './../logic'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -60,6 +61,8 @@ export type HTMLVideoElementAttributes = {
   loop?: boolean
   autoplay?: boolean
   muted?: boolean
+  playsinline?: boolean
+  disablepictureinpicture?: boolean
 }
 
 // Local cache to track participants being added
@@ -70,14 +73,7 @@ const addingCache = {
 
 export type ParticipantType = 'camera' | 'screen'
 
-interface PlaybackOptions {
-  playsinline?: boolean
-  disablepictureinpicture?: boolean
-  muted?: boolean
-  loop?: boolean
-}
-
-interface ScenelessProject extends SDK.Project {}
+interface ScenelessProject extends SDK.Project { }
 
 // Note: Assume project is a valid sceneless project
 // Note: In the future commands will be returned by an argument of SceneNode
@@ -122,6 +118,19 @@ export interface Commands {
    */
   getParticipants(room: SDK.Room): Compositor.SceneNode[]
   /**
+   * play video overlay on foreground
+   * @private
+  */
+  autoPlayVideoOverlay(overlayId: string, attributes: HTMLVideoElementAttributes): void
+
+  /**
+    * play background Video
+    * @private
+  */
+  autoPlayBackgroundVideo(
+    attributes?: HTMLVideoElementAttributes,
+  ): void
+  /**
    * Set the active layout and associated layoutProps
    */
   setLayout(layout: LayoutName, layoutProps: LayoutProps): void
@@ -141,6 +150,7 @@ export interface Commands {
    * Set the active background image
    */
   setBackgroundImage(src: string): void
+
   /**
    * Set the active background image
    */
@@ -164,7 +174,7 @@ export interface Commands {
   addVideoOverlay(
     overlayId: string,
     src: string,
-    playbackOptions?: PlaybackOptions,
+    attributes?: HTMLVideoElementAttributes,
   ): Promise<void>
 
   /**
@@ -177,10 +187,6 @@ export interface Commands {
    */
   removeImageOverlay(overlayId: string): Promise<void>
 
-  /**
-   * play video overlay on foreground
-   */
-  playOverlay(src: string): void
 
   /** Set one participant to "showcase". This participant will expand to fill
    * the space of the stream without affecting the underlying layout.
@@ -388,6 +394,7 @@ export const commands = (project: ScenelessProject) => {
           meta,
         },
       }
+
       const existingBanners = (getProject(project.id).props.banners ||
         []) as Banner[]
       return Command.updateProjectProps({
@@ -466,7 +473,40 @@ export const commands = (project: ScenelessProject) => {
         : foregroundVideoIds[0]
     },
 
-    playOverlay(overlayId: string) {
+    autoPlayBackgroundVideo(attributes: HTMLVideoElementAttributes = {
+      muted: true,
+      autoplay: true
+    }) {
+      // find overlay node by id
+      const backgroundVideo = background.children.find(
+        (x) => x.props.id === 'bg-video',
+      )
+      // if overlay is not found, return
+      if (!backgroundVideo) {
+        return
+      }
+      // check if overlay is of type video
+      // autoPlay overlay with muted audio
+      // update overlay node with new attributes
+      CoreContext.Command.updateNode({
+        nodeId: backgroundVideo.id,
+        props: {
+          ...backgroundVideo.props,
+          attributes: {
+            ...backgroundVideo.props.attributes,
+            ...attributes,
+          },
+        },
+      })
+
+    },
+
+    autoPlayVideoOverlay(
+      overlayId: string,
+      attributes: HTMLVideoElementAttributes = {
+        muted: true, autoplay: true
+      },
+    ) {
       // find overlay node by id
       const overlay = foregroundVideoContainer.children.find(
         (x) => x.props?.sourceProps?.id === overlayId,
@@ -480,15 +520,15 @@ export const commands = (project: ScenelessProject) => {
       // check if overlay is of type video
       if (overlay.props.sourceProps.type === 'video') {
         // autoPlay overlay with muted audio
-        // chrome will let muted audio autoplay on load -  https://developer.chrome.com/blog/autoplay/
-        overlay.props.attributes.muted = true
-        overlay.props.attributes.autoplay = true
-
         // update overlay node with new attributes
         CoreContext.Command.updateNode({
           nodeId: overlay.id,
           props: {
             ...overlay.props,
+            attributes: {
+              ...overlay.props.attributes,
+              ...attributes,
+            },
           },
         })
       }
@@ -519,37 +559,25 @@ export const commands = (project: ScenelessProject) => {
           nodeId: overlay.id,
         })
       }
-      // check if overlay sourceType is video
-      if (overlay.props.sourceProps?.type === 'video') {
-        // if so, get room details from project
-        const room = getProjectRoom(project.id)
-        if (!room) return
 
-        // get all participants in the room and unmute them
-        // const participants = commands.getParticipants(room)
-
-        // participants.forEach((node) => {
-        //   commands.setParticipantMuted(node.props.sourceProps?.id, false)
-        // })
-
-        // get all children of the overlay node and update their opacity attributes
-        const allForegroundChildrens = foreground.children.filter(
-          (f) => f.props.id !== 'fg-video',
-        )
-        allForegroundChildrens.forEach((nodes) => {
-          nodes.children.forEach((node) => {
-            if (node.props?.fields?.style?.opacity === 0) {
-              node.props.fields.style.opacity = 1
-              CoreContext.Command.updateNode({
-                nodeId: node.id,
-                props: {
-                  ...node.props,
-                },
-              })
-            }
-          })
+      // get all children of the overlay node and update their opacity attributes
+      const allForegroundChildrens = foreground.children.filter(
+        (f) => f.props.id !== 'fg-video',
+      )
+      allForegroundChildrens.forEach((nodes) => {
+        nodes.children.forEach((node) => {
+          if (node.props?.fields?.style?.opacity === 0) {
+            node.props.fields.style.opacity = 1
+            CoreContext.Command.updateNode({
+              nodeId: node.id,
+              props: {
+                ...node.props,
+              },
+            })
+          }
         })
-      }
+      })
+
     },
 
     async addImageOverlay(overlayId: string, src: string) {
@@ -617,7 +645,11 @@ export const commands = (project: ScenelessProject) => {
     async addVideoOverlay(
       overlayId: string,
       src: string,
-      playbackOptions: PlaybackOptions,
+      attributes: HTMLVideoElementAttributes = {
+        playsinline: true,
+        disablepictureinpicture: true,
+        autoplay: true,
+      },
     ) {
       // Get the video overlay node from the foreground layer
       const videoOverlay = foregroundVideoContainer.children.find(
@@ -639,24 +671,11 @@ export const commands = (project: ScenelessProject) => {
         },
         tagName: 'video',
         attributes: {
-          ...playbackOptions,
+          ...attributes,
           src,
-          playsinline: true,
-          disablepictureinpicture: true,
-          autoplay: true,
+          id : overlayId
         },
       }
-
-      // get room details from project
-      const room = getProjectRoom(project.id)
-      if (!room) return
-
-      // get all participants in the room and mute them
-      // const participants = commands.getParticipants(room)
-
-      // participants.forEach((node) => {
-      //   commands.setParticipantMuted(node.props.sourceProps?.id, true)
-      // })
 
       // get all children of the overlay node and update their opacity attributes
       const allForegroundChildrens = foreground.children.filter(
@@ -775,7 +794,10 @@ export const commands = (project: ScenelessProject) => {
 
     async setBackgroundVideo(
       src: string,
-      attributes?: HTMLVideoElementAttributes,
+      attributes: HTMLVideoElementAttributes = {
+        loop: true,
+        autoplay: true,
+      },
     ) {
       const backgroundVideo = background.children.find(
         (x) => x.props.id === 'bg-video',
@@ -804,8 +826,6 @@ export const commands = (project: ScenelessProject) => {
             sourceType: 'LS-Video',
             attributes: {
               ...attributes,
-              loop: true,
-              autoplay: true,
               src,
             },
           },
@@ -1031,7 +1051,7 @@ export const commands = (project: ScenelessProject) => {
             // Get the source type as it corresponds to the track's type
             const sourceType =
               track.type === Track.Source.Camera ||
-              track.type === Track.Source.Microphone
+                track.type === Track.Source.Microphone
                 ? 'camera'
                 : 'screen'
 
@@ -1066,8 +1086,12 @@ export const commands = (project: ScenelessProject) => {
       })
     },
   }
+
+
+  beforeInit(commands);
   return commands
 }
+
 
 export type LayoutProps = {
   cover?: boolean
@@ -1081,7 +1105,6 @@ export type LayoutProps = {
 }
 type ScenelessSettings = {
   backgroundImage?: string
-  backgroundVideo?: string
   layout?: string
   layoutProps?: LayoutProps
 }
@@ -1103,6 +1126,26 @@ export const create = async (
   }) as Promise<ScenelessProject>
 }
 
+export const beforeInit = (commands : Commands) =>{
+  /** autoPlay last applied video overlay on refresh */
+  const videoOverLay = commands.getVideoOverlay() as string;
+
+  if (videoOverLay) {
+    commands.autoPlayVideoOverlay(videoOverLay, {
+      muted: true,
+      autoplay: true
+    });
+  }
+
+  /** autoPlay last applied video background on refresh */
+  const backgroundVideo = commands.getBackgroundVideo();
+  if (backgroundVideo) {
+    commands.autoPlayBackgroundVideo({
+      muted: true,
+      autoplay: true
+    })
+  }
+}
 /** @private */
 export const createCompositor = async (
   layoutId: string,
@@ -1113,7 +1156,6 @@ export const createCompositor = async (
     backgroundImage,
     layout,
     layoutProps = {},
-    backgroundVideo,
   } = settings
 
   // TODO: Batch insert
