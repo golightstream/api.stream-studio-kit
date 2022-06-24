@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { asArray } from '../../logic'
-import type { CompositorBase, SceneNode } from '../compositor'
+import type { CompositorBase, Disposable, SceneNode } from '../compositor'
 import { SourceManager } from '../sources'
 import {
   Filter,
@@ -171,6 +171,8 @@ export const init = (
 
     const _onNewSourceHandlers: Function[] = []
     const _onUpdateHandlers: Function[] = []
+    const _onRemoveHandlers: Function[] = []
+    const _disposables: Disposable[] = []
 
     const create = transform.create || createDefault
 
@@ -183,11 +185,17 @@ export const init = (
               nodeId: node.id,
               data,
             }),
-          // TODO: Store and automatically dispose of handlers
-          onEvent: compositor.on,
+          onEvent: (event, cb, ...args) => {
+            // Event handlers will be cleaned up automatically
+            //  if not manually cleaned up by invoking "dispose"
+            const dispose = compositor.on(event, cb, ...args)
+            _disposables.push(dispose)
+            return dispose
+          },
           onNewSource: (cb) => _onNewSourceHandlers.push(cb),
           onUpdate: (cb) => _onUpdateHandlers.push(cb),
-          nodeId : node.id
+          onRemove: (cb) => _onRemoveHandlers.push(cb),
+          nodeId: node.id,
         },
         node.props,
       ),
@@ -196,6 +204,7 @@ export const init = (
       transformName: transform.name,
       _onNewSourceHandlers,
       _onUpdateHandlers,
+      _disposables,
     } as TransformElement
 
     // Update indexes
@@ -216,8 +225,10 @@ export const init = (
         if (nodeId === node.id) {
           const node = compositor.getNode(nodeId)
           const { sourceType = 'Element' } = node.props
+          
           listeners.forEach((x) => x?.())
-          result.dispose?.()
+          _disposables.forEach((x) => x?.())
+          _onRemoveHandlers.forEach((x) => x?.())
 
           // Update indexes
           delete nodeElementIndex[node.id]

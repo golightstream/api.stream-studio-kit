@@ -22,12 +22,10 @@ type Props = {
 export const Video = {
   name: 'LS-Video',
   sourceType: 'LS-Video',
-  create({ onUpdate, trigger, onEvent, nodeId }) {
-
-    const disposeThisEvent = onEvent('NodeRemoved', () => {
+  create({ onUpdate, trigger, onEvent, onRemove }) {
+    onRemove(() => {
       clearInterval(interval)
-      disposeThisEvent()
-    }, nodeId)
+    })
 
     const el = document.createElement('video')
 
