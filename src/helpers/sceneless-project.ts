@@ -47,7 +47,6 @@ import { Track } from 'livekit-client'
 import LayoutName = Compositor.Layout.LayoutName
 import { Banner, BannerSource, BannerProps } from '../core/sources/Banners'
 import { generateId } from '../logic'
-
 export type { LayoutName }
 export type { Banner, BannerSource }
 
@@ -342,12 +341,6 @@ export const commands = (project: ScenelessProject) => {
   )
   const foregroundVideoContainer = foreground.children.find(
     (x) => x.props.id === 'fg-video',
-  )
-  const backgroundImageContainer = background.children.find(
-    (x) => x.props.id === 'bg-image',
-  )
-  const backgroundVideoContainer = background.children.find(
-    (x) => x.props.id === 'bg-video',
   )
 
   const commands: Commands = {
@@ -703,78 +696,122 @@ export const commands = (project: ScenelessProject) => {
     },
 
     getBackgroundMedia() {
-      return backgroundImageContainer?.props?.fields?.style?.opacity
-        ? backgroundImageContainer.props.attributes.src
-        : backgroundVideoContainer.props.attributes.src
+      const backgroundChild = background.children.filter((x) => x)
+      return backgroundChild[0]?.props?.attributes?.src
     },
 
     getBackgroundImage() {
-      return backgroundImageContainer?.props?.attributes?.src
+      const backgroundChild = background.children.filter(
+        (x) => x.props.id === 'bg-image',
+      )
+      return backgroundChild[0]?.props?.attributes?.src
     },
 
     getBackgroundVideo() {
-      return backgroundVideoContainer?.props?.attributes?.src
+      const backgroundChild = background.children.filter(
+        (x) => x.props.id === 'bg-video',
+      )
+      return backgroundChild[0]?.props?.attributes?.src
     },
 
-    setBackgroundImage(src: string) {
-      if (backgroundVideoContainer?.props?.fields?.style?.opacity === 1) {
-        CoreContext.Command.updateNode({
-          nodeId: backgroundVideoContainer.id,
+    async setBackgroundImage(src: string) {
+      const backgroundImage = background.children.find(
+        (x) => x.props.id === 'bg-image',
+      )
+
+      // if the video overlay node exists, and the overlay id matches the overlay id passed in, return
+      if (backgroundImage && backgroundImage?.props?.attributes?.src === src) {
+        return
+      }
+
+      const backgroundVideo = background.children.find(
+        (x) => x.props.id === 'bg-video',
+      )
+
+      if (backgroundVideo) {
+        CoreContext.Command.deleteNode({
+          nodeId: backgroundVideo.id,
+        })
+      }
+
+      if (!backgroundImage) {
+        await CoreContext.Command.createNode({
           props: {
-            fields: {
-              style: {
-                opacity: 0,
-              },
+            name: 'ImageBackground',
+            id: 'bg-image',
+            tagName: 'img',
+            sourceType: 'Element',
+            attributes: {
+              src,
+            },
+          },
+          parentId: background.id,
+          index: background.children.length,
+        })
+      } else {
+        CoreContext.Command.updateNode({
+          nodeId: backgroundImage.id,
+          props: {
+            attributes: {
+              ...backgroundImage.props.attributes,
+              src,
             },
           },
         })
       }
-
-      CoreContext.Command.updateNode({
-        nodeId: backgroundImageContainer.id,
-        props: {
-          fields: {
-            style: {
-              opacity: 1,
-            },
-          },
-          attributes: {
-            ...backgroundImageContainer.props.attributes,
-            src,
-          },
-        },
-      })
     },
 
-    setBackgroundVideo(src: string, attributes?: HTMLVideoElementAttributes) {
-      if (backgroundImageContainer?.props?.fields?.style?.opacity === 1) {
-        CoreContext.Command.updateNode({
-          nodeId: backgroundImageContainer.id,
+    async setBackgroundVideo(
+      src: string,
+      attributes?: HTMLVideoElementAttributes,
+    ) {
+      const backgroundVideo = background.children.find(
+        (x) => x.props.id === 'bg-video',
+      )
+
+      // if the video overlay node exists, and the overlay id matches the overlay id passed in, return
+      if (backgroundVideo && backgroundVideo?.props?.attributes?.src === src) {
+        return
+      }
+
+      const backgroundImage = background.children.find(
+        (x) => x.props.id === 'bg-image',
+      )
+
+      if (backgroundImage) {
+        CoreContext.Command.deleteNode({
+          nodeId: backgroundImage.id,
+        })
+      }
+
+      if (!backgroundVideo) {
+        await CoreContext.Command.createNode({
           props: {
-            fields: {
-              style: {
-                opacity: 0,
-              },
+            name: 'VideoBackground',
+            id: 'bg-video',
+            sourceType: 'LS-Video',
+            attributes: {
+              ...attributes,
+              loop: true,
+              autoplay: true,
+              src,
+            },
+          },
+          parentId: background.id,
+          index: background.children.length,
+        })
+      } else {
+        CoreContext.Command.updateNode({
+          nodeId: backgroundVideo.id,
+          props: {
+            attributes: {
+              ...backgroundVideo.props.attributes,
+              ...attributes,
+              src,
             },
           },
         })
       }
-      CoreContext.Command.updateNode({
-        nodeId: backgroundVideoContainer.id,
-        props: {
-          fields: {
-            style: {
-              opacity: 1,
-            },
-          },
-          attributes: {
-            ...backgroundVideoContainer.props.attributes,
-            ...attributes,
-            src,
-            autoplay: true,
-          },
-        },
-      })
     },
     setShowcase(participantId: string, type: ParticipantType = 'camera') {
       const node = commands.getParticipantNode(participantId, type)
@@ -1141,36 +1178,6 @@ export const createCompositor = async (
         sourceType: 'Element',
         attributes: {
           src: backgroundImage,
-        },
-        fields: {
-          style: {
-            opacity: 1,
-          },
-        },
-        style: {
-          objectFit: 'cover',
-          opacity: 1,
-        },
-      },
-      background.id,
-    ),
-    project.insert(
-      {
-        name: 'VideoBackground',
-        id: 'bg-video',
-        tagName: 'video',
-        sourceType: 'LS-Video',
-        attributes: {
-          src: '',
-        },
-        fields: {
-          style: {
-            opacity: 0,
-          },
-        },
-        style: {
-          objectFit: 'cover',
-          opacity: 0,
         },
       },
       background.id,

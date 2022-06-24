@@ -187,6 +187,7 @@ export const init = (
           onEvent: compositor.on,
           onNewSource: (cb) => _onNewSourceHandlers.push(cb),
           onUpdate: (cb) => _onUpdateHandlers.push(cb),
+          nodeId : node.id
         },
         node.props,
       ),

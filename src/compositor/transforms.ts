@@ -2,7 +2,8 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import type { PropsDefinition, SceneNode } from './compositor'
+import { Disposable } from '../core/types'
+import type { NodeId, PropsDefinition, SceneNode } from './compositor'
 import type { Source } from './sources'
 
 // TODO: Make this generic to HTML/Canvas when canvas compositing is supported
@@ -55,13 +56,15 @@ export type TransformElementGetter = (node: SceneNode) => TransformElement
 export type TransformContext = {
   trigger: (event: string, payload: any) => void
   /** Listens for all events emitted by the compositor */
-  onEvent?: (name: string, payload: any) => void
+  onEvent?: (event: string, cb: (payload: any) => void, nodeId?: string) => Disposable
   /** Called anytime the Source value returned by useSource is different */
   onNewSource?: (cb: (source: Source) => void) => void
   /** Called anytime the Source value itself has been modified */
   onSourceModified?: (cb: (source: Source) => void) => void
   /** Called anytime the Node associated with the element has been updated */
   onUpdate?: (cb: (nodeProps: any) => void) => void
+
+  nodeId : NodeId
 }
 
 export type Filter = (node: SceneNode) => SceneNode

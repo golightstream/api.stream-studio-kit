@@ -1,12 +1,14 @@
-import { trigger } from './../events'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { Compositor } from '../namespaces'
+import React from 'react'
+import ReactDOM from 'react-dom'
 
 type Props = {
   id: string
+
   tagName: keyof HTMLElementTagNameMap
   // e.g. Element.attribute.width
   attributes: { [name: string]: string }
@@ -21,7 +23,14 @@ let interval: NodeJS.Timer
 export const Video = {
   name: 'LS-Video',
   sourceType: 'LS-Video',
-  create({ onUpdate, trigger }) {
+  create({ onUpdate, trigger, onEvent, nodeId }) {
+    const disposeThisEvent = onEvent('NodeRemoved', (payload) => {
+      if (payload.nodeId === nodeId) {
+        clearInterval(interval)
+        disposeThisEvent()
+      }
+    })
+
     const el = document.createElement('video')
 
     if (interval) {
@@ -29,17 +38,17 @@ export const Video = {
     }
 
     onUpdate(
-      
       ({ attributes = {}, fields = {}, sourceProps = {}, id }: Props) => {
-
         if (interval) {
           clearInterval(interval)
         }
 
-        Object.keys(attributes).forEach((attr) => {
-          el.setAttribute(attr, attributes[attr])
-        })
-        
+        if (el.src !== attributes['src']) {
+          Object.keys(attributes).forEach((attr) => {
+            el.setAttribute(attr, attributes[attr])
+          })
+        }
+
         if (attributes['muted']) {
           el.onloadedmetadata = () => {
             el.muted = true
@@ -48,20 +57,19 @@ export const Video = {
         }
 
         el.onended = () => {
-          if(interval) {
+          if (interval) {
             clearInterval(interval)
           }
-          trigger('VideoEnded', { id: sourceProps.id, category: id })
+          trigger('VideoEnded', { id: sourceProps?.id, category: id })
         }
 
         if (attributes['src']) {
-      
           interval = setInterval(() => {
             if (el.duration) {
               const timePending = el.duration - el.currentTime
               trigger('VideoTimeUpdate', {
                 category: id,
-                id: sourceProps.id,
+                id: sourceProps?.id,
                 time: Math.floor(timePending),
               })
             }

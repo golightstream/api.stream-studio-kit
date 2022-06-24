@@ -358,7 +358,7 @@ export const start = (settings: Settings): CompositorInstance => {
           // Trigger compositor-only event
           triggerEvent('NodeRemoved', {
             projectId: project.id,
-            nodeId: nodeIndex.id,
+            nodeId: nodeIndex[id].id,
           })
         },
       } as LocalDB
