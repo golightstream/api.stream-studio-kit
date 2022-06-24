@@ -3,7 +3,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { asArray } from '../../logic'
-import type { CompositorInstance, SceneNode } from '../compositor'
+import type { CompositorBase, SceneNode } from '../compositor'
+import { SourceManager } from '../sources'
 import {
   Filter,
   runFilters,
@@ -21,8 +22,9 @@ const createDefault: TransformDeclaration['create'] = () => {
 }
 
 export const init = (
-  settings: TransformSettings,
-  compositor: CompositorInstance,
+  settings: TransformSettings = {},
+  compositor: CompositorBase,
+  sourceManager: SourceManager,
 ) => {
   const transforms = {} as TransformMap
   const defaultTransforms = settings.defaultTransforms || {}
@@ -33,15 +35,26 @@ export const init = (
     })
   }
 
+  // Index elements by node
   const nodeElementIndex = {} as {
     [nodeId: string]: TransformElement
   }
+
+  // Index elements by the source they are using
   const elementSourceIndex = {} as {
+    [sourceId: string]: TransformElement[]
+  }
+
+  // Index elements by source type
+  const elementSourceTypeIndex = {} as {
     [type: string]: TransformElement[]
   }
 
   const getElementsBySourceType = (type: string) => {
-    return elementSourceIndex[type] || []
+    return elementSourceTypeIndex[type] || []
+  }
+  const getElementsBySource = (sourceId: string) => {
+    return elementSourceIndex[sourceId] || []
   }
   const getElementByNodeId = (name: string) => {
     return nodeElementIndex[name]
@@ -49,6 +62,17 @@ export const init = (
   const getTransformByName = (name: string) => {
     return transforms[name]
   }
+
+  compositor.on('SourceChanged', (source) => {
+    const elements = getElementsBySource(source.id)
+
+    // Update all existing node Elements currently using this exact source
+    elements.forEach((element) => {
+      // Pass update to the existing element
+      const node = compositor.getNode(element.nodeId)
+      element._onUpdateHandlers.forEach((x) => x(node.props || {}))
+    })
+  })
 
   compositor.on('AvailableSourcesChanged', ({ type, sources }) => {
     const elements = getElementsBySourceType(type)
@@ -59,6 +83,12 @@ export const init = (
     })
   })
 
+  /**
+   * Check whether the Transform should use a different Source
+   *  based on its `useSource` method.
+   *
+   * Invoke `onNewSource` if a new match is found.
+   */
   const updateSourceForNode = (nodeId: string) => {
     const element = getElementByNodeId(nodeId)
     if (!element) return
@@ -66,10 +96,27 @@ export const init = (
     if (!transform.useSource) return
 
     const node = compositor.getNode(nodeId)
-    const sources = compositor.getSources(element.sourceType)
+    const sources = sourceManager.getSources(element.sourceType)
     const source = transform.useSource(sources, node.props)
     const previousValue = element.sourceValue
     const newValue = source?.value
+
+    if (element.source !== source) {
+      // Remove the existing index (if exists)
+      if (elementSourceIndex[element.source?.id]) {
+        elementSourceIndex[element.source?.id] = elementSourceIndex[
+          element.source?.id
+        ].filter((x) => x.nodeId !== nodeId)
+      }
+      // Add the new index
+      elementSourceIndex[source?.id] = [
+        ...(elementSourceIndex[source?.id] || []),
+        element,
+      ]
+    }
+
+    // Store source information on the element for convenience
+    element.source = source
     element.sourceValue = newValue
 
     if (!Object.is(previousValue, newValue)) {
@@ -152,8 +199,8 @@ export const init = (
 
     // Update indexes
     nodeElementIndex[node.id] = result
-    elementSourceIndex[sourceType] = [
-      ...(elementSourceIndex[sourceType] || []),
+    elementSourceTypeIndex[sourceType] = [
+      ...(elementSourceTypeIndex[sourceType] || []),
       result,
     ]
 
@@ -173,7 +220,7 @@ export const init = (
 
           // Update indexes
           delete nodeElementIndex[node.id]
-          elementSourceIndex[sourceType] = elementSourceIndex[
+          elementSourceTypeIndex[sourceType] = elementSourceTypeIndex[
             sourceType
           ].filter((x) => x !== nodeElementIndex[node.id])
         }
@@ -185,9 +232,9 @@ export const init = (
 
   return {
     transforms,
-    registerTransform,
     nodeElementIndex,
-    elementSourceIndex,
+    elementSourceTypeIndex,
+    registerTransform,
     getElementsBySourceType,
     getElementByNodeId,
     getTransformByName,
@@ -196,3 +243,5 @@ export const init = (
     getElement,
   }
 }
+
+export type TransformManager = ReturnType<typeof init>

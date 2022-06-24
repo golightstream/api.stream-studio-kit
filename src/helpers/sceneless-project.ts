@@ -45,11 +45,11 @@ import { Disposable } from '../core/types'
 import { Track } from 'livekit-client'
 
 import LayoutName = Compositor.Layout.LayoutName
-import { Banner, BannerProps } from '../core/sources/Banners'
+import { Banner, BannerSource, BannerProps } from '../core/sources/Banners'
 import { generateId } from '../logic'
 
 export type { LayoutName }
-export type { Banner }
+export type { Banner, BannerSource }
 
 export type ParticipantProps = {
   volume: number
@@ -299,9 +299,24 @@ export interface Commands {
    * sending a MediaStreamTrack for display.
    */
   pruneParticipants(): void
+  /**
+   * Create and store a banner on the project.
+   *
+   * Does not add the banner to the stream.
+   */
   addBanner(props: BannerProps): void
+  /**
+   * Edit a banner on the project.
+   */
   editBanner(id: string, props: BannerProps): void
+  /**
+   * Remove a banner from the project.
+   */
   removeBanner(id: string): void
+  /**
+   * Add an existing banner to the stream.
+   * If no `id` is supplied, existing banners will be removed.
+   */
   setActiveBanner(id: string): void
 }
 
@@ -1045,8 +1060,8 @@ export const createCompositor = async (
         isRoot: true,
         tagName: 'div',
         fields: {
-          style: { background: 'black' }
-        }
+          style: { background: 'black' },
+        },
       },
     },
     layoutId,
