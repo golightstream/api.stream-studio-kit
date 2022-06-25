@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - mahendra/foreground-layers
+      - main
 
 name: Tag and Relase Package
 jobs:
@@ -22,24 +22,29 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_NPM_AUTH_TOKEN }}" >> ~/.npmrc
           echo "\"@golightstream:registry\"=https://npm.pkg.github.com" >> ~/.npmrc
-      - run: npm install
+      - run: npm ci
       - run: npm run build
+
       - name: Get Package Version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
+
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           custom_tag: ${{ steps.package-version.outputs.current-version}}
+
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
-      # - uses: JS-DevTools/npm-publish@v1
-      #   with:
-      #     token: ${{ secrets.NPM_TOKEN }}
-      #     access: public
+
+      - name: Publish package to NPM
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          access: public
