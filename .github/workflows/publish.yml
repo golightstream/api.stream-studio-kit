@@ -22,7 +22,7 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_NPM_AUTH_TOKEN }}" >> ~/.npmrc
           echo "\"@golightstream:registry\"=https://npm.pkg.github.com" >> ~/.npmrc
-      - run: npm ci
+      - run: npm install
       - run: npm run build
       - uses: actions/create-release@latest
         with:
