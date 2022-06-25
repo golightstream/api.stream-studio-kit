@@ -24,12 +24,15 @@ jobs:
           echo "\"@golightstream:registry\"=https://npm.pkg.github.com" >> ~/.npmrc
       - run: npm install
       - run: npm run build
+      - name: Get Package Version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ env.PACKAGE_VERSION }}
+          custom_tag: ${{ steps.package-version.outputs.current-version}}
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
