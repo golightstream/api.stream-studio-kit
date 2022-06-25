@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - main
+      - mahendra/foreground-layers
 
-name: Publish Package
+name: Tag and Relase Package
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -24,7 +24,13 @@ jobs:
           echo "\"@golightstream:registry\"=https://npm.pkg.github.com" >> ~/.npmrc
       - run: npm ci
       - run: npm run build
-      - uses: JS-DevTools/npm-publish@v1
+      - uses: actions/create-release@latest
         with:
-          token: ${{ secrets.NPM_TOKEN }}
-          access: public
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      # - uses: JS-DevTools/npm-publish@v1
+      #   with:
+      #     token: ${{ secrets.NPM_TOKEN }}
+      #     access: public
