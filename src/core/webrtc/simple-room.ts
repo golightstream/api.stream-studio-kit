@@ -2,11 +2,12 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { webrtcManager } from './'
+import { webrtcManager } from './index'
 import { SpecialEvent } from './room-context'
 import {
   RoomEvent,
   Participant,
+  LocalTrackPublication,
   TrackPublication,
   Track,
   LocalTrack,
@@ -156,6 +157,9 @@ export const getRoom = (id: string) => {
     }
   }
 
+  let settingCamera: boolean
+  let settingMic: boolean
+
   const simpleRoom = {
     id: room.roomName,
     participantId: localParticipant.identity,
@@ -167,52 +171,79 @@ export const getRoom = (id: string) => {
       localParticipant.setMicrophoneEnabled(enabled)
     },
     setCamera: async (options = {}) => {
-      const existing = localParticipant.getTracks().find((x) => {
-        return x.source === Track.Source.Camera
-      })
-      const tracks = await localParticipant.createTracks({
-        video: {
-          deviceId: options.deviceId,
-          resolution: options.resolution || {
-            width: 1280,
-            height: 720,
-            frameRate: 30,
-            aspectRatio: 16 / 9,
-          },
-        },
-      })
-      if (existing?.isMuted) {
-        tracks.forEach((x) => {
-          x.mute()
+      if (settingCamera) {
+        log.warn('Cannot set camera until previous has resolved')
+        return
+      }
+      settingCamera = true
+      let published: LocalTrackPublication[]
+
+      try {
+        const existing = localParticipant.getTracks().find((x) => {
+          return x.source === Track.Source.Camera
         })
+        const tracks = await localParticipant.createTracks({
+          video: {
+            deviceId: options.deviceId,
+            resolution: options.resolution || {
+              width: 1280,
+              height: 720,
+              frameRate: 30,
+              aspectRatio: 16 / 9,
+            },
+          },
+        })
+        if (existing?.isMuted) {
+          tracks.forEach((x) => {
+            x.mute()
+          })
+        }
+        published = await Promise.all(
+          tracks.map((x) => localParticipant.publishTrack(x)),
+        )
+        if (existing) {
+          localParticipant.unpublishTrack(existing.track as LocalTrack)
+        }
+      } catch (e) {
+        throw e
+      } finally {
+        settingCamera = false
+        return getTrack(published[0]?.trackSid)
       }
-      const published = await Promise.all(
-        tracks.map((x) => localParticipant.publishTrack(x)),
-      )
-      if (existing) {
-        localParticipant.unpublishTrack(existing.track as LocalTrack)
-      }
-      return getTrack(published[0]?.trackSid)
     },
     setMicrophone: async (options) => {
-      const existing = localParticipant.getTracks().find((x) => {
-        return x.source === Track.Source.Microphone
-      })
-      const tracks = await localParticipant.createTracks({
-        audio: options || true,
-      })
-      if (existing?.isMuted) {
-        tracks.forEach((x) => {
-          x.mute()
+      if (settingMic) {
+        log.warn('Cannot set microphone until previous has resolved')
+        return
+      }
+      settingMic = true
+      let published: LocalTrackPublication[]
+
+      try {
+        const existing = localParticipant.getTracks().find((x) => {
+          return x.source === Track.Source.Microphone
         })
+        const tracks = await localParticipant.createTracks({
+          audio: options || true,
+        })
+        if (existing?.isMuted) {
+          tracks.forEach((x) => {
+            x.mute()
+          })
+        }
+        published = await Promise.all(
+          tracks.map((x) => localParticipant.publishTrack(x)),
+        )
+        if (existing) {
+          localParticipant.unpublishTrack(existing.track as LocalTrack)
+        }
+        return getTrack(published[0]?.trackSid)
+      } catch (e) {
+        throw e
+      } finally {
+        settingMic = false
+        return getTrack(published[0]?.trackSid)
       }
-      const published = await Promise.all(
-        tracks.map((x) => localParticipant.publishTrack(x)),
-      )
-      if (existing) {
-        localParticipant.unpublishTrack(existing.track as LocalTrack)
-      }
-      return getTrack(published[0]?.trackSid)
     },
     addCamera: async (options = {}) => {
       const tracks = await localParticipant.createTracks({
@@ -229,6 +260,7 @@ export const getRoom = (id: string) => {
       const published = await Promise.all(
         tracks.map((x) => localParticipant.publishTrack(x)),
       )
+      settingMic = false
       return getTrack(published[0]?.trackSid)
     },
     addScreen: async (options = { audio: false }) => {
