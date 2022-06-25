@@ -51,9 +51,6 @@
     "watch": "concurrently --kill-others \"vite build --watch\" \"tsc-watch -p ./tsconfig.json --declaration --skipLibCheck --emitDeclarationOnly --jsx react --esModuleInterop --outDir types\"",
     "watch:types": "tsc-watch -p ./tsconfig.json --declaration --skipLibCheck --emitDeclarationOnly --jsx react --esModuleInterop --outDir types"
   },
-  "bundledDependencies": [
-    "@api.stream/livekit-server-sdk"
-  ],
   "dependencies": {
     "@api.stream/livekit-server-sdk": "^0.5.7",
     "@api.stream/sdk": "1.0.19",
