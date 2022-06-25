@@ -25,11 +25,13 @@ jobs:
       - run: npm install
       - run: npm run build
       - uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+          draft: true
+          prerelease: true
       # - uses: JS-DevTools/npm-publish@v1
       #   with:
       #     token: ${{ secrets.NPM_TOKEN }}
