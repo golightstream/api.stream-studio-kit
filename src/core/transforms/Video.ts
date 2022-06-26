@@ -18,7 +18,6 @@ type Props = {
   fields: { [name: string]: any }
 }
 
-
 export const Video = {
   name: 'LS-Video',
   sourceType: 'LS-Video',
@@ -33,53 +32,51 @@ export const Video = {
 
     onUpdate(
       ({ attributes = {}, fields = {}, sourceProps = {}, id }: Props) => {
-
-        if (interval) {
-          clearInterval(interval);
-        }
-
-        if (el.src !== attributes['src'] || (el.id !== attributes["id"] && attributes["id"])) {
+        if (
+          el.src !== attributes['src'] ||
+          (el.id !== attributes['id'] && attributes['id'])
+        ) {
+          if (interval) {
+            clearInterval(interval)
+          }
 
           Object.keys(attributes).forEach((attr) => {
-            el.setAttribute(attr, attributes[attr]);
+            el.setAttribute(attr, attributes[attr])
           })
 
           el.onloadedmetadata = () => {
             if (attributes['muted']) {
-              el.muted = true;
-              el.play();
-            } else{
-              el.muted = false;
+              el.muted = true
+              el.play()
+            } else {
+              el.muted = false
             }
           }
 
           interval = setInterval(() => {
             if (el.duration) {
-              const timePending = el.duration - el.currentTime;
+              const timePending = el.duration - el.currentTime
               trigger('VideoTimeUpdate', {
                 category: id,
                 id: sourceProps?.id,
                 time: Math.floor(timePending),
-              });
+              })
             }
           }, 1000)
 
           el.loop = Boolean(attributes['loop'])
 
-
           el.onended = () => {
             if (interval) {
-              clearInterval(interval);
+              clearInterval(interval)
             }
-            trigger('VideoEnded', { id: sourceProps?.id, category: id });
+            trigger('VideoEnded', { id: sourceProps?.id, category: id })
           }
 
           Object.keys(fields).forEach((field) => {
-            Object.assign(el[field as keyof HTMLElement], fields[field]);
+            Object.assign(el[field as keyof HTMLElement], fields[field])
           })
         }
-
-
       },
     )
 
