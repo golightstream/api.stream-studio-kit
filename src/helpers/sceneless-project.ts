@@ -73,7 +73,7 @@ const addingCache = {
 
 export type ParticipantType = 'camera' | 'screen'
 
-interface ScenelessProject extends SDK.Project { }
+interface ScenelessProject extends SDK.Project {}
 
 // Note: Assume project is a valid sceneless project
 // Note: In the future commands will be returned by an argument of SceneNode
@@ -120,16 +120,17 @@ export interface Commands {
   /**
    * play video overlay on foreground
    * @private
-  */
-  autoPlayVideoOverlay(overlayId: string, attributes: HTMLVideoElementAttributes): void
+   */
+  autoPlayVideoOverlay(
+    overlayId: string,
+    attributes: HTMLVideoElementAttributes,
+  ): void
 
   /**
-    * play background Video
-    * @private
-  */
-  autoPlayBackgroundVideo(
-    attributes?: HTMLVideoElementAttributes,
-  ): void
+   * play background Video
+   * @private
+   */
+  autoPlayBackgroundVideo(attributes?: HTMLVideoElementAttributes): void
   /**
    * Set the active layout and associated layoutProps
    */
@@ -186,7 +187,6 @@ export interface Commands {
    * remove image overlay from foreground layer
    */
   removeImageOverlay(overlayId: string): Promise<void>
-
 
   /** Set one participant to "showcase". This participant will expand to fill
    * the space of the stream without affecting the underlying layout.
@@ -473,10 +473,12 @@ export const commands = (project: ScenelessProject) => {
         : foregroundVideoIds[0]
     },
 
-    autoPlayBackgroundVideo(attributes: HTMLVideoElementAttributes = {
-      muted: true,
-      autoplay: true
-    }) {
+    autoPlayBackgroundVideo(
+      attributes: HTMLVideoElementAttributes = {
+        muted: true,
+        autoplay: true,
+      },
+    ) {
       // find overlay node by id
       const backgroundVideo = background.children.find(
         (x) => x.props.id === 'bg-video',
@@ -498,13 +500,13 @@ export const commands = (project: ScenelessProject) => {
           },
         },
       })
-
     },
 
     autoPlayVideoOverlay(
       overlayId: string,
       attributes: HTMLVideoElementAttributes = {
-        muted: true, autoplay: true
+        muted: true,
+        autoplay: true,
       },
     ) {
       // find overlay node by id
@@ -577,7 +579,6 @@ export const commands = (project: ScenelessProject) => {
           }
         })
       })
-
     },
 
     async addImageOverlay(overlayId: string, src: string) {
@@ -673,7 +674,7 @@ export const commands = (project: ScenelessProject) => {
         attributes: {
           ...attributes,
           src,
-          id : overlayId
+          id: overlayId,
         },
       }
 
@@ -1051,7 +1052,7 @@ export const commands = (project: ScenelessProject) => {
             // Get the source type as it corresponds to the track's type
             const sourceType =
               track.type === Track.Source.Camera ||
-                track.type === Track.Source.Microphone
+              track.type === Track.Source.Microphone
                 ? 'camera'
                 : 'screen'
 
@@ -1087,11 +1088,9 @@ export const commands = (project: ScenelessProject) => {
     },
   }
 
-
-  beforeInit(commands);
+  beforeInit(commands)
   return commands
 }
-
 
 export type LayoutProps = {
   cover?: boolean
@@ -1126,23 +1125,23 @@ export const create = async (
   }) as Promise<ScenelessProject>
 }
 
-export const beforeInit = (commands : Commands) =>{
+export const beforeInit = (commands: Commands) => {
   /** autoPlay last applied video overlay on refresh */
-  const videoOverLay = commands.getVideoOverlay() as string;
+  const videoOverLay = commands.getVideoOverlay() as string
 
   if (videoOverLay) {
     commands.autoPlayVideoOverlay(videoOverLay, {
       muted: true,
-      autoplay: true
-    });
+      autoplay: true,
+    })
   }
 
   /** autoPlay last applied video background on refresh */
-  const backgroundVideo = commands.getBackgroundVideo();
+  const backgroundVideo = commands.getBackgroundVideo()
   if (backgroundVideo) {
     commands.autoPlayBackgroundVideo({
       muted: true,
-      autoplay: true
+      autoplay: true,
     })
   }
 }
@@ -1152,11 +1151,7 @@ export const createCompositor = async (
   size: { x: number; y: number },
   settings: ScenelessSettings,
 ) => {
-  const {
-    backgroundImage,
-    layout,
-    layoutProps = {},
-  } = settings
+  const { backgroundImage, layout, layoutProps = {} } = settings
 
   // TODO: Batch insert
   const project = await CoreContext.compositor.createProject(
