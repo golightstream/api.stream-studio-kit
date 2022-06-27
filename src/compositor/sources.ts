@@ -151,7 +151,7 @@ export const init = (
       })
     },
     useSources: (type: string, cb: (sources: Source[]) => void): Disposable => {
-      cb(sourceTypeIndex[type])
+      cb(sourceTypeIndex[type] || [])
       return compositor.on('AvailableSourcesChanged', (payload) => {
         if (payload.type !== type) return
         cb(payload.sources)
