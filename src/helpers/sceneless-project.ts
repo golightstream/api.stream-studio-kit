@@ -902,6 +902,7 @@ export const commands = (project: ScenelessProject) => {
       addingCache[type].add(participantId)
       await CoreContext.Command.createNode({
         props: {
+          name: 'Participant',
           sourceType: 'RoomParticipant',
           sourceProps: {
             type,
@@ -968,7 +969,7 @@ export const commands = (project: ScenelessProject) => {
       const childListener = CoreContext.onInternal('NodeChanged', (payload) => {
         if (payload.nodeId !== content.id) return
         const previous = participantNode
-        participantNode = commands.getParticipantNode(participantId)
+        participantNode = commands.getParticipantNode(participantId, type)
         if (previous !== participantNode) {
           sendState()
         }
@@ -1219,9 +1220,11 @@ export const createCompositor = async (
       {
         name: 'BannerContainer',
         id: 'fg-banners',
+        // NOTE: This is not ideal - currently only using layout
+        //  "Column" for its built-in animations
         layout: 'Column',
         layoutProps: {
-          reverse: true,
+          cover: true,
         },
       },
       foreground.id,
