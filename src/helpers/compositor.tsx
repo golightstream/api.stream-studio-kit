@@ -471,4 +471,16 @@ video {
   height: 100%;
   object-fit: contain;
 }
+
+.NameBanner {
+  bottom: 0px;
+  left: 0px;
+  height: 30px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
+  padding: 0px 0px 0px 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+  line-height: 30px;
+  width: 100%;
+}
 `
