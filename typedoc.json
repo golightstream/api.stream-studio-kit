@@ -10,7 +10,7 @@
     "kind",
     "alphabetical"
   ],
-  "plugin": ["@golightstream/typedoc-plugin-exclude-variables"],
+  "plugin": [],
   "listInvalidSymbolLinks": true,
   "entryPointStrategy": "expand",
   "disableSources": false,
