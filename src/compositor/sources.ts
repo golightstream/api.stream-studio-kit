@@ -144,12 +144,14 @@ export const init = (
       return sourceTypeIndex[type] || []
     },
     useSource: (id: string, cb: (source: Source) => void): Disposable => {
+      cb(sourceIndex[id])
       return compositor.on('SourceChanged', (payload: Source) => {
         if (payload.id !== id) return
         cb(payload)
       })
     },
     useSources: (type: string, cb: (sources: Source[]) => void): Disposable => {
+      cb(sourceTypeIndex[type])
       return compositor.on('AvailableSourcesChanged', (payload) => {
         if (payload.type !== type) return
         cb(payload.sources)
