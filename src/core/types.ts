@@ -754,17 +754,17 @@ export type CompositorSettings = {
   /**
    * Determine whether a node is a candidate for dragging.
    */
-  checkDragTarget: (node: SceneNode) => boolean
+  checkDragTarget?: (node: SceneNode) => boolean
   /**
    * Determine whether a node is a candidate for dropping.
    *  A drop target's children will be affected
    *  - the element itself will not.
    */
-  checkDropTarget: (node: SceneNode) => boolean
+  checkDropTarget?: (node: SceneNode) => boolean
   /**
    * Handle double click of a valid drag target.
    */
-  onElementDoubleClick: (node: SceneNode) => boolean
+  onElementDoubleClick?: (node: SceneNode) => boolean
 }
 
 /**
