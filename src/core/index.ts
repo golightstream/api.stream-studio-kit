@@ -385,7 +385,7 @@ export const init = async (
               nodeId: node.id,
             })
           } else if (type === 'delete') {
-            project.compositor.local.remove(args)
+            project.compositor.local.remove(args.id)
             triggerInternal('NodeRemoved', {
               projectId: project.id,
               nodeId: args.id,
