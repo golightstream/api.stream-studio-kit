@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import ReactDOM from 'react-dom'
-import React from 'react'
+import React, { useLayoutEffect, useState } from 'react'
 import { isMatch } from 'lodash-es'
 import { useEffect, useRef } from 'react'
 import { CoreContext } from '../context'
@@ -46,6 +46,17 @@ export const RoomParticipant = {
     let source: any
     let props = initialProps
 
+    // const getSize = ({ width, height }: DOMRect) => {
+    //   if (width > 800) {
+    //     return 3
+    //   } else if (width > 380) {
+    //     return 2
+    //   } else if (width > 200) {
+    //     return 1
+    //   }
+    //   return 0
+    // }
+
     const Participant = ({
       props,
       source,
@@ -54,6 +65,7 @@ export const RoomParticipant = {
       source: RoomParticipantSource
     }) => {
       const { volume = 1, isHidden = false } = props
+      const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(2)
       const ref = useRef<HTMLVideoElement>()
 
       // TODO: Transforms should not rely on external state
@@ -81,6 +93,14 @@ export const RoomParticipant = {
           ref.current.srcObject = null
         }
       }, [ref.current, source?.value])
+
+      // useLayoutEffect(() => {
+      //   if (!ref.current) return
+      //   window.setTimeout(() => {
+      //     const rect = ref.current.getBoundingClientRect()
+      //     setLabelSize(getSize(rect))
+      //   })
+      // }, [ref.current])
 
       useEffect(() => {
         if (!ref.current) return
@@ -145,22 +165,41 @@ export const RoomParticipant = {
           />
           {source?.props.displayName && (
             <div
+              className="NameBannerContainer"
+              data-size={labelSize}
               style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                height: 30,
-                background:
-                  'linear-gradient(90deg, rgba(0,0,0,0.5) 30px, rgba(77,75,78,0) 120px)',
-                borderLeft: '5px solid #26ad80',
-                padding: '0 0 0 10px',
-                color: 'rgba(255,255,255,0.9)',
-                fontWeight: 'bold',
-                lineHeight: '30px',
                 width: '100%',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-end',
+                position: 'absolute',
               }}
             >
-              {source.props.displayName}
+              <div
+                className="NameBanner"
+                style={{
+                  padding: '12px 30px',
+                  width: 'fit-content',
+                  height: 'fit-content',
+                  position: 'relative',
+                }}
+              >
+                {/* {headerText && (
+                  <div
+                    className="Banner-header"
+                    style={{ marginBottom: 6, fontSize: '60px' }}
+                  >
+                    {headerText}
+                  </div>
+                )} */}
+                {
+                  <div className="NameBanner-body" style={{ fontSize: '24px' }}>
+                    {source.props.displayName}
+                  </div>
+                }
+              </div>
             </div>
           )}
         </div>
