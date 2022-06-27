@@ -315,10 +315,10 @@ export const Presentation = {
       Bar = barPosition === 'side' ? Column.layout : Row.layout
       barProps = {
         margin: {
-          top: barPosition === 'side' ? margin : 0,
-          left: barPosition === 'side' ? 0 : margin,
-          bottom: margin,
-          right: margin,
+          top: barPosition === 'side' ? (reverse ? 0 : margin) : 0,
+          left: barPosition === 'side' ? (reverse ? margin : 0) : margin,
+          bottom: reverse ? 0 : margin,
+          right: reverse ? 0 : margin,
           between: margin,
         },
         dimensions: viewerDimensions,
