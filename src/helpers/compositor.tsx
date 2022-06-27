@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { swapItems } from '../logic'
 import { getProject } from '../core/data'
@@ -86,33 +86,27 @@ const onDrop = async (
 }
 
 let foundDropTarget = false
-const ElementTree = (props: {
-  nodeId: string
-  project: InternalProject
-  interactive: boolean
-  drag: boolean
-  drop: boolean
-  dblClickShowcase: boolean
-  onDoubleClick?: () => void
-}) => {
+const ElementTree = (props: { nodeId: string }) => {
   const transformRef = useRef<HTMLDivElement>()
   const rootRef = useRef<HTMLDivElement>()
   const {
-    nodeId,
     project,
     interactive = true,
-    drag = false,
-    drop = false,
-    dblClickShowcase = false,
-  } = props
+    onElementDoubleClick,
+    checkIsDragTarget,
+    checkIsDropTarget,
+  } = useContext(CompositorContext)
+  const { nodeId } = props
   const node = project.compositor.get(nodeId)
   if (!node) return null
 
-  // TODO: Should not depend on state outside compositor
   const element = CoreContext.compositor.getElement(node)
   const layout = node.props.layout || 'Row'
 
-  let layoutDragHandlers = drop
+  const isDragTarget = interactive && checkIsDragTarget(node)
+  const isDropTarget = interactive && checkIsDropTarget(node)
+
+  let layoutDragHandlers = isDropTarget
     ? {
         onDrop: (e: React.DragEvent) => {
           foundDropTarget = true
@@ -139,9 +133,11 @@ const ElementTree = (props: {
       }
     : {}
 
-  let transformDragHandlers = drag
+  let transformDragHandlers = isDragTarget
     ? {
         draggable: true,
+        // If a target is draggable, it will also be treated as
+        //  a drop target (swap element positions)
         ondrop: (e: React.DragEvent) => {
           foundDropTarget = true
           return onDrop(
@@ -173,6 +169,10 @@ const ElementTree = (props: {
     : {}
 
   useEffect(() => {
+    const onDoubleClick = isDragTarget
+      ? () => onElementDoubleClick(node)
+      : () => {}
+
     if (transformRef.current && element) {
       transformRef.current.appendChild(element.root)
       Object.assign(transformRef.current.style, {
@@ -184,27 +184,16 @@ const ElementTree = (props: {
       Object.assign(element.root, transformDragHandlers)
       // TODO: Add element over top the root (don't put drag handlers on the root)
       Object.assign(element.root.style, {
-        pointerEvents: drag ? 'all' : 'none',
+        pointerEvents: isDragTarget ? 'all' : 'none',
         width: '100%',
         height: '100%',
         position: 'relative',
         ...(node.props.style || {}),
       })
-      element.root.addEventListener('dblclick', props.onDoubleClick)
+      element.root.addEventListener('dblclick', onDoubleClick)
     }
-    return () =>
-      element?.root.removeEventListener('dblclick', props.onDoubleClick)
+    return () => element?.root.removeEventListener('dblclick', onDoubleClick)
   }, [transformRef.current, element])
-
-  const childCapabilities = {
-    drag: interactive,
-    drop: interactive,
-  }
-  // TODO: Move this logic elsewhere
-  if (layout === 'Layered') {
-    childCapabilities.drag = false
-    childCapabilities.drop = false
-  }
 
   const layoutProps = {
     layout,
@@ -234,27 +223,7 @@ const ElementTree = (props: {
           layout={layout}
         >
           {node.children.map((x) => (
-            <ElementTree
-              key={x.id}
-              nodeId={x.id}
-              project={project}
-              interactive={interactive}
-              drag={childCapabilities.drag}
-              drop={childCapabilities.drop}
-              dblClickShowcase={dblClickShowcase}
-              onDoubleClick={() => {
-                const showcase = node.props.layoutProps?.showcase
-                CoreContext.Command.updateNode({
-                  nodeId: node.id,
-                  props: {
-                    layoutProps: {
-                      ...node.props.layoutProps,
-                      showcase: showcase === x.id ? null : x.id,
-                    },
-                  },
-                })
-              }}
-            />
+            <ElementTree key={x.id} nodeId={x.id} />
           ))}
         </ls-layout>
       </ErrorBoundary>
@@ -267,12 +236,8 @@ const useForceUpdate = () => {
   return () => setValue((value) => value + 1)
 }
 
-const Root = (props: {
-  project: InternalProject
-  dragAndDrop: boolean
-  dblClickShowcase: boolean
-}) => {
-  const { project, dragAndDrop, dblClickShowcase } = props
+const Root = () => {
+  const { project } = useContext(CompositorContext)
   const [tree, setTree] = useState<SceneNode>(null)
 
   useEffect(() => {
@@ -314,14 +279,7 @@ const Root = (props: {
           overflow: 'hidden',
         }}
       >
-        <ElementTree
-          nodeId={tree.id}
-          project={project}
-          interactive={dragAndDrop}
-          dblClickShowcase={dblClickShowcase}
-          drag={false}
-          drop={false}
-        />
+        <ElementTree nodeId={tree.id} />
       </div>
     </div>
   )
@@ -347,9 +305,15 @@ export const render = (settings: CompositorSettings) => {
     projectId,
     dragAndDrop = false,
     dblClickShowcase = dragAndDrop,
+    checkDragTarget = scenelessProjectDragCheck,
+    checkDropTarget = scenelessProjectDropCheck,
   } = settings
   const project = getProject(projectId)
   CoreContext.clients.LayoutApi().subscribeToLayout(project.layoutApi.layoutId)
+
+  const onElementDoubleClick =
+    settings.onElementDoubleClick ||
+    (dblClickShowcase && scenelessProjectDoubleClick(project))
 
   if (!containerEl || !project) return
   let customStyleEl: HTMLStyleElement
@@ -408,11 +372,15 @@ export const render = (settings: CompositorSettings) => {
 
   const render = () => {
     ReactDOM.render(
-      <Root
+      <CompositorProvider
         project={project}
-        dragAndDrop={dragAndDrop}
-        dblClickShowcase={dblClickShowcase}
-      />,
+        interactive={dragAndDrop}
+        onElementDoubleClick={onElementDoubleClick}
+        checkIsDropTarget={checkDropTarget}
+        checkIsDragTarget={checkDragTarget}
+      >
+        <Root />
+      </CompositorProvider>,
       wrapperEl,
     )
   }
@@ -423,6 +391,71 @@ export const render = (settings: CompositorSettings) => {
       customStyleEl.textContent = CSS
     },
   }
+}
+
+type CompositorContext = {
+  interactive: boolean
+  project: InternalProject
+  checkIsDragTarget: (node: SceneNode) => boolean
+  checkIsDropTarget: (node: SceneNode) => boolean
+  onElementDoubleClick: (node: SceneNode) => void
+}
+
+/** This is a default check based on legacy behavior */
+const scenelessProjectDragCheck = (node: SceneNode) => {
+  return (
+    node.props.name === 'Participant' ||
+    node.props.sourceType === 'RoomParticipant'
+  )
+}
+
+/** This is a default check based on legacy behavior */
+const scenelessProjectDropCheck = (node: SceneNode) => {
+  return node.props.name === 'Content'
+}
+
+/** This is a default based on legacy behavior */
+const scenelessProjectDoubleClick =
+  (project: InternalProject) => (node: SceneNode) => {
+    const content = project.compositor.nodes.find(
+      (x) => x.props.name === 'Content',
+    )
+    if (content) {
+      const showcase = content.props.layoutProps?.showcase
+      CoreContext.Command.updateNode({
+        nodeId: content.id,
+        props: {
+          layoutProps: {
+            ...content.props.layoutProps,
+            showcase: showcase === node.id ? null : node.id,
+          },
+        },
+      })
+    }
+  }
+
+export const CompositorContext = React.createContext<CompositorContext>({
+  interactive: false,
+  project: null,
+  checkIsDragTarget: () => false,
+  checkIsDropTarget: () => false,
+  onElementDoubleClick: () => {},
+})
+
+type ContextProps = CompositorContext & {
+  children: React.ReactChild
+}
+
+const CompositorProvider = ({ children, ...props }: ContextProps) => {
+  return (
+    <CompositorContext.Provider
+      value={{
+        ...props,
+      }}
+    >
+      {children}
+    </CompositorContext.Provider>
+  )
 }
 
 const getStyle = () => `

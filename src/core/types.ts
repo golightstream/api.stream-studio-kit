@@ -732,6 +732,8 @@ export interface Studio {
   version: string
 }
 
+// TODO: This should accept the compositor object itself
+//  and should not rely on CoreContext
 export type CompositorSettings = {
   projectId: string
   containerEl: HTMLElement
@@ -744,10 +746,25 @@ export type CompositorSettings = {
    */
   dragAndDrop?: boolean
   /**
+   * @deprecated - Use onElementDoubleClick()
    * Indicates whether the compositor should allow the user to
    * double-click on an element to make it fill the canvas.
    */
   dblClickShowcase?: boolean
+  /**
+   * Determine whether a node is a candidate for dragging.
+   */
+  checkDragTarget: (node: SceneNode) => boolean
+  /**
+   * Determine whether a node is a candidate for dropping.
+   *  A drop target's children will be affected
+   *  - the element itself will not.
+   */
+  checkDropTarget: (node: SceneNode) => boolean
+  /**
+   * Handle double click of a valid drag target.
+   */
+  onElementDoubleClick: (node: SceneNode) => boolean
 }
 
 /**
