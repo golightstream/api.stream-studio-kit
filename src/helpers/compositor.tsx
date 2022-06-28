@@ -236,7 +236,7 @@ const useForceUpdate = () => {
   return () => setValue((value) => value + 1)
 }
 
-const Root = () => {
+const Root = (props: { setStyle: (CSS: string) => void }) => {
   const { project } = useContext(CompositorContext)
   const [tree, setTree] = useState<SceneNode>(null)
 
@@ -247,6 +247,13 @@ const Root = () => {
     return CoreContext.onInternal('NodeChanged', () => {
       // Traverse and update the tree
       setTree(project.compositor.renderTree())
+    })
+  }, [])
+
+  useEffect(() => {
+    props.setStyle(project.props?.CSS || '')
+    return CoreContext.onInternal('ProjectChanged', () => {
+      props.setStyle(project.props?.CSS || '')
     })
   }, [])
 
@@ -379,18 +386,17 @@ export const render = (settings: CompositorSettings) => {
         checkIsDropTarget={checkDropTarget}
         checkIsDragTarget={checkDragTarget}
       >
-        <Root />
+        <Root
+          setStyle={(CSS: string) => {
+            customStyleEl.textContent = CSS
+          }}
+        />
       </CompositorProvider>,
       wrapperEl,
     )
   }
 
   setScale()
-  return {
-    setStyle: (CSS: string) => {
-      customStyleEl.textContent = CSS
-    },
-  }
 }
 
 type CompositorContext = {
