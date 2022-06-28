@@ -52490,7 +52490,7 @@ const ElementTree = (props) => {
     nodeId: x.id
   })))));
 };
-const Root = () => {
+const Root = (props) => {
   const {
     project
   } = useContext(CompositorContext);
@@ -52499,6 +52499,14 @@ const Root = () => {
     setTree(project.compositor.renderTree());
     return CoreContext.onInternal("NodeChanged", () => {
       setTree(project.compositor.renderTree());
+    });
+  }, []);
+  useEffect(() => {
+    var _a;
+    props.setStyle(((_a = project.props) == null ? void 0 : _a.CSS) || "");
+    return CoreContext.onInternal("ProjectChanged", () => {
+      var _a2;
+      props.setStyle(((_a2 = project.props) == null ? void 0 : _a2.CSS) || "");
     });
   }, []);
   if (!tree)
@@ -52604,14 +52612,13 @@ const render = (settings) => {
       onElementDoubleClick,
       checkIsDropTarget: checkDropTarget,
       checkIsDragTarget: checkDragTarget
-    }, /* @__PURE__ */ React.createElement(Root, null)), wrapperEl);
+    }, /* @__PURE__ */ React.createElement(Root, {
+      setStyle: (CSS) => {
+        customStyleEl.textContent = CSS;
+      }
+    })), wrapperEl);
   };
   setScale();
-  return {
-    setStyle: (CSS) => {
-      customStyleEl.textContent = CSS;
-    }
-  };
 };
 const scenelessProjectDragCheck = (node) => {
   return node.props.name === "Participant" || node.props.sourceType === "RoomParticipant";
