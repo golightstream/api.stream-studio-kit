@@ -42,7 +42,14 @@ const request = (layoutId: string, actions: Action[]) => {
         .filter(([type]) => type === 'update')
         .map(([_, layer]) => ({
           [layer.id]: getNextNodeVersion(layer.id),
-        })),
+        }))
+        .reduce(
+          (x, acc) => ({
+            ...acc,
+            ...x,
+          }),
+          {},
+        ),
     },
   })
 }
