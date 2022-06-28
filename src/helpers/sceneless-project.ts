@@ -40,7 +40,7 @@ import { getElementAttributes } from './../logic'
  */
 
 import { CoreContext } from '../core/context'
-import { getProject, getProjectRoom } from '../core/data'
+import { getProject, getProjectRoom, toBaseProject } from '../core/data'
 import { SDK, Compositor } from '../core/namespaces'
 import { Disposable } from '../core/types'
 import { Track } from 'livekit-client'
@@ -344,8 +344,9 @@ export interface Commands {
  * These commands assist with management of WebRTC {@link Participant Participants},
  * custom layouts, backgrounds, and overlay content.
  */
-export const commands = (project: ScenelessProject) => {
-  const root = project.scene.getRoot()
+export const commands = (_project: ScenelessProject) => {
+  const projectId = _project.id
+  const root = _project.scene.getRoot()
   const { Command } = CoreContext
 
   const background = root.children.find((x) => x.props.id === 'bg')
@@ -375,7 +376,7 @@ export const commands = (project: ScenelessProject) => {
       return content.props.layout
     },
     getBanners() {
-      return (getProject(project.id).props.banners || []) as Banner[]
+      return (getProject(_project.id).props.banners || []) as Banner[]
     },
 
     getParticipants(room: SDK.Room) {
@@ -395,10 +396,10 @@ export const commands = (project: ScenelessProject) => {
         },
       }
 
-      const existingBanners = (getProject(project.id).props.banners ||
+      const existingBanners = (getProject(projectId).props.banners ||
         []) as Banner[]
       return Command.updateProjectProps({
-        projectId: project.id,
+        projectId,
         props: {
           banners: [...existingBanners, banner],
         },
@@ -414,7 +415,7 @@ export const commands = (project: ScenelessProject) => {
         }
       })
       return Command.updateProjectProps({
-        projectId: project.id,
+        projectId,
         props: {
           banners,
         },
@@ -431,7 +432,7 @@ export const commands = (project: ScenelessProject) => {
       })
 
       return Command.updateProjectProps({
-        projectId: project.id,
+        projectId,
         props: {
           banners: existingBanners.filter((x) => x.id !== id),
         },
@@ -1024,7 +1025,7 @@ export const commands = (project: ScenelessProject) => {
     },
     pruneParticipants() {
       // Remove all participant nodes that do not have active tracks
-      const room = getProjectRoom(project.id)
+      const room = getProjectRoom(projectId)
       if (!room) return
 
       content.children
@@ -1070,11 +1071,11 @@ export const commands = (project: ScenelessProject) => {
         })
     },
     getProp(prop) {
-      return project.props[prop]
+      return getProject(_project.id).props[prop]
     },
     setProp(prop, val) {
       return Command.updateProjectProps({
-        projectId: project.id,
+        projectId,
         props: {
           [prop]: val,
         },
@@ -1082,7 +1083,7 @@ export const commands = (project: ScenelessProject) => {
     },
     useProp(prop, cb) {
       return CoreContext.on('ProjectChanged', (payload) => {
-        if (project.id === payload.project.id) {
+        if (projectId === payload.project.id) {
           cb(payload.project.props[prop])
         }
       })

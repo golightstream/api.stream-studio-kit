@@ -9,6 +9,7 @@ import { getProject } from '../core/data'
 import { CoreContext, log, InternalProject } from '../core/context'
 import { Compositor } from '../core/namespaces'
 import { CompositorSettings, SceneNode } from '../core/types'
+import { color } from 'csx'
 
 class ErrorBoundary extends React.Component<
   { children: React.PropsWithChildren<any> },
@@ -251,11 +252,18 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
   }, [])
 
   useEffect(() => {
-    props.setStyle(project.props?.CSS || '')
-    return CoreContext.onInternal('ProjectChanged', () => {
-      props.setStyle(project.props?.CSS || '')
-    })
-  }, [])
+    const updateCSS = () => {
+      const { bannerStyle, primaryColor, showNameBanners } = project.props
+      if (!bannerStyle || !primaryColor) return
+      const CSS = themes[bannerStyle as BannerStyle](
+        primaryColor,
+        showNameBanners,
+      )
+      props.setStyle(CSS || '')
+    }
+    updateCSS()
+    return CoreContext.onInternal('ProjectChanged', updateCSS)
+  }, [project])
 
   if (!tree) return null
 
@@ -440,6 +448,9 @@ const scenelessProjectDoubleClick =
     }
   }
 
+/** This is a default based on legacy behavior */
+const scenelessProjectCSS = (project: InternalProject) => (CSS: string) => {}
+
 export const CompositorContext = React.createContext<CompositorContext>({
   interactive: false,
   project: null,
@@ -490,3 +501,171 @@ video {
   width: 100%;
 }
 `
+
+export enum BannerStyle {
+  DEFAULT = 'default',
+  MINIMAL = 'minimal',
+  BUBBLE = 'bubble',
+}
+const themes = {
+  [BannerStyle.DEFAULT]: (
+    primaryColor: string,
+    showNameBanners: boolean,
+    scalar = 1280 / 1920,
+  ) => {
+    const textColor = color(primaryColor).lightness() < 0.6 ? '#FFF' : '#000'
+    const scale = (px: number) => px * scalar + 'px'
+
+    return `
+      .Banner, .NameBanner {
+        background: ${primaryColor} !important;
+        border-top-right-radius: ${scale(20)} !important;
+        border-bottom-right-radius: ${scale(20)} !important;
+        padding: ${scale(40)} ${scale(100)} !important;
+        margin-bottom: ${scale(40)} !important;
+        max-width: 84% !important;
+        transition: 300ms ease all;
+        left: 0;
+      }
+      .Banner-body, .NameBanner-body {
+        color: ${textColor} !important;
+        font-family: 'Roboto' !important;
+        font-style: normal !important;
+        font-weight: 700 !important;
+        font-size: ${scale(44)} !important;
+        line-height: 120% !important;
+      }
+      .NameBanner {
+        padding: ${scale(24)} ${scale(40)} !important;
+        font-size: ${scale(56)} !important;
+        transform-origin: 0 100%;
+        margin: 0 !important;
+        transform: scale(0.5) translateX(-100%);
+        opacity: 0 !important;
+        ${
+          showNameBanners &&
+          `
+          opacity: 1 !important;
+          transform: scale(0.5) translateX(0);
+        `
+        }
+      }
+    `
+  },
+  [BannerStyle.MINIMAL]: (
+    primaryColor: string,
+    showNameBanners: boolean,
+    scalar = 1280 / 1920,
+  ) => {
+    const textColor = 'white'
+    const scale = (px: number) => px * scalar + 'px'
+
+    return `
+    .Banner, .NameBanner {
+        background: ${color(primaryColor)
+          .fade(color(primaryColor).alpha() * 0.7)
+          .toString()} !important;
+        padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(60)} !important;
+        position: relative !important;
+        max-width: 84% !important;
+        margin-bottom: ${scale(40)} !important;
+        transition: 300ms ease all;
+        left: 0;
+      }
+      .Banner:before, .NameBanner:before {
+        z-index: 1;
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        transition: 300ms ease all;
+        box-shadow: ${scale(20)} 0 0 0 ${color(primaryColor)} inset !important;
+        opacity: ${color(primaryColor).alpha()};
+      }
+      .Banner-body, .NameBanner-body {
+        color: ${textColor} !important;
+        font-family: 'Roboto' !important;
+        font-style: normal !important;
+        font-weight: 700 !important;
+        font-size: ${scale(34)} !important;
+        line-height: 120% !important;
+        position: relative;
+        z-index: 2;
+      }
+      .Banner-header {
+        position: relative;
+        z-index: 2;
+      }
+      .NameBanner:before {
+        box-shadow: ${scale(40)} 0 0 0 ${color(primaryColor)} inset !important;
+      }
+      .NameBanner {
+        font-size: ${scale(48)} !important;
+        padding: ${scale(24)} ${scale(48)} ${scale(24)} ${scale(78)} !important;
+        transform-origin: 0 100%;
+        margin: 0 !important;
+        transform: scale(0.5) translateX(-100%);
+        opacity: 0 !important;
+        ${
+          showNameBanners &&
+          `
+          opacity: 1 !important;
+          transform: scale(0.5) translateX(0);
+        `
+        }
+      }
+    `
+  },
+  [BannerStyle.BUBBLE]: (
+    primaryColor: string,
+    showNameBanners: boolean,
+    scalar = 1280 / 1920,
+  ) => {
+    const textColor = color(primaryColor).lightness() < 0.6 ? '#FFF' : '#000'
+    const scale = (px: number) => px * scalar + 'px'
+
+    return `
+      .Banner {
+        transform: translateX(-50%);
+        left: 50%;
+      }
+      .Banner, .NameBanner {
+        background: ${color(primaryColor)} !important;
+        padding: ${scale(40)} ${scale(80)} !important;
+        color: ${textColor} !important;
+        border: 4px solid ${textColor} !important;
+        border-radius: 500px !important;
+        margin-bottom: ${scale(40)} !important;
+        transition: 300ms ease all;
+        max-width: 78% !important;
+      }
+      .Banner-body, .NameBanner-body {
+        color: ${textColor} !important;
+        text-align: center !important;
+        font-family: 'Roboto' !important;
+        font-style: normal !important;
+        font-weight: 700 !important;
+        font-size: ${scale(40)} !important;
+        line-height: 120% !important;
+      }
+      .NameBanner {
+        padding: ${scale(24)} ${scale(60)} !important;
+        font-size: ${scale(52)} !important;
+        transform-origin: 0% 100%;
+        margin: 1% !important;
+        transform: scale(0.5) translateX(-100%);
+        opacity: 0 !important;
+        ${
+          showNameBanners &&
+          `
+          opacity: 1 !important;
+          transform: scale(0.5) translateX(0);
+        `
+        }
+      }
+    `
+  },
+}
