@@ -582,7 +582,18 @@ const themes = {
         height: 100%;
         background: rgba(0,0,0,0.6);
         transition: 300ms ease all;
-        box-shadow: ${scale(20)} 0 0 0 ${color(primaryColor)} inset !important;
+        opacity: ${color(primaryColor).alpha()};
+      }
+      .Banner:after, .NameBanner:after {
+        z-index: 1;
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        transition: 300ms ease all;
+        width: ${scale(20)};
+        background: ${color(primaryColor)};
         opacity: ${color(primaryColor).alpha()};
       }
       .Banner-body, .NameBanner-body {
