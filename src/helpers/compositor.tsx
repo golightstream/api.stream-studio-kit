@@ -538,10 +538,12 @@ const themes = {
       .NameBanner {
         padding: ${scale(24)} ${scale(40)} !important;
         font-size: ${scale(56)} !important;
+        max-width: 190% !important;
         transform-origin: 0 100%;
         margin: 0 !important;
         transform: scale(0.5) translateX(-100%);
         opacity: 0 !important;
+        white-space: nowrap;
         ${
           showNameBanners &&
           `
@@ -610,16 +612,18 @@ const themes = {
         position: relative;
         z-index: 2;
       }
-      .NameBanner:before {
-        box-shadow: ${scale(40)} 0 0 0 ${color(primaryColor)} inset !important;
+      .NameBanner:after {
+        width: ${scale(40)};
       }
       .NameBanner {
+        max-width: 190% !important;
         font-size: ${scale(48)} !important;
         padding: ${scale(24)} ${scale(48)} ${scale(24)} ${scale(78)} !important;
         transform-origin: 0 100%;
         margin: 0 !important;
         transform: scale(0.5) translateX(-100%);
         opacity: 0 !important;
+        white-space: nowrap;
         ${
           showNameBanners &&
           `
@@ -663,12 +667,14 @@ const themes = {
         line-height: 120% !important;
       }
       .NameBanner {
+        max-width: 190% !important;
         padding: ${scale(24)} ${scale(60)} !important;
         font-size: ${scale(52)} !important;
         transform-origin: 0% 100%;
         margin: 1% !important;
         transform: scale(0.5) translateX(-100%);
         opacity: 0 !important;
+        white-space: nowrap;
         ${
           showNameBanners &&
           `

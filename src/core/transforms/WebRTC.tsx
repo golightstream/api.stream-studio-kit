@@ -196,7 +196,7 @@ export const RoomParticipant = {
                 )} */}
                 {
                   <div className="NameBanner-body" style={{ fontSize: '24px' }}>
-                    {source.props.displayName}
+                    {source.props.displayName}{source.props.type === 'screen' && `'s Screen`}
                   </div>
                 }
               </div>

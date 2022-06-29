@@ -901,6 +901,18 @@ export const commands = (_project: ScenelessProject) => {
       if (existing) return
 
       addingCache[type].add(participantId)
+      // Get the participant type in the first position
+      const currentFirst = content.children[0]
+      let index = content.children.length
+
+      // If we're adding a screen and the first position is not already
+      //  a screen, then we add it in the first position.
+      if (
+        type === 'screen' &&
+        currentFirst?.props.sourceProps.type !== 'screen'
+      ) {
+        index = 0
+      }
       await CoreContext.Command.createNode({
         props: {
           name: 'Participant',
@@ -914,7 +926,7 @@ export const commands = (_project: ScenelessProject) => {
           isHidden,
         },
         parentId: content.id,
-        index: content.children.length,
+        index,
       }).finally(() => {
         addingCache[type].delete(participantId)
       })
