@@ -567,7 +567,6 @@ const themes = {
           .toString()} !important;
         padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(60)} !important;
         position: relative !important;
-        max-width: 84% !important;
         margin-bottom: ${scale(40)} !important;
         transition: 300ms ease all;
         left: 0;
@@ -614,7 +613,6 @@ const themes = {
         width: ${scale(40)};
       }
       .NameBanner {
-        max-width: 190% !important;
         font-size: ${scale(48)} !important;
         padding: ${scale(24)} ${scale(48)} ${scale(24)} ${scale(78)} !important;
         transform-origin: 0 100%;
@@ -653,7 +651,6 @@ const themes = {
         border-radius: 500px !important;
         margin-bottom: ${scale(40)} !important;
         transition: 300ms ease all;
-        max-width: 78% !important;
       }
       .Banner-body, .NameBanner-body {
         color: ${textColor} !important;
@@ -665,7 +662,6 @@ const themes = {
         line-height: 120% !important;
       }
       .NameBanner {
-        max-width: 190% !important;
         padding: ${scale(24)} ${scale(60)} !important;
         font-size: ${scale(52)} !important;
         transform-origin: 0% 100%;
