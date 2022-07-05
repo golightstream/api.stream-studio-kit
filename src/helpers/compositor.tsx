@@ -523,7 +523,6 @@ const themes = {
         border-bottom-right-radius: ${scale(20)} !important;
         padding: ${scale(40)} ${scale(100)} !important;
         margin-bottom: ${scale(40)} !important;
-        max-width: 84% !important;
         transition: 300ms ease all;
         left: 0;
       }
@@ -538,7 +537,6 @@ const themes = {
       .NameBanner {
         padding: ${scale(24)} ${scale(40)} !important;
         font-size: ${scale(56)} !important;
-        max-width: 190% !important;
         transform-origin: 0 100%;
         margin: 0 !important;
         transform: scale(0.5) translateX(-100%);
