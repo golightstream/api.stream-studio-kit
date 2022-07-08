@@ -88,7 +88,7 @@ subscribeInternal(async (event, payload) => {
         internalProject.videoApi.phase = phase
       }
       internalProject.videoApi.project = project
-      internalProject.props = project.metadata?.props
+      internalProject.props = project.metadata?.props ?? {}
 
       // Emit public event
       trigger('ProjectChanged', {

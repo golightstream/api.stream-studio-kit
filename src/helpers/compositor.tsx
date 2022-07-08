@@ -253,7 +253,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
 
   useEffect(() => {
     const updateCSS = () => {
-      const { bannerStyle, primaryColor, showNameBanners } = project.props
+      const { bannerStyle, primaryColor, showNameBanners } = (project.props ?? {})
       if (!bannerStyle || !primaryColor) return
       const CSS = themes[bannerStyle as BannerStyle](
         primaryColor,
