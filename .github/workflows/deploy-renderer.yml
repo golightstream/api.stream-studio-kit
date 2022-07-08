@@ -1,0 +1,56 @@
+# ---------------------------------------------------------------------------------------------
+# Copyright (c) Infiniscene, Inc. All rights reserved.
+# Licensed under the MIT License. See License.txt in the project root for license information.
+# ---------------------------------------------------------------------------------------------
+
+name: Publish renderer
+on:
+  push:
+    branches:
+      - main
+    tags:
+    - v1.*
+
+jobs:
+  deploy:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build Studio Kit
+        run: |
+          npm ci
+          npm run build
+          npm run build:renderer
+
+      - name: Get Package Version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+
+      - uses: cloudflare/wrangler-action@2.0.0
+        name: Publish Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          workingDirectory: './build/hosted-renderer'
+          preCommands: |
+            npm install
+          postCommands: |
+            node directory-to-kv.js --prefix version/v${{ steps.package-version.outputs.current-version }} --source ../../renderer/dist --destination renderer.json
+            wrangler kv:bulk put renderer.json --binding=SCENELESS_KV 
+
+      - uses: cloudflare/wrangler-action@2.0.0
+        name: Publish latest
+        if: ${{github.ref == 'refs/heads/main' }}
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          workingDirectory: './build/hosted-renderer'
+          preCommands: |
+            npm install
+          postCommands: |
+            node directory-to-kv.js --prefix version/latest --source ../../renderer/dist --destination renderer.json
+            wrangler kv:bulk put renderer.json --binding=SCENELESS_KV 

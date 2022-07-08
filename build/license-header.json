@@ -1,5 +1,5 @@
 {
-    "ignore": ["**/*.md", ".prettierrc", "docs", "dist", "**/*.ttf", ".npmignore"],
+    "ignore": ["**/*.md", ".prettierrc", "docs", "dist", "**/*.ttf", ".npmignore", "**/*.toml"],
     "license": "build/LICENSE.header.txt",
     "licenseFormats": {
 		"js|ts|tsx|jsx|npmrc|css": {

@@ -15,3 +15,4 @@ log.txt
 *.local
 docs/
 .npmrc
+renderer/renderer.json
