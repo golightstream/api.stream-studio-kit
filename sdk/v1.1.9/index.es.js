@@ -49752,7 +49752,7 @@ const toBaseProject = (project) => {
   const {
     compositor: compositor2,
     videoApi,
-    props,
+    props = {},
     role
   } = project;
   const {
@@ -52151,16 +52151,18 @@ const Banner = {
     CoreContext.on("ActiveProjectChanged", ({
       projectId
     }) => {
+      var _a2, _b;
       previousBanners = [];
       if (!projectId)
         return;
       const project = getProject(projectId);
-      update(project.props.banners);
+      update((_b = (_a2 = project.props) == null ? void 0 : _a2.banners) != null ? _b : []);
     });
     CoreContext.on("ProjectChanged", ({
       project
     }) => {
-      update(project.props.banners);
+      var _a2, _b;
+      update((_b = (_a2 = project.props) == null ? void 0 : _a2.banners) != null ? _b : []);
     });
   }
 };
@@ -52173,7 +52175,7 @@ const {
   state: state$1
 } = CoreContext;
 subscribeInternal(async (event2, payload) => {
-  var _a2;
+  var _a2, _b;
   switch (event2) {
     case "UserChanged": {
       const {
@@ -52228,7 +52230,7 @@ subscribeInternal(async (event2, payload) => {
         internalProject.videoApi.phase = phase;
       }
       internalProject.videoApi.project = project;
-      internalProject.props = (_a2 = project.metadata) == null ? void 0 : _a2.props;
+      internalProject.props = (_b = (_a2 = project.metadata) == null ? void 0 : _a2.props) != null ? _b : {};
       trigger$1("ProjectChanged", {
         project: toBaseProject(internalProject)
       });
@@ -52836,11 +52838,12 @@ const Root = (props) => {
   }, []);
   useEffect(() => {
     const updateCSS = () => {
+      var _a2;
       const {
         bannerStyle,
         primaryColor,
         showNameBanners
-      } = project.props;
+      } = (_a2 = project.props) != null ? _a2 : {};
       if (!bannerStyle || !primaryColor)
         return;
       const CSS = themes[bannerStyle](primaryColor, showNameBanners);
