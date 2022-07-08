@@ -86,11 +86,11 @@ export const Banner = {
       if (!projectId) return
 
       const project = getProject(projectId)
-      update(project.props.banners)
+      update(project.props?.banners ?? [])
     })
 
     CoreContext.on('ProjectChanged', ({ project }) => {
-      update(project.props.banners)
+      update(project.props?.banners ?? [])
     })
   },
 } as SourceDeclaration

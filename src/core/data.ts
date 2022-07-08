@@ -32,7 +32,7 @@ export const getBaseUser = (): SDK.User => {
 export const toBaseProject = (
   project: Context.InternalProject,
 ): SDK.Project => {
-  const { compositor, videoApi, props, role } = project
+  const { compositor, videoApi, props = {}, role } = project
   const { destinations, encoding, rendering, sources } = videoApi.project
 
   const scene = {
