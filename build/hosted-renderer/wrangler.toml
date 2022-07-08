@@ -1,0 +1,10 @@
+name = "apistream-sceneless-renderer"
+main = "src/index.ts"
+workers_dev = false
+compatibility_date = "2022-07-08"
+kv_namespaces = [
+	{ binding = "SCENELESS_KV", id = "cc83c537da2d45f0a436b118f072bbd9" }
+]
+routes = [
+	"apistream-sceneless-renderer.lightstream.dev/*"
+]
