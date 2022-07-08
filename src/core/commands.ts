@@ -616,6 +616,18 @@ export const reorderNodes = async (payload: {
 export const startBroadcast = async (payload: { projectId?: string }) => {
   const { projectId = state.activeProjectId } = payload
   const project = getProject(projectId)
+
+  if (project.videoApi.project.composition.studioSdk.version !== CoreContext.rendererVersion) {
+    await CoreContext.clients.LiveApi().project.updateProject({
+      composition: {
+        studioSdk: {
+          version: CoreContext.rendererVersion,
+        }
+      },
+      updateMask: ['composition.studioSdk.version'],
+    })
+  }
+
   await CoreContext.clients.LiveApi().project.startProjectBroadcast({
     collectionId: project.videoApi.project.collectionId,
     projectId: project.videoApi.project.projectId,
