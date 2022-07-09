@@ -253,7 +253,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
 
   useEffect(() => {
     const updateCSS = () => {
-      const { bannerStyle, primaryColor, showNameBanners } = (project.props ?? {})
+      const { bannerStyle = BannerStyle.DEFAULT, primaryColor = '#ABABAB', showNameBanners } = (project.props ?? {})
       if (!bannerStyle || !primaryColor) return
       const CSS = themes[bannerStyle as BannerStyle](
         primaryColor,
@@ -509,8 +509,8 @@ export enum BannerStyle {
 }
 const themes = {
   [BannerStyle.DEFAULT]: (
-    primaryColor: string,
-    showNameBanners: boolean,
+    primaryColor: string = '#ABABAB',
+    showNameBanners: boolean = true,
     scalar = 1280 / 1920,
   ) => {
     const textColor = color(primaryColor).lightness() < 0.6 ? '#FFF' : '#000'
@@ -553,8 +553,8 @@ const themes = {
     `
   },
   [BannerStyle.MINIMAL]: (
-    primaryColor: string,
-    showNameBanners: boolean,
+    primaryColor: string = '#ABABAB',
+    showNameBanners: boolean = true,
     scalar = 1280 / 1920,
   ) => {
     const textColor = 'white'
@@ -631,8 +631,8 @@ const themes = {
     `
   },
   [BannerStyle.BUBBLE]: (
-    primaryColor: string,
-    showNameBanners: boolean,
+    primaryColor: string = '#ABABAB',
+    showNameBanners: boolean = true,
     scalar = 1280 / 1920,
   ) => {
     const textColor = color(primaryColor).lightness() < 0.6 ? '#FFF' : '#000'
