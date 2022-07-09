@@ -52840,8 +52840,8 @@ const Root = (props) => {
     const updateCSS = () => {
       var _a2;
       const {
-        bannerStyle,
-        primaryColor,
+        bannerStyle = BannerStyle.DEFAULT,
+        primaryColor = "#ABABAB",
         showNameBanners
       } = (_a2 = project.props) != null ? _a2 : {};
       if (!bannerStyle || !primaryColor)
@@ -53036,7 +53036,7 @@ var BannerStyle = /* @__PURE__ */ ((BannerStyle2) => {
   return BannerStyle2;
 })(BannerStyle || {});
 const themes = {
-  ["default"]: (primaryColor, showNameBanners, scalar = 1280 / 1920) => {
+  ["default"]: (primaryColor = "#ABABAB", showNameBanners = true, scalar = 1280 / 1920) => {
     const textColor = color(primaryColor).lightness() < 0.6 ? "#FFF" : "#000";
     const scale = (px) => px * scalar + "px";
     return `
@@ -53072,7 +53072,7 @@ const themes = {
       }
     `;
   },
-  ["minimal"]: (primaryColor, showNameBanners, scalar = 1280 / 1920) => {
+  ["minimal"]: (primaryColor = "#ABABAB", showNameBanners = true, scalar = 1280 / 1920) => {
     const textColor = "white";
     const scale = (px) => px * scalar + "px";
     return `
@@ -53140,7 +53140,7 @@ const themes = {
       }
     `;
   },
-  ["bubble"]: (primaryColor, showNameBanners, scalar = 1280 / 1920) => {
+  ["bubble"]: (primaryColor = "#ABABAB", showNameBanners = true, scalar = 1280 / 1920) => {
     const textColor = color(primaryColor).lightness() < 0.6 ? "#FFF" : "#000";
     const scale = (px) => px * scalar + "px";
     return `
@@ -53818,7 +53818,7 @@ const commands = (_project) => {
           }
         }, foreground.id);
         bannerContainer = (_a3 = foreground == null ? void 0 : foreground.children) == null ? void 0 : _a3.find((x) => x.props.id === nodeId);
-        return bannerContainer.id;
+        return nodeId;
       } else {
         return bannerContainer.id;
       }
@@ -53832,7 +53832,7 @@ const commands = (_project) => {
           layout: "Free"
         }, foreground.id);
         foregroundImageContainer = (_a3 = foreground == null ? void 0 : foreground.children) == null ? void 0 : _a3.find((x) => x.props.id === nodeId);
-        return foregroundImageContainer.id;
+        return nodeId;
       } else {
         return foregroundImageContainer.id;
       }
@@ -53846,7 +53846,7 @@ const commands = (_project) => {
           layout: "Free"
         }, foreground.id);
         foregroundVideoContainer = (_a3 = foreground == null ? void 0 : foreground.children) == null ? void 0 : _a3.find((x) => x.props.id === nodeId);
-        return foregroundVideoContainer.id;
+        return nodeId;
       } else {
         return foregroundVideoContainer.id;
       }
