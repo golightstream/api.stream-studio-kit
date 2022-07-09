@@ -379,7 +379,7 @@ export const commands = (_project: ScenelessProject) => {
           },
         }, foreground.id)
         bannerContainer = foreground?.children?.find(x => x.props.id === nodeId)
-        return bannerContainer.id
+        return nodeId
       } else {
         return bannerContainer.id
       }
@@ -394,7 +394,7 @@ export const commands = (_project: ScenelessProject) => {
           }, foreground.id)
 
         foregroundImageContainer = foreground?.children?.find(x => x.props.id === nodeId)
-        return foregroundImageContainer.id
+        return nodeId
       } else {
         return foregroundImageContainer.id
       }
@@ -409,7 +409,7 @@ export const commands = (_project: ScenelessProject) => {
             layout: 'Free',
           }, foreground.id)
         foregroundVideoContainer = foreground?.children?.find(x => x.props.id === nodeId)
-        return foregroundVideoContainer.id
+        return nodeId
       } else {
         return foregroundVideoContainer.id
       }
