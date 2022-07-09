@@ -352,15 +352,78 @@ export const commands = (_project: ScenelessProject) => {
   const background = root.children.find((x) => x.props.id === 'bg')
   const content = root.children.find((x) => x.props.id === 'content')
   const foreground = root.children.find((x) => x.props.id === 'foreground')
-  const bannerContainer = foreground.children.find(
+
+  const coreProject = getProject(_project.id)
+
+  let bannerContainer = foreground?.children?.find(
     (x) => x.props.id === 'fg-banners',
   )
-  const foregroundImageContainer = foreground.children.find(
+
+  let foregroundImageContainer = foreground?.children?.find(
     (x) => x.props.id === 'fg-image',
   )
-  const foregroundVideoContainer = foreground.children.find(
+
+  let foregroundVideoContainer = foreground?.children?.find(
     (x) => x.props.id === 'fg-video',
   )
+
+  const ensureForegroundContainers = async () => {
+    const ensureBannerContainer = async () => {
+      if (!bannerContainer) {
+        const nodeId = await coreProject.compositor.insert({
+          name: 'BannerContainer',
+          id: 'fg-banners',
+          layout: 'Column',
+          layoutProps: {
+            cover: true,
+          },
+        }, foreground.id)
+        bannerContainer = foreground?.children?.find(x => x.props.id === nodeId)
+        return bannerContainer.id
+      } else {
+        return bannerContainer.id
+      }
+    }
+
+    const ensureForegroundImageContainer = async () => {
+      if (!foregroundImageContainer) {
+        const nodeId = await coreProject.compositor.insert({
+            name: 'ImageOverlay',
+            id: 'fg-image',
+            layout: 'Free',
+          }, foreground.id)
+
+        foregroundImageContainer = foreground?.children?.find(x => x.props.id === nodeId)
+        return foregroundImageContainer.id
+      } else {
+        return foregroundImageContainer.id
+      }
+    }
+
+
+    const ensureForegroundVideoContainer = async () => {
+      if (!foregroundVideoContainer) {
+        const nodeId = await coreProject.compositor.insert({
+            name: 'VideoOverlay',
+            id: 'fg-video',
+            layout: 'Free',
+          }, foreground.id)
+        foregroundVideoContainer = foreground?.children?.find(x => x.props.id === nodeId)
+        return foregroundVideoContainer.id
+      } else {
+        return foregroundVideoContainer.id
+      }
+    }
+
+    const baseForegroundLayers = await Promise.all([
+      ensureBannerContainer(),
+      ensureForegroundImageContainer(),
+      ensureForegroundVideoContainer(),
+    ])
+    await coreProject.compositor.reorder(foreground.id, baseForegroundLayers)
+  }
+
+  
 
   const commands: Commands = {
     getBackground() {
@@ -376,7 +439,7 @@ export const commands = (_project: ScenelessProject) => {
       return content.props.layout
     },
     getBanners() {
-      return (getProject(_project.id).props.banners || []) as Banner[]
+      return (getProject(_project.id).props?.banners || []) as Banner[]
     },
 
     getParticipants(room: SDK.Room) {
@@ -396,7 +459,7 @@ export const commands = (_project: ScenelessProject) => {
         },
       }
 
-      const existingBanners = (getProject(projectId).props.banners ||
+      const existingBanners = (getProject(projectId).props?.banners ||
         []) as Banner[]
       return Command.updateProjectProps({
         projectId,
@@ -424,7 +487,7 @@ export const commands = (_project: ScenelessProject) => {
     removeBanner(id: string) {
       const existingBanners = commands.getBanners()
       // Remove dependent nodes from stream
-      bannerContainer.children.forEach((x) => {
+      bannerContainer?.children?.forEach((x) => {
         if (x.id !== id) return
         CoreContext.Command.deleteNode({
           nodeId: x.id,
@@ -440,15 +503,15 @@ export const commands = (_project: ScenelessProject) => {
     },
     setActiveBanner(id: string) {
       const existingBanners = commands.getBanners()
-      const banner = existingBanners.find((x) => x.id === id)
-      bannerContainer.children.forEach((x) => {
+      const banner = existingBanners?.find((x) => x.id === id)
+      bannerContainer?.children?.forEach((x) => {
         CoreContext.Command.deleteNode({
           nodeId: x.id,
         })
       })
       if (!banner) return
       return CoreContext.Command.createNode({
-        parentId: bannerContainer.id,
+        parentId: bannerContainer?.id,
         props: {
           sourceType: 'Banner',
           bannerId: banner.id,
@@ -457,18 +520,18 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     getImageOverlay(): string | string[] {
-      const foregroundImageIds = foregroundImageContainer.children.map(
+      const foregroundImageIds = foregroundImageContainer?.children?.map(
         (x) => x?.props?.sourceProps?.id,
-      )
+      ) ?? []
       return foregroundImageIds.length > 1
         ? foregroundImageIds
         : foregroundImageIds[0]
     },
 
     getVideoOverlay(): string | string[] {
-      const foregroundVideoIds = foregroundVideoContainer.children.map(
+      const foregroundVideoIds = foregroundVideoContainer?.children?.map(
         (x) => x?.props?.sourceProps?.id,
-      )
+      ) ?? []
       return foregroundVideoIds.length > 1
         ? foregroundVideoIds
         : foregroundVideoIds[0]
@@ -511,7 +574,7 @@ export const commands = (_project: ScenelessProject) => {
       },
     ) {
       // find overlay node by id
-      const overlay = foregroundVideoContainer.children.find(
+      const overlay = foregroundVideoContainer?.children?.find(
         (x) => x.props?.sourceProps?.id === overlayId,
       )
 
@@ -552,7 +615,7 @@ export const commands = (_project: ScenelessProject) => {
 
     async removeVideoOverlay(overlayId: string) {
       // find overlay node by id
-      const overlay = foregroundVideoContainer.children.find(
+      const overlay = foregroundVideoContainer?.children?.find(
         (x) => x.props?.sourceProps?.id === overlayId,
       )
 
@@ -616,7 +679,7 @@ export const commands = (_project: ScenelessProject) => {
         },
       }
       // get video overlay node from the foreground layer
-      const vidOverlay = foregroundVideoContainer.children.find(
+      const vidOverlay = foregroundVideoContainer?.children?.find(
         (x) => x.props.id === 'vid-overlay',
       )
 
@@ -654,7 +717,7 @@ export const commands = (_project: ScenelessProject) => {
       },
     ) {
       // Get the video overlay node from the foreground layer
-      const videoOverlay = foregroundVideoContainer.children.find(
+      const videoOverlay = foregroundVideoContainer?.children?.find(
         (x) => x.props.id === 'vid-overlay',
       )
 
@@ -1102,7 +1165,12 @@ export const commands = (_project: ScenelessProject) => {
     },
   }
 
-  beforeInit(commands)
+  const ensureValid = async () => {
+    await ensureForegroundContainers()
+    beforeInit(commands)
+  }
+
+  ensureValid()
   return commands
 }
 
