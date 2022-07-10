@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* ---------------------------------------------------------------------------------------------
-* Copyright (c) Infiniscene, Inc. All rights reserved.
-* Licensed under the MIT License. See License.txt in the project root for license information.
-* -------------------------------------------------------------------------------------------- */
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * -------------------------------------------------------------------------------------------- */
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const argv = yargs(hideBin(process.argv)).argv
