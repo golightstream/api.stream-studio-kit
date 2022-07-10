@@ -9,7 +9,7 @@ on:
     branches:
       - main
 
-name: Tag and Relase Package
+name: Tag and release package
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -20,20 +20,21 @@ jobs:
           node-version: 16
       - run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_NPM_AUTH_TOKEN }}" >> ~/.npmrc
-          echo "\"@golightstream:registry\"=https://npm.pkg.github.com" >> ~/.npmrc
       - run: npm ci
       - run: npm run build
 
-      - name: Get Package Version
+      - name: Get package version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@main
 
-      - name: Bump version and push tag
+      - name: Tag commit with release version
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Due to a quirk of GitHub actions, we must use an access token of a real user to create
+          # the tag, since any downstream actions (render deploy) won't trigger if it uses the
+          # default runner credentials.
+          github_token: ${{ secrets.SERVICEACCOUNT_GITHUB_TOKEN }}
           custom_tag: ${{ steps.package-version.outputs.current-version}}
 
       - name: Create a GitHub release
