@@ -25,7 +25,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       // Externalize deps that shouldn't be bundled
-      external: ['react', 'react-dom'],
+      external: ['react', 'react-dom', 'react-addons-css-transition-group'],
       output: {
         inlineDynamicImports: true,
       },

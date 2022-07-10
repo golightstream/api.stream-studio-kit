@@ -79,6 +79,7 @@ export type TransformContext = {
   room : Room;
   /** Called when the Room event changes */
   nodeId: NodeId
+  role: string
 }
 
 export type Filter = (node: SceneNode) => SceneNode

@@ -130,10 +130,10 @@ export interface Commands {
    * play video overlay on foreground
    * @private
    */
-  autoPlayVideoOverlay(
-    overlayId: string,
-    attributes: HTMLVideoElementAttributes,
-  ): void
+  // autoPlayVideoOverlay(
+  //   overlayId: string,
+  //   attributes: HTMLVideoElementAttributes,
+  // ): void
 
   /**
    * play background Video
@@ -155,7 +155,7 @@ export interface Commands {
    * Set the active background image
    * @deprecated Use getBackgroundMedia2() instead with type
    */
-  getBackgroundMedia(): string
+  getBackgroundMedia(type? : string): string
   /**
    * Get the active background image
    */
@@ -163,27 +163,29 @@ export interface Commands {
    * Set the active background image
    * @deprecated Use setBackgroundImage2() instead with id
    */
-  setBackgroundImage(src: string): void
+  setBackgroundImage(backgroundId: string, props: BackgroundProps): void
 
   /**
    * Set the active background video
    * @deprecated Use setBackgroundVideo2() instead with id
    */
-  setBackgroundVideo(src: string, attributes?: HTMLVideoElementAttributes): void
+  setBackgroundVideo(
+    backgroundId: string,
+    props: BackgroundProps & HTMLVideoElementAttributes,
+  ): void
 
   /**
    * set image overlay on foreground layer
    * @deprecated Use addImageOverlay2() instead
    */
-  addImageOverlay(overlayId: string, src: string): Promise<void>
+  addImageOverlay(overlayId: string, props: OverlayProps): Promise<void>
   /**
    * set video overlay on foreground layer
    * @deprecated Use addVideoOverlay2() instead
    */
   addVideoOverlay(
     overlayId: string,
-    src: string,
-    attributes?: HTMLVideoElementAttributes,
+    props: OverlayProps & HTMLVideoElementAttributes,
   ): Promise<void>
 
   /**
@@ -842,181 +844,139 @@ export const commands = (_project: ScenelessProject) => {
 
     async removeImageOverlay(overlayId: string) {
       // find overlay node by id
-      const overlay = foregroundImageContainer.children.find(
-        (x) => x.props?.sourceProps?.id === overlayId,
-      )
-      // if overlay exists, remove it
-      if (overlay) {
-        CoreContext.Command.deleteNode({
-          nodeId: overlay.id,
-        })
-      }
+      const existingOverlays = commands.getOverlays()
+
+      return Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: existingOverlays.filter((x) => x.id !== overlayId),
+        },
+      })
     },
 
     async removeVideoOverlay(overlayId: string) {
       // find overlay node by id
-      const overlay = foregroundVideoContainer?.children?.find(
-        (x) => x.props?.sourceProps?.id === overlayId,
+      const existingOverlays = commands.getOverlays()
+      const reamningOverlays = existingOverlays.filter(
+        (x) => x.id !== overlayId,
       )
-
-      // if overlay exists, remove it
-      if (overlay) {
-        CoreContext.Command.deleteNode({
-          nodeId: overlay.id,
-        })
-      }
 
       // get all children of the overlay node and update their opacity attributes
-      const allForegroundChildrens = foreground.children.filter(
-        (f) => f.props.id !== 'fg-video',
+      const allForegroundOverlays = reamningOverlays.filter(
+        (f) => f.props.type !== 'video-overlay',
       )
-      allForegroundChildrens.forEach((nodes) => {
-        nodes.children.forEach((node) => {
-          if (node.props?.fields?.style?.opacity === 0) {
-            node.props.fields.style.opacity = 1
-            CoreContext.Command.updateNode({
-              nodeId: node.id,
-              props: {
-                ...node.props,
-              },
-            })
-          }
-        })
+
+      allForegroundOverlays.forEach((overlay) => {
+        overlay.props.meta = {
+          style: { opacity: 1 },
+        }
+      })
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: allForegroundOverlays,
+        },
       })
     },
 
-    async addImageOverlay(overlayId: string, src: string) {
-      // Get the image overlay node from the foreground layer
-      const imageOverlay = foregroundImageContainer.children.find(
-        (x) => x.props.id === 'img-overlay',
-      )
+    async addImageOverlay(overlayId: string, props: OverlayProps = {}) {
+      const existingOverlays = commands.getOverlays()
 
-      // if the overlayid matches the image overlay id passed, return
-      if (imageOverlay && imageOverlay?.props?.sourceProps?.id === overlayId) {
-        return
-      }
+      const overlay = existingOverlays.find((x) => x.id === overlayId)
 
-      //set the source of the image overlay node to the image src
-      let imageProps = {
-        id: 'img-overlay',
-        sourceType: 'Element',
-        sourceProps: {
-          type: 'image',
-          id: overlayId,
-        },
-        tagName: 'img',
-        attributes: {
-          src,
-        },
-        fields: {
-          style: {
-            transition: 'opacity 300ms ease 0ms, transform, width, height',
-            '-webkit-transition':
-              'opacity 300ms ease 0ms, transform, width, height',
-            opacity: 1,
-            objectFit: 'cover',
-          },
-        },
-      }
-      // get video overlay node from the foreground layer
-      const vidOverlay = foregroundVideoContainer?.children?.find(
-        (x) => x.props.id === 'vid-overlay',
-      )
-
-      // if the video overlay node exists, change the image overlay node to opacity 0
-      if (vidOverlay) {
-        imageProps.fields.style.opacity = 0
-      }
-
-      // If the overlay doesn't exist, create it
-      if (!imageOverlay) {
-        await CoreContext.Command.createNode({
-          props: imageProps,
-          parentId: foregroundImageContainer.id,
-          index: foregroundImageContainer.children.length,
-        })
-      } else {
-        // Otherwise, update the overlay node
-        CoreContext.Command.updateNode({
-          nodeId: imageOverlay.id,
+      if (overlay) {
+        const overlayIndex = existingOverlays.findIndex(
+          (x) => x.id === overlayId,
+        )
+        existingOverlays.splice(overlayIndex, 1, overlay)
+        return Command.updateProjectProps({
+          projectId,
           props: {
-            ...imageOverlay.props,
-            ...imageProps,
+            overlays: existingOverlays,
           },
         })
       }
+
+      const vidOverlay = existingOverlays.find(
+        (x) => x.props.type === 'video-overlay',
+      )
+      const meta = props.meta || {}
+
+      const newOverlay = {
+        id: overlayId,
+        props: {
+          ...props,
+          type: 'image-overlay',
+          meta: {
+            ...meta,
+            ...{ ...(vidOverlay && { style: { opacity: 0 } }) },
+          },
+        },
+      }
+
+      const nonImageOverlays = existingOverlays.filter(
+        (x) => x.props.type !== 'image-overlay',
+      )
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: [...nonImageOverlays, newOverlay],
+        },
+      })
     },
 
     async addVideoOverlay(
       overlayId: string,
-      src: string,
-      attributes: HTMLVideoElementAttributes = {
-        playsinline: true,
-        disablepictureinpicture: true,
-        autoplay: true,
-      },
+      props: OverlayProps & HTMLVideoElementAttributes = {},
     ) {
-      // Get the video overlay node from the foreground layer
-      const videoOverlay = foregroundVideoContainer?.children?.find(
-        (x) => x.props.id === 'vid-overlay',
-      )
+      const existingOverlays = commands.getOverlays()
+      const overlay = existingOverlays.find((x) => x.id === overlayId)
 
-      // if the video overlay node exists, and the overlay id matches the overlay id passed in, return
-      if (videoOverlay && videoOverlay?.props?.sourceProps?.id === overlayId) {
-        return
-      }
-
-      //set the source of the video overlay node to the src
-      let videoProps = {
-        id: 'vid-overlay',
-        sourceType: 'LS-Video',
-        sourceProps: {
-          type: 'video',
-          id: overlayId,
-        },
-        tagName: 'video',
-        attributes: {
-          ...attributes,
-          src,
-          id: overlayId,
-        },
-      }
-
-      // get all children of the overlay node and update their opacity attributes
-      const allForegroundChildrens = foreground.children.filter(
-        (f) => f.props.id !== 'fg-video',
-      )
-      allForegroundChildrens.forEach((nodes) => {
-        nodes.children.forEach((node) => {
-          if (node.props?.fields?.style?.opacity === 1) {
-            node.props.fields.style.opacity = 0
-            CoreContext.Command.updateNode({
-              nodeId: node.id,
-              props: {
-                ...node.props,
-              },
-            })
-          }
-        })
-      })
-
-      // If the overlay doesn't exist, create it
-      if (!videoOverlay) {
-        await CoreContext.Command.createNode({
-          props: videoProps,
-          parentId: foregroundVideoContainer.id,
-          index: foregroundVideoContainer.children.length,
-        })
-      } else {
-        // Otherwise, update the overlay node
-        CoreContext.Command.updateNode({
-          nodeId: videoOverlay.id,
+      if (overlay) {
+        const overlayIndex = existingOverlays.findIndex(
+          (x) => x.id === overlayId,
+        )
+        existingOverlays.splice(overlayIndex, 1, overlay)
+        return Command.updateProjectProps({
+          projectId,
           props: {
-            ...videoOverlay.props,
-            ...videoProps,
+            overlays: existingOverlays,
           },
         })
       }
+
+      // get all children of the overlay node and update their opacity attributes
+      const allForegroundOverlays = existingOverlays.filter(
+        (f) => f.props.type !== 'video-overlay',
+      )
+
+      allForegroundOverlays.forEach((overlay) => {
+        overlay.props.meta = {
+          style: {
+            opacity: 0,
+          },
+        }
+      })
+
+      const meta = props.meta || {}
+
+      const newOverlay = {
+        id: overlayId,
+        props: {
+          ...props,
+          type: 'video-overlay',
+          meta,
+        },
+      }
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: [...allForegroundOverlays, newOverlay],
+        },
+      })
     },
     getBackgroundMedia() {
       const backgroundChild = background.children.filter((x) => x)
@@ -1024,118 +984,83 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     getBackgroundImage() {
-      const backgroundChild = background.children.filter(
-        (x) => x.props.id === 'bg-image',
-      )
-      return backgroundChild[0]?.props?.attributes?.src
+      return commands.getBackgroundMedia('image-background')
     },
 
     getBackgroundVideo() {
-      const backgroundChild = background.children.filter(
-        (x) => x.props.id === 'bg-video',
-      )
-      return backgroundChild[0]?.props?.attributes?.src
+      return commands.getBackgroundMedia('video-background')
     },
 
-    async setBackgroundImage(src: string) {
-      const backgroundImage = background.children.find(
-        (x) => x.props.id === 'bg-image',
-      )
-
-      // if the video overlay node exists, and the overlay id matches the overlay id passed in, return
-      if (backgroundImage && backgroundImage?.props?.attributes?.src === src) {
-        return
-      }
-
-      const backgroundVideo = background.children.find(
-        (x) => x.props.id === 'bg-video',
-      )
-
-      if (backgroundVideo) {
-        CoreContext.Command.deleteNode({
-          nodeId: backgroundVideo.id,
-        })
-      }
-
-      if (!backgroundImage) {
-        await CoreContext.Command.createNode({
-          props: {
-            name: 'ImageBackground',
-            id: 'bg-image',
-            tagName: 'img',
-            sourceType: 'Element',
-            attributes: {
-              src,
+    async setBackgroundImage(
+      backgroundId: string,
+      props: BackgroundProps = {},
+    ) {
+      const exisitingBackground = (getProject(_project.id).props.background ||
+        null) as Background
+      if (exisitingBackground) {
+        if (exisitingBackground.id === backgroundId) {
+          return Command.updateProjectProps({
+            projectId,
+            props: {
+              background: exisitingBackground,
             },
-          },
-          parentId: background.id,
-          index: background.children.length,
-        })
-      } else {
-        CoreContext.Command.updateNode({
-          nodeId: backgroundImage.id,
-          props: {
-            attributes: {
-              ...backgroundImage.props.attributes,
-              src,
-            },
-          },
-        })
+          })
+        }
       }
+
+      const meta = props.meta || {}
+
+      const newBackground = {
+        id: backgroundId,
+        props: {
+          ...props,
+          type: 'image-background',
+          meta,
+        },
+      }
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          background: newBackground,
+        },
+      })
     },
 
     async setBackgroundVideo(
-      src: string,
-      attributes: HTMLVideoElementAttributes = {
-        loop: true,
-        autoplay: true,
-      },
+      backgroundId: string,
+      props: BackgroundProps & HTMLVideoElementAttributes = {},
     ) {
-      const backgroundVideo = background.children.find(
-        (x) => x.props.id === 'bg-video',
-      )
-
-      // if the video overlay node exists, and the overlay id matches the overlay id passed in, return
-      if (backgroundVideo && backgroundVideo?.props?.attributes?.src === src) {
-        return
-      }
-
-      const backgroundImage = background.children.find(
-        (x) => x.props.id === 'bg-image',
-      )
-
-      if (backgroundImage) {
-        CoreContext.Command.deleteNode({
-          nodeId: backgroundImage.id,
-        })
-      }
-
-      if (!backgroundVideo) {
-        await CoreContext.Command.createNode({
-          props: {
-            name: 'VideoBackground',
-            id: 'bg-video',
-            sourceType: 'LS-Video',
-            attributes: {
-              ...attributes,
-              src,
+      const exisitingBackground = (getProject(_project.id).props.background ||
+        null) as Background
+      if (exisitingBackground) {
+        if (exisitingBackground.id === backgroundId) {
+          return Command.updateProjectProps({
+            projectId,
+            props: {
+              background: exisitingBackground,
             },
-          },
-          parentId: background.id,
-          index: background.children.length,
-        })
-      } else {
-        CoreContext.Command.updateNode({
-          nodeId: backgroundVideo.id,
-          props: {
-            attributes: {
-              ...backgroundVideo.props.attributes,
-              ...attributes,
-              src,
-            },
-          },
-        })
+          })
+        }
       }
+
+      const meta = props.meta || {}
+
+      const newBackground = {
+        id: backgroundId,
+        props: {
+          ...props,
+          type: 'video-background',
+          meta,
+        },
+      }
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          background: newBackground,
+        },
+      })
     },
     addLogo(logoId: string, props: LogoProps) {
       const exisitingLogo = (getProject(_project.id).props.logo ||
@@ -1797,26 +1722,26 @@ export const create = async (
   }) as Promise<ScenelessProject>
 }
 
-export const beforeInit = (commands: Commands) => {
-  /** autoPlay last applied video overlay on refresh */
-  const videoOverLay = commands.getVideoOverlay() as string
+// export const beforeInit = (commands: Commands) => {
+//   /** autoPlay last applied video overlay on refresh */
+//   const videoOverLay = commands.getVideoOverlay() as string
 
-  if (videoOverLay) {
-    commands.autoPlayVideoOverlay(videoOverLay, {
-      muted: true,
-      autoplay: true,
-    })
-  }
+//   if (videoOverLay) {
+//     commands.autoPlayVideoOverlay(videoOverLay, {
+//       muted: true,
+//       autoplay: true,
+//     })
+//   }
 
-  /** autoPlay last applied video background on refresh */
-  const backgroundVideo = commands.getBackgroundVideo()
-  if (backgroundVideo) {
-    commands.autoPlayBackgroundVideo({
-      muted: true,
-      autoplay: true,
-    })
-  }
-}
+//   /** autoPlay last applied video background on refresh */
+//   const backgroundVideo = commands.getBackgroundVideo()
+//   if (backgroundVideo) {
+//     commands.autoPlayBackgroundVideo({
+//       muted: true,
+//       autoplay: true,
+//     })
+//   }
+// }
 /** @private */
 export const createCompositor = async (
   layoutId: string,
@@ -1882,8 +1807,17 @@ export const createCompositor = async (
     project.insert(
       {
         name: 'ImageOverlay',
-        id: 'fg-image',
+        sourceType: 'Image',
+        // this will enable to register a transfrom on another source
+        // doing so will enable to resume source
+        proxySource: 'Overlay',
+        id: 'image-overlay',
         layout: 'Free',
+        style: {
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        },
       },
       foreground.id,
     ),
@@ -1921,8 +1855,17 @@ export const createCompositor = async (
     project.insert(
       {
         name: 'VideoOverlay',
-        id: 'fg-video',
         layout: 'Free',
+        sourceType: 'Video',
+        // this will enable to register a transfrom on another source
+        // doing so will enable to resume source
+        proxySource: 'Overlay',
+        id: 'video-overlay',
+        style: {
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        },
       },
       foreground.id,
     ),
@@ -1971,11 +1914,30 @@ export const createCompositor = async (
     project.insert(
       {
         name: 'ImageBackground',
-        id: 'bg-image',
-        tagName: 'img',
-        sourceType: 'Element',
-        attributes: {
-          src: backgroundImage,
+        sourceType: 'Image',
+        proxySource: 'Background',
+        id: 'image-background',
+        layout: 'Free',
+        src: backgroundImage,
+        style: {
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        },
+      },
+      background.id,
+    ),
+    project.insert(
+      {
+        name: 'VideoBackground',
+        sourceType: 'Video',
+        proxySource: 'Background',
+        id: 'video-background',
+        layout: 'Free',
+        style: {
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
         },
       },
       background.id,
