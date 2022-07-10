@@ -181,6 +181,37 @@ export const updateProjectMeta = (payload: {
   meta?: Props
 }) => updateProjectProps({ projectId: payload.projectId, props: payload.meta })
 
+
+/**
+ * @private Use updateProjectProps without internaltriggers
+ */
+export const updateProjectPropsWithoutTrigger = async (payload: {
+  projectId: SDK.Project['id']
+  /** Arbitrary metadata to associate with this project */
+  props?: Props
+}) => {
+  const { projectId } = payload
+  const collectionId = getUser().id
+  const project = getProject(projectId)
+
+  const props = {
+    ...project.props,
+    ...payload.props,
+  }
+  const response = await CoreContext.clients.LiveApi().project.updateProject({
+    collectionId,
+    projectId,
+    updateMask: ['metadata'],
+    metadata: {
+      ...project.videoApi.project.metadata,
+      props,
+    },
+  })
+  return
+}
+
+
+
 /**
  * Set the active project for the user, setting up event handlers and
  *  disposing of event listeners for the previous active project.

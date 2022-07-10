@@ -35,6 +35,11 @@ const Project = () => {
     })
   }, [])
 
+  useEffect(()=>{
+    if(room){
+      room.sendData({type : "UserJoined"});
+    }
+  },[room])
   useEffect(() => {
     studio.render({
       containerEl: renderContainer.current,

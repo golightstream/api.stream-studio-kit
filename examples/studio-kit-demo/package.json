@@ -8,7 +8,7 @@
     "proxy": "npx browser-sync start --proxy \"localhost:3006\" --tunnel studio"
   },
   "dependencies": {
-    "@api.stream/studio-kit": "1.0.24",
+    "@api.stream/studio-kit": "file:../../",
     "axios": "^0.26.1",
     "nanoid": "^3.3.3",
     "react": "^17.0.2",

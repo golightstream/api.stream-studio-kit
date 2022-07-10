@@ -8,3 +8,5 @@ declare const SDK_VERSION = string
 declare interface Window {
   __StudioKit?: any
 }
+
+declare module 'react-addons-css-transition-group'

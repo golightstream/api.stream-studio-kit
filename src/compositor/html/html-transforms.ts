@@ -14,6 +14,11 @@ import {
   TransformRegister,
   TransformSettings,
 } from '../transforms'
+import CoreContext from '../../core/context';
+import {
+  getProject, getProjectRoom,
+} from './../../core/data'
+import { InternalEventMap, triggerInternal } from './../../core/events'
 
 const createDefault: TransformDeclaration['create'] = () => {
   return {
@@ -96,7 +101,8 @@ export const init = (
     if (!transform.useSource) return
 
     const node = compositor.getNode(nodeId)
-    const sources = sourceManager.getSources(element.sourceType)
+     const elementSourceType = element.proxySource ? element.proxySource : element.sourceType;
+    const sources = sourceManager.getSources(elementSourceType) 
     const source = transform.useSource(sources, node.props)
     const previousValue = element.sourceValue
     const newValue = source?.value
@@ -147,7 +153,7 @@ export const init = (
     if (nodeElementIndex[node.id]) return nodeElementIndex[node.id]
 
     const { props = {} } = node
-    const { sourceType } = props
+    const { sourceType , proxySource } = props
 
     if (!sourceType) return null
 
@@ -180,6 +186,11 @@ export const init = (
     const result = {
       ...create(
         {
+          triggerInternal: (event: keyof InternalEventMap, data: any) =>
+            triggerInternal(event, {
+              projectId: CoreContext.state.activeProjectId,
+              ...data,
+            }),
           trigger: (event, data) =>
             compositor.triggerEvent(event, {
               nodeId: node.id,
@@ -196,9 +207,12 @@ export const init = (
           onUpdate: (cb) => _onUpdateHandlers.push(cb),
           onRemove: (cb) => _onRemoveHandlers.push(cb),
           nodeId: node.id,
+          role: getProject(CoreContext.state.activeProjectId).role,
+          room: getProjectRoom(CoreContext.state.activeProjectId),
         },
         node.props,
       ),
+      proxySource,
       sourceType,
       nodeId: node.id,
       transformName: transform.name,
@@ -209,8 +223,9 @@ export const init = (
 
     // Update indexes
     nodeElementIndex[node.id] = result
-    elementSourceTypeIndex[sourceType] = [
-      ...(elementSourceTypeIndex[sourceType] || []),
+    const elementSourceType = proxySource ? proxySource : sourceType;
+    elementSourceTypeIndex[elementSourceType] = [
+      ...(elementSourceTypeIndex[elementSourceType] || []),
       result,
     ]
 
@@ -232,8 +247,9 @@ export const init = (
 
           // Update indexes
           delete nodeElementIndex[node.id]
-          elementSourceTypeIndex[sourceType] = elementSourceTypeIndex[
-            sourceType
+          const elementSourceType = proxySource ? proxySource : sourceType
+          elementSourceTypeIndex[elementSourceType] = elementSourceTypeIndex[
+            elementSourceType
           ].filter((x) => x !== nodeElementIndex[node.id])
         }
       }),

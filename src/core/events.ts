@@ -1,3 +1,4 @@
+
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -17,6 +18,7 @@ import { SDK } from './namespaces'
 import { LiveApiModel } from '@api.stream/sdk'
 import { Disposable, ProjectBroadcastPhase } from './types'
 import { log } from './context'
+import { sourceTypes } from './../compositor/sources'
 
 let currentSubId = 0
 const subscribers = new Map<number, any>()
@@ -331,5 +333,19 @@ export interface InternalEventMap {
   NodeRemoved: {
     projectId: LiveApiModel.Project['projectId']
     nodeId: SDK.SceneNode['id']
+  }
+  OverlayMetadataUpdate: {
+    projectId: LiveApiModel.Project['projectId']
+    metadata: LiveApiModel.Project['metadata']
+    sourceId: LiveApiModel.Source['sourceId']
+    role: SDK.Role
+    doTrigger: boolean
+  }
+  BackgroundMetadataUpdate: {
+    projectId: LiveApiModel.Project['projectId']
+    metadata: LiveApiModel.Project['metadata']
+    sourceId: LiveApiModel.Source['sourceId']
+    role: SDK.Role
+    doTrigger: boolean
   }
 }

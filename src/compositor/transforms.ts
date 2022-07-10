@@ -2,7 +2,8 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { Disposable } from '../core/types'
+import { InternalEventMap } from '../core/events'
+import { Disposable, Room } from '../core/types'
 import type { NodeId, PropsDefinition, SceneNode } from './compositor'
 import type { Source } from './sources'
 
@@ -25,8 +26,10 @@ export type TransformElementBase = {
 }
 
 export type TransformElement = TransformElementBase & {
+  role: string
   nodeId: string
   sourceType: string
+  proxySource: string
   transformName: string
   // The source currently in use by the element
   source?: Source
@@ -56,6 +59,7 @@ export type TransformRegister = (
 export type TransformElementGetter = (node: SceneNode) => TransformElement
 
 export type TransformContext = {
+  triggerInternal: (event: keyof InternalEventMap, payload: any) => void
   trigger: (event: string, payload: any) => void
   /** Listens for all events emitted by the compositor */
   onEvent?: (
@@ -71,8 +75,10 @@ export type TransformContext = {
   onUpdate?: (cb: (nodeProps: any) => void) => void
   /** Called when the Node associated with the element has been removed */
   onRemove?: (cb: (nodeProps: any) => void) => void
-
+  /** Called when the Room event changes */
+  room?: Room
   nodeId: NodeId
+  role: string
 }
 
 export type Filter = (node: SceneNode) => SceneNode

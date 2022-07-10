@@ -58,13 +58,14 @@ export const getRoom = (id: string) => {
   }
   const update = () => {
     const participants = room.participants
-    const tracks = participants.flatMap((participant: Participant) =>
+
+    const tracks = participants.flatMap((participant: Participant) => 
       participant.getTracks().map((pub) => ({
         ...pub,
         participant,
       })),
     ) as FullTrack[]
-
+      
     const result = {
       participants: participants.map((x) => ({
         id: x.identity,
@@ -169,6 +170,7 @@ export const getRoom = (id: string) => {
     },
     setMicrophoneEnabled: (enabled = true) => {
       localParticipant.setMicrophoneEnabled(enabled)
+
     },
     setCamera: async (options = {}) => {
       if (settingCamera) {
