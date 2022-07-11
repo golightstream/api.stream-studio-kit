@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { InternalEventMap } from '../core/events'
-import { Disposable } from '../core/types'
+import { Disposable, Room } from '../core/types'
 import type { NodeId, PropsDefinition, SceneNode } from './compositor'
 import type { Source } from './sources'
 
