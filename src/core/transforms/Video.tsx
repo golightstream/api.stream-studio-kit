@@ -4,6 +4,8 @@
  * -------------------------------------------------------------------------------------------- */
 import ReactDOM from 'react-dom'
 import React from 'react'
+import { CoreContext } from '../context'
+import { getProject, getProjectRoom } from './../../core/data'
 import { Compositor } from '../namespaces'
 import usePrevious from '../../hooks/usePrevious'
 import useUnload from '../../hooks/useUnload'
@@ -40,7 +42,7 @@ export const Video = {
     return sources.find((x) => x.props.type === props.id)
   },
   create(
-    { onUpdate, onNewSource, trigger, onRemove, triggerInternal, role, room },
+    { onUpdate, onNewSource, trigger, onRemove, triggerInternal },
     initialProps,
   ) {
     onRemove(() => {
@@ -53,6 +55,8 @@ export const Video = {
     let interval: NodeJS.Timer
 
     const Video = ({ source }: { source: any }) => {
+      const role = getProject(CoreContext.state.activeProjectId).role;
+      const room = getProjectRoom(CoreContext.state.activeProjectId);
       const SourceTrigger = SourceTriggerMap.find(
         (x) => x.sourceType === initialProps.proxySource,
       )

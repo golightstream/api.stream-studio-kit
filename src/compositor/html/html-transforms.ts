@@ -15,9 +15,6 @@ import {
   TransformSettings,
 } from '../transforms'
 import CoreContext from '../../core/context';
-import {
-  getProject, getProjectRoom,
-} from './../../core/data'
 import { InternalEventMap, triggerInternal } from './../../core/events'
 
 const createDefault: TransformDeclaration['create'] = () => {
@@ -206,9 +203,7 @@ export const init = (
           onNewSource: (cb) => _onNewSourceHandlers.push(cb),
           onUpdate: (cb) => _onUpdateHandlers.push(cb),
           onRemove: (cb) => _onRemoveHandlers.push(cb),
-          nodeId: node.id,
-          role: getProject(CoreContext.state.activeProjectId).role,
-          room: getProjectRoom(CoreContext.state.activeProjectId),
+          nodeId: node.id
         },
         node.props,
       ),
