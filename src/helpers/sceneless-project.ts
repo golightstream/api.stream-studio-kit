@@ -1815,6 +1815,7 @@ export const createCompositor = async (
         style: {
           width: '100%',
           height: '100%',
+          position: 'absolute',
           objectFit: 'cover',
         },
       },
@@ -1863,6 +1864,7 @@ export const createCompositor = async (
         style: {
           width: '100%',
           height: '100%',
+          position: 'absolute',
           objectFit: 'cover',
         },
       },
@@ -1921,6 +1923,7 @@ export const createCompositor = async (
         style: {
           width: '100%',
           height: '100%',
+          position: 'absolute',
           objectFit: 'cover',
         },
       },
@@ -1936,6 +1939,7 @@ export const createCompositor = async (
         style: {
           width: '100%',
           height: '100%',
+          position: 'absolute',
           objectFit: 'cover',
         },
       },
