@@ -89,7 +89,7 @@ export const Video = {
             videoRef.current.play()
           })
         }
-      }, [src, meta])
+      }, [src, meta ,videoRef])
 
       const onEnded = React.useCallback(() => {
         if (interval) {
@@ -104,7 +104,7 @@ export const Video = {
             videoRef.current.currentTime = meta?.time || 0
           }
         }
-      }, [meta])
+      }, [meta,videoRef])
 
       React.useEffect(() => {
         room?.onData((event, senderId) => {
@@ -126,7 +126,7 @@ export const Video = {
             }
           }
         })
-      }, [])
+      }, [videoRef])
 
       React.useEffect(() => {
         if (id) {
