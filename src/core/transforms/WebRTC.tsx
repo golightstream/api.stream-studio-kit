@@ -10,6 +10,7 @@ import { CoreContext } from '../context'
 import { Compositor } from '../namespaces'
 import { getRoom } from '../webrtc/simple-room'
 import { RoomParticipantSource } from '../sources'
+import { getProject } from '../data'
 
 type Props = {
   volume: number
@@ -46,16 +47,18 @@ export const RoomParticipant = {
     let source: any
     let props = initialProps
 
-    // const getSize = ({ width, height }: DOMRect) => {
-    //   if (width > 800) {
-    //     return 3
-    //   } else if (width > 380) {
-    //     return 2
-    //   } else if (width > 200) {
-    //     return 1
-    //   }
-    //   return 0
-    // }
+    const getSize = (width: number, canvas: { width: number; height: number }) => {
+      const widthAsPercentage = width / canvas.width;
+
+      if (widthAsPercentage >= 0.5) {
+        return 3
+      } else if (widthAsPercentage > 0.25) {
+        return 2
+      } else if (widthAsPercentage > 0.15) {
+        return 1
+      }
+      return 0
+    }
 
     const Participant = ({
       props,
@@ -65,10 +68,10 @@ export const RoomParticipant = {
       source: RoomParticipantSource
     }) => {
       const { volume = 1, isHidden = false } = props
-      const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(2)
+      const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
       const ref = useRef<HTMLVideoElement>()
-
       // TODO: Transforms should not rely on external state
+      const project = getProject(CoreContext.state.activeProjectId);
       const room = getRoom(CoreContext.state.activeProjectId)
       const isSelf = source?.id === room?.participantId
 
@@ -94,13 +97,26 @@ export const RoomParticipant = {
         }
       }, [ref.current, source?.value])
 
-      // useLayoutEffect(() => {
-      //   if (!ref.current) return
-      //   window.setTimeout(() => {
-      //     const rect = ref.current.getBoundingClientRect()
-      //     setLabelSize(getSize(rect))
-      //   })
-      // }, [ref.current])
+      useLayoutEffect(() => {
+        if (!ref.current) return
+
+        const calculate = () => {
+          const rect = ref.current
+          setLabelSize(getSize(rect.clientWidth, { width: project.compositor.getRoot().props.size.x, height: project.compositor.getRoot().props.size.y }))
+        }
+
+
+        const resizeObserver = new ResizeObserver((entries) => {
+          calculate()
+        })
+        calculate()
+        resizeObserver.observe(ref.current)
+
+        return () => {
+          resizeObserver.unobserve(ref.current)
+        }
+
+      }, [ref.current, project])
 
       useEffect(() => {
         if (!ref.current) return
@@ -166,7 +182,6 @@ export const RoomParticipant = {
           {source?.props.displayName && (
             <div
               className="NameBannerContainer"
-              data-size={labelSize}
               style={{
                 width: '100%',
                 height: '100%',
@@ -179,6 +194,7 @@ export const RoomParticipant = {
             >
               <div
                 className="NameBanner"
+                data-size={labelSize}
                 style={{
                   padding: '12px 30px',
                   width: 'fit-content',
@@ -195,7 +211,7 @@ export const RoomParticipant = {
                   </div>
                 )} */}
                 {
-                  <div className="NameBanner-body" style={{ fontSize: '24px' }}>
+                  <div className="NameBanner-body">
                     {source.props.displayName}{source.props.type === 'screen' && `'s Screen`}
                   </div>
                 }
