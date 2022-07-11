@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { InternalEventMap } from '../core/events'
-import { Disposable, Room } from '../core/types'
+import { Disposable } from '../core/types'
 import type { NodeId, PropsDefinition, SceneNode } from './compositor'
 import type { Source } from './sources'
 
@@ -79,7 +79,6 @@ export type TransformContext = {
   room : Room;
   /** Called when the Room event changes */
   nodeId: NodeId
-  role: string
 }
 
 export type Filter = (node: SceneNode) => SceneNode
