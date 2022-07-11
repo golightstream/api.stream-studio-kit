@@ -73,8 +73,7 @@ export const Background = {
           })
         })
       }
-
-      previousBackground = background
+      previousBackground = JSON.parse(JSON.stringify(background))
     }
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
