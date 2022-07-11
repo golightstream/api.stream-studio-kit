@@ -81,15 +81,12 @@ export const Video = {
 
       const onLoadedData = React.useCallback(() => {
         if (videoRef?.current) {
-          if (meta?.time) {
-            videoRef.current.currentTime = meta.time
-          }
           videoRef.current!.play().catch(() => {
             videoRef.current.muted = true
             videoRef.current.play()
           })
         }
-      }, [src, meta ,videoRef])
+      }, [src, videoRef])
 
       const onEnded = React.useCallback(() => {
         if (interval) {
@@ -104,7 +101,7 @@ export const Video = {
             videoRef.current.currentTime = meta?.time || 0
           }
         }
-      }, [meta,videoRef])
+      }, [meta, videoRef])
 
       React.useEffect(() => {
         room?.onData((event, senderId) => {
@@ -157,6 +154,20 @@ export const Video = {
         }
       }, [id])
 
+      React.useEffect(() => {
+        if (videoRef.current) {
+          triggerInternal(SourceTrigger.trigger, {
+            role,
+            sourceId: id,
+            doTrigger: true,
+            metadata: {
+              time: Math.floor(videoRef?.current?.currentTime) || 0,
+              owner: room.participantId,
+            },
+          })
+        }
+      }, []);
+      
       return (
         <APIKitAnimation
           enter={APIKitAnimationTypes.FADE_IN}
