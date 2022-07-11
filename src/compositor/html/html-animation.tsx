@@ -72,7 +72,6 @@ const renderStyle = (
 
         .default-enter {
           opacity: 0;
-           position: absolute;
         }
 
         .default-enter.${enter} {
@@ -85,7 +84,6 @@ const renderStyle = (
 
         .default-leave {
           opacity: 1;
-          position: absolute;
         }
 
         .default-leave.${exit} {
