@@ -85,6 +85,7 @@ const renderStyle = (
 
         .default-leave {
           opacity: 1;
+          position: absolute;
         }
 
         .default-leave.${exit} {
