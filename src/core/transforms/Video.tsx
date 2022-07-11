@@ -78,7 +78,7 @@ export const Video = {
       })
 
       const onLoadedData = React.useCallback(() => {
-        if (videoRef.current) {
+        if (videoRef?.current) {
           if (meta?.time) {
             videoRef.current.currentTime = meta.time
           }
@@ -97,8 +97,10 @@ export const Video = {
       }, [src])
 
       React.useEffect(() => {
-        if (room.participantId !== meta?.owner && videoRef.current) {
-          videoRef.current.currentTime = meta?.time || 0
+        if (meta) {
+          if (room?.participantId !== meta?.owner && videoRef?.current) {
+            videoRef.current.currentTime = meta?.time || 0
+          }
         }
       }, [meta])
 
