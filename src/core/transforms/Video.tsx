@@ -131,7 +131,7 @@ export const Video = {
             }
           })
         }
-      }, [room])
+      }, [room,videoRef])
 
       React.useEffect(() => {
         if (id) {
