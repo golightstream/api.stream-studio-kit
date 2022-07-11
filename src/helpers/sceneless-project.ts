@@ -319,6 +319,10 @@ export interface Commands {
    */
   removeBanner(id: string): void
   /**
+   * Fetch the active banner displayed on stream.
+   */
+  getActiveBanner(): string | null
+  /**
    * Add an existing banner to the stream.
    * If no `id` is supplied, existing banners will be removed.
    */
@@ -488,7 +492,7 @@ export const commands = (_project: ScenelessProject) => {
       const existingBanners = commands.getBanners()
       // Remove dependent nodes from stream
       bannerContainer?.children?.forEach((x) => {
-        if (x.id !== id) return
+        if (x.props.bannerId !== id) return
         CoreContext.Command.deleteNode({
           nodeId: x.id,
         })
@@ -517,6 +521,10 @@ export const commands = (_project: ScenelessProject) => {
           bannerId: banner.id,
         },
       })
+    },
+
+    getActiveBanner(): string | null {
+      return bannerContainer.children?.[0]?.props?.bannerId ?? null
     },
 
     getImageOverlay(): string | string[] {
