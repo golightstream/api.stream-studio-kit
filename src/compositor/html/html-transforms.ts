@@ -16,6 +16,7 @@ import {
 } from '../transforms'
 import CoreContext from '../../core/context';
 import { InternalEventMap, triggerInternal } from './../../core/events'
+import { getRoom } from '../../core/webrtc/simple-room';
 
 const createDefault: TransformDeclaration['create'] = () => {
   return {
@@ -203,6 +204,7 @@ export const init = (
           onNewSource: (cb) => _onNewSourceHandlers.push(cb),
           onUpdate: (cb) => _onUpdateHandlers.push(cb),
           onRemove: (cb) => _onRemoveHandlers.push(cb),
+          room : getRoom(CoreContext.state.activeProjectId),
           nodeId: node.id
         },
         node.props,

@@ -7,12 +7,10 @@ import React from 'react'
 import { CoreContext } from '../context'
 import { getProject } from './../../core/data'
 import { Compositor } from '../namespaces'
-import usePrevious from '../../hooks/usePrevious'
 import useUnload from '../../hooks/useUnload'
 import { InternalEventMap } from '../events'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
-import { getRoom } from '../webrtc/simple-room'
 
 interface ISourceMap {
   sourceType: string
@@ -43,7 +41,7 @@ export const Video = {
     return sources.find((x) => x.props.type === props.id)
   },
   create(
-    { onUpdate, onNewSource, trigger, onRemove, triggerInternal },
+    { onUpdate, onNewSource, trigger, onRemove, triggerInternal, room },
     initialProps,
   ) {
     onRemove(() => {
@@ -57,7 +55,6 @@ export const Video = {
 
     const Video = ({ source }: { source: any }) => {
       const role = getProject(CoreContext.state.activeProjectId).role
-      const room = getRoom(CoreContext.state.activeProjectId)
       const SourceTrigger = SourceTriggerMap.find(
         (x) => x.sourceType === initialProps.proxySource,
       )
@@ -110,28 +107,26 @@ export const Video = {
       }, [meta])
 
       React.useEffect(() => {
-        if (room) {
-          room?.onData((event, senderId) => {
-            // Handle request for time sync.
-            if (videoRef?.current?.currentTime) {
-              if (
-                event.type === 'UserJoined' &&
-                senderId !== room.participantId
-              ) {
-                triggerInternal(SourceTrigger.trigger, {
-                  role,
-                  sourceId: id,
-                  doTrigger: true,
-                  metadata: {
-                    time: Math.floor(videoRef?.current?.currentTime) || 0,
-                    owner: room.participantId,
-                  },
-                })
-              }
+        room?.onData((event, senderId) => {
+          // Handle request for time sync.
+          if (videoRef?.current?.currentTime) {
+            if (
+              event.type === 'UserJoined' &&
+              senderId !== room.participantId
+            ) {
+              triggerInternal(SourceTrigger.trigger, {
+                role,
+                sourceId: id,
+                doTrigger: true,
+                metadata: {
+                  time: Math.floor(videoRef?.current?.currentTime) || 0,
+                  owner: room.participantId,
+                },
+              })
             }
-          })
-        }
-      }, [room,videoRef])
+          }
+        })
+      }, [])
 
       React.useEffect(() => {
         if (id) {
