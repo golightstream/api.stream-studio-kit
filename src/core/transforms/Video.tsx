@@ -55,12 +55,12 @@ export const Video = {
     let interval: NodeJS.Timer
 
     const Video = ({ source }: { source: any }) => {
-      const role = getProject(CoreContext.state.activeProjectId).role;
-      const room = getProjectRoom(CoreContext.state.activeProjectId);
+      const role = getProject(CoreContext.state.activeProjectId).role
+      const room = getProjectRoom(CoreContext.state.activeProjectId)
       const SourceTrigger = SourceTriggerMap.find(
         (x) => x.sourceType === initialProps.proxySource,
       )
-      const { src, type, meta } = source?.value || {}
+      const { src, type, meta, loop } = source?.value || {}
       const { id } = source || {}
 
       const videoRef = React.useMemo(
@@ -133,6 +133,9 @@ export const Video = {
       React.useEffect(() => {
         if (id) {
           videoRef.current!.src = src
+          if (loop) {
+            videoRef.current.loop = Boolean(loop)
+          }
           videoRef.current!.play().catch(() => {
             videoRef.current.muted = true
             videoRef.current.play()

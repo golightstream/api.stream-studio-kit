@@ -320,6 +320,7 @@ const Project = () => {
                         setSelectedVideo(overlay.id)
                         projectCommands.addVideoOverlay(overlay.id, {
                           src: overlay.url,
+                          loop : true
                         })
                       } else {
                         projectCommands.removeVideoOverlay(selectedVideo)
