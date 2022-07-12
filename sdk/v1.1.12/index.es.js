@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import React, { useState, useRef, useEffect, useContext, useMemo } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect, useContext, useMemo } from "react";
 function _mergeNamespaces(n2, m) {
   m.forEach(function(e2) {
     e2 && typeof e2 !== "string" && !Array.isArray(e2) && Object.keys(e2).forEach(function(k) {
@@ -50158,6 +50158,17 @@ const RoomParticipant$1 = {
     });
     let source2;
     let props = initialProps;
+    const getSize = (width, canvas) => {
+      const widthAsPercentage = width / canvas.width;
+      if (widthAsPercentage >= 0.5) {
+        return 3;
+      } else if (widthAsPercentage > 0.25) {
+        return 2;
+      } else if (widthAsPercentage > 0.15) {
+        return 1;
+      }
+      return 0;
+    };
     const Participant2 = ({
       props: props2,
       source: source22
@@ -50166,8 +50177,9 @@ const RoomParticipant$1 = {
         volume = 1,
         isHidden = false
       } = props2;
-      const [labelSize, setLabelSize] = useState(2);
+      const [labelSize, setLabelSize] = useState(0);
       const ref2 = useRef();
+      const project = getProject(CoreContext.state.activeProjectId);
       const room = getRoom(CoreContext.state.activeProjectId);
       const isSelf = (source22 == null ? void 0 : source22.id) === (room == null ? void 0 : room.participantId);
       const muteAudio = isSelf || props2.isMuted;
@@ -50189,6 +50201,25 @@ const RoomParticipant$1 = {
           ref2.current.srcObject = null;
         }
       }, [ref2.current, source22 == null ? void 0 : source22.value]);
+      useLayoutEffect(() => {
+        if (!ref2.current)
+          return;
+        const calculate = () => {
+          const rect = ref2.current;
+          setLabelSize(getSize(rect.clientWidth, {
+            width: project.compositor.getRoot().props.size.x,
+            height: project.compositor.getRoot().props.size.y
+          }));
+        };
+        const resizeObserver2 = new ResizeObserver((entries) => {
+          calculate();
+        });
+        calculate();
+        resizeObserver2.observe(ref2.current);
+        return () => {
+          resizeObserver2.unobserve(ref2.current);
+        };
+      }, [ref2.current, project]);
       useEffect(() => {
         if (!ref2.current)
           return;
@@ -50244,7 +50275,6 @@ const RoomParticipant$1 = {
         }
       }), (source22 == null ? void 0 : source22.props.displayName) && /* @__PURE__ */ React.createElement("div", {
         className: "NameBannerContainer",
-        "data-size": labelSize,
         style: {
           width: "100%",
           height: "100%",
@@ -50256,6 +50286,7 @@ const RoomParticipant$1 = {
         }
       }, /* @__PURE__ */ React.createElement("div", {
         className: "NameBanner",
+        "data-size": labelSize,
         style: {
           padding: "12px 30px",
           width: "fit-content",
@@ -50263,10 +50294,7 @@ const RoomParticipant$1 = {
           position: "relative"
         }
       }, /* @__PURE__ */ React.createElement("div", {
-        className: "NameBanner-body",
-        style: {
-          fontSize: "24px"
-        }
+        className: "NameBanner-body"
       }, source22.props.displayName, source22.props.type === "screen" && `'s Screen`))));
     };
     const render2 = () => ReactDOM.render(/* @__PURE__ */ React.createElement(Participant2, {
@@ -52847,6 +52875,7 @@ const Root = (props) => {
       if (!bannerStyle || !primaryColor)
         return;
       const CSS = themes[bannerStyle](primaryColor, showNameBanners);
+      console.log("injecting", CSS);
       props.setStyle(CSS || "");
     };
     updateCSS();
@@ -53027,6 +53056,7 @@ video {
   font-weight: bold;
   line-height: 30px;
   width: 100%;
+  font-size: 28px;
 }
 `;
 var BannerStyle = /* @__PURE__ */ ((BannerStyle2) => {
@@ -53042,33 +53072,62 @@ const themes = {
     return `
       .Banner, .NameBanner {
         background: ${primaryColor} !important;
-        border-top-right-radius: ${scale(20)} !important;
-        border-bottom-right-radius: ${scale(20)} !important;
-        padding: ${scale(40)} ${scale(100)} !important;
         margin-bottom: ${scale(40)} !important;
         transition: 300ms ease all;
         left: 0;
+
+        /* Default Size 4 */
+        font-size: ${scale(44)} !important;
+        padding: ${scale(40)} ${scale(100)} !important;
+        border-top-right-radius: ${scale(20)} !important;
+        border-bottom-right-radius: ${scale(20)} !important;
       }
       .Banner-body, .NameBanner-body {
         color: ${textColor} !important;
         font-family: 'Roboto' !important;
         font-style: normal !important;
         font-weight: 700 !important;
-        font-size: ${scale(44)} !important;
         line-height: 120% !important;
       }
       .NameBanner {
-        padding: ${scale(24)} ${scale(40)} !important;
-        font-size: ${scale(56)} !important;
         transform-origin: 0 100%;
         margin: 0 !important;
-        transform: scale(0.5) translateX(-100%);
+        transform: translateX(-100%);
         opacity: 0 !important;
         white-space: nowrap;
         ${showNameBanners && `
           opacity: 1 !important;
-          transform: scale(0.5) translateX(0);
+          transform: translateX(0);
         `}
+      }
+
+      .NameBanner[data-size="4"] {
+        padding: ${scale(40)} ${scale(100)} !important;
+        font-size: ${scale(44)} !important;
+        border-top-right-radius: ${scale(20)} !important;
+        border-bottom-right-radius: ${scale(20)} !important;
+      }
+      .NameBanner[data-size="3"] {
+        padding: ${scale(12)} ${scale(30)} !important;
+        font-size: ${scale(44)} !important;
+        border-top-right-radius: ${scale(20)} !important;
+        border-bottom-right-radius: ${scale(20)} !important;
+      }
+      .NameBanner[data-size="2"] {
+        padding: ${scale(12)} ${scale(20)} !important;
+        font-size: ${scale(28)} !important;
+        border-top-right-radius: ${scale(16)} !important;
+        border-bottom-right-radius: ${scale(16)} !important;
+      }
+      .NameBanner[data-size="1"], .NameBanner[data-size="0"] {
+        padding: ${scale(8)} ${scale(8)} !important;
+        font-size: ${scale(20)} !important;
+        border-top-right-radius: ${scale(8)} !important;
+        border-bottom-right-radius: ${scale(8)} !important;
+      }
+      .NameBanner[data-size="0"] {
+        opacity: 0;
+        transform: translateX(-100%);
       }
     `;
   },
@@ -53082,6 +53141,7 @@ const themes = {
         position: relative !important;
         margin-bottom: ${scale(40)} !important;
         transition: 300ms ease all;
+        font-size: ${scale(34)} !important;
         left: 0;
       }
       .Banner:before, .NameBanner:before {
@@ -53113,7 +53173,6 @@ const themes = {
         font-family: 'Roboto' !important;
         font-style: normal !important;
         font-weight: 700 !important;
-        font-size: ${scale(34)} !important;
         line-height: 120% !important;
         position: relative;
         z-index: 2;
@@ -53122,21 +53181,37 @@ const themes = {
         position: relative;
         z-index: 2;
       }
-      .NameBanner:after {
-        width: ${scale(40)};
-      }
       .NameBanner {
-        font-size: ${scale(48)} !important;
-        padding: ${scale(24)} ${scale(48)} ${scale(24)} ${scale(78)} !important;
         transform-origin: 0 100%;
         margin: 0 !important;
-        transform: scale(0.5) translateX(-100%);
+        transform: translateX(-100%);
         opacity: 0 !important;
         white-space: nowrap;
         ${showNameBanners && `
           opacity: 1 !important;
-          transform: scale(0.5) translateX(0);
+          transform: translateX(0);
         `}
+      }
+
+      .NameBanner[data-size="4"] {
+        padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(40 + 20)} !important;
+        font-size: ${scale(34)} !important;
+      }
+      .NameBanner[data-size="3"] {
+        padding: ${scale(16)} ${scale(40)} ${scale(16)} ${scale(40 + 20)} !important;
+        font-size: ${scale(34)} !important;
+      }
+      .NameBanner[data-size="2"] {
+        padding: ${scale(12)} ${scale(24)} ${scale(12)} ${scale(24 + 20)} !important;
+        font-size: ${scale(24)} !important;
+      }
+      .NameBanner[data-size="1"], .NameBanner[data-size="0"] {
+        padding: ${scale(12)} ${scale(16)} ${scale(12)} ${scale(16 + 20)} !important;
+        font-size: ${scale(18)} !important;
+      }
+      .NameBanner[data-size="0"] {
+        opacity: 0 !important;
+        transform: translateX(-100%);
       }
     `;
   },
@@ -53147,15 +53222,19 @@ const themes = {
       .Banner {
         transform: translateX(-50%);
         left: 50%;
+        margin-bottom: ${scale(40)} !important;
       }
+
       .Banner, .NameBanner {
         background: ${color(primaryColor)} !important;
-        padding: ${scale(40)} ${scale(80)} !important;
         color: ${textColor} !important;
-        border: 4px solid ${textColor} !important;
         border-radius: 500px !important;
-        margin-bottom: ${scale(40)} !important;
         transition: 300ms ease all;
+
+        /* Default Style */
+        border: 4px solid ${textColor} !important;
+        padding: ${scale(40)} ${scale(80)} !important;
+        font-size: ${scale(40)} !important;
       }
       .Banner-body, .NameBanner-body {
         color: ${textColor} !important;
@@ -53163,21 +53242,42 @@ const themes = {
         font-family: 'Roboto' !important;
         font-style: normal !important;
         font-weight: 700 !important;
-        font-size: ${scale(40)} !important;
         line-height: 120% !important;
       }
       .NameBanner {
-        padding: ${scale(24)} ${scale(60)} !important;
-        font-size: ${scale(52)} !important;
         transform-origin: 0% 100%;
-        margin: 1% !important;
-        transform: scale(0.5) translateX(-100%);
+        transform: translateX(-100%);
         opacity: 0 !important;
         white-space: nowrap;
         ${showNameBanners && `
           opacity: 1 !important;
-          transform: scale(0.5) translateX(0);
+          transform: translateX(0);
         `}
+      }
+
+      .NameBanner[data-size="4"] {
+        padding: ${scale(40)} ${scale(80)} ${scale(40)} ${scale(80)} !important;
+        font-size: ${scale(40)} !important;
+      }
+      .NameBanner[data-size="3"] {
+        padding: ${scale(12)} ${scale(30)} ${scale(12)} ${scale(30)} !important;
+        font-size: ${scale(40)} !important;
+        margin: ${scale(20)} ${scale(20)};
+      }
+      .NameBanner[data-size="2"] {
+        padding: ${scale(12)} ${scale(30)} ${scale(12)} ${scale(30)} !important;
+        font-size: ${scale(26)} !important;
+        margin: ${scale(8)} ${scale(8)};
+      }
+      .NameBanner[data-size="1"], .NameBanner[data-size="0"] {
+        padding: ${scale(8)} ${scale(16)} ${scale(8)} ${scale(16)} !important;
+        font-size: ${scale(18)} !important;
+        border-width: ${scale(2)} !important;
+        margin: ${scale(16)} ${scale(8)};
+      }
+      .NameBanner[data-size="0"] {
+        opacity: 0 !important;
+        transform: translateX(-100%);
       }
     `;
   }
@@ -53917,7 +54017,7 @@ const commands = (_project) => {
       var _a3;
       const existingBanners = commands2.getBanners();
       (_a3 = bannerContainer == null ? void 0 : bannerContainer.children) == null ? void 0 : _a3.forEach((x) => {
-        if (x.id !== id)
+        if (x.props.bannerId !== id)
           return;
         CoreContext.Command.deleteNode({
           nodeId: x.id
@@ -53948,6 +54048,10 @@ const commands = (_project) => {
           bannerId: banner.id
         }
       });
+    },
+    getActiveBanner() {
+      var _a3, _b2, _c2, _d;
+      return (_d = (_c2 = (_b2 = (_a3 = bannerContainer.children) == null ? void 0 : _a3[0]) == null ? void 0 : _b2.props) == null ? void 0 : _c2.bannerId) != null ? _d : null;
     },
     getImageOverlay() {
       var _a3, _b2;

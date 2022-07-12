@@ -1,4 +1,4 @@
-import { R as React, r as react, i as index, a as init, j as jsx, b as jsxs, S as Style, c as config, P as Participants, D as DeviceSelection, C as ControlPanel, d as Chat, e as ReactDOM, u as url, A as AppProvider } from "./index.20511fd2.js";
+import { R as React, r as react, i as index, a as init, j as jsx, b as jsxs, S as Style, c as config, P as Participants, D as DeviceSelection, C as ControlPanel, d as Chat, e as ReactDOM, u as url, A as AppProvider } from "./index.e7cbff8e.js";
 const DEFAULT_LAYOUT = "Grid";
 const layouts = ["Grid", "Grid-Cover", "Half", "Half-Cover", "Presentation-Right", "Presentation-Left", "Presentation-Bottom", "Presentation-Cover", "Column", "Column-Cover", "Row", "Row-Cover"];
 const getLayout = (name) => {
@@ -2342,4 +2342,4 @@ const Content = () => {
   });
 };
 ReactDOM.render(/* @__PURE__ */ jsx(Content, {}), document.getElementById("root"));
-//# sourceMappingURL=main.94c9e646.js.map
+//# sourceMappingURL=main.82b262ed.js.map
