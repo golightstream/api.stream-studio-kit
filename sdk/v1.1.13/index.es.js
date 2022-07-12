@@ -49169,6 +49169,7 @@ class RoomContext {
     this.unsubscribeFromLocalParticipantEvent = this.unsubscribeFromLocalParticipantEvent.bind(this);
     this.sendChatMessage = this.sendChatMessage.bind(this);
     this.kickParticipant = this.kickParticipant.bind(this);
+    this.updateParticipant = this.updateParticipant.bind(this);
     this.muteTrackAsAdmin = this.muteTrackAsAdmin.bind(this);
     this._updateParticipants = this._updateParticipants.bind(this);
     this.subscribeToRoomEvent(dist$1.RoomEvent.ParticipantConnected, this._updateParticipants);
@@ -49224,6 +49225,14 @@ class RoomContext {
   async kickParticipant(identity2) {
     if (this._admin) {
       this._admin.removeParticipant(this.roomName, identity2);
+    } else {
+      throw new Error("no admin permissions");
+    }
+  }
+  updateParticipant(identity2, metadata) {
+    if (this._admin) {
+      const data2 = JSON.stringify(metadata);
+      this._admin.updateParticipant(this.roomName, identity2, data2);
     } else {
       throw new Error("no admin permissions");
     }
@@ -49437,15 +49446,19 @@ const getRoom = (id) => {
       participant
     })));
     const result = {
-      participants: participants.map((x) => ({
-        id: x.identity,
-        isSelf: x === localParticipant,
-        connectionQuality: x.connectionQuality,
-        displayName: x.name,
-        joinedAt: x.joinedAt,
-        role: JSON.parse(x.metadata).participantRole,
-        trackIds: tracks.filter((p) => p.participant.sid === x.sid).map((x2) => x2.trackSid)
-      })),
+      participants: participants.map((x) => {
+        const meta = JSON.parse(x.metadata);
+        return {
+          id: x.identity,
+          isSelf: x === localParticipant,
+          connectionQuality: x.connectionQuality,
+          displayName: meta.displayName || x.name,
+          joinedAt: x.joinedAt,
+          role: meta.participantRole,
+          meta,
+          trackIds: tracks.filter((p) => p.participant.sid === x.sid).map((x2) => x2.trackSid)
+        };
+      }),
       tracks: tracks.map((x) => {
         var _a2, _b, _c;
         return {
@@ -49475,7 +49488,7 @@ const getRoom = (id) => {
       cb(latest.chat);
     });
   };
-  const updateEvents = [dist$1.RoomEvent.ParticipantConnected, dist$1.RoomEvent.ParticipantDisconnected, dist$1.RoomEvent.Disconnected, dist$1.RoomEvent.TrackSubscribed, dist$1.RoomEvent.TrackUnsubscribed, dist$1.RoomEvent.LocalTrackPublished, dist$1.RoomEvent.LocalTrackUnpublished, dist$1.RoomEvent.ConnectionQualityChanged, dist$1.RoomEvent.TrackMuted, dist$1.RoomEvent.TrackUnmuted, dist$1.RoomEvent.TrackStreamStateChanged];
+  const updateEvents = [dist$1.RoomEvent.ParticipantConnected, dist$1.RoomEvent.ParticipantDisconnected, dist$1.RoomEvent.ParticipantMetadataChanged, dist$1.RoomEvent.Disconnected, dist$1.RoomEvent.TrackSubscribed, dist$1.RoomEvent.TrackUnsubscribed, dist$1.RoomEvent.LocalTrackPublished, dist$1.RoomEvent.LocalTrackUnpublished, dist$1.RoomEvent.ConnectionQualityChanged, dist$1.RoomEvent.TrackMuted, dist$1.RoomEvent.TrackUnmuted, dist$1.RoomEvent.TrackStreamStateChanged];
   const unsubscribers = updateEvents.map((evt) => room.subscribeToRoomEvent(evt, () => update()));
   unsubscribers.push(room.subscribeToSpecialEvent(SpecialEvent.Chat, update));
   const getTrack = (id2) => {
@@ -49611,6 +49624,9 @@ const getRoom = (id) => {
     removeTrack: async (id2) => {
       const track = latest.tracks.find((x) => x.trackSid === id2);
       localParticipant.unpublishTrack(track.track);
+    },
+    setParticipantMetadata: (id2, meta) => {
+      return room.updateParticipant(id2, meta);
     },
     kickParticipant: room.kickParticipant,
     muteTrackAsAdmin: room.muteTrackAsAdmin,
