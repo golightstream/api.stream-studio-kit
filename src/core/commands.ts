@@ -621,10 +621,13 @@ export const startBroadcast = async (payload: { projectId?: string }) => {
     await CoreContext.clients.LiveApi().project.updateProject({
       composition: {
         studioSdk: {
+          // hint: we're passing rendererUrl to ensure older projects function the same. A change
+          // was made where the live api doesn't store our internal renderer on this model.
+          rendererUrl: undefined,
           version: CoreContext.rendererVersion,
         }
       },
-      updateMask: ['composition.studioSdk.version'],
+      updateMask: ['composition.studioSdk.version', 'composition.studioSdk.rendererUrl'],
     })
   }
 
