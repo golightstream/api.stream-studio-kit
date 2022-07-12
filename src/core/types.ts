@@ -262,6 +262,11 @@ export interface Participant {
    * Array of {@link Track} IDs belonging to the Participant.
    */
   trackIds: string[]
+  /**
+   * Metadata to store on the participant. Opaque to the SDK.
+   *  Change to a participant's metadata propagates immediately to remote connections.
+   */
+  meta: { [prop: string]: any }
 }
 
 /**
@@ -522,9 +527,9 @@ export interface Room {
    */
   onDisconnected: (cb: () => void) => void
   /**
-   * Calls back with a list of active speaker IDs 
+   * Calls back with a list of active speaker IDs
    *  ordered from loudest to quietest.
-   * 
+   *
    * Callback will be invoked any time the list of speakers changes.
    */
   useActiveSpeakers: (cb: (participantIds: string[]) => void) => Disposable
@@ -554,6 +559,11 @@ export interface Room {
    * @returns The participant with the supplied id.
    */
   getParticipant: (id: string) => Participant
+  /**
+   * Metadata to store on the participant. Opaque to the SDK.
+   *  Change to a participant's metadata propagates immediately to remote connections.
+   */
+  setParticipantMetadata: (id: string, meta: { [prop: string]: any }) => void
   /**
    * Listens to changes on the {@link Room Room's} chat history, and runs callback when changes occur. This hook is useful for displaying chat messages.
    *

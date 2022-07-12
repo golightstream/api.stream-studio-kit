@@ -66,17 +66,21 @@ export const getRoom = (id: string) => {
     ) as FullTrack[]
 
     const result = {
-      participants: participants.map((x) => ({
-        id: x.identity,
-        isSelf: x === localParticipant,
-        connectionQuality: x.connectionQuality,
-        displayName: x.name,
-        joinedAt: x.joinedAt,
-        role: JSON.parse(x.metadata).participantRole,
-        trackIds: tracks
-          .filter((p) => p.participant.sid === x.sid)
-          .map((x) => x.trackSid),
-      })) as SDK.Participant[],
+      participants: participants.map((x) => {
+        const meta = JSON.parse(x.metadata)
+        return {
+          id: x.identity,
+          isSelf: x === localParticipant,
+          connectionQuality: x.connectionQuality,
+          displayName: meta.displayName || x.name,
+          joinedAt: x.joinedAt,
+          role: meta.participantRole,
+          meta,
+          trackIds: tracks
+            .filter((p) => p.participant.sid === x.sid)
+            .map((x) => x.trackSid),
+        }
+      }) as SDK.Participant[],
       tracks: tracks.map((x) => ({
         mediaStreamTrack: x.track?.mediaStreamTrack,
         id: x.trackSid,
@@ -113,6 +117,7 @@ export const getRoom = (id: string) => {
   const updateEvents = [
     RoomEvent.ParticipantConnected,
     RoomEvent.ParticipantDisconnected,
+    RoomEvent.ParticipantMetadataChanged,
     RoomEvent.Disconnected,
     RoomEvent.TrackSubscribed,
     RoomEvent.TrackUnsubscribed,
@@ -281,7 +286,9 @@ export const getRoom = (id: string) => {
       const track = latest.tracks.find((x) => x.trackSid === id)
       localParticipant.unpublishTrack(track.track as LocalTrack)
     },
-
+    setParticipantMetadata: (id, meta) => {
+      return room.updateParticipant(id, meta)
+    },
     kickParticipant: room.kickParticipant,
     muteTrackAsAdmin: room.muteTrackAsAdmin,
     sendChatMessage: room.sendChatMessage,

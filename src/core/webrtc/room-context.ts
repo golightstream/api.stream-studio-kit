@@ -145,6 +145,11 @@ export interface LSRoomContext {
   /** name of room */
   roomName: string
   /**
+   * Update metadata for a remote participant from your livekit room. Can only be used by admins.
+   * @param identity Identity of the user that you wish to update
+   */
+  updateParticipant(identity: string, metadata: { [prop: string]: any }): void
+  /**
    * kick a remote participant from your livekit room. Can only be used by admins.
    * @param identity Identity of the user that you wish to kick
    */
@@ -391,6 +396,7 @@ export class RoomContext implements LSRoomContext {
       this.unsubscribeFromLocalParticipantEvent.bind(this)
     this.sendChatMessage = this.sendChatMessage.bind(this)
     this.kickParticipant = this.kickParticipant.bind(this)
+    this.updateParticipant = this.updateParticipant.bind(this)
     this.muteTrackAsAdmin = this.muteTrackAsAdmin.bind(this)
     this._updateParticipants = this._updateParticipants.bind(this)
 
@@ -483,6 +489,15 @@ export class RoomContext implements LSRoomContext {
   async kickParticipant(identity: string) {
     if (this._admin) {
       this._admin.removeParticipant(this.roomName, identity)
+    } else {
+      throw new Error('no admin permissions')
+    }
+  }
+
+  updateParticipant(identity: string, metadata: { [prop: string]: any }) {
+    if (this._admin) {
+      const data = JSON.stringify(metadata)
+      this._admin.updateParticipant(this.roomName, identity, data)
     } else {
       throw new Error('no admin permissions')
     }
