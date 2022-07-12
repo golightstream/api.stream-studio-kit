@@ -104,7 +104,7 @@ export const Video = {
       }, [meta, videoRef])
 
       React.useEffect(() => {
-        room?.onData((event, senderId) => {
+        return room?.onData((event, senderId) => {
           // Handle request for time sync.
           if (videoRef?.current?.currentTime) {
             if (
