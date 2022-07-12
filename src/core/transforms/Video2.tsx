@@ -5,7 +5,7 @@
 import ReactDOM from 'react-dom'
 import React from 'react'
 import { CoreContext } from '../context'
-import { getProject } from './../../core/data'
+import { getProject } from '../data'
 import { Compositor } from '../namespaces'
 import useUnload from '../../hooks/useUnload'
 import { InternalEventMap } from '../events'
@@ -28,9 +28,9 @@ const SourceTriggerMap = [
   },
 ] as ISourceMap[]
 
-export const Video = {
-  name: 'LS-Video',
-  sourceType: 'Video',
+export const Video2 = {
+  name: 'LS-Video-2',
+  sourceType: 'Video2',
   props: {
     id: {
       type: String,

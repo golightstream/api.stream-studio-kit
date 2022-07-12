@@ -510,6 +510,7 @@ export enum BannerStyle {
   MINIMAL = 'minimal',
   BUBBLE = 'bubble',
 }
+
 const themes = {
   [BannerStyle.DEFAULT]: (
     primaryColor: string = '#ABABAB',

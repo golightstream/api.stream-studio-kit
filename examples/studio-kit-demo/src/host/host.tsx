@@ -293,11 +293,11 @@ const Project = () => {
                     onClick={() => {
                       if (selectedImage !== overlay.id) {
                         setSelectedImage(overlay.id)
-                        projectCommands.addImageOverlay(overlay.id, {
+                        projectCommands.addImageOverlay2(overlay.id, {
                           src: overlay.url,
                         })
                       } else {
-                        projectCommands.removeImageOverlay(selectedImage)
+                        projectCommands.removeImageOverlay2(selectedImage)
                         setSelectedImage(null)
                       }
                     }}
@@ -318,12 +318,12 @@ const Project = () => {
                     onClick={() => {
                       if (selectedVideo !== overlay.id) {
                         setSelectedVideo(overlay.id)
-                        projectCommands.addVideoOverlay(overlay.id, {
+                        projectCommands.addVideoOverlay2(overlay.id, {
                           src: overlay.url,
                           loop : true
                         })
                       } else {
-                        projectCommands.removeVideoOverlay(selectedVideo)
+                        projectCommands.removeVideoOverlay2(selectedVideo)
                         setSelectedVideo(null)
                       }
                     }}
@@ -357,13 +357,15 @@ const Project = () => {
               defaultValue={background}
               onChange={(e) => {
                 if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(e.target.value)) {
-                  projectCommands.setBackgroundImage(generateId(), {
-                    src: e.target.value,
-                  })
+                  projectCommands.setBackgroundImage(e.target.value);
+                  // projectCommands.setBackgroundImage2(generateId(), {
+                  //   src: e.target.value,
+                  // })
                 } else {
-                  projectCommands.setBackgroundVideo(generateId(), {
-                    src: e.target.value,
-                  })
+                    projectCommands.setBackgroundVideo(e.target.value)
+                  // projectCommands.setBackgroundVideo2(generateId(), {
+                  //   src: e.target.value,
+                  // })
                 }
               }}
             />

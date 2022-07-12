@@ -8,9 +8,9 @@ import { Compositor } from '../namespaces'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
 
-export const Image = {
-  name: 'LS-Image',
-  sourceType: 'Image',
+export const Image2 = {
+  name: 'LS-Image-2',
+  sourceType: 'Image2',
   props: {
     id: {
       type: String,

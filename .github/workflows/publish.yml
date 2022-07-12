@@ -20,7 +20,7 @@ jobs:
           node-version: 16
       - run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
       - run: npm run build
 
       - name: Get package version
