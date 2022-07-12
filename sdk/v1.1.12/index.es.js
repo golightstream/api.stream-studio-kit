@@ -52912,6 +52912,7 @@ const Root = (props) => {
   })));
 };
 let wrapperEl;
+let customStyleEl;
 const render = (settings) => {
   const {
     containerEl,
@@ -52926,7 +52927,6 @@ const render = (settings) => {
   const onElementDoubleClick = settings.onElementDoubleClick || dblClickShowcase && scenelessProjectDoubleClick(project);
   if (!containerEl || !project)
     return;
-  let customStyleEl;
   if (!containerEl.shadowRoot) {
     containerEl.attachShadow({
       mode: "open"
