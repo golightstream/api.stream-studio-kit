@@ -21,7 +21,7 @@ jobs:
 
       - name: Build Studio Kit
         run: |
-          npm ci
+          npm ci --legacy-peer-deps
           npm run build
           npm run build:renderer
 

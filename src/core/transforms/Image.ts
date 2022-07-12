@@ -12,7 +12,7 @@ export const Image = {
   },
   create({ onUpdate }) {
     const el = document.createElement('img')
-    
+
     onUpdate(({ src, fit }) => {
       el.setAttribute('src', src)
       Object.assign(el.style, {

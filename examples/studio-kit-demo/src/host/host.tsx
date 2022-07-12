@@ -35,6 +35,8 @@ const storage = {
   userName: localStorage.getItem('userName') || '',
 }
 
+export const generateId = () => (Math.random() * 1e20).toString(36)
+
 const Login = (props: {
   onLogin: ({ token, userName }: { token: string; userName: string }) => void
 }) => {
@@ -145,6 +147,8 @@ const Project = () => {
   // Get custom layout name from metadata we store
   const layout = project.props.layout
   const background = projectCommands.getBackgroundMedia()
+  const overlay = projectCommands.getImageOverlay();
+  
 
   const overlays = [
     {
@@ -223,7 +227,7 @@ const Project = () => {
           </a>
         </div>
       </div>
-      <div className={Style.column} style={{ width: 316 ,display :'flex'}}>
+      <div className={Style.column} style={{ width: 316, display: 'flex' }}>
         <label>RTMP Url</label>
         <input
           type="text"
@@ -271,7 +275,14 @@ const Project = () => {
             </button>
           )}
         </div>
-        <div style={{ display: 'flex' , marginLeft : "20%" ,marginTop : "-2%" , position : "absolute"}}>
+        <div
+          style={{
+            display: 'flex',
+            marginLeft: '20%',
+            marginTop: '-2%',
+            position: 'absolute',
+          }}
+        >
           <div>
             <span>
               Overlays
@@ -282,9 +293,11 @@ const Project = () => {
                     onClick={() => {
                       if (selectedImage !== overlay.id) {
                         setSelectedImage(overlay.id)
-                        projectCommands.addImageOverlay(overlay.id, overlay.url)
+                        projectCommands.addImageOverlay2(overlay.id, {
+                          src: overlay.url,
+                        })
                       } else {
-                        projectCommands.removeImageOverlay(selectedImage)
+                        projectCommands.removeImageOverlay2(selectedImage)
                         setSelectedImage(null)
                       }
                     }}
@@ -305,9 +318,12 @@ const Project = () => {
                     onClick={() => {
                       if (selectedVideo !== overlay.id) {
                         setSelectedVideo(overlay.id)
-                        projectCommands.addVideoOverlay(overlay.id, overlay.url)
+                        projectCommands.addVideoOverlay2(overlay.id, {
+                          src: overlay.url,
+                          loop : true
+                        })
                       } else {
-                        projectCommands.removeVideoOverlay(selectedVideo)
+                        projectCommands.removeVideoOverlay2(selectedVideo)
                         setSelectedVideo(null)
                       }
                     }}
@@ -341,9 +357,15 @@ const Project = () => {
               defaultValue={background}
               onChange={(e) => {
                 if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(e.target.value)) {
-                  projectCommands.setBackgroundImage(e.target.value)
+                  projectCommands.setBackgroundImage(e.target.value);
+                  // projectCommands.setBackgroundImage2(generateId(), {
+                  //   src: e.target.value,
+                  // })
                 } else {
-                  projectCommands.setBackgroundVideo(e.target.value)
+                    projectCommands.setBackgroundVideo(e.target.value)
+                  // projectCommands.setBackgroundVideo2(generateId(), {
+                  //   src: e.target.value,
+                  // })
                 }
               }}
             />
@@ -409,7 +431,6 @@ const Project = () => {
           style={{ width: 630 }}
         />
       </div>
-
     </div>
   )
 }
@@ -479,6 +500,7 @@ export const HostView = () => {
 
         setRoom(room)
         setProject(activeProject)
+
       })
       .catch((e) => {
         console.warn(e)
@@ -486,6 +508,12 @@ export const HostView = () => {
         localStorage.removeItem('token')
       })
   }, [studio, token, project])
+
+  useEffect(() => {
+    if (room) {
+      room.sendData({ type: 'UserJoined' })
+    }
+  }, [room])
 
   useEffect(() => {
     if (!projectCommands || !room) return

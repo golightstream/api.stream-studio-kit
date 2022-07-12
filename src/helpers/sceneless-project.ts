@@ -1,3 +1,7 @@
+import { LogoProps } from './../core/sources/Logo'
+import { Background, BackgroundProps } from './../core/sources/Background'
+import { sourceTypes } from './../compositor/sources'
+import { Overlay, OverlayProps } from './../core/sources/Overlays'
 import { getElementAttributes } from './../logic'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
@@ -113,6 +117,11 @@ export interface Commands {
    */
   getBanners(): Banner[]
   /**
+   * Get all banners stored on the project
+   */
+  getOverlays(): Overlay[]
+
+  /**
    * Get all participants in the project
    * @private
    */
@@ -131,46 +140,45 @@ export interface Commands {
    * @private
    */
   autoPlayBackgroundVideo(attributes?: HTMLVideoElementAttributes): void
+
+  removeLogo(id: string): void
+
+  addLogo(id: string, logo: LogoProps): void
+
+  getLogo(): string
   /**
    * Set the active layout and associated layoutProps
    */
   setLayout(layout: LayoutName, layoutProps: LayoutProps): void
+
   /**
-   * Get background media, it can be video or image
+   * Set the active background image
+   * @deprecated Use getBackgroundMedia2() instead with type
    */
   getBackgroundMedia(): string
   /**
    * Get the active background image
    */
-  getBackgroundVideo(): string
-  /**
-   * Get the active background image
-   */
-  getBackgroundImage(): string
   /**
    * Set the active background image
+   * @deprecated Use setBackgroundImage2() instead with id
    */
   setBackgroundImage(src: string): void
 
   /**
-   * Set the active background image
+   * Set the active background video
+   * @deprecated Use setBackgroundVideo2() instead with id
    */
   setBackgroundVideo(src: string, attributes?: HTMLVideoElementAttributes): void
 
   /**
-   * Get the active foreground overlay
-   */
-  getImageOverlay(): string | string[]
-  /**
-   * Get the active foreground overlay
-   */
-  getVideoOverlay(): string | string[]
-  /**
-   * Set the active foreground overlay
+   * set image overlay on foreground layer
+   * @deprecated Use addImageOverlay2() instead
    */
   addImageOverlay(overlayId: string, src: string): Promise<void>
   /**
-   * set image overlay on foreground layer
+   * set video overlay on foreground layer
+   * @deprecated Use addVideoOverlay2() instead
    */
   addVideoOverlay(
     overlayId: string,
@@ -179,14 +187,87 @@ export interface Commands {
   ): Promise<void>
 
   /**
-   * remove image overlay from foreground layer
+   * remove the active video overlay
+   * @deprecated Use removeVideoOverlay2() instead
    */
   removeVideoOverlay(overlayId: string): Promise<void>
+  /**
+   * remove the active image overlay
+   * @deprecated Use removeImageOverlay2() instead
+   */
+  removeImageOverlay(overlayId: string): Promise<void>
+  /**
+   * Get the active image overlay
+   * @deprecated Use getImageOverlay2() instead
+   */
+  getImageOverlay(): string | string[]
+  /**
+   * Get the active video overlay
+   * @deprecated Use getVideoOverlay2() instead
+   */
+  getVideoOverlay(): string | string[]
+  /**
+   * Get the active background image
+   * @deprecated Use getBackgroundImage2() instead
+   */
+  getBackgroundImage(): string
+  /**
+   * Get the active background video
+   * @deprecated Use getBackgroundVideo2() instead
+   */
+  getBackgroundVideo(): string
+
+  getBackgroundMedia2(type?: string): string
+  /**
+   * Get the active background video
+   */
+  getBackgroundVideo2(): string
+  /**
+   * Get the active background image
+   */
+  getBackgroundImage2(): string
+  /**
+   * Set the active background image
+   */
+  setBackgroundImage2(backgroundId: string, props: BackgroundProps): void
+
+  /**
+   * Set the active background video
+   */
+  setBackgroundVideo2(
+    backgroundId: string,
+    props: BackgroundProps & HTMLVideoElementAttributes,
+  ): void
+
+  /**
+   * Get the active foreground image overlay
+   */
+  getImageOverlay2(): string | string[]
+  /**
+   * Get the active foreground video overlay
+   */
+  getVideoOverlay2(): string | string[]
+  /**
+   * Set the active foreground image overlay
+   */
+  addImageOverlay2(overlayId: string, props: OverlayProps): Promise<void>
+  /**
+   * set image overlay on foreground video layer
+   */
+  addVideoOverlay2(
+    overlayId: string,
+    props: OverlayProps & HTMLVideoElementAttributes,
+  ): Promise<void>
+
+  /**
+   * remove video overlay from foreground layer
+   */
+  removeVideoOverlay2(overlayId: string): Promise<void>
 
   /**
    * remove image overlay from foreground layer
    */
-  removeImageOverlay(overlayId: string): Promise<void>
+  removeImageOverlay2(overlayId: string): Promise<void>
 
   /** Set one participant to "showcase". This participant will expand to fill
    * the space of the stream without affecting the underlying layout.
@@ -356,78 +437,289 @@ export const commands = (_project: ScenelessProject) => {
   const background = root.children.find((x) => x.props.id === 'bg')
   const content = root.children.find((x) => x.props.id === 'content')
   const foreground = root.children.find((x) => x.props.id === 'foreground')
+  let backgroundVideoContainer = background?.children?.find(
+    (x) => x.props.id === 'video-background',
+  )
 
+  let backgroundContainer = background?.children?.find(
+    (x) => x.props.id === 'bg-image',
+  )
+
+  let backgroundImageContainer = background?.children?.find(
+    (x) => x.props.id === 'image-background',
+  )
+  let foregroundImageContainer = foreground?.children?.find(
+    (x) => x.props.id === 'fg-image',
+  )
+
+  let foregroundImageContainer2 = foreground?.children?.find(
+    (x) => x.props.id === 'image-forground',
+  )
+
+  let foregroundVideoContainer2 = foreground?.children?.find(
+    (x) => x.props.id === 'video-forground',
+  )
+
+  let foregroundLogoContainer = foreground?.children?.find(
+    (x) => x.props.id === 'logo',
+  )
+
+  let foregroundVideoContainer = foreground?.children?.find(
+    (x) => x.props.id === 'fg-video',
+  )
   const coreProject = getProject(_project.id)
 
   let bannerContainer = foreground?.children?.find(
     (x) => x.props.id === 'fg-banners',
   )
 
-  let foregroundImageContainer = foreground?.children?.find(
-    (x) => x.props.id === 'fg-image',
-  )
-
-  let foregroundVideoContainer = foreground?.children?.find(
-    (x) => x.props.id === 'fg-video',
-  )
-
   const ensureForegroundContainers = async () => {
     const ensureBannerContainer = async () => {
       if (!bannerContainer) {
-        const nodeId = await coreProject.compositor.insert({
-          name: 'BannerContainer',
-          id: 'fg-banners',
-          layout: 'Column',
-          layoutProps: {
-            cover: true,
+        const nodeId = await coreProject.compositor.insert(
+          {
+            name: 'BannerContainer',
+            id: 'fg-banners',
+            layout: 'Column',
+            layoutProps: {
+              cover: true,
+            },
           },
-        }, foreground.id)
-        bannerContainer = foreground?.children?.find(x => x.props.id === nodeId)
+          foreground.id,
+        )
+        bannerContainer = foreground?.children?.find(
+          (x) => x.props.id === nodeId,
+        )
         return nodeId
       } else {
         return bannerContainer.id
       }
     }
-
     const ensureForegroundImageContainer = async () => {
       if (!foregroundImageContainer) {
-        const nodeId = await coreProject.compositor.insert({
+        const nodeId = await coreProject.compositor.insert(
+          {
             name: 'ImageOverlay',
             id: 'fg-image',
             layout: 'Free',
-          }, foreground.id)
+          },
+          foreground.id,
+        )
 
-        foregroundImageContainer = foreground?.children?.find(x => x.props.id === nodeId)
+        foregroundImageContainer = foreground?.children?.find(
+          (x) => x.props.id === nodeId,
+        )
         return nodeId
       } else {
         return foregroundImageContainer.id
       }
     }
 
+    const ensureForegroundImageContainer2 = async () => {
+      if (!foregroundImageContainer2) {
+        const nodeId = await coreProject.compositor.insert(
+          {
+            name: 'ImageOverlay2',
+            sourceType: 'Image2',
+            // this will enable to register a transfrom on another source
+            // doing so will enable to resume source
+            proxySource: 'Overlay',
+            id: 'image-overlay',
+            layout: 'Free',
+            style: {
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              objectFit: 'cover',
+            },
+          },
+          foreground.id,
+        )
+
+        foregroundImageContainer2 = foreground?.children?.find(
+          (x) => x.props.id === nodeId,
+        )
+        return nodeId
+      } else {
+        return foregroundImageContainer2.id
+      }
+    }
+
+    const ensureForegroundVideoContainer2 = async () => {
+      if (!foregroundVideoContainer2) {
+        const nodeId = await coreProject.compositor.insert(
+          {
+            name: 'VideoOverlay2',
+            sourceType: 'Video2',
+            // this will enable to register a transfrom on another source
+            // doing so will enable to resume source
+            proxySource: 'Overlay',
+            id: 'video-overlay',
+            layout: 'Free',
+            style: {
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              objectFit: 'cover',
+            },
+          },
+          foreground.id,
+        )
+
+        foregroundVideoContainer2 = foreground?.children?.find(
+          (x) => x.props.id === nodeId,
+        )
+        return nodeId
+      } else {
+        return foregroundVideoContainer2.id
+      }
+    }
 
     const ensureForegroundVideoContainer = async () => {
       if (!foregroundVideoContainer) {
-        const nodeId = await coreProject.compositor.insert({
+        const nodeId = await coreProject.compositor.insert(
+          {
             name: 'VideoOverlay',
             id: 'fg-video',
             layout: 'Free',
-          }, foreground.id)
-        foregroundVideoContainer = foreground?.children?.find(x => x.props.id === nodeId)
+          },
+          foreground.id,
+        )
+        foregroundVideoContainer = foreground?.children?.find(
+          (x) => x.props.id === nodeId,
+        )
         return nodeId
       } else {
         return foregroundVideoContainer.id
       }
     }
 
-    const baseForegroundLayers = await Promise.all([
-      ensureBannerContainer(),
-      ensureForegroundImageContainer(),
-      ensureForegroundVideoContainer(),
-    ])
-    await coreProject.compositor.reorder(foreground.id, baseForegroundLayers)
-  }
+    const ensureForegroundLogoContainer = async () => {
+      if (!foregroundLogoContainer) {
+        const nodeId = await coreProject.compositor.insert(
+          {
+            name: 'Logo',
+            layout: 'Free',
+            sourceType: 'Image2',
+            // this will enable to register a transfrom on another source
+            // doing so will enable to resume source
+            proxySource: 'Logo',
+            id: 'logo',
+            style: {
+              width: '160px',
+              height: '90px',
+              objectFit: 'cover',
+            },
+          },
+          foreground.id,
+        )
+        foregroundLogoContainer = foreground?.children?.find(
+          (x) => x.props.id === nodeId,
+        )
+        return nodeId
+      } else {
+        return foregroundLogoContainer.id
+      }
+    }
 
-  
+    const ensureBackgroundContainer = async () => {
+      if (!backgroundContainer) {
+        const nodeId = await coreProject.compositor.insert(
+          {
+            name: 'ImageBackground',
+            id: 'bg-image',
+            tagName: 'img',
+            sourceType: 'Element',
+            attributes: {
+              src: '',
+            },
+          },
+          background.id,
+        )
+        backgroundContainer = background?.children?.find(
+          (x) => x.props.id === nodeId,
+        )
+        return nodeId
+      } else {
+        return backgroundContainer.id
+      }
+    }
+
+    const ensureBackgroundImageContainer = async () => {
+      if (!backgroundImageContainer) {
+        const nodeId = await coreProject.compositor.insert(
+          {
+            name: 'ImageBackground',
+            sourceType: 'Image2',
+            proxySource: 'Background',
+            id: 'image-background',
+            layout: 'Free',
+            src: '',
+            style: {
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              objectFit: 'cover',
+            },
+          },
+          background.id,
+        )
+        backgroundImageContainer = background?.children?.find(
+          (x) => x.props.id === nodeId,
+        )
+        return nodeId
+      } else {
+        return backgroundImageContainer.id
+      }
+    }
+
+    const ensureBackgroundVideoContainer = async () => {
+      if (!backgroundVideoContainer) {
+        const nodeId = await coreProject.compositor.insert(
+          {
+            name: 'VideoBackground',
+            sourceType: 'Video2',
+            proxySource: 'Background',
+            id: 'video-background',
+            layout: 'Free',
+            style: {
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              objectFit: 'cover',
+            },
+          },
+          background.id,
+        )
+        backgroundVideoContainer = background?.children?.find(
+          (x) => x.props.id === nodeId,
+        )
+        return nodeId
+      } else {
+        return backgroundVideoContainer.id
+      }
+    }
+    try {
+      const baseForegroundLayers = await Promise.all([
+        ensureBannerContainer(),
+        ensureForegroundImageContainer(),
+        ensureForegroundImageContainer2(),
+        ensureForegroundVideoContainer(),
+        ensureForegroundVideoContainer2(),
+        ensureForegroundLogoContainer(),
+      ])
+
+      await coreProject.compositor.reorder(foreground.id, baseForegroundLayers)
+
+      const baseBackgroundLayers = await Promise.all([
+        ensureBackgroundContainer(),
+        ensureBackgroundImageContainer(),
+        ensureBackgroundVideoContainer(),
+      ])
+
+      await coreProject.compositor.reorder(background.id, baseBackgroundLayers)
+    } catch (e) {}
+  }
 
   const commands: Commands = {
     getBackground() {
@@ -446,6 +738,10 @@ export const commands = (_project: ScenelessProject) => {
       return (getProject(_project.id).props?.banners || []) as Banner[]
     },
 
+    getOverlays() {
+      return (getProject(_project.id).props.overlays || []) as Overlay[]
+    },
+
     getParticipants(room: SDK.Room) {
       return content.children.filter((node) => {
         if (node.props.sourceType !== 'RoomParticipant') return false
@@ -453,98 +749,33 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
 
-    addBanner(props: BannerProps = {}) {
-      const meta = props.meta || {}
-      const banner = {
-        id: generateId(),
-        props: {
-          ...props,
-          meta,
-        },
-      }
-
-      const existingBanners = (getProject(projectId).props?.banners ||
-        []) as Banner[]
-      return Command.updateProjectProps({
-        projectId,
-        props: {
-          banners: [...existingBanners, banner],
-        },
-      })
-    },
-    editBanner(id: string, props: BannerProps = {}) {
-      const existingBanners = commands.getBanners()
-      const banners = existingBanners.map((x) => {
-        if (x.id !== id) return x
-        return {
-          ...x,
-          props,
-        }
-      })
-      return Command.updateProjectProps({
-        projectId,
-        props: {
-          banners,
-        },
-      })
-    },
-    removeBanner(id: string) {
-      const existingBanners = commands.getBanners()
-      // Remove dependent nodes from stream
-      bannerContainer?.children?.forEach((x) => {
-        if (x.props.bannerId !== id) return
-        CoreContext.Command.deleteNode({
-          nodeId: x.id,
-        })
-      })
-
-      return Command.updateProjectProps({
-        projectId,
-        props: {
-          banners: existingBanners.filter((x) => x.id !== id),
-        },
-      })
-    },
-    setActiveBanner(id: string) {
-      const existingBanners = commands.getBanners()
-      const banner = existingBanners?.find((x) => x.id === id)
-      bannerContainer?.children?.forEach((x) => {
-        CoreContext.Command.deleteNode({
-          nodeId: x.id,
-        })
-      })
-      if (!banner) return
-      return CoreContext.Command.createNode({
-        parentId: bannerContainer?.id,
-        props: {
-          sourceType: 'Banner',
-          bannerId: banner.id,
-        },
-      })
+    getLogo() {
+      return commands.getProp('logo')?.id
     },
 
-    getActiveBanner(): string | null {
-      return bannerContainer.children?.[0]?.props?.bannerId ?? null
+    removeLogo() {
+      commands.setProp('logo', null)
     },
 
     getImageOverlay(): string | string[] {
-      const foregroundImageIds = foregroundImageContainer?.children?.map(
-        (x) => x?.props?.sourceProps?.id,
-      ) ?? []
+      const foregroundImageIds =
+        foregroundImageContainer?.children?.map(
+          (x) => x?.props?.sourceProps?.id,
+        ) ?? []
       return foregroundImageIds.length > 1
         ? foregroundImageIds
         : foregroundImageIds[0]
     },
 
     getVideoOverlay(): string | string[] {
-      const foregroundVideoIds = foregroundVideoContainer?.children?.map(
-        (x) => x?.props?.sourceProps?.id,
-      ) ?? []
+      const foregroundVideoIds =
+        foregroundVideoContainer?.children?.map(
+          (x) => x?.props?.sourceProps?.id,
+        ) ?? []
       return foregroundVideoIds.length > 1
         ? foregroundVideoIds
         : foregroundVideoIds[0]
     },
-
     autoPlayBackgroundVideo(
       attributes: HTMLVideoElementAttributes = {
         muted: true,
@@ -786,19 +1017,6 @@ export const commands = (_project: ScenelessProject) => {
         })
       }
     },
-
-    setLayout(layout: LayoutName, layoutProps: LayoutProps = {}) {
-      const showcase = content.props.layoutProps.showcase
-      Command.setNodeLayout({
-        nodeId: content.id,
-        layout,
-        layoutProps: {
-          showcase,
-          ...layoutProps,
-        },
-      })
-    },
-
     getBackgroundMedia() {
       const backgroundChild = background.children.filter((x) => x)
       return backgroundChild[0]?.props?.attributes?.src
@@ -917,6 +1135,369 @@ export const commands = (_project: ScenelessProject) => {
           },
         })
       }
+    },
+    addLogo(logoId: string, props: LogoProps) {
+      const exisitingLogo = (getProject(_project.id).props.logo ||
+        null) as Background
+      if (exisitingLogo) {
+        if (exisitingLogo.id === logoId) {
+          return Command.updateProjectProps({
+            projectId,
+            props: {
+              logo: exisitingLogo,
+            },
+          })
+        }
+      }
+
+      const meta = props.meta || {}
+
+      const newLogo = {
+        id: logoId,
+        props: {
+          ...props,
+          type: 'logo',
+          meta,
+        },
+      }
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          logo: newLogo,
+        },
+      })
+    },
+
+    addBanner(props: BannerProps = {}) {
+      const meta = props.meta || {}
+      const banner = {
+        id: generateId(),
+        props: {
+          ...props,
+          meta,
+        },
+      }
+
+      const existingBanners = (getProject(projectId).props?.banners ||
+        []) as Banner[]
+      return Command.updateProjectProps({
+        projectId,
+        props: {
+          banners: [...existingBanners, banner],
+        },
+      })
+    },
+    editBanner(id: string, props: BannerProps = {}) {
+      const existingBanners = commands.getBanners()
+      const banners = existingBanners.map((x) => {
+        if (x.id !== id) return x
+        return {
+          ...x,
+          props,
+        }
+      })
+      return Command.updateProjectProps({
+        projectId,
+        props: {
+          banners,
+        },
+      })
+    },
+    removeBanner(id: string) {
+      const existingBanners = commands.getBanners()
+      // Remove dependent nodes from stream
+      bannerContainer?.children?.forEach((x) => {
+        if (x.props.bannerId !== id) return
+        CoreContext.Command.deleteNode({
+          nodeId: x.id,
+        })
+      })
+
+      return Command.updateProjectProps({
+        projectId,
+        props: {
+          banners: existingBanners.filter((x) => x.id !== id),
+        },
+      })
+    },
+    setActiveBanner(id: string) {
+      const existingBanners = commands.getBanners()
+      const banner = existingBanners?.find((x) => x.id === id)
+      bannerContainer?.children?.forEach((x) => {
+        CoreContext.Command.deleteNode({
+          nodeId: x.id,
+        })
+      })
+      if (!banner) return
+      return CoreContext.Command.createNode({
+        parentId: bannerContainer?.id,
+        props: {
+          sourceType: 'Banner',
+          bannerId: banner.id,
+        },
+      })
+    },
+
+    getActiveBanner(): string | null {
+      return bannerContainer.children?.[0]?.props?.bannerId ?? null
+    },
+
+    getImageOverlay2(): string | string[] {
+      const existingImageOverlays = CoreContext.compositor
+        .getSources('Overlay')
+        .filter((x) => x.props.type === 'image-overlay')
+      const foregroundImageIds = existingImageOverlays.map((f) => f?.id)
+      return foregroundImageIds.length > 1
+        ? foregroundImageIds
+        : foregroundImageIds[0]
+    },
+
+    getVideoOverlay2(): string | string[] {
+      const existingVideoOverlays = CoreContext.compositor
+        .getSources('Overlay')
+        .filter((x) => x.props.type === 'video-overlay')
+      const foregroundVideoIds = existingVideoOverlays.map((f) => f?.id)
+      return foregroundVideoIds.length > 1
+        ? foregroundVideoIds
+        : foregroundVideoIds[0]
+    },
+
+    async removeImageOverlay2(overlayId: string) {
+      // find overlay node by id
+      const existingOverlays = commands.getOverlays()
+
+      return Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: existingOverlays.filter((x) => x.id !== overlayId),
+        },
+      })
+    },
+
+    async removeVideoOverlay2(overlayId: string) {
+      // find overlay node by id
+      const existingOverlays = commands.getOverlays()
+      const reamningOverlays = existingOverlays.filter(
+        (x) => x.id !== overlayId,
+      )
+
+      // get all children of the overlay node and update their opacity attributes
+      const allForegroundOverlays = reamningOverlays.filter(
+        (f) => f.props.type !== 'video-overlay',
+      )
+
+      allForegroundOverlays.forEach((overlay) => {
+        overlay.props.meta = {
+          style: { opacity: 1 },
+        }
+      })
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: allForegroundOverlays,
+        },
+      })
+    },
+
+    async addImageOverlay2(overlayId: string, props: OverlayProps = {}) {
+      const existingOverlays = commands.getOverlays()
+
+      const overlay = existingOverlays.find((x) => x.id === overlayId)
+
+      if (overlay) {
+        const overlayIndex = existingOverlays.findIndex(
+          (x) => x.id === overlayId,
+        )
+        existingOverlays.splice(overlayIndex, 1, overlay)
+        return Command.updateProjectProps({
+          projectId,
+          props: {
+            overlays: existingOverlays,
+          },
+        })
+      }
+
+      const vidOverlay = existingOverlays.find(
+        (x) => x.props.type === 'video-overlay',
+      )
+      const meta = props.meta || {}
+
+      const newOverlay = {
+        id: overlayId,
+        props: {
+          ...props,
+          type: 'image-overlay',
+          meta: {
+            ...meta,
+            ...{ ...(vidOverlay && { style: { opacity: 0 } }) },
+          },
+        },
+      }
+
+      const nonImageOverlays = existingOverlays.filter(
+        (x) => x.props.type !== 'image-overlay',
+      )
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: [...nonImageOverlays, newOverlay],
+        },
+      })
+    },
+
+    async addVideoOverlay2(
+      overlayId: string,
+      props: OverlayProps & HTMLVideoElementAttributes = {},
+    ) {
+      const existingOverlays = commands.getOverlays()
+      const overlay = existingOverlays.find((x) => x.id === overlayId)
+
+      if (overlay) {
+        const overlayIndex = existingOverlays.findIndex(
+          (x) => x.id === overlayId,
+        )
+        existingOverlays.splice(overlayIndex, 1, overlay)
+        return Command.updateProjectProps({
+          projectId,
+          props: {
+            overlays: existingOverlays,
+          },
+        })
+      }
+
+      // get all children of the overlay node and update their opacity attributes
+      const allForegroundOverlays = existingOverlays.filter(
+        (f) => f.props.type !== 'video-overlay',
+      )
+
+      allForegroundOverlays.forEach((overlay) => {
+        overlay.props.meta = {
+          style: {
+            opacity: 0,
+          },
+        }
+      })
+
+      const meta = props.meta || {}
+
+      const newOverlay = {
+        id: overlayId,
+        props: {
+          ...props,
+          type: 'video-overlay',
+          meta,
+        },
+      }
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: [...allForegroundOverlays, newOverlay],
+        },
+      })
+    },
+
+    setLayout(layout: LayoutName, layoutProps: LayoutProps = {}) {
+      const showcase = content.props.layoutProps.showcase
+      Command.setNodeLayout({
+        nodeId: content.id,
+        layout,
+        layoutProps: {
+          showcase,
+          ...layoutProps,
+        },
+      })
+    },
+
+    getBackgroundMedia2(type?: string) {
+      const backgroundMedia = CoreContext.compositor.getSources('Background')
+      const backgroundMediaIds = type
+        ? backgroundMedia.filter((x) => x.props.type === type).map((x) => x.id)
+        : backgroundMedia.map((x) => x.id)
+      return backgroundMediaIds[0]
+    },
+
+    getBackgroundImage2() {
+      return commands.getBackgroundMedia2('image-background')
+    },
+
+    getBackgroundVideo2() {
+      return commands.getBackgroundMedia2('video-background')
+    },
+
+    async setBackgroundImage2(
+      backgroundId: string,
+      props: BackgroundProps = {},
+    ) {
+      const exisitingBackground = (getProject(_project.id).props.background ||
+        null) as Background
+      if (exisitingBackground) {
+        if (exisitingBackground.id === backgroundId) {
+          return Command.updateProjectProps({
+            projectId,
+            props: {
+              background: exisitingBackground,
+            },
+          })
+        }
+      }
+
+      const meta = props.meta || {}
+
+      const newBackground = {
+        id: backgroundId,
+        props: {
+          ...props,
+          type: 'image-background',
+          meta,
+        },
+      }
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          background: newBackground,
+        },
+      })
+    },
+
+    async setBackgroundVideo2(
+      backgroundId: string,
+      props: BackgroundProps & HTMLVideoElementAttributes = {},
+    ) {
+      const exisitingBackground = (getProject(_project.id).props.background ||
+        null) as Background
+      if (exisitingBackground) {
+        if (exisitingBackground.id === backgroundId) {
+          return Command.updateProjectProps({
+            projectId,
+            props: {
+              background: exisitingBackground,
+            },
+          })
+        }
+      }
+
+      const meta = props.meta || {}
+
+      const newBackground = {
+        id: backgroundId,
+        props: {
+          ...props,
+          type: 'video-background',
+          meta,
+        },
+      }
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          background: newBackground,
+        },
+      })
     },
     setShowcase(participantId: string, type: ParticipantType = 'camera') {
       const node = commands.getParticipantNode(participantId, type)
@@ -1172,13 +1753,13 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
   }
-
   const ensureValid = async () => {
     await ensureForegroundContainers()
     beforeInit(commands)
   }
 
   ensureValid()
+
   return commands
 }
 
@@ -1307,6 +1888,24 @@ export const createCompositor = async (
     ),
     project.insert(
       {
+        name: 'ImageOverlay2',
+        sourceType: 'Image2',
+        // this will enable to register a transfrom on another source
+        // doing so will enable to resume source
+        proxySource: 'Overlay',
+        id: 'image-overlay',
+        layout: 'Free',
+        style: {
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          objectFit: 'cover',
+        },
+      },
+      foreground.id,
+    ),
+    project.insert(
+      {
         name: 'BannerContainer',
         id: 'fg-banners',
         // NOTE: This is not ideal - currently only using layout
@@ -1326,6 +1925,41 @@ export const createCompositor = async (
       },
       foreground.id,
     ),
+    project.insert(
+      {
+        name: 'VideoOverlay2',
+        layout: 'Free',
+        sourceType: 'Video2',
+        // this will enable to register a transfrom on another source
+        // doing so will enable to resume source
+        proxySource: 'Overlay',
+        id: 'video-overlay',
+        style: {
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          objectFit: 'cover',
+        },
+      },
+      foreground.id,
+    ),
+    project.insert(
+      {
+        name: 'Logo',
+        layout: 'Free',
+        sourceType: 'Image2',
+        // this will enable to register a transfrom on another source
+        // doing so will enable to resume source
+        proxySource: 'Logo',
+        id: 'logo',
+        style: {
+          width: '160px',
+          height: '90px',
+          objectFit: 'cover',
+        },
+      },
+      foreground.id,
+    ),
   ])
 
   await project.reorder(foreground.id, baseForegroundLayers)
@@ -1341,6 +1975,39 @@ export const createCompositor = async (
         sourceType: 'Element',
         attributes: {
           src: backgroundImage,
+        },
+      },
+      background.id,
+    ),
+    project.insert(
+      {
+        name: 'ImageBackground',
+        sourceType: 'Image2',
+        proxySource: 'Background',
+        id: 'image-background',
+        layout: 'Free',
+        src: backgroundImage,
+        style: {
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          objectFit: 'cover',
+        },
+      },
+      background.id,
+    ),
+    project.insert(
+      {
+        name: 'VideoBackground',
+        sourceType: 'Video2',
+        proxySource: 'Background',
+        id: 'video-background',
+        layout: 'Free',
+        style: {
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          objectFit: 'cover',
         },
       },
       background.id,

@@ -19,7 +19,7 @@ jobs:
       - name: Install and Build 🔧
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
-          npm ci
+          npm ci --legacy-peer-deps
           npm run build
           npm run publish-docs
 

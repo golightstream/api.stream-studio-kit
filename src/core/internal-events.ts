@@ -12,6 +12,7 @@ import {
 import { InternalEventMap, subscribeInternal, trigger } from './events'
 import { SDK } from './namespaces'
 import { CoreContext, log } from './context'
+import { OverlaySource } from './sources'
 
 const { state } = CoreContext
 
@@ -58,7 +59,10 @@ subscribeInternal(async (event, payload) => {
     }
     case 'ProjectAdded': {
       const project = payload as InternalEventMap['ProjectAdded']
-      const internalProject = await hydrateProject(project, 'ROLE_HOST' as SDK.Role)
+      const internalProject = await hydrateProject(
+        project,
+        'ROLE_HOST' as SDK.Role,
+      )
       const baseProject = toBaseProject(internalProject)
 
       // Update internal state
@@ -201,6 +205,95 @@ subscribeInternal(async (event, payload) => {
       // Update internal state
 
       // Emit public event
+
+      return
+    }
+
+    case 'BackgroundMetadataUpdate': {
+      const { Command } = CoreContext
+      const { projectId, metadata, sourceId, doTrigger, role } =
+        payload as InternalEventMap['BackgroundMetadataUpdate']
+      if (role === 'ROLE_HOST' || role === 'ROLE_COHOST') {
+        const internalProject = getProject(projectId)
+        if (!internalProject) return
+        if (internalProject.props.background.id !== sourceId) {
+          return
+        }
+        let source = internalProject.props.background
+        source = {
+          ...source,
+          props: {
+            ...source.props,
+            meta: {
+              ...source.props.meta,
+              ...metadata,
+            },
+          },
+        }
+        if (doTrigger) {
+          Command.updateProjectProps({
+            projectId,
+            props: {
+              background: source,
+            },
+          })
+        } else {
+          Command.updateProjectPropsWithoutTrigger({
+            projectId,
+            props: {
+              background: source,
+            },
+          })
+        }
+      }
+      return;
+    }
+
+    case 'OverlayMetadataUpdate': {
+      const { Command } = CoreContext
+      const { projectId, metadata, sourceId, doTrigger, role } =
+        payload as InternalEventMap['OverlayMetadataUpdate']
+      if (role === 'ROLE_HOST' || role === 'ROLE_COHOST') {
+        const internalProject = getProject(projectId)
+        if (!internalProject) return
+        let source = internalProject.props.overlays.find(
+          (x: OverlaySource) => x.id === sourceId,
+        )
+        if (source) {
+          source = {
+            ...source,
+            props: {
+              ...source.props,
+              meta: {
+                ...source.props.meta,
+                ...metadata,
+              },
+            },
+          }
+
+          const overlayIndex = internalProject.props.overlays.findIndex(
+            (x: OverlaySource) => x.id === sourceId,
+          )
+
+          internalProject.props.overlays.splice(overlayIndex, 1, source)
+
+          if (doTrigger) {
+            Command.updateProjectProps({
+              projectId,
+              props: {
+                overlays: internalProject.props.overlays
+              },
+            })
+          } else {
+            Command.updateProjectPropsWithoutTrigger({
+              projectId,
+              props: {
+                overlays: internalProject.props.overlays,
+              },
+            })
+          }
+        }
+      }
 
       return
     }
