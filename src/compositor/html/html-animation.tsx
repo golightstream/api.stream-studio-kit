@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React from 'react'
-import ReactCSSTransitionGroup from 'react-transition-group'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import { Direction } from '../../animation/core'
 import { Animations } from '../../animation'
 
