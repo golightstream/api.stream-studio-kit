@@ -303,6 +303,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
 }
 
 let wrapperEl: HTMLElement
+let customStyleEl: HTMLStyleElement
 
 /**
  * Render the output compositor displaying the stream canvas, which will be used
@@ -333,7 +334,6 @@ export const render = (settings: CompositorSettings) => {
     (dblClickShowcase && scenelessProjectDoubleClick(project))
 
   if (!containerEl || !project) return
-  let customStyleEl: HTMLStyleElement
 
   if (!containerEl.shadowRoot) {
     containerEl.attachShadow({ mode: 'open' })
