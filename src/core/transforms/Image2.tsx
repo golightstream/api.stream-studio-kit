@@ -30,13 +30,13 @@ export const Image2 = {
 
       return (
         <APIKitAnimation
+          id={id}
           enter={APIKitAnimationTypes.FADE_IN}
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
           {src && (
             <img
-              key={id}
               style={{ ...initialProps?.style, ...meta?.style }}
               src={src}
             />
