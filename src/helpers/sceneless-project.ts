@@ -448,16 +448,17 @@ export const commands = (_project: ScenelessProject) => {
   let backgroundImageContainer = background?.children?.find(
     (x) => x.props.id === 'image-background',
   )
+
   let foregroundImageContainer = foreground?.children?.find(
     (x) => x.props.id === 'fg-image',
   )
 
   let foregroundImageContainer2 = foreground?.children?.find(
-    (x) => x.props.id === 'image-forground',
+    (x) => x.props.id === 'image-overlay',
   )
 
   let foregroundVideoContainer2 = foreground?.children?.find(
-    (x) => x.props.id === 'video-forground',
+    (x) => x.props.id === 'video-overlay',
   )
 
   let foregroundLogoContainer = foreground?.children?.find(
