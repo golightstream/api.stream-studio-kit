@@ -47,8 +47,11 @@ export const RoomParticipant = {
     let source: any
     let props = initialProps
 
-    const getSize = (width: number, canvas: { width: number; height: number }) => {
-      const widthAsPercentage = width / canvas.width;
+    const getSize = (
+      width: number,
+      canvas: { width: number; height: number },
+    ) => {
+      const widthAsPercentage = width / canvas.width
 
       if (widthAsPercentage >= 0.5) {
         return 3
@@ -71,7 +74,7 @@ export const RoomParticipant = {
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
       const ref = useRef<HTMLVideoElement>()
       // TODO: Transforms should not rely on external state
-      const project = getProject(CoreContext.state.activeProjectId);
+      const project = getProject(CoreContext.state.activeProjectId)
       const room = getRoom(CoreContext.state.activeProjectId)
       const isSelf = source?.id === room?.participantId
 
@@ -102,9 +105,13 @@ export const RoomParticipant = {
 
         const calculate = () => {
           const rect = ref.current
-          setLabelSize(getSize(rect.clientWidth, { width: project.compositor.getRoot().props.size.x, height: project.compositor.getRoot().props.size.y }))
+          setLabelSize(
+            getSize(rect.clientWidth, {
+              width: project.compositor.getRoot().props.size.x,
+              height: project.compositor.getRoot().props.size.y,
+            }),
+          )
         }
-
 
         const resizeObserver = new ResizeObserver((entries) => {
           calculate()
@@ -115,7 +122,6 @@ export const RoomParticipant = {
         return () => {
           resizeObserver.unobserve(ref.current)
         }
-
       }, [ref.current, project])
 
       useEffect(() => {
@@ -146,21 +152,23 @@ export const RoomParticipant = {
               opacity: hasVideo ? '0' : '1',
             }}
           >
-            <div
-              style={{
-                borderRadius: '50%',
-                background: '#555',
-                width: '70px',
-                height: '70px',
-                textTransform: 'uppercase',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: '1em',
-              }}
-            >
-              {source?.props.displayName.slice(0, 1) || ''}
-            </div>
+            {source?.props.displayName && (
+              <div
+                style={{
+                  borderRadius: '50%',
+                  background: '#555',
+                  width: '70px',
+                  height: '70px',
+                  textTransform: 'uppercase',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: '1em',
+                }}
+              >
+                {source?.props.displayName.slice(0, 1) || ''}
+              </div>
+            )}
           </div>
           <video
             ref={ref}
@@ -212,7 +220,7 @@ export const RoomParticipant = {
                 )} */}
                 {
                   <div className="NameBanner-body">
-                    {source.props.displayName}{source.props.type === 'screen' && `'s Screen`}
+                    {source.props.displayName}
                   </div>
                 }
               </div>
