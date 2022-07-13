@@ -253,15 +253,19 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
 
   useEffect(() => {
     const updateCSS = () => {
-      const { bannerStyle = BannerStyle.DEFAULT, primaryColor = '#ABABAB', showNameBanners } = (project.props ?? {})
-      if (!bannerStyle || !primaryColor) return
+      const { bannerStyle = BannerStyle.DEFAULT, primaryColor = '#ABABAB', showNameBanners  } = (project.props ?? {})
+      const {logoPosition = LogoPosition.TopRight} = project.props ?? project.props?.logo ?? {};
+
+      if (!bannerStyle || !primaryColor || !logoPosition) return
       const CSS = themes[bannerStyle as BannerStyle](
         primaryColor,
         showNameBanners,
       )
 
-      console.log('injecting', CSS);
-      props.setStyle(CSS || '')
+      const logoCSS = themes[logoPosition as LogoPosition]()
+    
+      console.log('injecting', `${CSS} ${logoCSS}`)
+      props.setStyle(`${CSS} ${logoCSS}` || '')
     }
     updateCSS()
     return CoreContext.onInternal('ProjectChanged', updateCSS)
@@ -503,7 +507,18 @@ video {
   width: 100%;
   font-size: 28px;
 }
+
+.logo {
+  position: absolute !important;
+}
 `
+
+export enum LogoPosition {
+  TopLeft = 'top-left',
+  TopRight = 'top-right',
+  BottomLeft = 'bottom-left',
+  BottomRight = 'bottom-right',
+}
 
 export enum BannerStyle {
   DEFAULT = 'default',
@@ -512,6 +527,46 @@ export enum BannerStyle {
 }
 
 const themes = {
+  [LogoPosition.TopLeft]: (scalar = 1280 / 1920) => {
+    const scale = (px: number) => px * scalar + 'px'
+    return `
+      .wrapper {
+       margin-top:${scale(40)} !important;
+       margin-left:${scale(40)} !important;
+       top:0;
+       left:0;
+    }`
+  },
+  [LogoPosition.TopRight]: (scalar = 1280 / 1920) => {
+    const scale = (px: number) => px * scalar + 'px'
+    return `
+      .wrapper {
+       margin-top:${scale(40)} !important;
+       margin-right:${scale(40)} !important;
+       top:0;
+       right:0;
+    }`
+  },
+  [LogoPosition.BottomLeft]: (scalar = 1280 / 1920) => {
+    const scale = (px: number) => px * scalar + 'px'
+    return `
+      .wrapper {
+       margin-bottom:${scale(40)} !important;
+       margin-left:${scale(40)} !important;
+       bottom:0;
+       left:0;
+    }`
+  },
+  [LogoPosition.BottomRight]: (scalar = 1280 / 1920) => {
+    const scale = (px: number) => px * scalar + 'px'
+    return `
+      .wrapper {
+       margin-bottom:${scale(40)} !important;
+       margin-right:${scale(40)} !important;
+       bottom:0;
+       right:0;
+    }`
+  },
   [BannerStyle.DEFAULT]: (
     primaryColor: string = '#ABABAB',
     showNameBanners: boolean = true,
