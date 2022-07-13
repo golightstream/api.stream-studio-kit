@@ -24,6 +24,10 @@ export default defineConfig({
   root: '../',
   build: {
     rollupOptions: {
+      external: ['react', 'react-dom'],
+      output: {
+        inlineDynamicImports: true,
+      },
       input: {
         compositor: resolve(__dirname, 'index.html'),
       },
