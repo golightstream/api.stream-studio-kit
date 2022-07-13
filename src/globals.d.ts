@@ -9,4 +9,4 @@ declare interface Window {
   __StudioKit?: any
 }
 
-declare module 'react-addons-css-transition-group'
+declare module 'react-transition-group'

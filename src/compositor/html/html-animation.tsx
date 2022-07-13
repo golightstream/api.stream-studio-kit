@@ -3,11 +3,12 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React from 'react'
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
+import { CSSTransition, TransitionGroup } from 'react-transition-group'
 import { Direction } from '../../animation/core'
 import { Animations } from '../../animation'
 
 export interface AnimationProps {
+  id: string
   enter: keyof typeof Animations
   exit: keyof typeof Animations
   children: React.ReactNode
@@ -32,6 +33,7 @@ const APIKitAnimation: React.FC<AnimationProps> = (props: AnimationProps) => {
     tag = 'div',
     direction = 'normal',
     duration = 500,
+    id,
   } = props
 
   return (
@@ -41,19 +43,20 @@ const APIKitAnimation: React.FC<AnimationProps> = (props: AnimationProps) => {
           __html: renderStyle(enter, exit, duration, direction),
         }}
       />
-      <ReactCSSTransitionGroup
-        component={tag}
-        transitionName={{
-          enter: 'default-enter',
-          enterActive: enter,
-          leave: 'default-leave',
-          leaveActive: exit,
-        }}
-        transitionEnterTimeout={duration}
-        transitionLeaveTimeout={duration}
-      >
-        {children}
-      </ReactCSSTransitionGroup>
+      <TransitionGroup>
+        <CSSTransition
+          key={id}
+          classNames={{
+            enter: 'default-enter',
+            enterActive: enter,
+            exit: 'default-leave',
+            exitActive: exit,
+          }}
+          timeout={duration}
+        >
+          {children ? children : <span />}
+        </CSSTransition>
+      </TransitionGroup>
     </div>
   )
 }

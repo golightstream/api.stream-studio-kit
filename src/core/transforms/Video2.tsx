@@ -170,13 +170,13 @@ export const Video2 = {
       
       return (
         <APIKitAnimation
+          id={id}
           enter={APIKitAnimationTypes.FADE_IN}
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
           {src && (
             <video
-              key={id}
               ref={videoRef}
               style={initialProps.style}
               {...initialProps.props}
