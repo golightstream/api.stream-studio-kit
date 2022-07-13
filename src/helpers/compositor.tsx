@@ -253,8 +253,16 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
 
   useEffect(() => {
     const updateCSS = () => {
-      const { bannerStyle = BannerStyle.DEFAULT, primaryColor = '#ABABAB', showNameBanners  } = (project.props ?? {})
-      const {logoPosition = LogoPosition.TopRight} = project.props ?? project.props?.logo ?? {};
+      const {
+        bannerStyle = BannerStyle.DEFAULT,
+        primaryColor = '#ABABAB',
+        showNameBanners,
+      } = project.props ?? {}
+      
+      const logoPosition =
+        project.props?.logoPosition ??
+        project.props?.logo?.logoPosition ??
+        LogoPosition.TopRight
 
       if (!bannerStyle || !primaryColor || !logoPosition) return
       const CSS = themes[bannerStyle as BannerStyle](
@@ -263,7 +271,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
       )
 
       const logoCSS = themes[logoPosition as LogoPosition]()
-    
+
       console.log('injecting', `${CSS} ${logoCSS}`)
       props.setStyle(`${CSS} ${logoCSS}` || '')
     }
@@ -713,19 +721,27 @@ const themes = {
       }
 
       .NameBanner[data-size="4"] {
-        padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(40 + 20)} !important;
+        padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(
+      40 + 20,
+    )} !important;
         font-size: ${scale(34)} !important;
       }
       .NameBanner[data-size="3"] {
-        padding: ${scale(16)} ${scale(40)} ${scale(16)} ${scale(40 + 20)} !important;
+        padding: ${scale(16)} ${scale(40)} ${scale(16)} ${scale(
+      40 + 20,
+    )} !important;
         font-size: ${scale(34)} !important;
       }
       .NameBanner[data-size="2"] {
-        padding: ${scale(12)} ${scale(24)} ${scale(12)} ${scale(24 + 20)} !important;
+        padding: ${scale(12)} ${scale(24)} ${scale(12)} ${scale(
+      24 + 20,
+    )} !important;
         font-size: ${scale(24)} !important;
       }
       .NameBanner[data-size="1"], .NameBanner[data-size="0"] {
-        padding: ${scale(12)} ${scale(16)} ${scale(12)} ${scale(16 + 20)} !important;
+        padding: ${scale(12)} ${scale(16)} ${scale(12)} ${scale(
+      16 + 20,
+    )} !important;
         font-size: ${scale(18)} !important;
       }
       .NameBanner[data-size="0"] {
