@@ -42,15 +42,17 @@ export const Logo = {
     let previousLogo: Logo
 
     const update = (logo: Logo) => {
-      if (!logo) return
+      if (!logo) {
+        if (previousLogo) {
+          removeSource(previousLogo?.id)
+        }
+        return
+      }
       // Get banners not contained in previousBanners
-      const newLogo =
-        previousLogo?.id !== logo?.id ? logo : null
+      const newLogo = previousLogo?.id !== logo?.id ? logo : null
 
       // Get banners whose properties have changed
-      const changedLogo = !deepEqual(logo, previousLogo)
-        ? logo
-        : null
+      const changedLogo = !deepEqual(logo, previousLogo) ? logo : null
 
       if (newLogo) {
         addSource({
