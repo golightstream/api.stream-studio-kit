@@ -24,6 +24,8 @@ export default defineConfig({
   root: '../',
   build: {
     rollupOptions: {
+      // Externalize deps that shouldn't be bundled
+      external: ['react', 'react-dom'],
       input: {
         compositor: resolve(__dirname, 'index.html'),
       },
