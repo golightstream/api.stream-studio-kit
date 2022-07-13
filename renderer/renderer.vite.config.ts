@@ -12,7 +12,7 @@ import packageJSON from '../package.json'
 export default defineConfig({
   plugins: [
     babel({
-      exclude: './node_modules/**',
+      exclude: '../node_modules/**',
       babelHelpers: 'bundled',
       extensions: ['.ts', '.tsx'],
     }),
@@ -24,8 +24,6 @@ export default defineConfig({
   root: '../',
   build: {
     rollupOptions: {
-      // Externalize deps that shouldn't be bundled
-      external: ['react', 'react-dom'],
       input: {
         compositor: resolve(__dirname, 'index.html'),
       },
