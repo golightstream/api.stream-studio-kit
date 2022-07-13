@@ -45,6 +45,7 @@ export const Logo = {
       if (!logo) {
         if (previousLogo) {
           removeSource(previousLogo?.id)
+          previousLogo = null
         }
         return
       }
