@@ -605,7 +605,7 @@ export const commands = (_project: ScenelessProject) => {
             style: {
               width: '160px',
               height: '90px',
-              objectFit: 'cover',
+              objectFit: 'contain',
               position: 'unset',
             },
           },
@@ -1950,7 +1950,7 @@ export const createCompositor = async (
         style: {
           width: '160px',
           height: '90px',
-          objectFit: 'cover',
+          objectFit: 'contain',
           position : 'unset'
         },
       },
