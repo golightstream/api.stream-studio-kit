@@ -600,15 +600,13 @@ export const commands = (_project: ScenelessProject) => {
           {
             name: 'Logo',
             layout: 'Free',
-            sourceType: 'Image2',
-            // this will enable to register a transfrom on another source
-            // doing so will enable to resume source
-            proxySource: 'Logo',
+            sourceType: 'Logo',
             id: 'logo',
             style: {
               width: '160px',
               height: '90px',
               objectFit: 'cover',
+              position: 'unset',
             },
           },
           foreground.id,
@@ -754,7 +752,7 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     removeLogo() {
-      commands.setProp('logo', null)
+      return commands.setProp('logo', null)
     },
 
     getImageOverlay(): string | string[] {
@@ -1947,15 +1945,13 @@ export const createCompositor = async (
       {
         name: 'Logo',
         layout: 'Free',
-        sourceType: 'Image2',
-        // this will enable to register a transfrom on another source
-        // doing so will enable to resume source
-        proxySource: 'Logo',
+        sourceType: 'Logo',
         id: 'logo',
         style: {
           width: '160px',
           height: '90px',
           objectFit: 'cover',
+          position : 'unset'
         },
       },
       foreground.id,

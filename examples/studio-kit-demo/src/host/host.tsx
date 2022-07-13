@@ -161,6 +161,19 @@ const Project = () => {
     },
   ]
 
+
+  const logos = [
+    {
+      id: '123',
+      url: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
+    },
+    {
+      id: '124',
+      url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
+    },
+  ]
+
+
   const videooverlays = [
     {
       id: '125',
@@ -320,7 +333,7 @@ const Project = () => {
                         setSelectedVideo(overlay.id)
                         projectCommands.addVideoOverlay2(overlay.id, {
                           src: overlay.url,
-                          loop : true
+                          loop: true,
                         })
                       } else {
                         projectCommands.removeVideoOverlay2(selectedVideo)
@@ -329,6 +342,32 @@ const Project = () => {
                     }}
                   >
                     <video width="40px" height="50px" src={overlay.url} />
+                  </li>
+                ))}
+              </ul>
+            </span>
+          </div>
+          <div>
+            <span>
+              Logos
+              <ul style={{ listStyle: 'none' }}>
+                {logos.map((logo) => (
+                  <li
+                    key={logo.id}
+                    onClick={() => {
+                      if (selectedImage !== logo.id) {
+                        setSelectedImage(logo.id)
+                        projectCommands.addLogo(logo.id, {
+                          src: logo.url,
+                        })
+                        projectCommands.setProp("logoPosition", "bottom-right");
+                      } else {
+                        projectCommands.removeLogo(selectedImage)
+                        setSelectedImage(null)
+                      }
+                    }}
+                  >
+                    <img width="40px" height="50px" src={logo.url} />
                   </li>
                 ))}
               </ul>
@@ -357,12 +396,12 @@ const Project = () => {
               defaultValue={background}
               onChange={(e) => {
                 if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(e.target.value)) {
-                  projectCommands.setBackgroundImage(e.target.value);
+                  projectCommands.setBackgroundImage(e.target.value)
                   // projectCommands.setBackgroundImage2(generateId(), {
                   //   src: e.target.value,
                   // })
                 } else {
-                    projectCommands.setBackgroundVideo(e.target.value)
+                  projectCommands.setBackgroundVideo(e.target.value)
                   // projectCommands.setBackgroundVideo2(generateId(), {
                   //   src: e.target.value,
                   // })

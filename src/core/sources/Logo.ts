@@ -11,7 +11,7 @@ type SourceDeclaration = Compositor.Source.SourceDeclaration
 
 export type LogoProps = {
   src?: string
-  type?: 'image-background' | 'video-background'
+  type?: 'logo'
   // Opaque to the SDK
   [prop: string]: any
 }
