@@ -76,11 +76,14 @@ export const RoomParticipant = {
           updateSource(x.id, {
             videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
             audioEnabled: Boolean(microphoneTrack && !microphoneTrack.isMuted),
+            displayName: x.displayName,
           })
           updateSource(x.id + '-screen', {
             videoEnabled: Boolean(
               screenshareTrack && !screenshareTrack.isMuted,
             ),
+            displayName:
+              x.meta.screenDisplayName || `${x.displayName}'s Screen`,
           })
         })
       }
