@@ -60,9 +60,9 @@ export const Video2 = {
       )
       const { src, type, meta, loop } = source?.value || {}
       const { id } = source || {}
-      const [transitionState, setTransitionState] = React.useState(false)
-      const videoRef = React.useRef<HTMLVideoElement>(null);
-      
+      const [refAvaiable, setRefAvaiable] = React.useState(false)
+      const videoRef = React.useRef<HTMLVideoElement>(null)
+
       useUnload((e: BeforeUnloadEvent) => {
         if (id) {
           triggerInternal(SourceTrigger.trigger, {
@@ -107,7 +107,7 @@ export const Video2 = {
           if (videoRef?.current?.currentTime) {
             if (
               event.type === 'UserJoined' &&
-              senderId !== room.participantId
+              senderId !== room?.participantId
             ) {
               triggerInternal(SourceTrigger.trigger, {
                 role,
@@ -115,7 +115,7 @@ export const Video2 = {
                 doTrigger: true,
                 metadata: {
                   time: Math.floor(videoRef?.current?.currentTime) || 0,
-                  owner: room.participantId,
+                  owner: room?.participantId,
                 },
               })
             }
@@ -123,28 +123,12 @@ export const Video2 = {
         })
       }, [videoRef])
 
-      React.useEffect(() => {
-        if (id && videoRef?.current) {
-          if (loop) {
-            videoRef.current.loop = Boolean(loop)
-          }
-          videoRef.current!.play().catch(() => {
-            videoRef.current.muted = true
-            videoRef.current.play()
-          })
-          interval = setInterval(() => {
-            if (videoRef.current.duration) {
-              const timePending =
-                videoRef.current.duration - videoRef.current.currentTime
-              trigger('VideoTimeUpdate', {
-                category: type,
-                id: id,
-                time: Math.floor(timePending),
-              })
-            }
-          }, 1000)
-        }
+      const handleRect = React.useCallback((node) => {
+        videoRef.current = node
+        setRefAvaiable(node ? true : false)
+      }, [])
 
+      React.useEffect(() => {
         return () => {
           if (interval) {
             clearInterval(interval)
@@ -152,20 +136,45 @@ export const Video2 = {
         }
       }, [id])
 
-
       React.useEffect(() => {
-        if (videoRef.current) {
-          triggerInternal(SourceTrigger.trigger, {
-            role,
-            sourceId: id,
-            doTrigger: true,
-            metadata: {
-              time: Math.floor(videoRef?.current?.currentTime) || 0,
-              owner: room.participantId,
-            },
-          })
+        if (!refAvaiable) {
+          if (interval) {
+            clearInterval(interval)
+          }
+        } else {
+          if (videoRef.current) {
+            if (loop) {
+              videoRef.current.loop = Boolean(loop)
+            }
+            videoRef.current!.play().catch(() => {
+              videoRef.current.muted = true
+              videoRef.current.play()
+            })
+
+            interval = setInterval(() => {
+              if (videoRef.current.duration) {
+                const timePending =
+                  videoRef.current.duration - videoRef.current.currentTime
+                trigger('VideoTimeUpdate', {
+                  category: type,
+                  id: id,
+                  time: Math.floor(timePending),
+                })
+              }
+            }, 1000)
+
+            triggerInternal(SourceTrigger.trigger, {
+              role,
+              sourceId: id,
+              doTrigger: true,
+              metadata: {
+                time: Math.floor(videoRef?.current?.currentTime) || 0,
+                owner: room.participantId,
+              },
+            })
+          }
         }
-      }, [])
+      }, [refAvaiable])
 
       return (
         <APIKitAnimation
@@ -178,7 +187,7 @@ export const Video2 = {
           {src && (
             <video
               src={src}
-              ref={videoRef}
+              ref={handleRect}
               style={initialProps.style}
               {...initialProps.props}
               onLoadedData={onLoadedData}
