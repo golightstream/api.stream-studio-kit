@@ -60,11 +60,9 @@ export const Video2 = {
       )
       const { src, type, meta, loop } = source?.value || {}
       const { id } = source || {}
-
-      const videoRef = React.useMemo(
-        () => React.createRef<HTMLVideoElement>(),
-        [id],
-      )
+      const [transitionState, setTransitionState] = React.useState(false)
+      const videoRef = React.useRef<HTMLVideoElement>(null);
+      
       useUnload((e: BeforeUnloadEvent) => {
         if (id) {
           triggerInternal(SourceTrigger.trigger, {
@@ -126,8 +124,7 @@ export const Video2 = {
       }, [videoRef])
 
       React.useEffect(() => {
-        if (id) {
-          videoRef.current!.src = src
+        if (id && videoRef?.current) {
           if (loop) {
             videoRef.current.loop = Boolean(loop)
           }
@@ -147,12 +144,14 @@ export const Video2 = {
             }
           }, 1000)
         }
+
         return () => {
           if (interval) {
             clearInterval(interval)
           }
         }
       }, [id])
+
 
       React.useEffect(() => {
         if (videoRef.current) {
@@ -166,17 +165,19 @@ export const Video2 = {
             },
           })
         }
-      }, []);
-      
+      }, [])
+
       return (
         <APIKitAnimation
           id={id}
+          type="video"
           enter={APIKitAnimationTypes.FADE_IN}
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
           {src && (
             <video
+              src={src}
               ref={videoRef}
               style={initialProps.style}
               {...initialProps.props}

@@ -3,12 +3,13 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React from 'react'
-import { CSSTransition, TransitionGroup } from 'react-transition-group'
+import { CSSTransition, SwitchTransition } from 'react-transition-group'
 import { Direction } from '../../animation/core'
 import { Animations } from '../../animation'
 
 export interface AnimationProps {
   id: string
+  type: string
   enter: keyof typeof Animations
   exit: keyof typeof Animations
   children: React.ReactNode
@@ -34,34 +35,53 @@ const APIKitAnimation: React.FC<AnimationProps> = (props: AnimationProps) => {
     direction = 'normal',
     duration = 500,
     id,
+    type,
   } = props
 
+  const keyId = id ? `${type}-${id}` : `${type}-api-kit-animation`
+
   return (
-    <div>
+    <div
+      style={{
+        height: '100%',
+        width: '100%',
+      }}
+    >
       <style
         dangerouslySetInnerHTML={{
-          __html: renderStyle(enter, exit, duration, direction),
+          __html: renderStyle(type, enter, exit, duration, direction),
         }}
       />
-      <TransitionGroup>
+      <SwitchTransition mode={'out-in'}>
         <CSSTransition
-          key={id}
+          key={keyId}
+          addEndListener={(node: HTMLElement, done: any) => {
+            node.addEventListener('transitionend', done, false)
+          }}
           classNames={{
-            enter: 'default-enter',
+            enter: `${type}-default-enter`,
             enterActive: enter,
-            exit: 'default-leave',
+            exit: `${type}-default-leave`,
             exitActive: exit,
           }}
           timeout={duration}
         >
-          {children ? children : <span />}
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+            }}
+          >
+            {children}
+          </div>
         </CSSTransition>
-      </TransitionGroup>
+      </SwitchTransition>
     </div>
   )
 }
 
 const renderStyle = (
+  type: string,
   enter: keyof typeof Animations,
   exit: keyof typeof Animations,
   duration: number,
@@ -73,25 +93,26 @@ const renderStyle = (
         
         ${Animations[exit]}
 
-        .default-enter {
-          opacity: 0;
-          position: absolute;
+        .${type}-transition {
+          transition: opacity ${duration}ms ease-out};
         }
 
-        .default-enter.${enter} {
+        .${type}-default-enter {
+          opacity: 0;
+        }
+
+        .${type}-default-enter.${enter} {
           animation-direction: ${direction};
           animation-duration: ${duration / 1000}s;
           animation-fill-mode: both;
           animation-timing-function: ease-out;
+        }
+
+        .${type}-default-leave {
           opacity: 1;
         }
 
-        .default-leave {
-          opacity: 1;
-          position: absolute;
-        }
-
-        .default-leave.${exit} {
+        .${type}-default-leave.${exit} {
           animation-direction: ${direction};
           animation-duration: ${duration / 1000}s;
           animation-timing-function: ease-out;
