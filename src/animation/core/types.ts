@@ -6,6 +6,7 @@ export enum APIKitAnimationTypes {
   /* SCALE_UP */
   FADE_IN = 'fade-in',
   FADE_OUT = 'fade-out',
+  SLIDE_IN_BLURRED_TOP = 'slide-in-blurred-top',
   //   SCALE_UP_BOTTOM = 'scale-up-bottom',
   //   SCALE_UP_BR = 'scale-up-br',
   //   SCALE_UP_CENTER = 'scale-up-center',

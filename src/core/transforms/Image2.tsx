@@ -31,15 +31,13 @@ export const Image2 = {
       return (
         <APIKitAnimation
           id={id}
+          type="image"
           enter={APIKitAnimationTypes.FADE_IN}
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
           {src && (
-            <img
-              style={{ ...initialProps?.style, ...meta?.style }}
-              src={src}
-            />
+            <img style={{ ...initialProps?.style, ...meta?.style }} className="image-transition" src={src} />
           )}
         </APIKitAnimation>
       )

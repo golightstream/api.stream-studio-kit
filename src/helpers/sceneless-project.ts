@@ -529,7 +529,6 @@ export const commands = (_project: ScenelessProject) => {
             style: {
               width: '100%',
               height: '100%',
-              position: 'absolute',
               objectFit: 'cover',
             },
           },
@@ -559,7 +558,6 @@ export const commands = (_project: ScenelessProject) => {
             style: {
               width: '100%',
               height: '100%',
-              position: 'absolute',
               objectFit: 'cover',
             },
           },
@@ -631,6 +629,13 @@ export const commands = (_project: ScenelessProject) => {
             attributes: {
               src: '',
             },
+            fields: {
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              },
+            },
           },
           background.id,
         )
@@ -647,7 +652,7 @@ export const commands = (_project: ScenelessProject) => {
       if (!backgroundImageContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'ImageBackground',
+            name: 'ImageBackground2',
             sourceType: 'Image2',
             proxySource: 'Background',
             id: 'image-background',
@@ -656,7 +661,6 @@ export const commands = (_project: ScenelessProject) => {
             style: {
               width: '100%',
               height: '100%',
-              position: 'absolute',
               objectFit: 'cover',
             },
           },
@@ -1064,6 +1068,13 @@ export const commands = (_project: ScenelessProject) => {
             attributes: {
               src,
             },
+            fields: {
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              },
+            },
           },
           parentId: background.id,
           index: background.children.length,
@@ -1116,6 +1127,13 @@ export const commands = (_project: ScenelessProject) => {
             attributes: {
               ...attributes,
               src,
+            },
+            fields: {
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              },
             },
           },
           parentId: background.id,
@@ -1896,7 +1914,6 @@ export const createCompositor = async (
         style: {
           width: '100%',
           height: '100%',
-          position: 'absolute',
           objectFit: 'cover',
         },
       },
@@ -1935,7 +1952,6 @@ export const createCompositor = async (
         style: {
           width: '100%',
           height: '100%',
-          position: 'absolute',
           objectFit: 'cover',
         },
       },
@@ -1951,7 +1967,7 @@ export const createCompositor = async (
           width: '160px',
           height: '90px',
           objectFit: 'contain',
-          position : 'unset'
+          position: 'unset',
         },
       },
       foreground.id,
@@ -1972,12 +1988,19 @@ export const createCompositor = async (
         attributes: {
           src: backgroundImage,
         },
+        fields: {
+          style: {
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          },
+        },
       },
       background.id,
     ),
     project.insert(
       {
-        name: 'ImageBackground',
+        name: 'ImageBackground2',
         sourceType: 'Image2',
         proxySource: 'Background',
         id: 'image-background',
@@ -1986,7 +2009,6 @@ export const createCompositor = async (
         style: {
           width: '100%',
           height: '100%',
-          position: 'absolute',
           objectFit: 'cover',
         },
       },
@@ -2002,7 +2024,6 @@ export const createCompositor = async (
         style: {
           width: '100%',
           height: '100%',
-          position: 'absolute',
           objectFit: 'cover',
         },
       },
