@@ -7,7 +7,6 @@ import React from 'react'
 import { CoreContext } from '../context'
 import { getProject } from '../data'
 import { Compositor } from '../namespaces'
-import useUnload from '../../hooks/useUnload'
 import { InternalEventMap } from '../events'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
@@ -60,22 +59,8 @@ export const Video2 = {
       )
       const { src, type, meta, loop } = source?.value || {}
       const { id } = source || {}
-      const [refAvaiable, setRefAvaiable] = React.useState(false)
+      const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
-
-      useUnload((e: BeforeUnloadEvent) => {
-        if (id) {
-          triggerInternal(SourceTrigger.trigger, {
-            role,
-            sourceId: id,
-            doTrigger: false,
-            metadata: {
-              time: Math.floor(videoRef?.current?.currentTime) || 0,
-              owner: room.participantId,
-            },
-          })
-        }
-      })
 
       const onLoadedData = React.useCallback(() => {
         if (videoRef?.current) {
@@ -125,7 +110,7 @@ export const Video2 = {
 
       const handleRect = React.useCallback((node) => {
         videoRef.current = node
-        setRefAvaiable(node ? true : false)
+        setRefId(node ? node.id : null)
       }, [])
 
       React.useEffect(() => {
@@ -137,12 +122,13 @@ export const Video2 = {
       }, [id])
 
       React.useEffect(() => {
-        if (!refAvaiable) {
+        if (!refId) {
           if (interval) {
             clearInterval(interval)
           }
         } else {
           if (videoRef.current) {
+            videoRef.current!.src = src
             if (loop) {
               videoRef.current.loop = Boolean(loop)
             }
@@ -169,12 +155,12 @@ export const Video2 = {
               doTrigger: true,
               metadata: {
                 time: Math.floor(videoRef?.current?.currentTime) || 0,
-                owner: room.participantId,
+                owner: room?.participantId,
               },
             })
           }
         }
-      }, [refAvaiable])
+      }, [refId])
 
       return (
         <APIKitAnimation
@@ -186,7 +172,8 @@ export const Video2 = {
         >
           {src && (
             <video
-              src={src}
+              id={id}
+      
               ref={handleRect}
               style={initialProps.style}
               {...initialProps.props}
