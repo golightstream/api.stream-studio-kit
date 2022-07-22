@@ -47,7 +47,7 @@ export const createProject = async (request: {
         },
       },
       composition: {
-        studioSdk: {},
+        studioSdk: { version: CoreContext.rendererVersion },
       },
       metadata: {},
       webrtc: {

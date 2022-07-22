@@ -42,6 +42,8 @@ export const CoreContext = {
   compositor: {} as Compositor.CompositorInstance,
   connectionId,
   version,
+  /** @private @internal */
+  rendererVersion: version,
   log,
   logLevel: null as LogLevel,
 }
