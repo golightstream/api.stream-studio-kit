@@ -271,8 +271,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
       )
 
       const logoCSS = themes[logoPosition as LogoPosition]()
-
-      console.log('injecting', `${CSS} ${logoCSS}`)
+      
       props.setStyle(`${CSS} ${logoCSS}` || '')
     }
     updateCSS()
