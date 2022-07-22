@@ -54159,7 +54159,6 @@ const Root = (props) => {
         return;
       const CSS = themes[bannerStyle](primaryColor, showNameBanners);
       const logoCSS = themes[logoPosition]();
-      console.log("injecting", `${CSS} ${logoCSS}`);
       props.setStyle(`${CSS} ${logoCSS}` || "");
     };
     updateCSS();
