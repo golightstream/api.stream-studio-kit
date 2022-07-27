@@ -372,9 +372,7 @@ export const render = (settings: CompositorSettings) => {
 
   const root = project.compositor.getRoot()
   const { x: rootWidth, y: rootHeight } = root.props.size
-  
-  // @ts-ignore
-  window.__containerEl = containerEl;
+
   const setScale = () => {
     const { width, height } = containerEl.getBoundingClientRect()
     const containerRatio = width / height
