@@ -363,7 +363,6 @@ export const render = (settings: CompositorSettings) => {
     containerEl.shadowRoot.appendChild(baseStyleEl)
     containerEl.shadowRoot.appendChild(customStyleEl)
     containerEl.shadowRoot.appendChild(wrapperEl)
-
     // Scale and center the compositor to fit in the container
     const resizeObserver = new ResizeObserver((entries) => {
       setScale()
@@ -373,7 +372,9 @@ export const render = (settings: CompositorSettings) => {
 
   const root = project.compositor.getRoot()
   const { x: rootWidth, y: rootHeight } = root.props.size
-
+  
+  // @ts-ignore
+  window.__containerEl = containerEl;
   const setScale = () => {
     const { width, height } = containerEl.getBoundingClientRect()
     const containerRatio = width / height

@@ -230,6 +230,7 @@ export class Layout extends HTMLElement {
       boxSizing: 'border-box',
     })
 
+
     // Listen for child add/remove and re-run layout
     //  Also listen for attribute changes
     if (this.mutationObserver) this.mutationObserver.disconnect()
@@ -585,6 +586,30 @@ export const ensureLayoutContainer = (size: { x: number; y: number }) => {
     height: size.y + 'px',
   })
   document.body.append(container)
+  // Scale and center the compositor to fit in the container
+  const resizeObserver = new ResizeObserver((entries) => {
+    // TODO: Remove dependence on ls-layout
+    // @ts-ignore
+    const scale = window.__scale
+
+    Object.entries(layoutIndex).forEach(([layoutId, ops]) => {
+      const layoutEl = layoutIndex[layoutId]
+
+      // @ts-ignore
+      const rect = window.__containerEl.getBoundingClientRect()
+      const size = {
+        x: Math.round(rect.width / scale),
+        y: Math.round(rect.height / scale),
+      }
+      layoutEl.updatePositions({
+        size,
+      })
+    })
+  })
+
+  // @ts-ignore
+  resizeObserver.observe(window.__containerEl)
+
   return container
 }
 
