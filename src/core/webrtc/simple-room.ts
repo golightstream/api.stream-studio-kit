@@ -347,7 +347,7 @@ export const getRoom = (id: string) => {
       room.livekitRoom.on(RoomEvent.ActiveSpeakersChanged, fn)
       fn(room.livekitRoom.activeSpeakers)
       return () => {
-        room.livekitRoom.off(RoomEvent.ActiveSpeakersChanged, fn)
+        room.livekitRoom?.off(RoomEvent.ActiveSpeakersChanged, fn)
       }
     },
     sendData: (data, recipientIds) => {
@@ -368,7 +368,7 @@ export const getRoom = (id: string) => {
       }
       room.livekitRoom.on(RoomEvent.DataReceived, fn)
       return () => {
-        room.livekitRoom.off(RoomEvent.DataReceived, fn)
+        room.livekitRoom?.off(RoomEvent.DataReceived, fn)
       }
     },
     connect: () => {
@@ -380,7 +380,7 @@ export const getRoom = (id: string) => {
     onDisconnected: (cb) => {
       room.livekitRoom.on(RoomEvent.Disconnected, cb)
       return () => {
-        room.livekitRoom.off(RoomEvent.DataReceived, cb)
+        room.livekitRoom?.off(RoomEvent.DataReceived, cb)
       }
     },
     setAudioOutput: (deviceId: string) => {

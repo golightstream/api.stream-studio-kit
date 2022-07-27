@@ -263,27 +263,37 @@ export const init = async (
         // Get the project from memory since it is not included in event subtype `state`
         const project = getProject(event.state?.projectId)
         if (!project) return
-
-        triggerInternal('ProjectChanged', {
-          project: project.videoApi.project,
-          phase: event.state.phase,
-        })
+        let broadcastId = event.state.broadcastId
 
         // Emit explicit external events for broadcast start/stop/error
         if (event.state.error) {
           trigger('BroadcastError', {
             projectId: project.id,
+            broadcastId: event.state.broadcastId,
             error: event.state.error,
           })
         }
         if (event.state.phase) {
           const phase = event.state.phase
           if (phase === BroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING) {
-            trigger('BroadcastStarted', { projectId: project.id })
+            trigger('BroadcastStarted', {
+              projectId: project.id,
+              broadcastId: event.state.broadcastId,
+            })
           } else if (phase === BroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPED) {
-            trigger('BroadcastStopped', { projectId: project.id })
+            broadcastId = null
+            trigger('BroadcastStopped', {
+              projectId: project.id,
+              broadcastId: event.state.broadcastId,
+            })
           }
         }
+
+        triggerInternal('ProjectChanged', {
+          project: project.videoApi.project,
+          phase: event.state.phase,
+          broadcastId,
+        })
         return
       }
     }

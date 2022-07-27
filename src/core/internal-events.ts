@@ -83,13 +83,17 @@ subscribeInternal(async (event, payload) => {
       return
     }
     case 'ProjectChanged': {
-      const { project, phase } = payload as InternalEventMap['ProjectChanged']
+      const { project, phase, broadcastId } =
+        payload as InternalEventMap['ProjectChanged']
       const internalProject = getProject(project.projectId)
       if (!internalProject) return
 
       // Update internal state
       if (phase) {
         internalProject.videoApi.phase = phase
+      }
+      if (typeof broadcastId !== 'undefined') {
+        internalProject.videoApi.broadcastId = broadcastId
       }
       internalProject.videoApi.project = project
       internalProject.props = project.metadata?.props ?? {}
@@ -246,7 +250,7 @@ subscribeInternal(async (event, payload) => {
           })
         }
       }
-      return;
+      return
     }
 
     case 'OverlayMetadataUpdate': {
@@ -281,7 +285,7 @@ subscribeInternal(async (event, payload) => {
             Command.updateProjectProps({
               projectId,
               props: {
-                overlays: internalProject.props.overlays
+                overlays: internalProject.props.overlays,
               },
             })
           } else {

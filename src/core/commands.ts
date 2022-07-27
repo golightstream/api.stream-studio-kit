@@ -117,7 +117,10 @@ export const createProject = async (
   await triggerInternal('ProjectAdded', response.project)
 
   // Return the base project directly, for convenience
-  const internalProject = await hydrateProject(response.project, 'ROLE_HOST' as SDK.Role)
+  const internalProject = await hydrateProject(
+    response.project,
+    'ROLE_HOST' as SDK.Role,
+  )
   return toBaseProject(internalProject)
 }
 
@@ -181,7 +184,6 @@ export const updateProjectMeta = (payload: {
   meta?: Props
 }) => updateProjectProps({ projectId: payload.projectId, props: payload.meta })
 
-
 /**
  * @private Use updateProjectProps without internaltriggers
  */
@@ -209,8 +211,6 @@ export const updateProjectPropsWithoutTrigger = async (payload: {
   })
   return
 }
-
-
 
 /**
  * Set the active project for the user, setting up event handlers and
@@ -271,6 +271,7 @@ export const setActiveProject = async (payload: {
       triggerInternal('ProjectChanged', {
         project: response.project,
         phase: response.status?.phase,
+        broadcastId: response.status?.broadcastId,
       })
     })
 

@@ -1,4 +1,3 @@
-
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -193,18 +192,21 @@ export interface ExternalEventMap {
    */
   BroadcastStarted: {
     projectId: SDK.Project['id']
+    broadcastId: string
   }
   /**
    * @category Broadcast
    */
   BroadcastStopped: {
     projectId: SDK.Project['id']
+    broadcastId: string
   }
   /**
    * @category Broadcast
    */
   BroadcastError: {
     projectId: SDK.Project['id']
+    broadcastId: string
     error: LiveApiModel.ProjectBroadcastError
   }
   /**
@@ -281,11 +283,10 @@ export interface ExternalEventMap {
     time: number
   }
 
-  VideoEnded : {
-    id : string,
-    category : string
+  VideoEnded: {
+    id: string
+    category: string
   }
-
 }
 
 /**
@@ -297,6 +298,7 @@ export interface InternalEventMap {
   ProjectAdded: LiveApiModel.Project
   ProjectChanged: {
     project: LiveApiModel.Project
+    broadcastId?: string
     phase?: ProjectBroadcastPhase
   }
   ProjectRemoved: {
