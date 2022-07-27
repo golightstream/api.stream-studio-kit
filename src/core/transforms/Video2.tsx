@@ -83,7 +83,7 @@ export const Video2 = {
         if (videoRef?.current) {
           videoRef.current!.play().catch(() => {
             videoRef.current.muted = true
-            videoRef.current.play()
+            videoRef.current?.play()
           })
         }
       }, [src, videoRef])

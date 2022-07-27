@@ -69,6 +69,7 @@ export type InternalProject = {
   // Video API props
   videoApi: {
     project: LiveApiModel.Project
+    broadcastId?: string
     phase?: LiveApiModel.ProjectBroadcastPhase
   }
   // Layout API props

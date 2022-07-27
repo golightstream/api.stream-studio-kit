@@ -47,6 +47,7 @@ export const toBaseProject = (
   })
 
   const broadcastPhase = project.videoApi.phase
+  const broadcastId = project.videoApi.broadcastId || null
 
   // TODO: Check project root node type and extend functionality
   //  e.g. ScenelessProject
@@ -54,6 +55,7 @@ export const toBaseProject = (
   return {
     broadcastPhase,
     role,
+    broadcastId,
     isLive: [
       ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING,
       ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPING,

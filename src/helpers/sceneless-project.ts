@@ -740,7 +740,7 @@ export const commands = (_project: ScenelessProject) => {
       return (getProject(_project.id).props.overlays || []) as Overlay[]
     },
 
-    getParticipants(room: SDK.Room) {
+    getParticipants() {
       return content.children.filter((node) => {
         if (node.props.sourceType !== 'RoomParticipant') return false
         return true

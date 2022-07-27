@@ -124,6 +124,11 @@ export interface Project {
    */
   id: string
   /**
+   * The project's associated live broadcast ID. 
+   *  Field will be empty if project is not live.
+   */
+  broadcastId?: string
+  /**
    * Phase of the project's broadcast.
    */
   broadcastPhase: ProjectBroadcastPhase
