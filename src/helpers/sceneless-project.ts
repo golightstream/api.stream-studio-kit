@@ -125,7 +125,7 @@ export interface Commands {
    * Get all participants in the project
    * @private
    */
-  getParticipants(room: SDK.Room): Compositor.SceneNode[]
+  getParticipants(): Compositor.SceneNode[]
   /**
    * play video overlay on foreground
    * @private
