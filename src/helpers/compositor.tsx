@@ -391,7 +391,7 @@ export const render = (settings: CompositorSettings) => {
       // It's possible the container will have no size defined (width/height=0)
       scale = 1
     }
-    wrapperEl.style.transform = `scale(${Math.round(scale * 100) / 100})`
+    wrapperEl.style.transform = `scale(${scale})`
     // @ts-ignore
     window.__scale = scale
     render()
