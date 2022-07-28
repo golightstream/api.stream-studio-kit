@@ -230,6 +230,7 @@ export class Layout extends HTMLElement {
       boxSizing: 'border-box',
     })
 
+
     // Listen for child add/remove and re-run layout
     //  Also listen for attribute changes
     if (this.mutationObserver) this.mutationObserver.disconnect()

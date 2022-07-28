@@ -30,6 +30,7 @@ export const Logo = {
 
       return (
         <APIKitAnimation
+          type="logo"
           id={id}
           enter={APIKitAnimationTypes.FADE_IN}
           exit={APIKitAnimationTypes.FADE_OUT}

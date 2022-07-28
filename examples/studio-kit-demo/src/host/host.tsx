@@ -164,11 +164,11 @@ const Project = () => {
 
   const logos = [
     {
-      id: '123',
+      id: '128',
       url: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
     },
     {
-      id: '124',
+      id: '129',
       url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
     },
   ]
@@ -360,7 +360,6 @@ const Project = () => {
                         projectCommands.addLogo(logo.id, {
                           src: logo.url,
                         })
-                        projectCommands.setProp("logoPosition", "bottom-right");
                       } else {
                         projectCommands.removeLogo(selectedImage)
                         setSelectedImage(null)
@@ -396,15 +395,15 @@ const Project = () => {
               defaultValue={background}
               onChange={(e) => {
                 if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(e.target.value)) {
-                  projectCommands.setBackgroundImage(e.target.value)
-                  // projectCommands.setBackgroundImage2(generateId(), {
-                  //   src: e.target.value,
-                  // })
+        //          projectCommands.setBackgroundImage(e.target.value)
+                  projectCommands.setBackgroundImage2(generateId(), {
+                    src: e.target.value,
+                  })
                 } else {
-                  projectCommands.setBackgroundVideo(e.target.value)
-                  // projectCommands.setBackgroundVideo2(generateId(), {
-                  //   src: e.target.value,
-                  // })
+      //            projectCommands.setBackgroundVideo(e.target.value)
+                  projectCommands.setBackgroundVideo2(generateId(), {
+                    src: e.target.value,
+                  })
                 }
               }}
             />
