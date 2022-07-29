@@ -502,8 +502,9 @@ video {
 }
 
 .NameBanner {
-  bottom: 0px;
-  left: 0px;
+  top: 100%;
+  transform: translateY(-100%);
+  left: 0;
   height: 30px;
   background: linear-gradient(90deg, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
   padding: 0px 0px 0px 10px;
@@ -512,6 +513,12 @@ video {
   line-height: 30px;
   width: 100%;
   font-size: 28px;
+  position: absolute;
+}
+
+ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .NameBanner {
+  top: 0% !important;
+  transform: translateY(0%) !important;
 }
 
 .logo {

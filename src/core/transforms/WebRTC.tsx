@@ -193,10 +193,6 @@ export const RoomParticipant = {
               style={{
                 width: '100%',
                 height: '100%',
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'flex-start',
-                alignItems: 'flex-end',
                 position: 'absolute',
               }}
             >
@@ -207,7 +203,9 @@ export const RoomParticipant = {
                   padding: '12px 30px',
                   width: 'fit-content',
                   height: 'fit-content',
-                  position: 'relative',
+                  top: '100%',
+                  transform: 'translateY(-100%)',
+                  left: 0,
                 }}
               >
                 {/* {headerText && (
