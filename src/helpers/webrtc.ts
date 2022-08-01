@@ -4,7 +4,7 @@
  * -------------------------------------------------------------------------------------------- */
 /**
  * Utility functions for dealing with WebRTC, Devices, and {@link Room}-related concepts.
- * 
+ *
  * @module Room
  */
 import { log } from '../core/context'
@@ -51,17 +51,23 @@ export const updateMediaStreamTracks = (
  * Determine which permissions a user has already agreed to in their browser.
  */
 export const getDevicePermissions = async () => {
-  // Get the available device information
-  const devices = await navigator.mediaDevices.enumerateDevices()
-  // Check each kind for a device ID to determine whether permission has been granted
-  const firstWebcam = devices.find((x) => x.kind === 'videoinput')
-  const firstMicrophone = devices.find((x) => x.kind === 'audioinput')
-  return {
-    /** User has enabled webcam access */
-    video: Boolean(firstWebcam) && Boolean(firstWebcam.deviceId),
-    /** User has enabled microphone access */
-    audio: Boolean(firstMicrophone) && Boolean(firstMicrophone.deviceId),
-  }
+  const permissions = { audio: true, video: true }
+  return Promise.all([
+    navigator.mediaDevices.getUserMedia({
+      video: true,
+    }).catch((e) => {
+      if (e.name === 'NotAllowedError') {
+        permissions.video = false
+      }
+    }),
+    navigator.mediaDevices.getUserMedia({
+      audio: true,
+    }).catch((e) => {
+      if (e.name === 'NotAllowedError') {
+        permissions.audio = false
+      }
+    }),
+  ]).then(() => permissions)
 }
 
 /**
@@ -73,7 +79,7 @@ export const ensureDevicePermissions = async () => {
     return currentPermissions
 
   try {
-    const stream = await getUserMedia({
+    const stream = await navigator.mediaDevices.getUserMedia({
       video: !currentPermissions.video,
       audio: !currentPermissions.audio,
     })
