@@ -53,20 +53,30 @@ export const updateMediaStreamTracks = (
 export const getDevicePermissions = async () => {
   const permissions = { audio: true, video: true }
   return Promise.all([
-    navigator.mediaDevices.getUserMedia({
-      video: true,
-    }).catch((e) => {
-      if (e.name === 'NotAllowedError') {
-        permissions.video = false
-      }
-    }),
-    navigator.mediaDevices.getUserMedia({
-      audio: true,
-    }).catch((e) => {
-      if (e.name === 'NotAllowedError') {
-        permissions.audio = false
-      }
-    }),
+    navigator.mediaDevices
+      .getUserMedia({
+        video: true,
+      })
+      .then((src) => {
+        src.getTracks().forEach((x) => x.stop())
+      })
+      .catch((e) => {
+        if (e.name === 'NotAllowedError') {
+          permissions.video = false
+        }
+      }),
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: true,
+      })
+      .then((src) => {
+        src.getTracks().forEach((x) => x.stop())
+      })
+      .catch((e) => {
+        if (e.name === 'NotAllowedError') {
+          permissions.audio = false
+        }
+      }),
   ]).then(() => permissions)
 }
 
@@ -74,23 +84,7 @@ export const getDevicePermissions = async () => {
  * Request device permissions, or resolve immediately if they are already available.
  */
 export const ensureDevicePermissions = async () => {
-  const currentPermissions = await getDevicePermissions()
-  if (currentPermissions.audio && currentPermissions.video)
-    return currentPermissions
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: !currentPermissions.video,
-      audio: !currentPermissions.audio,
-    })
-    stream.getTracks().forEach((track) => {
-      track.stop()
-    })
-    return getDevicePermissions()
-  } catch (e) {
-    log.warn(e)
-    return currentPermissions
-  }
+  return getDevicePermissions()
 }
 
 /**
