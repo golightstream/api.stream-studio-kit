@@ -52944,20 +52944,30 @@ const updateMediaStreamTracks = (srcObject, tracks) => {
   }
 };
 const getDevicePermissions = async () => {
-  const devices = await navigator.mediaDevices.enumerateDevices();
-  const firstWebcam = devices.find((x) => x.kind === "videoinput");
-  const firstMicrophone = devices.find((x) => x.kind === "audioinput");
-  return {
-    video: Boolean(firstWebcam) && Boolean(firstWebcam.deviceId),
-    audio: Boolean(firstMicrophone) && Boolean(firstMicrophone.deviceId)
+  const permissions = {
+    audio: true,
+    video: true
   };
+  return Promise.all([navigator.mediaDevices.getUserMedia({
+    video: true
+  }).catch((e2) => {
+    if (e2.name === "NotAllowedError") {
+      permissions.video = false;
+    }
+  }), navigator.mediaDevices.getUserMedia({
+    audio: true
+  }).catch((e2) => {
+    if (e2.name === "NotAllowedError") {
+      permissions.audio = false;
+    }
+  })]).then(() => permissions);
 };
 const ensureDevicePermissions = async () => {
   const currentPermissions = await getDevicePermissions();
   if (currentPermissions.audio && currentPermissions.video)
     return currentPermissions;
   try {
-    const stream = await getUserMedia({
+    const stream = await navigator.mediaDevices.getUserMedia({
       video: !currentPermissions.video,
       audio: !currentPermissions.audio
     });
