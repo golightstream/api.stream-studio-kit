@@ -134,7 +134,7 @@ export interface LSRoomContext {
     message: string
     recipients?: string[]
     metadata?: object | string
-  }): void
+  }): Promise<void>
   /**
    * Is the localParticipant a room admin?
    */
@@ -734,7 +734,7 @@ export class RoomContext implements LSRoomContext {
         this.livekitRoom.getParticipantByIdentity,
       ) as RemoteParticipant[]
 
-      this.livekitRoom.localParticipant
+      return this.livekitRoom.localParticipant
         .publishData(encodedData, DataPacket_Kind.RELIABLE, participants)
         .then(() => {
           // TODO trigger event
@@ -745,7 +745,7 @@ export class RoomContext implements LSRoomContext {
           )
         })
     } else {
-      this.livekitRoom.localParticipant
+      return this.livekitRoom.localParticipant
         .publishData(encodedData, DataPacket_Kind.RELIABLE)
         .then(() => {
           // TODO trigger event

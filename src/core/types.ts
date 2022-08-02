@@ -124,7 +124,7 @@ export interface Project {
    */
   id: string
   /**
-   * The project's associated live broadcast ID. 
+   * The project's associated live broadcast ID.
    *  Field will be empty if project is not live.
    */
   broadcastId?: string
@@ -503,14 +503,14 @@ export interface Room {
      * *Optional*. Arbitrary data that can be sent as part of the message.
      */
     metadata?: object | string
-  }) => void
+  }) => Promise<void>
   /**
    * Send arbitrary data from the local {@link Participant} to other participants in the {@link Room}. This method can be used in conjunction with the {@link Room.onData onData} method to build a custom system of events for your app.
    * @param data The data that is being sent to other Participants. This should be in the form of a "stringifiable" object/array, as `JSON.stringify` will be used on this parameter before it is sent to the other participants.
    * @param recipientIds *Optional*. Array of IDs belonging to Participants who should receive the data. If left undefined, message will be sent to all Participants in the Room. (default: `undefined`)
    * @category Message
    */
-  sendData: (data: any, recipientIds?: string[]) => void
+  sendData: (data: any, recipientIds?: string[]) => Promise<void>
   /**
    * Handle data that is sent by other {@link Participant Participants} in the room. This method can be used in conjunction with the {@link Room.sendData sendData} method to build a custom system of events for your app.
    * @param cb Event listener which will be called when data is received.
