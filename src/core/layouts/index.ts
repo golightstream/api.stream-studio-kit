@@ -315,10 +315,10 @@ export const Presentation = {
       Bar = barPosition === 'side' ? Column.layout : Row.layout
       barProps = {
         margin: {
-          top: barPosition === 'side' ? (reverse ? 0 : margin) : 0,
-          left: barPosition === 'side' ? (reverse ? margin : 0) : margin,
-          bottom: reverse ? 0 : margin,
-          right: reverse ? 0 : margin,
+          top: margin,
+          left: margin,
+          bottom: margin,
+          right: margin,
           between: margin,
         },
         dimensions: viewerDimensions,
@@ -326,6 +326,15 @@ export const Presentation = {
         align: 'flex-end',
       }
     }
+
+    const barDirection =
+      barPosition === 'side'
+        ? reverse
+          ? 'left'
+          : 'right'
+        : reverse
+        ? 'top'
+        : 'bottom'
 
     return html.node`
       <div style=${{
@@ -336,6 +345,8 @@ export const Presentation = {
         justifyContent: 'space-around',
         alignItems: 'center',
         position: 'relative',
+        padding: cover ? 0 : margin,
+        [`padding-${barDirection}`]: 0,
       }}>
         ${
           children[0] &&
@@ -343,7 +354,6 @@ export const Presentation = {
             // aspectRatio: String(presentationDimensions),
             width: mainSize.x,
             height: mainSize.y,
-            padding: cover ? 0 : margin + 'px',
             display: 'flex',
             flexGrow: 1,
           }}>
