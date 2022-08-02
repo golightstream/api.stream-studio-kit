@@ -358,12 +358,12 @@ export interface Room {
    * Enables/disables the camera for the local {@link Participant}
    * @category Media
    */
-  setCameraEnabled: (enabled: boolean) => void
+  setCameraEnabled: (enabled: boolean) => Promise<void>
   /**
    * Enables/disables the microphone for the local {@link Participant}
    * @category Media
    */
-  setMicrophoneEnabled: (enabled: boolean) => void
+  setMicrophoneEnabled: (enabled: boolean) => Promise<void>
   /**
    * Remove a {@link Track}. Only works for local tracks.
    * @category Media
