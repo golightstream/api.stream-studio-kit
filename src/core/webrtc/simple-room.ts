@@ -59,13 +59,13 @@ export const getRoom = (id: string) => {
   const update = () => {
     const participants = room.participants
 
-    const tracks = participants.flatMap((participant: Participant) => 
+    const tracks = participants.flatMap((participant: Participant) =>
       participant.getTracks().map((pub) => ({
         ...pub,
         participant,
       })),
     ) as FullTrack[]
-      
+
     const result = {
       participants: participants.map((x) => {
         const meta = JSON.parse(x.metadata)
@@ -171,11 +171,10 @@ export const getRoom = (id: string) => {
     participantId: localParticipant.identity,
     setTrackEnabled,
     setCameraEnabled: (enabled = true) => {
-      localParticipant.setCameraEnabled(enabled)
+      return localParticipant.setCameraEnabled(enabled)
     },
     setMicrophoneEnabled: (enabled = true) => {
-      localParticipant.setMicrophoneEnabled(enabled)
-
+      return localParticipant.setMicrophoneEnabled(enabled)
     },
     setCamera: async (options = {}) => {
       if (settingCamera) {
