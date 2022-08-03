@@ -128,25 +128,19 @@ const deviceWithDefaultLabel = <T extends MediaDeviceInfo>(
   } as T)
 
 const reportDevices = async () => {
-  const permissions = await ensureDevicePermissions()
   const devices = await navigator.mediaDevices.enumerateDevices()
 
   // TODO: Format device names (strip identifiers)
-  const webcams = permissions.video
-    ? (devices.filter((x) => x.kind === 'videoinput') as SDK.Webcam[]).map(
-        (x, i) => deviceWithDefaultLabel(x, 'Camera ' + (i + 1)),
-      )
-    : []
-  const microphones = permissions.audio
-    ? (devices.filter((x) => x.kind === 'audioinput') as SDK.Microphone[]).map(
-        (x, i) => deviceWithDefaultLabel(x, 'Microphone ' + (i + 1)),
-      )
-    : []
-  const speakers = permissions.audio
-    ? (devices.filter((x) => x.kind === 'audiooutput') as SDK.Speakers[]).map(
-        (x, i) => deviceWithDefaultLabel(x, 'Speaker ' + (i + 1)),
-      )
-    : []
+  const webcams = (
+    devices.filter((x) => x.kind === 'videoinput') as SDK.Webcam[]
+  ).map((x, i) => deviceWithDefaultLabel(x, 'Camera ' + (i + 1)))
+  const microphones = (
+    devices.filter((x) => x.kind === 'audioinput') as SDK.Microphone[]
+  ).map((x, i) => deviceWithDefaultLabel(x, 'Microphone ' + (i + 1)))
+  const speakers = (
+    devices.filter((x) => x.kind === 'audiooutput') as SDK.Speakers[]
+  ).map((x, i) => deviceWithDefaultLabel(x, 'Speaker ' + (i + 1)))
+  
   deviceWatchers.forEach((cb) =>
     cb({
       webcams,
