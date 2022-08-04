@@ -279,22 +279,29 @@ subscribeInternal(async (event, payload) => {
             (x: OverlaySource) => x.id === sourceId,
           )
 
-          internalProject.props.overlays.splice(overlayIndex, 1, source)
+          if (overlayIndex > -1) {
+            const shallowOverlays = JSON.parse(
+              JSON.stringify(internalProject.props.overlays),
+            )
 
-          if (doTrigger) {
-            Command.updateProjectProps({
-              projectId,
-              props: {
-                overlays: internalProject.props.overlays,
-              },
-            })
-          } else {
-            Command.updateProjectPropsWithoutTrigger({
-              projectId,
-              props: {
-                overlays: internalProject.props.overlays,
-              },
-            })
+            shallowOverlays.splice(overlayIndex, 1, source)
+
+
+            if (doTrigger) {
+              Command.updateProjectProps({
+                projectId,
+                props: {
+                  overlays: shallowOverlays,
+                },
+              })
+            } else {
+              Command.updateProjectPropsWithoutTrigger({
+                projectId,
+                props: {
+                  overlays: shallowOverlays,
+                },
+              })
+            }
           }
         }
       }
