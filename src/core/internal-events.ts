@@ -223,31 +223,33 @@ subscribeInternal(async (event, payload) => {
         if (internalProject.props.background.id !== sourceId) {
           return
         }
-        let source = internalProject.props.background
-        source = {
-          ...source,
-          props: {
-            ...source.props,
-            meta: {
-              ...source.props.meta,
-              ...metadata,
-            },
-          },
-        }
-        if (doTrigger) {
-          Command.updateProjectProps({
-            projectId,
+        let source = internalProject?.props?.background
+        if (source) {
+          source = {
+            ...source,
             props: {
-              background: source,
+              ...source.props,
+              meta: {
+                ...source.props.meta,
+                ...metadata,
+              },
             },
-          })
-        } else {
-          Command.updateProjectPropsWithoutTrigger({
-            projectId,
-            props: {
-              background: source,
-            },
-          })
+          }
+          if (doTrigger) {
+            Command.updateProjectProps({
+              projectId,
+              props: {
+                background: source,
+              },
+            })
+          } else {
+            Command.updateProjectPropsWithoutTrigger({
+              projectId,
+              props: {
+                background: source,
+              },
+            })
+          }
         }
       }
       return
@@ -281,11 +283,10 @@ subscribeInternal(async (event, payload) => {
 
           if (overlayIndex > -1) {
             const shallowOverlays = JSON.parse(
-              JSON.stringify(internalProject.props.overlays),
+              JSON.stringify(internalProject?.props?.overlays),
             )
 
             shallowOverlays.splice(overlayIndex, 1, source)
-
 
             if (doTrigger) {
               Command.updateProjectProps({

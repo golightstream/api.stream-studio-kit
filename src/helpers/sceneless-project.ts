@@ -1401,12 +1401,12 @@ export const commands = (_project: ScenelessProject) => {
       }
 
       // get all children of the overlay node and update their opacity attributes
-      const allForegroundOverlays = existingOverlays.filter(
+      const allForegroundOverlays = existingOverlays?.filter(
         (f) => f.props.type !== 'video-overlay',
       )
 
 
-      const newForegroundLayers = allForegroundOverlays.map((overlay) => {
+      const newForegroundLayers = allForegroundOverlays?.map((overlay) => {
         return {
           ...overlay,
           props: {
