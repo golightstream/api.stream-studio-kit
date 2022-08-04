@@ -1303,16 +1303,22 @@ export const commands = (_project: ScenelessProject) => {
         (f) => f.props.type !== 'video-overlay',
       )
 
-      allForegroundOverlays.forEach((overlay) => {
-        overlay.props.meta = {
-          style: { opacity: 1 },
+      const newForegroundLayers = allForegroundOverlays.map((overlay) => {
+        return {
+          ...overlay,
+          props: {
+            ...overlay.props,
+            meta: {
+              style: { opacity: 1 },
+            },
+          },
         }
-      })
+      });
 
       Command.updateProjectProps({
         projectId,
         props: {
-          overlays: allForegroundOverlays,
+          overlays: newForegroundLayers,
         },
       })
     },
@@ -1326,13 +1332,18 @@ export const commands = (_project: ScenelessProject) => {
         const overlayIndex = existingOverlays.findIndex(
           (x) => x.id === overlayId,
         )
-        existingOverlays.splice(overlayIndex, 1, overlay)
-        return Command.updateProjectProps({
-          projectId,
-          props: {
-            overlays: existingOverlays,
-          },
-        })
+        if (overlayIndex > -1) {
+          const shallowOverlays = JSON.parse(JSON.stringify(existingOverlays))
+
+          shallowOverlays.splice(overlayIndex, 1, overlay)
+
+          return Command.updateProjectProps({
+            projectId,
+            props: {
+              overlays: shallowOverlays,
+            },
+          })
+        }
       }
 
       const vidOverlay = existingOverlays.find(
@@ -1375,24 +1386,34 @@ export const commands = (_project: ScenelessProject) => {
         const overlayIndex = existingOverlays.findIndex(
           (x) => x.id === overlayId,
         )
-        existingOverlays.splice(overlayIndex, 1, overlay)
-        return Command.updateProjectProps({
-          projectId,
-          props: {
-            overlays: existingOverlays,
-          },
-        })
+        if (overlayIndex > -1) {
+          const shallowOverlays = JSON.parse(JSON.stringify(existingOverlays))
+
+          shallowOverlays.splice(overlayIndex, 1, overlay)
+
+          return Command.updateProjectProps({
+            projectId,
+            props: {
+              overlays: shallowOverlays,
+            },
+          })
+        }
       }
 
       // get all children of the overlay node and update their opacity attributes
-      const allForegroundOverlays = existingOverlays.filter(
+      const allForegroundOverlays = existingOverlays?.filter(
         (f) => f.props.type !== 'video-overlay',
       )
 
-      allForegroundOverlays.forEach((overlay) => {
-        overlay.props.meta = {
-          style: {
-            opacity: 0,
+
+      const newForegroundLayers = allForegroundOverlays?.map((overlay) => {
+        return {
+          ...overlay,
+          props: {
+            ...overlay.props,
+            meta: {
+              style: { opacity: 0 },
+            },
           },
         }
       })
@@ -1411,7 +1432,7 @@ export const commands = (_project: ScenelessProject) => {
       Command.updateProjectProps({
         projectId,
         props: {
-          overlays: [...allForegroundOverlays, newOverlay],
+          overlays: [...newForegroundLayers, newOverlay],
         },
       })
     },
