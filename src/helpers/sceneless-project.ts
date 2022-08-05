@@ -46,7 +46,7 @@ import { getElementAttributes } from './../logic'
 import { CoreContext } from '../core/context'
 import { getProject, getProjectRoom, toBaseProject } from '../core/data'
 import { SDK, Compositor } from '../core/namespaces'
-import { Disposable } from '../core/types'
+import { Disposable, SceneNode } from '../core/types'
 import { Track } from 'livekit-client'
 
 import LayoutName = Compositor.Layout.LayoutName
@@ -1239,20 +1239,31 @@ export const commands = (_project: ScenelessProject) => {
     },
     setActiveBanner(id: string) {
       const existingBanners = commands.getBanners()
-      const banner = existingBanners?.find((x) => x.id === id)
-      bannerContainer?.children?.forEach((x) => {
+      const [existingBannerNode, ...excessBannerNodes] =
+        bannerContainer?.children || ([] as SceneNode[])
+
+      // Delete all except one banner from the project
+      excessBannerNodes.forEach((x) => {
         CoreContext.Command.deleteNode({
           nodeId: x.id,
         })
       })
-      if (!banner) return
-      return CoreContext.Command.createNode({
-        parentId: bannerContainer?.id,
-        props: {
-          sourceType: 'Banner',
-          bannerId: banner.id,
-        },
-      })
+      if (!existingBannerNode) {
+        return CoreContext.Command.createNode({
+          parentId: bannerContainer?.id,
+          props: {
+            sourceType: 'Banner',
+            bannerId: id,
+          },
+        })
+      } else {
+        CoreContext.Command.updateNode({
+          nodeId: existingBannerNode.id,
+          props: {
+            bannerId: id,
+          },
+        })
+      }
     },
 
     getActiveBanner(): string | null {
