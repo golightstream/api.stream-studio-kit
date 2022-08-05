@@ -136,6 +136,9 @@ export const init = (
     const filters = [] as Filter[]
     const result = runFilters(node, filters)
 
+    // Ensure node has the proper source based on its props
+    updateSourceForNode(node.id)
+
     // Pass update to the existing element
     element?._onUpdateHandlers.forEach((x) => x(node.props || {}))
 
