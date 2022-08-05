@@ -51459,22 +51459,46 @@ const Banner$1 = {
   }, initialProps) {
     const root2 = document.createElement("div");
     let source2;
+    let latestSource;
+    let previousSource;
     const Banner2 = ({
-      source: source22
+      currentSource,
+      latestSource: latestSource2
     }) => {
+      const [rendered, setRendered] = useState(false);
       const {
         headerText,
         bodyText
-      } = (source22 == null ? void 0 : source22.value) || {};
+      } = (latestSource2 == null ? void 0 : latestSource2.value) || {};
+      useEffect(() => {
+        window.setTimeout(() => {
+          setRendered(Boolean(currentSource));
+        });
+        if (!currentSource)
+          setRendered(false);
+      }, [currentSource]);
       return /* @__PURE__ */ React.createElement("div", {
         className: "BannerContainer",
         style: {
+          position: "absolute",
+          top: 0,
+          left: 0,
           width: "100%",
           height: "100%",
           display: "flex",
           flexDirection: "row",
           justifyContent: "flex-start",
-          alignItems: "flex-end"
+          alignItems: "flex-end",
+          transition: "200ms ease all",
+          ...!rendered ? {
+            zIndex: 1,
+            opacity: 0,
+            transform: "translateX(-200px)"
+          } : {
+            zIndex: 2,
+            opacity: 1,
+            transform: "translateX(0)"
+          }
         }
       }, /* @__PURE__ */ React.createElement("div", {
         className: "Banner",
@@ -51499,14 +51523,24 @@ const Banner$1 = {
         }
       }, bodyText)));
     };
-    const render2 = () => ReactDOM.render(/* @__PURE__ */ React.createElement(Banner2, {
-      source: source2
-    }), root2);
+    const render2 = () => ReactDOM.render(/* @__PURE__ */ React.createElement(React.Fragment, null, previousSource && previousSource.id !== latestSource.id && /* @__PURE__ */ React.createElement(Banner2, {
+      key: previousSource == null ? void 0 : previousSource.id,
+      currentSource: null,
+      latestSource: previousSource
+    }), /* @__PURE__ */ React.createElement(Banner2, {
+      key: latestSource == null ? void 0 : latestSource.id,
+      currentSource: source2,
+      latestSource
+    })), root2);
     onUpdate(() => {
       render2();
     });
     onNewSource((_source) => {
+      previousSource = source2;
       source2 = _source;
+      if (source2) {
+        latestSource = source2;
+      }
       render2();
     });
     return {
@@ -55892,23 +55926,29 @@ const commands = (_project) => {
       });
     },
     setActiveBanner(id) {
-      var _a3;
-      const existingBanners = commands2.getBanners();
-      const banner = existingBanners == null ? void 0 : existingBanners.find((x) => x.id === id);
-      (_a3 = bannerContainer == null ? void 0 : bannerContainer.children) == null ? void 0 : _a3.forEach((x) => {
+      commands2.getBanners();
+      const [existingBannerNode, ...excessBannerNodes] = (bannerContainer == null ? void 0 : bannerContainer.children) || [];
+      excessBannerNodes.forEach((x) => {
         CoreContext.Command.deleteNode({
           nodeId: x.id
         });
       });
-      if (!banner)
-        return;
-      return CoreContext.Command.createNode({
-        parentId: bannerContainer == null ? void 0 : bannerContainer.id,
-        props: {
-          sourceType: "Banner",
-          bannerId: banner.id
-        }
-      });
+      if (!existingBannerNode) {
+        return CoreContext.Command.createNode({
+          parentId: bannerContainer == null ? void 0 : bannerContainer.id,
+          props: {
+            sourceType: "Banner",
+            bannerId: id
+          }
+        });
+      } else {
+        CoreContext.Command.updateNode({
+          nodeId: existingBannerNode.id,
+          props: {
+            bannerId: id
+          }
+        });
+      }
     },
     getActiveBanner() {
       var _a3, _b2, _c2, _d2;
@@ -56597,6 +56637,7 @@ const init$2 = (settings = {}, compositor2, sourceManager) => {
     const element = getElement(node);
     const filters = [];
     const result = runFilters(node, filters);
+    updateSourceForNode(node.id);
     element == null ? void 0 : element._onUpdateHandlers.forEach((x) => x(node.props || {}));
     return {
       ...result,
