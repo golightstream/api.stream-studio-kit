@@ -23,17 +23,8 @@ type Transition = {
   timingFn?: CSS.StandardProperties['transitionTimingFunction'] | 'exit'
 }
 
-type TransitionInfo = {
-  entry: Transition
-  exit: Transition
-}
-
 export type LayoutChild = HTMLElement & {
-  data: TransitionInfo & {
-    borderRadius: number
-    dimensions: number
-    fit: 'contain' | 'cover'
-  }
+  data: ChildPosition
 }
 
 export type LayoutArgs = {

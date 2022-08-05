@@ -46,7 +46,8 @@ const findLayoutUp = (
   return null
 }
 
-const TRANSITION_FIELDS = 'opacity, transform, width, height'
+const TRANSITION_FIELDS =
+  'opacity, transform, width, height, left, right, top, bottom, inset'
 
 // Index of layouts elements themselves
 const layoutIndex = {} as {
@@ -123,10 +124,13 @@ const tick = () => {
   try {
     removed.forEach((x) => {
       const el = childIndex[x]
+      const childList = Array.from(el.parentEl?.children || [])
+
       // Short-circuit the deletion so we can run remove manually (for transition)
-      if (el.nextSiblingEl) {
+      if (el.nextSiblingEl && childList.includes(el.nextSiblingEl as Element)) {
         el.parentEl?.insertBefore(el, el.nextSiblingEl)
       } else {
+        el.nextSiblingEl = null
         el.parentEl?.append(el)
       }
       el.runRemove()
@@ -230,7 +234,6 @@ export class Layout extends HTMLElement {
       boxSizing: 'border-box',
     })
 
-
     // Listen for child add/remove and re-run layout
     //  Also listen for attribute changes
     if (this.mutationObserver) this.mutationObserver.disconnect()
@@ -287,16 +290,18 @@ export class Layout extends HTMLElement {
     const { size, inserted = new Set(), removed = new Set() } = options
 
     //  Iterate and turn the immediate children into nodes as SceneNode[]
-    this.nodes = Array.from(this.children || []).map((x: HTMLElement, i) => {
-      const props = getElementAttributes(x)
+    this.nodes = Array.from(this.children || [])
+      .filter((x: ChildEl) => !x.removed)
+      .map((x: HTMLElement, i) => {
+        const props = getElementAttributes(x)
 
-      return {
-        // TODO: Does this work well enough? Think through keying
-        id: x.dataset.id,
-        props,
-        children: [],
-      }
-    })
+        return {
+          // TODO: Does this work well enough? Think through keying
+          id: x.dataset.id,
+          props,
+          children: [],
+        }
+      })
 
     const props = JSON.parse(this.getAttribute('props') || '{}')
     this.latestSize = size
@@ -311,6 +316,15 @@ export class Layout extends HTMLElement {
 
     Promise.all(
       Object.entries(positions).map(async ([id, childPosition]) => {
+        let childEl =
+          childIndex[id] ||
+          (this.querySelector(
+            `[data-layout-child][data-id="${id}"]`,
+          ) as ChildEl)
+
+        const data = { ...childEl.data, ...childPosition }
+        childEl.data = data
+
         const {
           size,
           position,
@@ -319,12 +333,7 @@ export class Layout extends HTMLElement {
           borderRadius = 0,
           entryTransition = {},
           exitTransition = {},
-        } = childPosition
-        let childEl =
-          childIndex[id] ||
-          (this.querySelector(
-            `[data-layout-child][data-id="${id}"]`,
-          ) as ChildEl)
+        } = data
 
         if (childEl) {
           if (childEl.removed) return
@@ -334,18 +343,36 @@ export class Layout extends HTMLElement {
           childEl.data.size = size
           childEl.data.position = position
 
+          // @ts-ignore
+          const scale = window.__scale
+
+          const parentPosition = this.getBoundingClientRect()
+
+          const parentWidth = parentPosition.width / scale
+          const childRight =
+            parentWidth -
+            sizeToNum(position.x, parentWidth) -
+            sizeToNum(size.x, parentWidth)
+
+          const parentHeight = parentPosition.height / scale
+          const childBottom =
+            parentHeight -
+            sizeToNum(position.y, parentHeight) -
+            sizeToNum(size.y, parentHeight)
+
           // Set shared styles and reset transform
           Object.assign(childEl.style, {
-            top: 0,
-            left: 0,
             position: 'absolute',
             transformOrigin: '50% 50%',
             transitionDuration: '0ms',
             transitionDelay: '0ms',
+            transform: `translate3d(0, 0, 0) scaleX(1) scaleY(1)`,
             visibility: 'visible',
             boxSizing: 'border-box',
             overflow: 'hidden',
             borderRadius: borderRadius + 'px',
+            width: 'auto',
+            height: 'auto',
           } as CSS.StandardProperties)
 
           let delay = '0ms'
@@ -360,16 +387,16 @@ export class Layout extends HTMLElement {
               transitionProperty: TRANSITION_FIELDS,
               transitionDuration: '0ms',
               transitionTimingFunction: entryTransition.timingFn ?? 'ease',
-              transform: `translate3d(calc(${asSize(position?.x)} + ${asSize(
+              transform: `translate3d(calc(${asSize(
                 entryTransition.offset?.x ?? 0,
-              )}), calc(${asSize(position?.y)} + ${asSize(
-                entryTransition.offset?.y ?? 0,
-              )}), 0) scaleX(${entryTransition.scale?.x ?? 1}) scaleY(${
-                entryTransition.scale?.y ?? 1
-              })`,
+              )}), calc(${asSize(entryTransition.offset?.y ?? 0)}), 0) scaleX(${
+                entryTransition.scale?.x ?? 1
+              }) scaleY(${entryTransition.scale?.y ?? 1})`,
               opacity: entryTransition.opacity ?? opacity,
-              width: size?.x,
-              height: size?.y,
+              left: asSize(position.x) || 0,
+              right: asSize(childRight) || 0,
+              top: asSize(position.y) || 0,
+              bottom: asSize(childBottom) || 0,
             } as CSS.StandardProperties)
             delay = asDuration(entryTransition.delay ?? 0)
           } else if (childEl.data.rootOffset) {
@@ -378,22 +405,38 @@ export class Layout extends HTMLElement {
             const rootPosition = rootLayout.getBoundingClientRect()
             const parentPosition = this.getBoundingClientRect()
 
-            // @ts-ignore
-            const scale = window.__scale
-
             const parentOffset = {
               x: parentPosition.x / scale - rootPosition.x / scale,
               y: parentPosition.y / scale - rootPosition.y / scale,
             }
+
+            const parentRight = parentOffset.x + parentPosition.width / scale
+            const childRight =
+              childEl.data.rootOffset.x + Number(childEl.data.size.x)
+
+            const parentBottom = parentOffset.y + parentPosition.height / scale
+            const childBottom =
+              childEl.data.rootOffset.y + Number(childEl.data.size.y)
+
             const newOffset = {
               x: childEl.data.rootOffset.x - parentOffset.x,
               y: childEl.data.rootOffset.y - parentOffset.y,
+              right: parentRight - childRight,
+              bottom: parentBottom - childBottom,
             }
 
-            childEl.style.transform = `translate3d(${asSize(
-              newOffset.x,
-            )}, ${asSize(newOffset.y)}, 0) scaleX(1) scaleY(1)`
+            // TODO: Revisit this logic once we support dragging between parents
+            // Object.assign(childEl.style, {
+            //   left: newOffset.x + 'px',
+            //   top: newOffset.y + 'px',
+            // })
           }
+
+          childEl.addEventListener('transitionstart', () => {
+            // Move layer up when transitioning to ensure
+            //  it moves over the top of static layers
+            childEl.style.zIndex = String(zIndex + 1)
+          })
 
           // Set final styles
           await new Promise((resolve) => window.setTimeout(resolve)) // Defer for layout
@@ -401,17 +444,16 @@ export class Layout extends HTMLElement {
             transitionProperty: TRANSITION_FIELDS,
             transitionDuration: duration,
             transitionDelay: delay,
-            transform: `translate3d(${asSize(position?.x)}, ${asSize(
-              position?.y,
-            )}, 0) scaleX(1) scaleY(1)`,
+            transform: `translate3d(0, 0, 0) scaleX(1) scaleY(1)`,
             opacity,
-            width: size?.x,
-            height: size?.y,
+            left: asSize(position.x) || 0,
+            top: asSize(position.y) || 0,
+            width: parentWidth ? 'auto' : size.x,
+            right: parentWidth ? asSize(childRight) || 0 : 'auto',
+            height: parentHeight ? 'auto' : size.y,
+            bottom: parentHeight ? asSize(childBottom) || 0 : 'auto',
             zIndex,
           } as CSS.StandardProperties)
-
-          // @ts-ignore
-          const scale = window.__scale
 
           const updateRootOffset = () => {
             const rootPosition = rootLayout.getBoundingClientRect()
@@ -424,6 +466,7 @@ export class Layout extends HTMLElement {
           updateRootOffset()
 
           childEl.addEventListener('transitionend', () => {
+            childEl.style.zIndex = String(zIndex)
             updateRootOffset()
           })
         }
@@ -451,6 +494,13 @@ export class Layout extends HTMLElement {
       return log.warn(
         'Layout: Child requires `data-id` at the time it is added to a Layout',
       )
+
+    childEl._remove = childEl.remove
+
+    // Proxy remove to our custom remove() event
+    childEl.remove = () => {
+      this.removeChild(childEl as Node & ChildEl)
+    }
 
     if (!childEl.mutationObserver) {
       childEl.mutationObserver = new MutationObserver((mutations) => {
@@ -528,13 +578,11 @@ export class Layout extends HTMLElement {
         transitionDuration: asDuration(duration),
         transitionProperty: TRANSITION_FIELDS,
         transitionTimingFunction: data.exitTransition.timingFn ?? 'ease',
-        transform: `translate3d(calc(${asSize(data.position?.x)} + ${asSize(
+        transform: `translate3d(calc(${asSize(
           data.exitTransition.offset?.x ?? 0,
-        )}), calc(${asSize(data.position?.y)} + ${asSize(
-          data.exitTransition.offset?.y ?? 0,
-        )}), 0) scaleX(${data.exitTransition.scale?.x ?? 1}) scaleY(${
-          data.exitTransition.scale?.y ?? 1
-        })`,
+        )}), calc( ${asSize(data.exitTransition.offset?.y ?? 0)}), 0) scaleX(${
+          data.exitTransition.scale?.x ?? 1
+        }) scaleY(${data.exitTransition.scale?.y ?? 1})`,
         opacity: data.exitTransition.opacity ?? 0,
       } as CSS.StandardProperties)
 
@@ -542,7 +590,7 @@ export class Layout extends HTMLElement {
       childEl.transition = new Promise<void>((resolve) => {
         const onFinished = () => {
           childEl.transition = null
-          childEl.remove()
+          childEl._remove()
           queueOp(['childRemoveFinished', this.dataset.id, childEl.dataset.id])
           clearTimeout(timeout)
           resolve()
@@ -591,9 +639,16 @@ export const ensureLayoutContainer = (size: { x: number; y: number }) => {
 
 type ChildEl = HTMLElement & {
   runRemove: () => Promise<void>
+  _remove: HTMLElement['remove']
+  // Keep a reference to element.parentElement even when removed
   parentEl: HTMLElement
+  // The sibling preceding this element
   previousSiblingEl: ChildNode
+  // The sibling following this element
   nextSiblingEl: ChildNode
+  // Has entered the removal transition sequence.
+  //  A "removed" node will be re-added to the parentEl and then again
+  //  removed once its transition completes
   removed: boolean
   transition?: Promise<void>
   dataset: { id: string }
@@ -665,10 +720,10 @@ export const layoutChildren = ({
         x: rect.width + 'px',
         y: rect.height + 'px',
       },
-      zIndex: 1,
       opacity,
-      entryTransition: el.data?.entry ?? {},
-      exitTransition: el.data?.exit ?? {},
+      zIndex: el.data?.zIndex,
+      entryTransition: el.data?.entryTransition ?? {},
+      exitTransition: el.data?.exitTransition ?? {},
       borderRadius: el.data?.borderRadius ?? 0,
     } as ChildPosition
 
@@ -681,7 +736,7 @@ export const layoutChildren = ({
         x: parentRect.width + 'px',
         y: parentRect.height + 'px',
       }
-      newPosition.zIndex = 2
+      newPosition.zIndex = 10
     }
 
     positions[id] = newPosition

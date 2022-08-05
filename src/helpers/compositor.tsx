@@ -11,6 +11,28 @@ import { Compositor } from '../core/namespaces'
 import { CompositorSettings, SceneNode } from '../core/types'
 import { color } from 'csx'
 
+const dragImageSvg = `
+  <svg height="75" width="120" viewBox="0 0 120 75" xmlns="http://www.w3.org/2000/svg" style="">
+    <rect width="120" height="75" rx="3" style="
+      opacity: 0.4;
+      stroke: white;
+      stroke-width: 3px;
+      stroke-opacity: 0.7;
+    "/>
+  </svg>`
+
+let dragImage: HTMLImageElement
+const loadDragImage = () => {
+  if (dragImage) return dragImage
+  dragImage = new Image()
+  dragImage.src = URL.createObjectURL(
+    new Blob([dragImageSvg], {
+      type: 'image/svg+xml',
+    }),
+  )
+  return dragImage
+}
+
 class ErrorBoundary extends React.Component<
   { children: React.PropsWithChildren<any> },
   { error?: Error }
@@ -88,6 +110,8 @@ const onDrop = async (
 
 let foundDropTarget = false
 const ElementTree = (props: { nodeId: string }) => {
+  const isDragging = useRef(false)
+  const interactiveRef = useRef<HTMLDivElement>()
   const transformRef = useRef<HTMLDivElement>()
   const rootRef = useRef<HTMLDivElement>()
   const {
@@ -108,7 +132,7 @@ const ElementTree = (props: { nodeId: string }) => {
   const isDropTarget = interactive && checkIsDropTarget(node)
 
   let layoutDragHandlers = isDropTarget
-    ? {
+    ? ({
         onDrop: (e: React.DragEvent) => {
           foundDropTarget = true
           return onDrop(
@@ -121,25 +145,30 @@ const ElementTree = (props: { nodeId: string }) => {
           )
         },
         onDragOver: (e: React.DragEvent) => {
-          const el = e.currentTarget as HTMLElement
           e.preventDefault()
           e.stopPropagation()
-          el.classList.toggle('drag-target', true)
+          rootRef.current?.toggleAttribute(
+            'data-layout-drop-target-active',
+            true,
+          )
         },
         onDragLeave: (e: React.DragEvent) => {
-          const el = e.currentTarget as HTMLElement
           e.preventDefault()
-          el.classList.toggle('drag-target', false)
+          e.stopPropagation()
+          rootRef.current?.toggleAttribute(
+            'data-layout-drop-target-active',
+            false,
+          )
         },
-      }
+      } as React.HTMLAttributes<HTMLDivElement>)
     : {}
 
   let transformDragHandlers = isDragTarget
-    ? {
+    ? ({
         draggable: true,
         // If a target is draggable, it will also be treated as
         //  a drop target (swap element positions)
-        ondrop: (e: React.DragEvent) => {
+        ondrop: (e) => {
           foundDropTarget = true
           return onDrop(
             {
@@ -147,26 +176,58 @@ const ElementTree = (props: { nodeId: string }) => {
               dropNodeId: node.id,
               project,
             },
+            // @ts-ignore TODO: Convert all to native drag events
             e,
           )
         },
-        ondragstart: (e: React.DragEvent) => {
+        ondragstart: (e) => {
+          isDragging.current = true
+          wrapperEl.toggleAttribute('data-dragging', true)
           log.debug('Compositor: Dragging', node.id)
           foundDropTarget = false
           e.dataTransfer.setData('text/plain', node.id)
+          e.dataTransfer.dropEffect = 'move'
+          e.dataTransfer.setDragImage(dragImage, 10, 10)
+          rootRef.current?.toggleAttribute('data-drag-target-active', true)
           // @ts-ignore
           window.__dragging = true
         },
-        ondragend: (e: React.DragEvent) => {
+        ondragend: (e) => {
+          isDragging.current = false
           if (!foundDropTarget) {
             log.info('Compositor: No drop target - deleting node', node)
             CoreContext.Command.deleteNode({ nodeId: node.id })
           }
+          wrapperEl.toggleAttribute('data-dragging', true)
           log.debug('Compositor: DragEnd', e)
+          rootRef.current?.toggleAttribute('data-drag-target-active', false)
+
+          wrapperEl.querySelectorAll('[data-item]').forEach((x) => {
+            x.toggleAttribute('data-drag-target-active', false)
+            x.toggleAttribute('data-layout-drop-target-active', false)
+            x.toggleAttribute('data-transform-drop-target-active', false)
+          })
           // @ts-ignore
           window.__dragging = false
         },
-      }
+        ondragover: (e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          if (isDragging.current) return
+          rootRef.current?.toggleAttribute(
+            'data-transform-drop-target-active',
+            true,
+          )
+        },
+        ondragleave: (e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          rootRef.current?.toggleAttribute(
+            'data-transform-drop-target-active',
+            false,
+          )
+        },
+      } as Partial<HTMLElement>)
     : {}
 
   useEffect(() => {
@@ -182,8 +243,6 @@ const ElementTree = (props: { nodeId: string }) => {
         position: 'relative',
         overflow: 'hidden',
       })
-      Object.assign(element.root, transformDragHandlers)
-      // TODO: Add element over top the root (don't put drag handlers on the root)
       Object.assign(element.root.style, {
         pointerEvents: isDragTarget ? 'all' : 'none',
         width: '100%',
@@ -191,10 +250,26 @@ const ElementTree = (props: { nodeId: string }) => {
         position: 'relative',
         ...(node.props.style || {}),
       })
-      element.root.addEventListener('dblclick', onDoubleClick)
     }
-    return () => element?.root.removeEventListener('dblclick', onDoubleClick)
   }, [transformRef.current, element])
+
+  useEffect(() => {
+    const onDoubleClick = isDragTarget
+      ? () => onElementDoubleClick(node)
+      : () => {}
+
+    if (interactiveRef.current) {
+      Object.assign(interactiveRef.current, transformDragHandlers)
+
+      Object.assign(interactiveRef.current.style, {
+        pointerEvents: isDragTarget ? 'all' : 'none',
+      })
+      interactiveRef.current.addEventListener('dblclick', onDoubleClick)
+    }
+    return () => {
+      interactiveRef.current?.removeEventListener('dblclick', onDoubleClick)
+    }
+  }, [interactiveRef.current])
 
   const layoutProps = {
     layout,
@@ -205,29 +280,54 @@ const ElementTree = (props: { nodeId: string }) => {
     <div
       ref={rootRef}
       data-id={node.id + '-x'}
+      data-item
+      {...(isDragTarget && {
+        'data-drag-target': true,
+      })}
+      {...(isDropTarget && {
+        'data-drop-target': true,
+      })}
       {...layoutDragHandlers}
       style={{
-        display: 'flex',
-        flex: '0 0 auto',
-        justifyContent: 'center',
         position: 'relative',
         width: node.props.size?.x || '100%',
         height: node.props.size?.y || '100%',
         pointerEvents: 'none',
       }}
     >
-      <div ref={transformRef}></div>
-      <ErrorBoundary>
-        <ls-layout
-          data-id={node.id + '-x'}
-          props={JSON.stringify(layoutProps)}
-          layout={layout}
-        >
-          {node.children.map((x) => (
-            <ElementTree key={x.id} nodeId={x.id} />
-          ))}
-        </ls-layout>
-      </ErrorBoundary>
+      <div
+        className="interactive-overlay"
+        ref={interactiveRef}
+        style={{
+          height: '100%',
+          width: '100%',
+          position: 'absolute',
+          zIndex: 2,
+        }}
+      ></div>
+      <div
+        className="item-element"
+        style={{
+          display: 'flex',
+          flex: '0 0 auto',
+          justifyContent: 'center',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <div ref={transformRef}></div>
+        <ErrorBoundary>
+          <ls-layout
+            data-id={node.id + '-x'}
+            props={JSON.stringify(layoutProps)}
+            layout={layout}
+          >
+            {node.children.map((x) => (
+              <ElementTree key={x.id} nodeId={x.id} />
+            ))}
+          </ls-layout>
+        </ErrorBoundary>
+      </div>
     </div>
   )
 }
@@ -258,7 +358,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
         primaryColor = '#ABABAB',
         showNameBanners,
       } = project.props ?? {}
-      
+
       const logoPosition =
         project.props?.logoPosition ??
         project.props?.logo?.logoPosition ??
@@ -271,7 +371,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
       )
 
       const logoCSS = themes[logoPosition as LogoPosition]()
-      
+
       props.setStyle(`${CSS} ${logoCSS}` || '')
     }
     updateCSS()
@@ -296,8 +396,9 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
       }}
       style={{
         userSelect: 'none',
-        width: tree.props.size.x + 'px',
-        height: tree.props.size.y + 'px',
+        width: `${tree.props.size.x + PADDING * 2}px`,
+        height: `${tree.props.size.y + PADDING * 2}px`,
+        margin: PADDING + 'px',
       }}
     >
       <div
@@ -315,6 +416,8 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
 
 let wrapperEl: HTMLElement
 let customStyleEl: HTMLStyleElement
+
+const PADDING = 0
 
 /**
  * Render the output compositor displaying the stream canvas, which will be used
@@ -340,6 +443,8 @@ export const render = (settings: CompositorSettings) => {
   const project = getProject(projectId)
   CoreContext.clients.LayoutApi().subscribeToLayout(project.layoutApi.layoutId)
 
+  loadDragImage()
+
   const onElementDoubleClick =
     settings.onElementDoubleClick ||
     (dblClickShowcase && scenelessProjectDoubleClick(project))
@@ -352,6 +457,7 @@ export const render = (settings: CompositorSettings) => {
     const baseStyleEl = document.createElement('style')
     baseStyleEl.textContent = getStyle()
     wrapperEl = document.createElement('div')
+    wrapperEl.id = 'compositor-root'
     Object.assign(wrapperEl.style, {
       width: '100%',
       height: '100%',
@@ -374,7 +480,7 @@ export const render = (settings: CompositorSettings) => {
   const { x: rootWidth, y: rootHeight } = root.props.size
 
   const setScale = () => {
-    const { width, height } = containerEl.getBoundingClientRect()
+    let { width, height } = containerEl.getBoundingClientRect()
     const containerRatio = width / height
     const compositorRatio = rootWidth / rootHeight
 
@@ -382,16 +488,18 @@ export const render = (settings: CompositorSettings) => {
     if (width && height) {
       if (compositorRatio > containerRatio) {
         // If compositor ratio is higher, width is the constraint
-        scale = width / rootWidth
+        scale = width / (rootWidth + PADDING * 2)
       } else {
         // If container ratio is higher, height is the constraint
-        scale = height / rootHeight
+        scale = height / (rootHeight + PADDING * 2)
       }
     } else {
       // It's possible the container will have no size defined (width/height=0)
       scale = 1
     }
-    wrapperEl.style.transform = `scale(${scale})`
+
+    wrapperEl.style.willChange = `transform`
+    wrapperEl.style.transform = `scale(${scale}) translateZ(0)`
     // @ts-ignore
     window.__scale = scale
     render()
@@ -523,6 +631,28 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
 
 .logo {
   position: absolute !important;
+}
+
+#compositor-root[data-dragging] {}
+
+[data-drag-target] {}
+[data-drag-target]:hover > .interactive-overlay {
+  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.5);
+  cursor: grab;
+}
+[data-drop-target] {}
+[data-drop-target]:hover {}
+[data-drag-target][data-drag-target-active] > .interactive-overlay {
+  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.2);
+}
+[data-drag-target][data-drag-target-active] > .item-element {
+  opacity: 0.8;
+}
+[data-layout-drop-target-active] > .interactive-overlay {
+  box-shadow: 0 0 0 3px inset yellow;
+}
+[data-transform-drop-target-active] > .interactive-overlay {
+  box-shadow: 0 0 0 3px inset white;
 }
 `
 
@@ -810,18 +940,18 @@ const themes = {
       .NameBanner[data-size="3"] {
         padding: ${scale(12)} ${scale(30)} ${scale(12)} ${scale(30)} !important;
         font-size: ${scale(40)} !important;
-        margin: ${scale(20)} ${scale(20)};
+        margin: -${scale(20)} ${scale(20)};
       }
       .NameBanner[data-size="2"] {
         padding: ${scale(12)} ${scale(30)} ${scale(12)} ${scale(30)} !important;
         font-size: ${scale(26)} !important;
-        margin: ${scale(8)} ${scale(8)};
+        margin: -${scale(8)} ${scale(8)};
       }
       .NameBanner[data-size="1"], .NameBanner[data-size="0"] {
         padding: ${scale(8)} ${scale(16)} ${scale(8)} ${scale(16)} !important;
         font-size: ${scale(18)} !important;
         border-width: ${scale(2)} !important;
-        margin: ${scale(16)} ${scale(8)};
+        margin: -${scale(16)} ${scale(8)};
       }
       .NameBanner[data-size="0"] {
         opacity: 0 !important;

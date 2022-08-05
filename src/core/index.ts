@@ -369,37 +369,45 @@ export const init = async (
 
         const project = getProjectByLayoutId(layoutId)
         layer.batch.layers.forEach((batch) => {
-          const [type, args] = Object.entries(batch)[0]
-          if (type === 'create') {
-            const node = layerToNode(args)
-            project.compositor.local.insert(node)
-            triggerInternal('NodeAdded', {
-              projectId: project.id,
-              nodeId: node.id,
-            })
-          } else if (type === 'update') {
-            const node = layerToNode(args)
+          try {
+            const [type, args] = Object.entries(batch)[0]
+            if (type === 'create') {
+              const node = layerToNode(args)
+              project.compositor.local.insert(node)
+              triggerInternal('NodeAdded', {
+                projectId: project.id,
+                nodeId: node.id,
+              })
+            } else if (type === 'update') {
+              const node = layerToNode(args)
 
-            // Check whether we have a more recent change and ignore if we do
-            const latestUpdateId = latestUpdateVersion[node.id] || 0
-            if (latestUpdateId > updateVersions[node.id]) {
-              return log.info(
-                'Ignoring node update - updateID is less than latest.',
+              // Check whether we have a more recent change and ignore if we do
+              const latestUpdateId = latestUpdateVersion[node.id] || 0
+              if (latestUpdateId > updateVersions[node.id]) {
+                return log.info(
+                  'Ignoring node update - updateID is less than latest.',
+                )
+              }
+              latestUpdateVersion[node.id] = updateVersions[node.id]
+
+              project.compositor.local.update(
+                node.id,
+                node.props,
+                node.childIds,
               )
+              triggerInternal('NodeChanged', {
+                projectId: project.id,
+                nodeId: node.id,
+              })
+            } else if (type === 'delete') {
+              project.compositor.local.remove(args.id)
+              triggerInternal('NodeRemoved', {
+                projectId: project.id,
+                nodeId: args.id,
+              })
             }
-            latestUpdateVersion[node.id] = updateVersions[node.id]
-
-            project.compositor.local.update(node.id, node.props, node.childIds)
-            triggerInternal('NodeChanged', {
-              projectId: project.id,
-              nodeId: node.id,
-            })
-          } else if (type === 'delete') {
-            project.compositor.local.remove(args.id)
-            triggerInternal('NodeRemoved', {
-              projectId: project.id,
-              nodeId: args.id,
-            })
+          } catch (e) {
+            log.warn('Error handling batch item', e, { item: batch })
           }
         })
 
