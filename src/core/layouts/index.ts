@@ -86,13 +86,13 @@ export const Column = {
       ${children.map(
         (x, i) =>
           html.node`<div data-node-id=${x.id} .data=${{
-            entry: {
+            entryTransition: {
               delay: 400 + i * 100,
               offset: { x: 0, y: '100%' },
               scale: { x: 0.8, y: 0.8 },
               opacity: 0,
             },
-            exit: {
+            exitTransition: {
               offset: { x: 0, y: 1000 },
               scale: { x: 0.8, y: 0.8 },
               opacity: 0,
@@ -163,13 +163,13 @@ export const Row = {
           ${children.map(
             (x, i) =>
               html.node`<div data-node-id=${x.id} .data=${{
-                entry: {
+                entryTransition: {
                   delay: 400 + i * 100,
                   offset: { x: 0, y: '100%' },
                   scale: { x: 0.8, y: 0.8 },
                   opacity: 0,
                 },
-                exit: {
+                exitTransition: {
                   offset: { x: 0, y: 1000 },
                   scale: { x: 0.8, y: 0.8 },
                   opacity: 0,
@@ -360,13 +360,13 @@ export const Presentation = {
             <div data-node-id=${presentation.id} .data=${{
             dimensions: presentationDimensions,
             borderRadius: cover ? 0 : 5,
-            entry: {
+            entryTransition: {
               delay: 0,
               offset: { x: 0, y: 1000 },
               scale: { x: 0.5, y: 0.5 },
               opacity: 0,
             },
-            exit: {
+            exitTransition: {
               offset: { x: 0, y: 1000 },
               scale: { x: 2, y: 2 },
               opacity: 0,
@@ -423,7 +423,9 @@ export const Layered = {
     }}>
       ${children.map(
         (x, i) =>
-          html.node`<div data-node-id=${x.id} style=${{
+          html.node`<div data-node-id=${x.id} .data=${{
+            zIndex: i + 1,
+          }} style=${{
             width: '100%',
             height: '100%',
             position: 'absolute',
