@@ -11,7 +11,7 @@ type SourceDeclaration = Compositor.Source.SourceDeclaration
 
 export type OverlayProps = {
   src? :string
-  type? : 'image-overlay' | 'video-overlay'
+  type? : 'video-overlay' | 'overlay'
   // Opaque to the SDK
   [prop: string]: any
 }

@@ -108,7 +108,7 @@ export const Video2 = {
         })
       }, [videoRef])
 
-      const handleRect = React.useCallback((node) => {
+      const handleRect = React.useCallback((node: HTMLVideoElement) => {
         videoRef.current = node
         setRefId(node ? node.id : null)
       }, [])

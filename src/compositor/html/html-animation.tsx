@@ -88,7 +88,11 @@ const renderStyle = (
   direction: Direction,
 ) => {
   return `
-         
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        
         ${Animations[enter]}
         
         ${Animations[exit]}

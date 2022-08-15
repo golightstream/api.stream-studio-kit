@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
-import { init, Helpers } from '@api.stream/studio-kit'
+import { init, Helpers } from '../../../../'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from './layout-examples'
@@ -401,7 +401,10 @@ const Project = () => {
                   })
                 } else {
       //            projectCommands.setBackgroundVideo(e.target.value)
-                  projectCommands.setBackgroundVideo2(generateId(), {
+                  // projectCommands.setBackgroundVideo2(generateId(), {
+                  //   src: e.target.value,
+                  // })
+                  projectCommands.addHTMLOverlay(generateId(),{
                     src: e.target.value,
                   })
                 }
@@ -525,8 +528,10 @@ export const HostView = () => {
               layout,
               layoutProps: props,
             },
+            
             // Store our custom layout in metadata for future reference
             { layout: DEFAULT_LAYOUT },
+            
           )
         }
         const activeProject = await studio.Command.setActiveProject({
