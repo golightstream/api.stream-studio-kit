@@ -242,6 +242,10 @@ export interface Commands {
   /**
    * Get the active foreground image overlay
    */
+  getCustomOverlay(): string | string[]
+  /**
+   * Get the active foreground image overlay
+   */
   getImageOverlay2(): string | string[]
   /**
    * Get the active foreground video overlay
@@ -262,7 +266,11 @@ export interface Commands {
   /**
    * add html overlay
    */
-  addHTMLOverlay(overlayId: string, props: OverlayProps): Promise<void>
+  addCustomOverlay(overlayId: string, props: OverlayProps): Promise<void>
+  /**
+   * remove video overlay from foreground layer
+   */
+  removeCustomOverlay(overlayId: string): Promise<void>
   /**
    * remove video overlay from foreground layer
    */
@@ -1305,7 +1313,7 @@ export const commands = (_project: ScenelessProject) => {
     getImageOverlay2(): string | string[] {
       const existingImageOverlays = CoreContext.compositor
         .getSources('Overlay')
-        .filter((x) => x.props.type === 'image-overlay')
+        .filter((x) => x.props?.meta?.type === 'image-overlay')
       const foregroundImageIds = existingImageOverlays.map((f) => f?.id)
       return foregroundImageIds.length > 1
         ? foregroundImageIds
@@ -1320,6 +1328,30 @@ export const commands = (_project: ScenelessProject) => {
       return foregroundVideoIds.length > 1
         ? foregroundVideoIds
         : foregroundVideoIds[0]
+    },
+
+    getCustomOverlay(): string | string[] {
+      const existingCustomOverlays = CoreContext.compositor
+        .getSources('Overlay')
+        .filter((x) => x.props?.meta?.type === 'html-overlay')
+      const foregroundCustomOverlayIds = existingCustomOverlays.map(
+        (f) => f?.id,
+      )
+      return foregroundCustomOverlayIds.length > 1
+        ? foregroundCustomOverlayIds
+        : foregroundCustomOverlayIds[0]
+    },
+
+    async removeCustomOverlay(overlayId: string) {
+      // find overlay node by id
+      const existingOverlays = commands.getOverlays()
+
+      return Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: existingOverlays.filter((x) => x.id !== overlayId),
+        },
+      })
     },
 
     async removeImageOverlay2(overlayId: string) {
@@ -1367,7 +1399,7 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
 
-    async addHTMLOverlay(overlayId: string, props: OverlayProps = {}) {
+    async addCustomOverlay(overlayId: string, props: OverlayProps = {}) {
       const existingOverlays = commands.getOverlays()
 
       const overlay = existingOverlays.find((x) => x.id === overlayId)
@@ -1393,7 +1425,7 @@ export const commands = (_project: ScenelessProject) => {
       const vidOverlay = existingOverlays.find(
         (x) => x.props.type === 'video-overlay',
       )
-      const meta = props.meta || { type : 'html-overlay' }
+      const meta = props.meta || { type: 'html-overlay' }
 
       const newOverlay = {
         id: overlayId,
@@ -1445,7 +1477,7 @@ export const commands = (_project: ScenelessProject) => {
       const vidOverlay = existingOverlays.find(
         (x) => x.props.type === 'video-overlay',
       )
-      const meta = props.meta || { type : 'image-overlay' }
+      const meta = props.meta || { type: 'image-overlay' }
 
       const newOverlay = {
         id: overlayId,
