@@ -64,11 +64,11 @@ const Iframe = ({
     'aria-labelledby': ariaLabelledby || null,
     'aria-hidden': ariaHidden || null,
     'aria-label': ariaLabel || null,
-    width: width || '100%',
-    height: height || '100%',
     onLoad: onLoad || null,
     onMouseOver: onMouseOver || null,
     onMouseOut: onMouseOut || null,
+    height : height || '100%',
+    width : width || '100%',
   })
   let props = Object.create(null)
   for (let prop of Object.keys(defaultProps)) {

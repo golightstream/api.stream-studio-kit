@@ -404,7 +404,7 @@ const Project = () => {
                   // projectCommands.setBackgroundVideo2(generateId(), {
                   //   src: e.target.value,
                   // })
-                  projectCommands.addHTMLOverlay(generateId(),{
+                  projectCommands.addCustomOverlay(generateId(),{
                     src: e.target.value,
                   })
                 }

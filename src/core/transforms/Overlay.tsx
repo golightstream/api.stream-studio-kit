@@ -44,21 +44,19 @@ export const Overlay = {
             if (compositorRatio > containerRatio) {
               // If compositor ratio is higher, width is the constraint
               scale = width / (rootWidth + PADDING * 2)
+            } else if (compositorRatio < containerRatio) {
+              // If compositor ratio is lower, height is the constraint
+              scale = height / (rootHeight + PADDING * 2)
             } else {
-              // If container ratio is higher, height is the constraint
-              if (containerRatio !== containerRatio) {
-                scale = height / (rootHeight + PADDING * 2)
-              } else {
-                scale = 1
-              }
+              // If compositor ratio is equal, width is the constraint
+              scale = height / (rootHeight + PADDING * 2)
             }
-          } else {
-            // It's possible the container will have no size defined (width/height=0)
-            scale = 1
           }
 
           iframeRef.current.style.willChange = `transform`
           // @ts-ignore
+          iframeRef.current.style.minWidth = '1920px';
+          iframeRef.current.style.minHeight = '1080px';
           iframeRef.current.style.transformOrigin = '0 0'
           iframeRef.current.style.transform = `scale(${scale}) translateZ(0)`
         }
@@ -70,7 +68,8 @@ export const Overlay = {
               url={src}
               frameBorder={0}
               iframeRef={iframeRef}
-              styles={{ ...initialProps?.style, ...meta?.style }}
+              // onLoad={resizeIframe}
+              styles={{ ...initialProps.style,  ...meta?.style }}
             />
           )}
           {meta?.type === 'image-overlay' && (
