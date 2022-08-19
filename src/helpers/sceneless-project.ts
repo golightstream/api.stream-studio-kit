@@ -246,6 +246,10 @@ export interface Commands {
   /**
    * Get the active foreground image overlay
    */
+  getCustomOverlay(): string | string[]
+  /**
+   * Get the active foreground image overlay
+   */
   getImageOverlay2(): string | string[]
   /**
    * Get the active foreground video overlay
