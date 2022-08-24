@@ -704,6 +704,16 @@ export interface Studio {
     userId: string
     name: string
   }) => Promise<string>
+
+  /**
+   * Create a source in collection.
+   *
+   * This access token should be passed into {@link init init()} at the entrypoint
+   * of the guest experience.
+   *
+   * Pass into {@link Studio.load} to receive the assocaited demo {@link User}.
+   */
+  createSource: (options: Source) => Promise<void>
   /**
    * Create an access token valid for another user to interact
    * with the project as a guest.

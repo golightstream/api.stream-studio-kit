@@ -1,3 +1,4 @@
+import { Source } from './types';
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -18,6 +19,7 @@ import {
   getBaseUser,
   getProject,
   getProjectByLayoutId,
+  getUser,
   hydrateProject,
   layerToNode,
 } from './data'
@@ -451,6 +453,19 @@ export const init = async (
     })
   }
 
+  const createSource = async(options : Source) => {
+    const collection = getUser()
+    await client.LiveApi().source.createSource({
+      collectionId : collection.id,
+      metadata : {
+        ...options.props
+      },
+      address : {
+        ...options.address
+      }
+    })
+  }
+
   return {
     ...omit(CoreContext, [
       'clients',
@@ -493,6 +508,10 @@ export const init = async (
     createGuestToken: async (options = {}) => {
       const response = await createGuestToken(options)
       return response.accessToken
+    },
+    createSource : async(options : Source) => {
+      await createSource(options);
+      //return response.source
     },
     initialProject,
     load,

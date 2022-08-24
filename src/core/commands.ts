@@ -1,3 +1,4 @@
+import { LiveApiModel } from '@api.stream/sdk';
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -322,6 +323,39 @@ export const joinRoom = async (payload: {
     room,
   })
   return room
+}
+
+
+/**
+ * Initiate WebRTC connection to the room associated with this project.
+ *
+ * @category Project
+ */
+export const addSourceToProject = async (payload: {
+  projectId: SDK.Project['id']
+  sourceId : SDK.Source['id']
+  /** Arbitrary metadata to associate with this project */
+  props?: Props
+}) => {
+  const { projectId , sourceId } = payload
+  const collectionId = getUser().id
+
+  await CoreContext.clients
+    .LiveApi()
+    .source.addSourceToProject({
+      collectionId,
+      projectId,
+      sourceId,
+      trigger: {
+        sourceId,
+        start: LiveApiModel.SourceTriggerAction.SOURCE_TRIGGER_ACTION_OR,
+        stop : LiveApiModel.SourceTriggerAction.SOURCE_TRIGGER_ACTION_OR
+      },
+    })
+
+  // Trigger event to update state
+  //await triggerInternal('ProjectChanged', { project: response.project })
+  //return
 }
 
 /**
