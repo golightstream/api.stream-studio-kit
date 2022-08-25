@@ -1,4 +1,4 @@
-import { LiveApiModel } from '@api.stream/sdk';
+import { LiveApiModel } from '@api.stream/sdk'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -47,7 +47,7 @@ import {
 } from './data'
 import { CoreContext } from './context'
 import decode from 'jwt-decode'
-import { Props } from './types'
+import { Props, Source } from './types'
 import { SDK } from './namespaces'
 import { webrtcManager } from './webrtc'
 import { getRoom } from './webrtc/simple-room'
@@ -325,7 +325,6 @@ export const joinRoom = async (payload: {
   return room
 }
 
-
 /**
  * add source to this project.
  *
@@ -335,7 +334,7 @@ export const addSourceToProject = async (payload: {
   projectId: SDK.Project['id']
   sourceId: SDK.Source['id']
 }) => {
-  const { projectId , sourceId } = payload
+  const { projectId, sourceId } = payload
   const collectionId = getUser().id
 
   const response = await CoreContext.clients
@@ -347,7 +346,7 @@ export const addSourceToProject = async (payload: {
       trigger: {
         sourceId,
         start: LiveApiModel.SourceTriggerAction.SOURCE_TRIGGER_ACTION_OR,
-        stop : LiveApiModel.SourceTriggerAction.SOURCE_TRIGGER_ACTION_OR
+        stop: LiveApiModel.SourceTriggerAction.SOURCE_TRIGGER_ACTION_OR,
       },
     })
 
@@ -365,7 +364,7 @@ export const removeSourceFromProject = async (payload: {
   projectId: SDK.Project['id']
   sourceId: SDK.Source['id']
 }) => {
-  const { projectId , sourceId } = payload
+  const { projectId, sourceId } = payload
   const collectionId = getUser().id
 
   const response = await CoreContext.clients
@@ -379,6 +378,41 @@ export const removeSourceFromProject = async (payload: {
   // Trigger event to update state
   await triggerInternal('ProjectChanged', { project: response.project })
   return
+}
+
+/**
+ * Create a source in collection.
+ * 
+ * @category Collection
+ */
+export const createSource = async (options: Omit<Source, 'id'>) => {
+  const collection = getUser()
+  const response = await CoreContext.clients.LiveApi().source.createSource({
+    collectionId: collection.id,
+    metadata: {
+      props: {
+        ...options.props,
+      },
+    },
+    address: {
+      ...options.address,
+    },
+  })
+  return response?.source?.sourceId
+}
+
+/**
+ * Delete a source from collection.
+ * @category Collection
+ */
+
+export const deleteSource = async (sourceId: string) => {
+  const collection = getUser()
+  const response = await CoreContext.clients.LiveApi().source.deleteSource({
+    collectionId: collection.id,
+    sourceId,
+  })
+  return response?.projectIdsUpdated
 }
 
 /**

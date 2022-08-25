@@ -160,14 +160,6 @@ export interface Project {
    */
   joinRoom: (settings?: { displayName?: string }) => Promise<Room>
   /**
-   * Use this method to add source to the Project
-   */
-  addSourceToProject: (settings: { sourceId: string }) => Promise<void>
-  /**
-   * Use this method to add source to the Project
-   */
-  removeSourceFromProject: (settings: { projectIds : string[], sourceId: string }) => Promise<void>
-  /**
    * @private
    */
   scene: Scene
@@ -714,24 +706,6 @@ export interface Studio {
     name: string
   }) => Promise<string>
 
-  /**
-   * Create a source in collection.
-   *
-   * This access token should be passed into {@link init init()} at the entrypoint
-   * of the guest experience.
-   *
-   * Pass into {@link Studio.load} to receive the assocaited demo {@link User}.
-   */
-  createSource: (options: Omit<Source, 'id'>) => Promise<string>
-  /**
-   * Delete a source from collection.
-   *
-   * This access token should be passed into {@link init init()} at the entrypoint
-   * of the guest experience.
-   *
-   * Pass into {@link Studio.load} to receive the assocaited demo {@link User}.
-   */
-  deleteSource: (sourceId: string) => Promise<string[]>
   /**
    * Create an access token valid for another user to interact
    * with the project as a guest.

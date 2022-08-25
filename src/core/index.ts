@@ -453,29 +453,6 @@ export const init = async (
     })
   }
 
-  const createSource = (options: Omit<Source, 'id'>) => {
-    const collection = getUser()
-    return client.LiveApi().source.createSource({
-      collectionId: collection.id,
-      metadata: {
-        props: {
-          ...options.props,
-        },
-      },
-      address: {
-        ...options.address,
-      },
-    })
-  }
-
-
-  const deleteSource = (sourceId : string) => {
-    const collection = getUser()
-    return client.LiveApi().source.deleteSource({
-      collectionId: collection.id,
-      sourceId
-    })
-  }
 
   return {
     ...omit(CoreContext, [
@@ -519,14 +496,6 @@ export const init = async (
     createGuestToken: async (options = {}) => {
       const response = await createGuestToken(options)
       return response.accessToken
-    },
-    createSource: async (options: Source) => {
-      const response = await createSource(options)
-      return response?.source?.sourceId
-    },
-    deleteSource: async (sourceId: string) => {
-      const response = await deleteSource(sourceId)
-      return response?.projectIdsUpdated
     },
     initialProject,
     load,
