@@ -718,7 +718,7 @@ export interface Studio {
    *
    * Pass into {@link Studio.load} to receive the assocaited demo {@link User}.
    */
-  createSource: (options: Source) => Promise<string>
+  createSource: (options: Omit<Source,'id'>) => Promise<string>
   /**
    * Create an access token valid for another user to interact
    * with the project as a guest.
