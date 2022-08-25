@@ -8,6 +8,7 @@ import {
   hydrateProject,
   toBaseDestination,
   toBaseProject,
+  toBaseSource,
 } from './data'
 import { InternalEventMap, subscribeInternal, trigger } from './events'
 import { SDK } from './namespaces'
@@ -167,12 +168,14 @@ subscribeInternal(async (event, payload) => {
       // TODO: Update state.projects[].videoApi.sources with the full source?
      */
     case 'SourceAdded': {
+      const internalSource = payload as InternalEventMap['SourceAdded']
       // Update internal state
-
+      state.sources = [...state.sources, internalSource]
       // Emit public event
-
+      trigger('SourceAdded', { source: toBaseSource(internalSource) })
       return
     }
+
     case 'SourceRemoved': {
       // Update internal state
 
@@ -186,6 +189,21 @@ subscribeInternal(async (event, payload) => {
       // Emit public event
 
       return
+    }
+    case 'ProjectSourceAdded': {
+      const projectSource = payload as InternalEventMap['ProjectSourceAdded']
+      const { projectId, source } = projectSource
+      const internalProject = getProject(projectId)
+      if (!internalProject) return
+
+      // Update internal state
+      internalProject.videoApi.project.sources.push(payload)
+      
+      // Emit public event
+      trigger('ProjectSourceAdded', {
+        projectId,
+        source: toBaseSource(source),
+      })
     }
     /**
      * Node

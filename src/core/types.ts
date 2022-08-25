@@ -1,3 +1,4 @@
+
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -158,6 +159,10 @@ export interface Project {
    * Use this method to join the WebRTC {@link Room}
    */
   joinRoom: (settings?: { displayName?: string }) => Promise<Room>
+  /**
+   * Use this method to join the WebRTC {@link Room}
+   */
+  addSourceToProject: (settings : { sourceId : string }) => Promise<void>
   /**
    * @private
    */
@@ -713,7 +718,7 @@ export interface Studio {
    *
    * Pass into {@link Studio.load} to receive the assocaited demo {@link User}.
    */
-  createSource: (options: Source) => Promise<void>
+  createSource: (options: Source) => Promise<string>
   /**
    * Create an access token valid for another user to interact
    * with the project as a guest.

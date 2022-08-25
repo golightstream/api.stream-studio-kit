@@ -276,7 +276,14 @@ export interface ExternalEventMap {
   SourceRemoved: {
     source: SDK.Source['id']
   }
-
+  /**
+   * @category Source
+   */
+  ProjectSourceAdded: {
+    projectId: SDK.Project['id']
+    source: SDK.Source
+  }
+  
   VideoTimeUpdate: {
     id: string
     category: string

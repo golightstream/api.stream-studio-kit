@@ -67,6 +67,12 @@ export const toBaseProject = (
         ...settings,
       })
     },
+    addSourceToProject : async(settings) => {
+      await CoreContext.Command.addSourceToProject({
+        projectId: project.id,
+        ...settings
+      })
+    },
     subscribe: (cb) =>
       CoreContext.subscribe((event, payload) => {
         // @ts-ignore

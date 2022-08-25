@@ -1,4 +1,4 @@
-import { Source } from './types';
+import { Source } from './types'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -453,16 +453,18 @@ export const init = async (
     })
   }
 
-  const createSource = async(options : Source) => {
+  const createSource = (options: Omit<Source, 'id'>) => {
     const collection = getUser()
-    await client.LiveApi().source.createSource({
-      collectionId : collection.id,
-      metadata : {
-        ...options.props
+    return client.LiveApi().source.createSource({
+      collectionId: collection.id,
+      metadata: {
+        props: {
+          ...options.props,
+        },
       },
-      address : {
-        ...options.address
-      }
+      address: {
+        ...options.address,
+      },
     })
   }
 
@@ -509,9 +511,9 @@ export const init = async (
       const response = await createGuestToken(options)
       return response.accessToken
     },
-    createSource : async(options : Source) => {
-      await createSource(options);
-      //return response.source
+    createSource: async (options: Source) => {
+      const response = await createSource(options)
+      return response?.source?.sourceId
     },
     initialProject,
     load,

@@ -333,9 +333,7 @@ export const joinRoom = async (payload: {
  */
 export const addSourceToProject = async (payload: {
   projectId: SDK.Project['id']
-  sourceId : SDK.Source['id']
-  /** Arbitrary metadata to associate with this project */
-  props?: Props
+  sourceId: SDK.Source['id']
 }) => {
   const { projectId , sourceId } = payload
   const collectionId = getUser().id
