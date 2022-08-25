@@ -203,7 +203,7 @@ export type Source = {
    * Alpha-numeric ID. Example: `"1234a56b7890cd12e34f5gh6"`
    */
   id: string
-  address: LiveApiModel.SourceAddress
+  address: Partial<LiveApiModel.SourceAddress>
   /**
    * Field to store arbitrary data. Not used by the SDK.
    */
