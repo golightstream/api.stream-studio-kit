@@ -468,6 +468,15 @@ export const init = async (
     })
   }
 
+
+  const deleteSource = (sourceId : string) => {
+    const collection = getUser()
+    return client.LiveApi().source.deleteSource({
+      collectionId: collection.id,
+      sourceId
+    })
+  }
+
   return {
     ...omit(CoreContext, [
       'clients',
@@ -514,6 +523,10 @@ export const init = async (
     createSource: async (options: Source) => {
       const response = await createSource(options)
       return response?.source?.sourceId
+    },
+    deleteSource: async (sourceId: string) => {
+      const response = await deleteSource(sourceId)
+      return response?.projectIdsUpdated
     },
     initialProject,
     load,

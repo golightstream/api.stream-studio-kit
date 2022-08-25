@@ -177,10 +177,13 @@ subscribeInternal(async (event, payload) => {
     }
 
     case 'SourceRemoved': {
+      const internalSource = payload as InternalEventMap['SourceAdded']
       // Update internal state
-
+      state.sources = state.sources.filter(
+        (x) => x.sourceId !== internalSource.sourceId,
+      )
       // Emit public event
-
+      trigger('SourceRemoved', { source: internalSource.sourceId })
       return
     }
     case 'SourceUpdated': {
@@ -198,12 +201,39 @@ subscribeInternal(async (event, payload) => {
 
       // Update internal state
       internalProject.videoApi.project.sources.push(payload)
-      
+
+      // Update internal state
+      const projectIndex = state.projects.findIndex((x) => x.id === projectId)
+      state.projects[projectIndex].videoApi.project.sources.push(payload)
+
       // Emit public event
       trigger('ProjectSourceAdded', {
         projectId,
         source: toBaseSource(source),
       })
+      return
+    }
+    case 'ProjectSourceRemoved': {
+      const projectSource = payload as InternalEventMap['ProjectSourceRemoved']
+      const { projectId, sourceId } = projectSource
+      const internalProject = getProject(projectId)
+      if (!internalProject) return
+
+      // Update internal state
+      internalProject.videoApi.project.sources =
+        internalProject.videoApi.project.sources.filter(
+          (x) => x.sourceId !== sourceId,
+        )
+      const projectIndex = state.projects.findIndex((x) => x.id === projectId)
+      state.projects[projectIndex].videoApi.project.sources = state.projects[
+        projectIndex
+      ].videoApi.project.sources.filter((x) => x.sourceId !== sourceId)
+      // Emit public event
+      trigger('ProjectSourceRemoved', {
+        projectId,
+        sourceId,
+      })
+      return
     }
     /**
      * Node

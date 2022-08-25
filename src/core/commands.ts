@@ -327,7 +327,7 @@ export const joinRoom = async (payload: {
 
 
 /**
- * Initiate WebRTC connection to the room associated with this project.
+ * add source to this project.
  *
  * @category Project
  */
@@ -338,7 +338,7 @@ export const addSourceToProject = async (payload: {
   const { projectId , sourceId } = payload
   const collectionId = getUser().id
 
-  await CoreContext.clients
+  const response = await CoreContext.clients
     .LiveApi()
     .source.addSourceToProject({
       collectionId,
@@ -352,8 +352,33 @@ export const addSourceToProject = async (payload: {
     })
 
   // Trigger event to update state
-  //await triggerInternal('ProjectChanged', { project: response.project })
-  //return
+  await triggerInternal('ProjectChanged', { project: response.project })
+  return
+}
+
+/**
+ * remove source from Project.
+ *
+ * @category Project
+ */
+export const removeSourceFromProject = async (payload: {
+  projectId: SDK.Project['id']
+  sourceId: SDK.Source['id']
+}) => {
+  const { projectId , sourceId } = payload
+  const collectionId = getUser().id
+
+  const response = await CoreContext.clients
+    .LiveApi()
+    .source.removeSourceFromProject({
+      collectionId,
+      projectId,
+      sourceId,
+    })
+
+  // Trigger event to update state
+  await triggerInternal('ProjectChanged', { project: response.project })
+  return
 }
 
 /**
