@@ -240,7 +240,7 @@ export interface Commands {
   ): void
 
   /**
-   * Get the active foreground image overlay
+   * Get the active foreground custom overlay
    */
   getCustomOverlay(): string | string[]
   /**
