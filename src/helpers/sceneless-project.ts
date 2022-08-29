@@ -2044,23 +2044,6 @@ export const createCompositor = async (
       },
       foreground.id,
     ),
-    // project.insert(
-    //   {
-    //     name: 'ImageOverlay2',
-    //     sourceType: 'Image2',
-    //     // this will enable to register a transfrom on another source
-    //     // doing so will enable to resume source
-    //     proxySource: 'Overlay',
-    //     id: 'image-overlay',
-    //     layout: 'Free',
-    //     style: {
-    //       width: '100%',
-    //       height: '100%',
-    //       objectFit: 'cover',
-    //     },
-    //   },
-    //   foreground.id,
-    // ),
     project.insert(
       {
         name: 'BannerContainer',
