@@ -556,32 +556,6 @@ export const commands = (_project: ScenelessProject) => {
             } else {
               return foregroundOverlayContainer.id
             }
-      // if (!foregroundImageContainer2) {
-      //   const nodeId = await coreProject.compositor.insert(
-      //     {
-      //       name: 'ImageOverlay2',
-      //       sourceType: 'Image2',
-      //       // this will enable to register a transfrom on another source
-      //       // doing so will enable to resume source
-      //       proxySource: 'Overlay',
-      //       id: 'image-overlay',
-      //       layout: 'Free',
-      //       style: {
-      //         width: '100%',
-      //         height: '100%',
-      //         objectFit: 'cover',
-      //       },
-      //     },
-      //     foreground.id,
-      //   )
-
-      //   foregroundImageContainer2 = foreground?.children?.find(
-      //     (x) => x.props.id === nodeId,
-      //   )
-      //   return nodeId
-      // } else {
-      //   return foregroundImageContainer2.id
-      // }
     }
 
     const ensureForegroundVideoContainer2 = async () => {
@@ -2067,23 +2041,6 @@ export const createCompositor = async (
       },
       foreground.id,
     ),
-    // project.insert(
-    //   {
-    //     name: 'ImageOverlay2',
-    //     sourceType: 'Image2',
-    //     // this will enable to register a transfrom on another source
-    //     // doing so will enable to resume source
-    //     proxySource: 'Overlay',
-    //     id: 'image-overlay',
-    //     layout: 'Free',
-    //     style: {
-    //       width: '100%',
-    //       height: '100%',
-    //       objectFit: 'cover',
-    //     },
-    //   },
-    //   foreground.id,
-    // ),
     project.insert(
       {
         name: 'BannerContainer',
