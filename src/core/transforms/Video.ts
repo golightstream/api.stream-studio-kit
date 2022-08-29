@@ -2,6 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
+import { trigger } from '../events'
 import { Compositor } from '../namespaces'
 
 type Props = {
@@ -19,7 +20,7 @@ type Props = {
 export const Video = {
   name: 'LS-Video',
   sourceType: 'LS-Video',
-  create({ onUpdate, trigger, onEvent, onRemove }) {
+  create({ onUpdate, onEvent, onRemove }) {
     onRemove(() => {
       clearInterval(interval)
     })

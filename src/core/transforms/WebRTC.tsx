@@ -37,7 +37,7 @@ export const RoomParticipant = {
     // TODO: Filter source.isActive to ensure we're getting the best match
     return sources.find((x) => isMatch(x.props, props.sourceProps))
   },
-  create({ onUpdate, onNewSource, trigger }, initialProps) {
+  create({ onUpdate, onNewSource }, initialProps) {
     const root = document.createElement('div')
 
     Object.assign(root.style, {

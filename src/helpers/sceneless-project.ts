@@ -240,6 +240,10 @@ export interface Commands {
   ): void
 
   /**
+   * Get the active foreground custom overlay
+   */
+  getCustomOverlay(): string | string[]
+  /**
    * Get the active foreground image overlay
    */
   getImageOverlay2(): string | string[]
@@ -259,6 +263,14 @@ export interface Commands {
     props: OverlayProps & HTMLVideoElementAttributes,
   ): Promise<void>
 
+  /**
+   * add html overlay
+   */
+  addCustomOverlay(overlayId: string, props: OverlayProps): Promise<void>
+  /**
+   * remove video overlay from foreground layer
+   */
+  removeCustomOverlay(overlayId: string): Promise<void>
   /**
    * remove video overlay from foreground layer
    */
@@ -456,6 +468,11 @@ export const commands = (_project: ScenelessProject) => {
     (x) => x.props.id === 'image-overlay',
   )
 
+    let foregroundOverlayContainer = foreground?.children?.find(
+      (x) => x.props.id === 'iframe-overlay',
+    )
+
+
   let foregroundVideoContainer2 = foreground?.children?.find(
     (x) => x.props.id === 'video-overlay',
   )
@@ -516,32 +533,29 @@ export const commands = (_project: ScenelessProject) => {
     }
 
     const ensureForegroundImageContainer2 = async () => {
-      if (!foregroundImageContainer2) {
-        const nodeId = await coreProject.compositor.insert(
-          {
-            name: 'ImageOverlay2',
-            sourceType: 'Image2',
-            // this will enable to register a transfrom on another source
-            // doing so will enable to resume source
-            proxySource: 'Overlay',
-            id: 'image-overlay',
-            layout: 'Free',
-            style: {
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            },
-          },
-          foreground.id,
-        )
+            if (!foregroundOverlayContainer) {
+              const nodeId = await coreProject.compositor.insert(
+                {
+                  name: 'Overlay',
+                  sourceType: 'Overlay',
+                  id: 'overlay',
+                  layout: 'Free',
+                  style: {
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  },
+                },
+                foreground.id,
+              )
 
-        foregroundImageContainer2 = foreground?.children?.find(
-          (x) => x.props.id === nodeId,
-        )
-        return nodeId
-      } else {
-        return foregroundImageContainer2.id
-      }
+              foregroundOverlayContainer = foreground?.children?.find(
+                (x) => x.props.id === nodeId,
+              )
+              return nodeId
+            } else {
+              return foregroundOverlayContainer.id
+            }
     }
 
     const ensureForegroundVideoContainer2 = async () => {
@@ -1273,7 +1287,7 @@ export const commands = (_project: ScenelessProject) => {
     getImageOverlay2(): string | string[] {
       const existingImageOverlays = CoreContext.compositor
         .getSources('Overlay')
-        .filter((x) => x.props.type === 'image-overlay')
+        .filter((x) => x.props?.meta?.type === 'image-overlay')
       const foregroundImageIds = existingImageOverlays.map((f) => f?.id)
       return foregroundImageIds.length > 1
         ? foregroundImageIds
@@ -1288,6 +1302,30 @@ export const commands = (_project: ScenelessProject) => {
       return foregroundVideoIds.length > 1
         ? foregroundVideoIds
         : foregroundVideoIds[0]
+    },
+
+    getCustomOverlay(): string | string[] {
+      const existingCustomOverlays = CoreContext.compositor
+        .getSources('Overlay')
+        .filter((x) => x.props?.meta?.type === 'html-overlay')
+      const foregroundCustomOverlayIds = existingCustomOverlays.map(
+        (f) => f?.id,
+      )
+      return foregroundCustomOverlayIds.length > 1
+        ? foregroundCustomOverlayIds
+        : foregroundCustomOverlayIds[0]
+    },
+
+    async removeCustomOverlay(overlayId: string) {
+      // find overlay node by id
+      const existingOverlays = commands.getOverlays()
+
+      return Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: existingOverlays.filter((x) => x.id !== overlayId),
+        },
+      })
     },
 
     async removeImageOverlay2(overlayId: string) {
@@ -1320,16 +1358,69 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             ...overlay.props,
             meta: {
+              ...overlay.props.meta,
               style: { opacity: 1 },
             },
           },
         }
-      });
+      })
 
       Command.updateProjectProps({
         projectId,
         props: {
           overlays: newForegroundLayers,
+        },
+      })
+    },
+
+    async addCustomOverlay(overlayId: string, props: OverlayProps = {}) {
+      const existingOverlays = commands.getOverlays()
+
+      const overlay = existingOverlays.find((x) => x.id === overlayId)
+
+      if (overlay) {
+        const overlayIndex = existingOverlays.findIndex(
+          (x) => x.id === overlayId,
+        )
+        if (overlayIndex > -1) {
+          const shallowOverlays = JSON.parse(JSON.stringify(existingOverlays))
+
+          shallowOverlays.splice(overlayIndex, 1, overlay)
+
+          return Command.updateProjectProps({
+            projectId,
+            props: {
+              overlays: shallowOverlays,
+            },
+          })
+        }
+      }
+
+      const vidOverlay = existingOverlays.find(
+        (x) => x.props.type === 'video-overlay',
+      )
+      const meta = props.meta || { type: 'html-overlay' }
+
+      const newOverlay = {
+        id: overlayId,
+        props: {
+          ...props,
+          type: 'overlay',
+          meta: {
+            ...meta,
+            ...{ ...(vidOverlay && { style: { opacity: 0 } }) },
+          },
+        },
+      }
+
+      const nonHTMLOverlays = existingOverlays.filter(
+        (x) => x.props.type !== 'overlay',
+      )
+
+      Command.updateProjectProps({
+        projectId,
+        props: {
+          overlays: [...nonHTMLOverlays, newOverlay],
         },
       })
     },
@@ -1360,13 +1451,13 @@ export const commands = (_project: ScenelessProject) => {
       const vidOverlay = existingOverlays.find(
         (x) => x.props.type === 'video-overlay',
       )
-      const meta = props.meta || {}
+      const meta = props.meta || { type: 'image-overlay' }
 
       const newOverlay = {
         id: overlayId,
         props: {
           ...props,
-          type: 'image-overlay',
+          type: 'overlay',
           meta: {
             ...meta,
             ...{ ...(vidOverlay && { style: { opacity: 0 } }) },
@@ -1375,7 +1466,7 @@ export const commands = (_project: ScenelessProject) => {
       }
 
       const nonImageOverlays = existingOverlays.filter(
-        (x) => x.props.type !== 'image-overlay',
+        (x) => x.props.type !== 'overlay',
       )
 
       Command.updateProjectProps({
@@ -1416,13 +1507,13 @@ export const commands = (_project: ScenelessProject) => {
         (f) => f.props.type !== 'video-overlay',
       )
 
-
       const newForegroundLayers = allForegroundOverlays?.map((overlay) => {
         return {
           ...overlay,
           props: {
             ...overlay.props,
             meta: {
+              ...overlay.props.meta,
               style: { opacity: 0 },
             },
           },
@@ -1837,10 +1928,12 @@ type ScenelessSettings = {
 export const create = async (
   settings: ScenelessSettings = {},
   props: SDK.Props = {},
+  size?:{ x: number, y: number },
 ) => {
   return CoreContext.Command.createProject({
     settings,
     props,
+    size
   }) as Promise<ScenelessProject>
 }
 
@@ -1936,12 +2029,9 @@ export const createCompositor = async (
     ),
     project.insert(
       {
-        name: 'ImageOverlay2',
-        sourceType: 'Image2',
-        // this will enable to register a transfrom on another source
-        // doing so will enable to resume source
-        proxySource: 'Overlay',
-        id: 'image-overlay',
+        name: 'Overlay',
+        sourceType: 'Overlay',
+        id: 'overlay',
         layout: 'Free',
         style: {
           width: '100%',

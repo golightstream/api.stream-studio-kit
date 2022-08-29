@@ -358,12 +358,12 @@ export interface Room {
    * Enables/disables the camera for the local {@link Participant}
    * @category Media
    */
-  setCameraEnabled: (enabled: boolean) => Promise<void>
+  setCameraEnabled: (enabled: boolean) => Promise<void | Livekit.LocalTrackPublication>
   /**
    * Enables/disables the microphone for the local {@link Participant}
    * @category Media
    */
-  setMicrophoneEnabled: (enabled: boolean) => Promise<void>
+  setMicrophoneEnabled: (enabled: boolean) => Promise<void | Livekit.LocalTrackPublication>
   /**
    * Remove a {@link Track}. Only works for local tracks.
    * @category Media
@@ -811,3 +811,31 @@ export type Disposable = () => void
 export type Props = { [prop: string]: any }
 
 export type LogLevel = 'Debug' | 'Info' | 'Warn' | 'Error'
+
+export interface IframeProps {
+  url?: string
+  src?: string
+  allowFullScreen?: boolean
+  position?:
+    | 'relative'
+    | 'absolute'
+    | 'fixed'
+    | 'sticky'
+    | 'static'
+    | 'inherit'
+    | 'initial'
+    | 'unset'
+  display?: 'block' | 'none' | 'inline'
+  height?: string
+  width?: string
+  overflow?: string
+  target?: string
+  styles?: object
+  name?: string
+  onLoad?: () => void
+  frameBorder?: number
+  id?: string
+  className?: string
+  children?: React.ReactNode
+  iframeRef?: React.Ref<HTMLIFrameElement>
+}
