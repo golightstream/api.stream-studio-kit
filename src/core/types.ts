@@ -358,12 +358,12 @@ export interface Room {
    * Enables/disables the camera for the local {@link Participant}
    * @category Media
    */
-  setCameraEnabled: (enabled: boolean) => Promise<Livekit.LocalTrackPublication>
+  setCameraEnabled: (enabled: boolean) => Promise<void | Livekit.LocalTrackPublication>
   /**
    * Enables/disables the microphone for the local {@link Participant}
    * @category Media
    */
-  setMicrophoneEnabled: (enabled: boolean) => Promise<Livekit.LocalTrackPublication>
+  setMicrophoneEnabled: (enabled: boolean) => Promise<void | Livekit.LocalTrackPublication>
   /**
    * Remove a {@link Track}. Only works for local tracks.
    * @category Media
