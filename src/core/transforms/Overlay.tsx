@@ -30,37 +30,7 @@ export const Overlay = {
     const IFrame = ({ source }: { source: any }) => {
       const { src, meta } = source?.value || {}
       const iframeRef = React.useRef<HTMLIFrameElement>(null)
-      const resizeIframe = () => {
-        if (iframeRef.current) {
-          const project = getProject(CoreContext.state.activeProjectId)
-          const root = project.compositor.getRoot()
-          const { x: rootWidth, y: rootHeight } = root.props.size
-          let { width, height } = iframeRef.current.getBoundingClientRect()
-          const containerRatio = width / height
-          const compositorRatio = rootWidth / rootHeight
-
-          let scale
-          if (width && height) {
-            if (compositorRatio > containerRatio) {
-              // If compositor ratio is higher, width is the constraint
-              scale = width / (rootWidth + PADDING * 2)
-            } else if (compositorRatio < containerRatio) {
-              // If compositor ratio is lower, height is the constraint
-              scale = height / (rootHeight + PADDING * 2)
-            } else {
-              // If compositor ratio is equal, width is the constraint
-              scale = height / (rootHeight + PADDING * 2)
-            }
-          }
-
-          iframeRef.current.style.willChange = `transform`
-          // @ts-ignore
-          iframeRef.current.style.minWidth = '1920px';
-          iframeRef.current.style.minHeight = '1080px';
-          iframeRef.current.style.transformOrigin = '0 0'
-          iframeRef.current.style.transform = `scale(${scale}) translateZ(0)`
-        }
-      }
+ 
       return (
         <React.Fragment>
           {meta?.type === 'html-overlay' && (
@@ -68,7 +38,6 @@ export const Overlay = {
               url={src}
               frameBorder={0}
               iframeRef={iframeRef}
-              // onLoad={resizeIframe}
               styles={{ ...initialProps.style,  ...meta?.style }}
             />
           )}
