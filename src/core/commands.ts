@@ -325,10 +325,11 @@ export const joinRoom = async (payload: {
   return room
 }
 
+
 /**
- * add source to this project.
- *
- * @category Project
+ * It adds a source to a project
+ * @param payload - {
+ * @returns Nothing
  */
 export const addSourceToProject = async (payload: {
   projectId: SDK.Project['id']
@@ -355,10 +356,13 @@ export const addSourceToProject = async (payload: {
   return
 }
 
+
 /**
- * remove source from Project.
- *
- * @category Project
+ * "Remove a source from a project."
+ * 
+ * The first thing we do is destructure the payload object to get the projectId and sourceId
+ * @param payload - {
+ * @returns Nothing
  */
 export const removeSourceFromProject = async (payload: {
   projectId: SDK.Project['id']
@@ -381,9 +385,9 @@ export const removeSourceFromProject = async (payload: {
 }
 
 /**
- * Create a source in collection.
- * 
- * @category Collection
+ * It creates a source
+ * @param options - Omit<Source, 'id'>
+ * @returns The sourceId of the newly created source.
  */
 export const createSource = async (options: Omit<Source, 'id'>) => {
   const collection = getUser()
@@ -402,10 +406,10 @@ export const createSource = async (options: Omit<Source, 'id'>) => {
 }
 
 /**
- * Delete a source from collection.
- * @category Collection
+ * It deletes a source from a collection
+ * @param {string} sourceId - The ID of the source you want to delete.
+ * @returns An array of project IDs that were updated.
  */
-
 export const deleteSource = async (sourceId: string) => {
   const collection = getUser()
   const response = await CoreContext.clients.LiveApi().source.deleteSource({
