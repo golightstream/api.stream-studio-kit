@@ -59,8 +59,6 @@ export type TransformRegister = (
 export type TransformElementGetter = (node: SceneNode) => TransformElement
 
 export type TransformContext = {
-  triggerInternal?: (event: keyof InternalEventMap, payload: any) => void
-  trigger?: (event: string, payload: any) => void
   /** Listens for all events emitted by the compositor */
   onEvent?: (
     event: string,
@@ -75,10 +73,6 @@ export type TransformContext = {
   onUpdate?: (cb: (nodeProps: any) => void) => void
   /** Called when the Node associated with the element has been removed */
   onRemove?: (cb: (nodeProps: any) => void) => void
-
-  room? : Room;
-  /** Called when the Room event changes */
-  nodeId?: NodeId
 }
 
 export type Filter = (node: SceneNode) => SceneNode

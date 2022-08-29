@@ -5,9 +5,9 @@
 import ReactDOM from 'react-dom'
 import React from 'react'
 import { CoreContext } from '../context'
-import { getProject } from '../data'
+import { getProject, getProjectRoom } from '../data'
 import { Compositor } from '../namespaces'
-import { InternalEventMap } from '../events'
+import { InternalEventMap, trigger, triggerInternal } from '../events'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
 
@@ -40,7 +40,7 @@ export const Video2 = {
     return sources.find((x) => x.props.type === props.id)
   },
   create(
-    { onUpdate, onNewSource, trigger, onRemove, triggerInternal, room },
+    { onUpdate, onNewSource, onRemove },
     initialProps,
   ) {
     onRemove(() => {
@@ -48,12 +48,14 @@ export const Video2 = {
     })
 
     const root = document.createElement('div')
-
+    const room = getProjectRoom(CoreContext.state.activeProjectId)
+    const role = getProject(CoreContext.state.activeProjectId).role
+   
     let source: any
     let interval: NodeJS.Timer
 
     const Video = ({ source }: { source: any }) => {
-      const role = getProject(CoreContext.state.activeProjectId).role
+
       const SourceTrigger = SourceTriggerMap.find(
         (x) => x.sourceType === initialProps.proxySource,
       )
@@ -95,6 +97,7 @@ export const Video2 = {
               senderId !== room?.participantId
             ) {
               triggerInternal(SourceTrigger.trigger, {
+                projectId: CoreContext.state.activeProjectId,
                 role,
                 sourceId: id,
                 doTrigger: true,
@@ -150,6 +153,7 @@ export const Video2 = {
             }, 1000)
 
             triggerInternal(SourceTrigger.trigger, {
+              projectId: CoreContext.state.activeProjectId,
               role,
               sourceId: id,
               doTrigger: true,

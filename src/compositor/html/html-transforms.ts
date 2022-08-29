@@ -187,16 +187,6 @@ export const init = (
     const result = {
       ...create(
         {
-          triggerInternal: (event: keyof InternalEventMap, data: any) =>
-            triggerInternal(event, {
-              projectId: CoreContext.state.activeProjectId,
-              ...data,
-            }),
-          trigger: (event, data) =>
-            compositor.triggerEvent(event, {
-              nodeId: node.id,
-              data,
-            }),
           onEvent: (event, cb, ...args) => {
             // Event handlers will be cleaned up automatically
             //  if not manually cleaned up by invoking "dispose"
@@ -206,9 +196,7 @@ export const init = (
           },
           onNewSource: (cb) => _onNewSourceHandlers.push(cb),
           onUpdate: (cb) => _onUpdateHandlers.push(cb),
-          onRemove: (cb) => _onRemoveHandlers.push(cb),
-          room : getRoom(CoreContext.state.activeProjectId),
-          nodeId: node.id
+          onRemove: (cb) => _onRemoveHandlers.push(cb)
         },
         node.props,
       ),
