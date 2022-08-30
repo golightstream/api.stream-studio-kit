@@ -9,7 +9,6 @@ import Iframe from './components/Iframe'
 import { Image } from './components/Image'
 import CoreContext from '../context'
 import { getProject } from '../data'
-const PADDING = 0
 
 export const Overlay = {
   name: 'LS-Overlay',
@@ -28,9 +27,31 @@ export const Overlay = {
     let source: any
 
     const IFrame = ({ source }: { source: any }) => {
-      const { src, meta } = source?.value || {}
+      const { src, meta, height, width } = source?.value || {}
       const iframeRef = React.useRef<HTMLIFrameElement>(null)
- 
+      const resizeIframe = () => {
+        if (iframeRef.current) {
+          const project = getProject(CoreContext.state.activeProjectId)
+          const root = project.compositor.getRoot()
+          const { x: rootWidth, y: rootHeight } = root.props.size
+          let width = iframeRef.current.clientWidth
+          let height = iframeRef.current.clientHeight
+
+
+          let scale
+          if (width && height) {
+            scale = rootHeight / height
+          } else {
+            // It's possible the container will have no size defined (width/height=0)
+            scale = 1
+          }
+
+          iframeRef.current.style.willChange = `transform`
+          // @ts-ignore
+          iframeRef.current.style.transformOrigin = '0 0'
+          iframeRef.current.style.transform = `scale(${scale}) translateZ(0)`
+        }
+      }
       return (
         <React.Fragment>
           {meta?.type === 'html-overlay' && (
@@ -38,7 +59,10 @@ export const Overlay = {
               url={src}
               frameBorder={0}
               iframeRef={iframeRef}
-              styles={{ ...initialProps.style,  ...meta?.style }}
+              height={height}
+              width={width}
+              onLoad={(width && height) && resizeIframe}
+              styles={{ ...meta?.style }}
             />
           )}
           {meta?.type === 'image-overlay' && (
