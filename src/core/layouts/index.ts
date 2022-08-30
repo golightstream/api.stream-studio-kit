@@ -426,11 +426,8 @@ export const Layered = {
           html.node`<div data-node-id=${x.id} .data=${{
             zIndex: i + 1,
           }} style=${{
-            width: '100%',
-            height: '100%',
             position: 'absolute',
-            top: 0,
-            left: 0,
+            inset: `${-i}px`,
           }}></div>`,
       )}
     </div>`
