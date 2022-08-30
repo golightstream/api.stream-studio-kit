@@ -50,6 +50,7 @@ export const Overlay = {
           // @ts-ignore
           iframeRef.current.style.transformOrigin = '0 0'
           iframeRef.current.style.transform = `scale(${scale}) translateZ(0)`
+          iframeRef.current.style.opacity = "1";
         }
       }
       return (
@@ -62,7 +63,7 @@ export const Overlay = {
               height={height}
               width={width}
               onLoad={resizeIframe}
-              styles={{ ...meta?.style }}
+              styles={{ ...meta?.style , opacity : 0 }}
             />
           )}
           {meta?.type === 'image-overlay' && (
