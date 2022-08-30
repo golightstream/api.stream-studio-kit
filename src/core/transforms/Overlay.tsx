@@ -34,13 +34,13 @@ export const Overlay = {
           const project = getProject(CoreContext.state.activeProjectId)
           const root = project.compositor.getRoot()
           const { x: rootWidth, y: rootHeight } = root.props.size
-          let width = iframeRef.current.clientWidth
-          let height = iframeRef.current.clientHeight
-
+          let iframeWidth = iframeRef.current.clientWidth
+          let iframeHeight = iframeRef.current.clientHeight
 
           let scale
-          if (width && height) {
-            scale = rootHeight / height
+
+          if (iframeWidth && iframeHeight) {
+            scale = Math.min(rootWidth / iframeWidth, rootHeight / iframeHeight)
           } else {
             // It's possible the container will have no size defined (width/height=0)
             scale = 1
