@@ -53064,11 +53064,8 @@ const Layered = {
       ${children.map((x, i2) => html.node`<div data-node-id=${x.id} .data=${{
       zIndex: i2 + 1
     }} style=${{
-      width: "100%",
-      height: "100%",
       position: "absolute",
-      top: 0,
-      left: 0
+      inset: `${-i2}px`
     }}></div>`)}
     </div>`;
   }
