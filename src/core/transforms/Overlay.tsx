@@ -61,7 +61,7 @@ export const Overlay = {
               iframeRef={iframeRef}
               height={height}
               width={width}
-              onLoad={(width && height) && resizeIframe}
+              onLoad={resizeIframe}
               styles={{ ...meta?.style }}
             />
           )}
