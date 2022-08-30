@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import ReactDOM from 'react-dom'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Compositor } from '../namespaces'
 import Iframe from './components/Iframe'
 import { Image } from './components/Image'
@@ -29,6 +29,15 @@ export const Overlay = {
     const IFrame = ({ source }: { source: any }) => {
       const { src, meta, height, width } = source?.value || {}
       const iframeRef = React.useRef<HTMLIFrameElement>(null)
+
+      useEffect(() => {
+        if (iframeRef.current) {
+          iframeRef.current.style.removeProperty('transformOrigin')
+          iframeRef.current.style.removeProperty('transform')
+          iframeRef.current.style.opacity = "0"
+        }
+      }, [src])
+
       const resizeIframe = () => {
         if (iframeRef.current) {
           const project = getProject(CoreContext.state.activeProjectId)
@@ -50,7 +59,7 @@ export const Overlay = {
           // @ts-ignore
           iframeRef.current.style.transformOrigin = '0 0'
           iframeRef.current.style.transform = `scale(${scale}) translateZ(0)`
-          iframeRef.current.style.opacity = "1";
+          iframeRef.current.style.opacity = '1'
         }
       }
       return (
@@ -63,7 +72,7 @@ export const Overlay = {
               height={height}
               width={width}
               onLoad={resizeIframe}
-              styles={{ ...meta?.style , opacity : 0 }}
+              styles={{ ...meta?.style, opacity: 0 }}
             />
           )}
           {meta?.type === 'image-overlay' && (
