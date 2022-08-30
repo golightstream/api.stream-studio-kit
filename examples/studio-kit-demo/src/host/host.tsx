@@ -406,6 +406,8 @@ const Project = () => {
                   // })
                   projectCommands.addCustomOverlay(generateId(),{
                     src: e.target.value,
+                    width : "1920px",
+                    height : "1080px"
                   })
                 }
               }}
