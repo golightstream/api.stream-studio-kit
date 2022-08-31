@@ -427,7 +427,7 @@ export const Layered = {
             zIndex: i + 1,
           }} style=${{
             position: 'absolute',
-            inset: `${-i}px`,
+            inset: `0px`,
           }}></div>`,
       )}
     </div>`

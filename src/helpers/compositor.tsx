@@ -629,6 +629,16 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
   transform: translateY(0%) !important;
 }
 
+[layout="Layered"] > [data-item] {
+  transform: scale(1.003) !important;
+}
+[layout="Layered"] > [data-item]:nth-child(2) {
+  transform: scale(1.0015) !important;
+}
+[layout="Layered"] > [data-item]:nth-child(1) {
+  transform: scale(1) !important;
+}
+
 .logo {
   position: absolute !important;
 }
