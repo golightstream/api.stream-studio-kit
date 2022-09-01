@@ -117,6 +117,22 @@ export const hydrateProject = async (
   },
 ) => {
   const metadata = project.metadata || {}
+
+  if (size) {
+    await CoreContext.clients.LiveApi().project.updateProject({
+      collectionId: project.collectionId,
+      projectId: project.projectId,
+      rendering: {
+        video: {
+          width: size.x,
+          height: size.y,
+          framerate: 30,
+        },
+      },
+      updateMask: ['rendering'],
+    })
+  }
+
   const compositorProject = await layoutToProject(metadata.layoutId, size)
 
   return {
@@ -176,8 +192,6 @@ export const layerToNode = (
   }
 }
 
-
-
 export const layoutToProject = async (
   layoutId: LayoutApiModel.Layout['id'],
   size?: {
@@ -191,7 +205,7 @@ export const layoutToProject = async (
 
   if (size) {
     const { x, y } = size
-    
+
     const rootLayer = layers.reduce((acc, x) => {
       if (!acc) return x
       if (acc.data.isRoot) return acc
@@ -200,14 +214,24 @@ export const layoutToProject = async (
       return acc
     }, null)
 
-    await CoreContext.clients.LayoutApi().layer.updateLayer({
-      layoutId : rootLayer.layoutId,
+    const layer = await CoreContext.clients.LayoutApi().layer.updateLayer({
+      layoutId: rootLayer.layoutId,
       layerId: rootLayer.id,
       layer: {
         x,
         y,
+        data: {
+          ...rootLayer.data,
+          size: {
+            x,
+            y,
+          },
+        },
       },
     })
+
+    const layerIndex = layers.findIndex((l) => l.id === layer.id)
+    layers[layerIndex] = layer
   }
 
   const dataNodes = layers.map(layerToNode)
