@@ -49882,9 +49882,23 @@ const toBaseSource = (source2) => {
     props: ((_a2 = source2.metadata) == null ? void 0 : _a2.props) || {}
   };
 };
-const hydrateProject = async (project, role) => {
+const hydrateProject = async (project, role, size) => {
   const metadata = project.metadata || {};
-  const compositorProject = await layoutToProject(metadata.layoutId);
+  if (size) {
+    await CoreContext.clients.LiveApi().project.updateProject({
+      collectionId: project.collectionId,
+      projectId: project.projectId,
+      rendering: {
+        video: {
+          width: size.x,
+          height: size.y,
+          framerate: 30
+        }
+      },
+      updateMask: ["rendering"]
+    });
+  }
+  const compositorProject = await layoutToProject(metadata.layoutId, size);
   return {
     id: project.projectId,
     compositor: compositorProject,
@@ -49936,12 +49950,46 @@ const layerToNode = (layer) => {
     childIds: layer.children.map((x) => String(x))
   };
 };
-const layoutToProject = async (layoutId) => {
+const layoutToProject = async (layoutId, size) => {
   const {
     layers
   } = await CoreContext.clients.LayoutApi().layer.listLayers({
     layoutId
   });
+  if (size) {
+    const {
+      x,
+      y
+    } = size;
+    const rootLayer = layers.reduce((acc, x2) => {
+      if (!acc)
+        return x2;
+      if (acc.data.isRoot)
+        return acc;
+      if (x2.data.isRoot)
+        return x2;
+      if (!layers.some((y2) => y2.children.includes(x2.id)))
+        return x2;
+      return acc;
+    }, null);
+    const layer = await CoreContext.clients.LayoutApi().layer.updateLayer({
+      layoutId: rootLayer.layoutId,
+      layerId: rootLayer.id,
+      layer: {
+        x,
+        y,
+        data: {
+          ...rootLayer.data,
+          size: {
+            x,
+            y
+          }
+        }
+      }
+    });
+    const layerIndex = layers.findIndex((l) => l.id === layer.id);
+    layers[layerIndex] = layer;
+  }
   const dataNodes = layers.map(layerToNode);
   const rootNode = dataNodes.reduce((acc, x) => {
     if (!acc)
@@ -51515,14 +51563,10 @@ const Banner$1 = {
       }, headerText && /* @__PURE__ */ React.createElement("div", {
         className: "Banner-header",
         style: {
-          marginBottom: 6,
-          fontSize: "60px"
+          marginBottom: 6
         }
       }, headerText), bodyText && /* @__PURE__ */ React.createElement("div", {
-        className: "Banner-body",
-        style: {
-          fontSize: "24px"
-        }
+        className: "Banner-body"
       }, bodyText)));
     };
     const render2 = () => ReactDOM.render(/* @__PURE__ */ React.createElement(React.Fragment, null, previousSource && previousSource.id !== latestSource.id && /* @__PURE__ */ React.createElement(Banner2, {
@@ -54460,6 +54504,10 @@ const Root = (props) => {
     });
   }, []);
   useEffect(() => {
+    const root2 = project.compositor.getRoot();
+    const {
+      x: rootWidth
+    } = root2.props.size;
     const updateCSS = () => {
       var _a2, _b, _c, _d, _e, _f;
       const {
@@ -54470,8 +54518,8 @@ const Root = (props) => {
       const logoPosition = (_f = (_e = (_b = project.props) == null ? void 0 : _b.logoPosition) != null ? _e : (_d = (_c = project.props) == null ? void 0 : _c.logo) == null ? void 0 : _d.logoPosition) != null ? _f : LogoPosition.TopRight;
       if (!bannerStyle || !primaryColor || !logoPosition)
         return;
-      const CSS = themes[bannerStyle](primaryColor, showNameBanners);
-      const logoCSS = themes[logoPosition]();
+      const CSS = themes[bannerStyle](primaryColor, showNameBanners, rootWidth / 1920);
+      const logoCSS = themes[logoPosition](rootWidth / 1920);
       props.setStyle(`${CSS} ${logoCSS}` || "");
     };
     updateCSS();
@@ -54721,6 +54769,8 @@ const themes = {
     const scale = (px) => px * scalar + "px";
     return `
       .wrapper {
+       height: ${scale(135)};
+       width: ${scale(240)};
        margin-top:${scale(40)} !important;
        margin-left:${scale(40)} !important;
        top:0;
@@ -54731,6 +54781,8 @@ const themes = {
     const scale = (px) => px * scalar + "px";
     return `
       .wrapper {
+       height: ${scale(135)};
+       width: ${scale(240)};
        margin-top:${scale(40)} !important;
        margin-right:${scale(40)} !important;
        top:0;
@@ -54741,6 +54793,8 @@ const themes = {
     const scale = (px) => px * scalar + "px";
     return `
       .wrapper {
+       height: ${scale(135)};
+       width: ${scale(240)};
        margin-bottom:${scale(40)} !important;
        margin-left:${scale(40)} !important;
        bottom:0;
@@ -54751,6 +54805,8 @@ const themes = {
     const scale = (px) => px * scalar + "px";
     return `
       .wrapper {
+       height: ${scale(135)};
+       width: ${scale(240)};
        margin-bottom:${scale(40)} !important;
        margin-right:${scale(40)} !important;
        bottom:0;
@@ -54779,6 +54835,7 @@ const themes = {
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
+        font-size: ${scale(36)}
       }
       .NameBanner {
         transform-origin: 0 100%;
@@ -54865,10 +54922,12 @@ const themes = {
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
+        font-size: ${scale(36)}
         position: relative;
         z-index: 2;
       }
       .Banner-header {
+        font-size: ${scale(90)}
         position: relative;
         z-index: 2;
       }
@@ -54934,6 +54993,7 @@ const themes = {
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
+        font-size: ${scale(36)}
       }
       .NameBanner {
         transform-origin: 0% 100%;
@@ -55723,8 +55783,8 @@ const commands = (_project) => {
           sourceType: "Logo",
           id: "logo",
           style: {
-            width: "160px",
-            height: "90px",
+            width: "100%",
+            height: "100%",
             objectFit: "contain",
             position: "unset"
           }
@@ -56166,7 +56226,12 @@ const commands = (_project) => {
           });
         }
       }
-      const meta = props.meta || {};
+      const meta = props.meta || {
+        style: {
+          height: "100%",
+          width: "100%"
+        }
+      };
       const newLogo = {
         id: logoId,
         props: {
@@ -56857,8 +56922,8 @@ const createCompositor = async (layoutId, size, settings) => {
     sourceType: "Logo",
     id: "logo",
     style: {
-      width: "160px",
-      height: "90px",
+      width: "100%",
+      height: "100%",
       objectFit: "contain",
       position: "unset"
     }
@@ -58114,7 +58179,7 @@ const deleteProject = async (request3) => {
     layoutId: project.layoutApi.layoutId
   })]);
 };
-const loadUser = async () => {
+const loadUser = async (size) => {
   var _a2;
   const collections = await loadCollections();
   let collection;
@@ -58135,7 +58200,7 @@ const loadUser = async () => {
     collection = collections[0];
   }
   await CoreContext.clients.LiveApi().subscribeToCollection(collection.collectionId);
-  const projects = await Promise.all(collection.projects.map((project) => hydrateProject(project, "ROLE_HOST")));
+  const projects = await Promise.all(collection.projects.map((project) => hydrateProject(project, "ROLE_HOST", size)));
   return {
     user: {
       id: collection.collectionId,
@@ -58541,7 +58606,7 @@ const init = async (settings = {}) => {
     render
   };
 };
-const load = async (accessToken) => {
+const load = async (accessToken, size) => {
   let user = getBaseUser();
   if (user) {
     log$1.info("Attempted to load user again - returning existing user");
@@ -58554,7 +58619,7 @@ const load = async (accessToken) => {
   log$1.info("Loading user...");
   const client = CoreContext.clients;
   await client.load(accessToken);
-  const result = await CoreContext.Request.loadUser();
+  const result = await CoreContext.Request.loadUser(size);
   setAppState({
     user: result.user,
     sources: result.sources,
