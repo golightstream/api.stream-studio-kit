@@ -1179,7 +1179,7 @@ export const commands = (_project: ScenelessProject) => {
         }
       }
 
-      const meta = props.meta || {}
+      const meta = props.meta || { style : {height : "100%" , width : "100%"}}
 
       const newLogo = {
         id: logoId,

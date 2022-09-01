@@ -84,13 +84,13 @@ export const Banner = {
             {headerText && (
               <div
                 className="Banner-header"
-                style={{ marginBottom: 6, fontSize: '60px' }}
+                style={{ marginBottom: 6 }}
               >
                 {headerText}
               </div>
             )}
             {bodyText && (
-              <div className="Banner-body" style={{ fontSize: '24px' }}>
+              <div className="Banner-body">
                 {bodyText}
               </div>
             )}

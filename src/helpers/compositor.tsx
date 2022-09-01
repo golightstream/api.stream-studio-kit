@@ -688,8 +688,8 @@ const themes = {
     const scale = (px: number) => px * scalar + 'px'
     return `
       .wrapper {
-       height: ${135 * scalar}px;
-       width: ${240 * scalar}px;
+       height: ${scale(135)};
+       width: ${scale(240)};
        margin-top:${scale(40)} !important;
        margin-left:${scale(40)} !important;
        top:0;
@@ -700,8 +700,8 @@ const themes = {
     const scale = (px: number) => px * scalar + 'px'
     return `
       .wrapper {
-       height: ${135 * scalar}px;
-       width: ${240 * scalar}px;
+       height: ${scale(135)};
+       width: ${scale(240)};
        margin-top:${scale(40)} !important;
        margin-right:${scale(40)} !important;
        top:0;
@@ -712,8 +712,8 @@ const themes = {
     const scale = (px: number) => px * scalar + 'px'
     return `
       .wrapper {
-       height: ${135 * scalar}px;
-       width: ${240 * scalar}px;
+       height: ${scale(135)};
+       width: ${scale(240)};
        margin-bottom:${scale(40)} !important;
        margin-left:${scale(40)} !important;
        bottom:0;
@@ -724,8 +724,8 @@ const themes = {
     const scale = (px: number) => px * scalar + 'px'
     return `
       .wrapper {
-       height: ${135 * scalar}px;
-       width: ${240 * scalar}px;
+       height: ${scale(135)};
+       width: ${scale(240)};
        margin-bottom:${scale(40)} !important;
        margin-right:${scale(40)} !important;
        bottom:0;
@@ -759,6 +759,7 @@ const themes = {
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
+        font-size: ${scale(36)}
       }
       .NameBanner {
         transform-origin: 0 100%;
@@ -855,10 +856,12 @@ const themes = {
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
+        font-size: ${scale(36)}
         position: relative;
         z-index: 2;
       }
       .Banner-header {
+        font-size: ${scale(90)}
         position: relative;
         z-index: 2;
       }
@@ -940,6 +943,7 @@ const themes = {
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
+        font-size: ${scale(36)}
       }
       .NameBanner {
         transform-origin: 0% 100%;
