@@ -352,6 +352,9 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
   }, [])
 
   useEffect(() => {
+    const root =  project.compositor.getRoot();
+    const { x: rootWidth } = root.props.size
+  
     const updateCSS = () => {
       const {
         bannerStyle = BannerStyle.DEFAULT,
@@ -368,9 +371,10 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
       const CSS = themes[bannerStyle as BannerStyle](
         primaryColor,
         showNameBanners,
+        (rootWidth / 1920)
       )
 
-      const logoCSS = themes[logoPosition as LogoPosition]()
+      const logoCSS = themes[logoPosition as LogoPosition]((rootWidth / 1920))
 
       props.setStyle(`${CSS} ${logoCSS}` || '')
     }
@@ -680,40 +684,48 @@ export enum BannerStyle {
 }
 
 const themes = {
-  [LogoPosition.TopLeft]: (scalar = 1280 / 1920) => {
+  [LogoPosition.TopLeft]: (scalar : number = 1280 / 1920) => {
     const scale = (px: number) => px * scalar + 'px'
     return `
       .wrapper {
+       height: ${135 * scalar}px;
+       width: ${240 * scalar}px;
        margin-top:${scale(40)} !important;
        margin-left:${scale(40)} !important;
        top:0;
        left:0;
     }`
   },
-  [LogoPosition.TopRight]: (scalar = 1280 / 1920) => {
+  [LogoPosition.TopRight]: (scalar : number = 1280 / 1920) => {
     const scale = (px: number) => px * scalar + 'px'
     return `
       .wrapper {
+       height: ${135 * scalar}px;
+       width: ${240 * scalar}px;
        margin-top:${scale(40)} !important;
        margin-right:${scale(40)} !important;
        top:0;
        right:0;
     }`
   },
-  [LogoPosition.BottomLeft]: (scalar = 1280 / 1920) => {
+  [LogoPosition.BottomLeft]: (scalar : number = 1280 / 1920) => {
     const scale = (px: number) => px * scalar + 'px'
     return `
       .wrapper {
+       height: ${135 * scalar}px;
+       width: ${240 * scalar}px;
        margin-bottom:${scale(40)} !important;
        margin-left:${scale(40)} !important;
        bottom:0;
        left:0;
     }`
   },
-  [LogoPosition.BottomRight]: (scalar = 1280 / 1920) => {
+  [LogoPosition.BottomRight]: (scalar : number = 1280 / 1920) => {
     const scale = (px: number) => px * scalar + 'px'
     return `
       .wrapper {
+       height: ${135 * scalar}px;
+       width: ${240 * scalar}px;
        margin-bottom:${scale(40)} !important;
        margin-right:${scale(40)} !important;
        bottom:0;
@@ -723,7 +735,7 @@ const themes = {
   [BannerStyle.DEFAULT]: (
     primaryColor: string = '#ABABAB',
     showNameBanners: boolean = true,
-    scalar = 1280 / 1920,
+    scalar : number = 1280 / 1920,
   ) => {
     const textColor = color(primaryColor).lightness() < 0.6 ? '#FFF' : '#000'
     const scale = (px: number) => px * scalar + 'px'

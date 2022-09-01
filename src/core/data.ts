@@ -115,6 +115,7 @@ export const hydrateProject = async (
     x: number
     y: number
   },
+  
 ) => {
   const metadata = project.metadata || {}
 

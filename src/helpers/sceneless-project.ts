@@ -614,8 +614,8 @@ export const commands = (_project: ScenelessProject) => {
             sourceType: 'Logo',
             id: 'logo',
             style: {
-              width: '160px',
-              height: '90px',
+              width: '100%',
+              height: '100%',
               objectFit: 'contain',
               position: 'unset',
             },
@@ -2085,8 +2085,8 @@ export const createCompositor = async (
         sourceType: 'Logo',
         id: 'logo',
         style: {
-          width: '160px',
-          height: '90px',
+          width: '100%',
+          height: '100%',
           objectFit: 'contain',
           position: 'unset',
         },
