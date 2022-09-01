@@ -264,7 +264,7 @@ export const setActiveProject = async (payload: {
           framerate: 30,
         },
       },
-      updateMask: ["rendering","metadata"]
+      updateMask: ["rendering"]
     })
   }
 
