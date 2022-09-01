@@ -223,10 +223,6 @@ export const updateProjectPropsWithoutTrigger = async (payload: {
  */
 export const setActiveProject = async (payload: {
   projectId: SDK.Project['id']
-  size?: {
-    x?: number
-    y?: number
-  }
 }): Promise<SDK.Project> => {
   const project = state.projects.find((x) => x.id === payload.projectId)
   if (!project) {
@@ -251,21 +247,6 @@ export const setActiveProject = async (payload: {
         currentProject.videoApi.project.collectionId,
         currentProject.videoApi.project.projectId,
       )
-  }
-  
-  if (payload.size) {
-    await CoreContext.clients.LiveApi().project.updateProject({
-      collectionId: project.videoApi.project.collectionId,
-      projectId: project.videoApi.project.projectId,
-      rendering: {
-        video: {
-          width: payload.size.x,
-          height: payload.size.y,
-          framerate: 30,
-        },
-      },
-      updateMask: ["rendering"]
-    })
   }
 
   await CoreContext.clients
