@@ -123,7 +123,10 @@ export const deleteProject = async (request: { projectId: string }) => {
  * Load the user data from whatever access token has been registered
  *  with the API.
  */
-export const loadUser = async (): Promise<{
+export const loadUser = async (size? : {
+  x : number,
+  y: number
+}): Promise<{
   user: InternalUser
   projects: InternalProject[]
   sources: InternalSource[]
@@ -158,7 +161,7 @@ export const loadUser = async (): Promise<{
 
   // Take the Vapi Project and hydrate it with Compositor and Lapi project details
   const projects = await Promise.all(
-    collection.projects.map((project) => hydrateProject(project, 'ROLE_HOST' as Role)),
+    collection.projects.map((project) => hydrateProject(project, 'ROLE_HOST' as Role, size)),
   )
 
   return {

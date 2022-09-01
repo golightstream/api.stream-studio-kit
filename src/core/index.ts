@@ -503,7 +503,13 @@ export const init = async (
 /**
  * Register the access token and make API request to gather user data.
  */
-const load = async (accessToken: string): Promise<SDK.User> => {
+const load = async (
+  accessToken: string,
+  size?: {
+    x: number
+    y: number
+  },
+): Promise<SDK.User> => {
   let user = getBaseUser()
   if (user) {
     log.info('Attempted to load user again - returning existing user')
@@ -522,7 +528,7 @@ const load = async (accessToken: string): Promise<SDK.User> => {
   await client.load(accessToken)
 
   // Load the projects and user data
-  const result = await CoreContext.Request.loadUser()
+  const result = await CoreContext.Request.loadUser(size)
 
   // TODO: Move to UserLoaded event handler
   setAppState({
