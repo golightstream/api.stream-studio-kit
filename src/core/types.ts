@@ -358,12 +358,16 @@ export interface Room {
    * Enables/disables the camera for the local {@link Participant}
    * @category Media
    */
-  setCameraEnabled: (enabled: boolean) => Promise<void | Livekit.LocalTrackPublication>
+  setCameraEnabled: (
+    enabled: boolean,
+  ) => Promise<void | Livekit.LocalTrackPublication>
   /**
    * Enables/disables the microphone for the local {@link Participant}
    * @category Media
    */
-  setMicrophoneEnabled: (enabled: boolean) => Promise<void | Livekit.LocalTrackPublication>
+  setMicrophoneEnabled: (
+    enabled: boolean,
+  ) => Promise<void | Livekit.LocalTrackPublication>
   /**
    * Remove a {@link Track}. Only works for local tracks.
    * @category Media
@@ -736,7 +740,7 @@ export interface Studio {
    * ----
    * **Emits {@link UserLoaded}**
    */
-  load: (accessToken: string) => Promise<User>
+  load: (accessToken: string, size?: { x: number; y: number }) => Promise<User>
   /**
    * Renders a project into the supplied HTML Element.
    */
