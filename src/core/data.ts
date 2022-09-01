@@ -111,9 +111,13 @@ export const toBaseSource = (source: InternalSource): SDK.Source => {
 export const hydrateProject = async (
   project: LiveApiModel.Project,
   role: SDK.Role,
+  size?: {
+    x: number
+    y: number
+  },
 ) => {
   const metadata = project.metadata || {}
-  const compositorProject = await layoutToProject(metadata.layoutId)
+  const compositorProject = await layoutToProject(metadata.layoutId, size)
 
   return {
     id: project.projectId,
@@ -172,12 +176,40 @@ export const layerToNode = (
   }
 }
 
+
+
 export const layoutToProject = async (
   layoutId: LayoutApiModel.Layout['id'],
+  size?: {
+    x: number
+    y: number
+  },
 ): Promise<Compositor.Project> => {
   const { layers } = await CoreContext.clients.LayoutApi().layer.listLayers({
     layoutId,
   })
+
+  if (size) {
+    const { x, y } = size
+    
+    const rootLayer = layers.reduce((acc, x) => {
+      if (!acc) return x
+      if (acc.data.isRoot) return acc
+      if (x.data.isRoot) return x
+      if (!layers.some((y) => y.children.includes(x.id))) return x
+      return acc
+    }, null)
+
+    await CoreContext.clients.LayoutApi().layer.updateLayer({
+      layoutId : rootLayer.layoutId,
+      layerId: rootLayer.id,
+      layer: {
+        x,
+        y,
+      },
+    })
+  }
+
   const dataNodes = layers.map(layerToNode)
 
   // The root node is a child to no other node
