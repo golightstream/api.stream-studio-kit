@@ -115,7 +115,6 @@ export const hydrateProject = async (
     x: number
     y: number
   },
-  
 ) => {
   const metadata = project.metadata || {}
 
@@ -204,10 +203,10 @@ export const layoutToProject = async (
     layoutId,
   })
 
-  if (size) {
+  if (size && layers) {
     const { x, y } = size
 
-    const rootLayer = layers.reduce((acc, x) => {
+    const rootLayer = layers?.reduce((acc, x) => {
       if (!acc) return x
       if (acc.data.isRoot) return acc
       if (x.data.isRoot) return x
@@ -215,24 +214,26 @@ export const layoutToProject = async (
       return acc
     }, null)
 
-    const layer = await CoreContext.clients.LayoutApi().layer.updateLayer({
-      layoutId: rootLayer.layoutId,
-      layerId: rootLayer.id,
-      layer: {
-        x,
-        y,
-        data: {
-          ...rootLayer.data,
-          size: {
-            x,
-            y,
+    if (rootLayer) {
+      const layer = await CoreContext.clients.LayoutApi().layer.updateLayer({
+        layoutId: rootLayer.layoutId,
+        layerId: rootLayer.id,
+        layer: {
+          x,
+          y,
+          data: {
+            ...rootLayer.data,
+            size: {
+              x,
+              y,
+            },
           },
         },
-      },
-    })
+      })
 
-    const layerIndex = layers.findIndex((l) => l.id === layer.id)
-    layers[layerIndex] = layer
+      const layerIndex = layers.findIndex((l) => l.id === layer.id)
+      layers[layerIndex] = layer
+    }
   }
 
   const dataNodes = layers.map(layerToNode)
