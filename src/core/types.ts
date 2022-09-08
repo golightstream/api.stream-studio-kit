@@ -842,4 +842,5 @@ export interface IframeProps {
   className?: string
   children?: React.ReactNode
   iframeRef?: React.Ref<HTMLIFrameElement>
+  allow? : string
 }
