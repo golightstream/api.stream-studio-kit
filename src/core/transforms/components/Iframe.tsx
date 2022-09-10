@@ -25,7 +25,6 @@ const Iframe = ({
   iframeRef,
   children,
   src,
-  allow,
 }: IframeProps) => {
   const defaultProps = Object.assign({
     src: src || url,
@@ -42,7 +41,7 @@ const Iframe = ({
     onLoad: onLoad || null,
     height : height || '100%',
     width : width || '100%',
-    allow : allow
+    allow : "autoplay"
   })
   let props = Object.create(null)
   for (let prop of Object.keys(defaultProps)) {
