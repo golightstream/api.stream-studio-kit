@@ -66,7 +66,6 @@ export const Overlay = {
         <React.Fragment>
           {meta?.type === 'html-overlay' && (
             <Iframe
-              allow='autoplay'
               url={src}
               frameBorder={0}
               iframeRef={iframeRef}
