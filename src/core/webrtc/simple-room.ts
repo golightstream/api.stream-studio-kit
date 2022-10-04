@@ -15,6 +15,7 @@ import {
 } from 'livekit-client'
 import { SDK } from '../namespaces'
 import { log } from '../context'
+import { trigger } from '../events'
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
