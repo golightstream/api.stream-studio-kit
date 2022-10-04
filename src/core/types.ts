@@ -272,6 +272,8 @@ export interface Participant {
    *  Change to a participant's metadata propagates immediately to remote connections.
    */
   meta: { [prop: string]: any }
+
+  setCameraMode: (isMirrored:boolean) => void
 }
 
 /**
@@ -369,7 +371,7 @@ export interface Room {
     enabled: boolean,
   ) => Promise<void | Livekit.LocalTrackPublication>
 
-  changeParticipantCameraMode: (isMirrored:boolean) => void
+
   /**
    * Remove a {@link Track}. Only works for local tracks.
    * @category Media

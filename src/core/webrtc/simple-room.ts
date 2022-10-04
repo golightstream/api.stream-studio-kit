@@ -80,6 +80,9 @@ export const getRoom = (id: string) => {
           trackIds: tracks
             .filter((p) => p.participant.sid === x.sid)
             .map((x) => x.trackSid),
+          setCameraMode: (isMirrored: boolean) => {
+            return x.setMetadata(JSON.stringify({ ...meta, isMirrored }))
+          },
         }
       }) as SDK.Participant[],
       tracks: tracks.map((x) => ({
@@ -163,7 +166,6 @@ export const getRoom = (id: string) => {
     }
   }
 
-
   let settingCamera: boolean
   let settingMic: boolean
 
@@ -176,11 +178,6 @@ export const getRoom = (id: string) => {
     },
     setMicrophoneEnabled: (enabled = true) => {
       return localParticipant.setMicrophoneEnabled(enabled)
-    },
-    changeParticipantCameraMode: (isMirrored:boolean) => {
-      let meta = JSON.parse(localParticipant.metadata)
-      meta = { ...meta, isMirrored }
-      return localParticipant.setMetadata(JSON.stringify(meta))
     },
     setCamera: async (options = {}) => {
       if (settingCamera) {
