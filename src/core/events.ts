@@ -1,3 +1,4 @@
+
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -15,7 +16,7 @@
 
 import { SDK } from './namespaces'
 import { LiveApiModel } from '@api.stream/sdk'
-import { Disposable, ProjectBroadcastPhase } from './types'
+import { Disposable, Participant, ProjectBroadcastPhase } from './types'
 import { log } from './context'
 import { sourceTypes } from './../compositor/sources'
 
@@ -277,12 +278,18 @@ export interface ExternalEventMap {
     source: SDK.Source['id']
   }
 
+  ParticipantMetadataUpdate: {
+    participantId: Participant['id']
+    meta: Participant['meta']
+  }
+  /* This is a custom event that is triggered by the video player when the video time updates. */
   VideoTimeUpdate: {
     id: string
     category: string
     time: number
   }
 
+  /* This is a custom event that is triggered by the video player when the video time updates. */
   VideoEnded: {
     id: string
     category: string

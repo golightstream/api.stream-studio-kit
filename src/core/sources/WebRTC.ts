@@ -21,6 +21,8 @@ export type RoomParticipantSource = {
     videoEnabled: boolean
     // Audio track muted by owner
     audioEnabled: boolean
+    // Is Video mirrored
+    mirrored: boolean
   }
 }
 
@@ -77,6 +79,7 @@ export const RoomParticipant = {
             videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
             audioEnabled: Boolean(microphoneTrack && !microphoneTrack.isMuted),
             displayName: x.displayName,
+            mirrored: x?.meta?.isMirrored
           })
           updateSource(x.id + '-screen', {
             videoEnabled: Boolean(
@@ -164,6 +167,7 @@ export const RoomParticipant = {
               displayName: x.displayName || x.id,
               audioEnabled: false,
               videoEnabled: false,
+              mirrored: x?.meta?.isMirrored
             },
           })
           addSource({

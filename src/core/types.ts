@@ -272,8 +272,6 @@ export interface Participant {
    *  Change to a participant's metadata propagates immediately to remote connections.
    */
   meta: { [prop: string]: any }
-
-  setCameraMode: (isMirrored:boolean) => void
 }
 
 /**
@@ -370,7 +368,6 @@ export interface Room {
   setMicrophoneEnabled: (
     enabled: boolean,
   ) => Promise<void | Livekit.LocalTrackPublication>
-
 
   /**
    * Remove a {@link Track}. Only works for local tracks.
@@ -563,6 +560,9 @@ export interface Room {
      */
     cb: (participant: Participant) => void,
   ) => Disposable
+  
+  /* Defining a function that returns a Participant. */
+  getHost: () => Participant
   /**
    * @returns Array containing all current {@link Participant Participants} in the room
    */
