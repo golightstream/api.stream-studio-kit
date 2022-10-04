@@ -368,6 +368,8 @@ export interface Room {
   setMicrophoneEnabled: (
     enabled: boolean,
   ) => Promise<void | Livekit.LocalTrackPublication>
+
+  changeParticipantCameraMode: (isMirrored:boolean) => void
   /**
    * Remove a {@link Track}. Only works for local tracks.
    * @category Media
