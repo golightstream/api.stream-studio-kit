@@ -163,6 +163,7 @@ export const getRoom = (id: string) => {
     }
   }
 
+
   let settingCamera: boolean
   let settingMic: boolean
 
@@ -175,6 +176,11 @@ export const getRoom = (id: string) => {
     },
     setMicrophoneEnabled: (enabled = true) => {
       return localParticipant.setMicrophoneEnabled(enabled)
+    },
+    changeParticipantCameraMode: (isMirrored:boolean) => {
+      let meta = JSON.parse(localParticipant.metadata)
+      meta = { ...meta, isMirrored }
+      return localParticipant.setMetadata(JSON.stringify(meta))
     },
     setCamera: async (options = {}) => {
       if (settingCamera) {
@@ -287,6 +293,7 @@ export const getRoom = (id: string) => {
       const track = latest.tracks.find((x) => x.trackSid === id)
       localParticipant.unpublishTrack(track.track as LocalTrack)
     },
+
     setParticipantMetadata: (id, meta) => {
       return room.updateParticipant(id, meta)
     },
