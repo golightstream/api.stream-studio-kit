@@ -15,7 +15,6 @@ import {
 } from 'livekit-client'
 import { SDK } from '../namespaces'
 import { log } from '../context'
-import { trigger } from '../events'
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
@@ -129,6 +128,7 @@ export const getRoom = (id: string) => {
     RoomEvent.TrackMuted,
     RoomEvent.TrackUnmuted,
     RoomEvent.TrackStreamStateChanged,
+    RoomEvent.DataReceived
   ]
 
   /* Subscribing to the RoomEvent.DataReceived event.
@@ -376,9 +376,6 @@ export const getRoom = (id: string) => {
       return () => {
         room.livekitRoom?.off(RoomEvent.ActiveSpeakersChanged, fn)
       }
-    },
-    getHost: () => {
-      return latest.result.participants.find((p) => p.role === 'ROLE_HOST')
     },
     sendData: (data, recipientIds) => {
       const encoded = encoder.encode(JSON.stringify(data))

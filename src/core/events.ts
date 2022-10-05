@@ -16,7 +16,7 @@
 
 import { SDK } from './namespaces'
 import { LiveApiModel } from '@api.stream/sdk'
-import { Disposable, Participant, ProjectBroadcastPhase } from './types'
+import { Disposable, ProjectBroadcastPhase } from './types'
 import { log } from './context'
 
 let currentSubId = 0
