@@ -56,8 +56,14 @@ export const DeviceSelection = () => {
   )
 }
 
-export const ControlPanel = () => {
-  const { room, projectCommands } = useStudio()
+export const ControlPanel = ({
+  room,
+  projectCommands,
+}: {
+  room: any
+  projectCommands
+ :any}) => {
+
   const [isSharingScreen, setIsSharingScreen] = useState(false)
   const [participant, setParticipant] = useState<SDK.Participant>()
 
@@ -80,6 +86,19 @@ export const ControlPanel = () => {
 
   return (
     <div>
+      <label>
+        <input
+          type="checkbox"
+          onChange={(e) => {
+            
+          room.addCamera({
+            deviceId:
+              '7360456cb5f177a56d708c3dc4981b540ecc5197ec79fb67ee5e573bf434a760',
+          })
+          }}
+        />
+       Add Additional Camera
+      </label>
       <label>
         <input
           type="checkbox"
@@ -109,11 +128,13 @@ export const ControlPanel = () => {
             if (enabled) {
               room.addScreen()
             } else {
-              room.getParticipant(room.participantId).trackIds.forEach((x) => {
-                if (room.getTrack(x).type === 'screen_share') {
-                  room.removeTrack(x)
-                }
-              })
+              room
+                .getParticipant(room.participantId)
+                .trackIds.forEach((x: any) => {
+                  if (room.getTrack(x).type === 'screen_share') {
+                    room.removeTrack(x)
+                  }
+                })
             }
           }}
         />

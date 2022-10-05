@@ -561,8 +561,6 @@ export interface Room {
     cb: (participant: Participant) => void,
   ) => Disposable
   
-  /* Defining a function that returns a Participant. */
-  getHost: () => Participant
   /**
    * @returns Array containing all current {@link Participant Participants} in the room
    */

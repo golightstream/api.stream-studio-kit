@@ -11,15 +11,15 @@ const { Room } = Helpers
 const { useStudio } = Helpers.React
 
 
-export const Participants = () => {
-  const { room, projectCommands, studio } = useStudio()
+export const Participants = ({room , projectCommands ,studio} : {room:any,projectCommands:any ,studio:any}) => {
+
   const { isHost } = useContext(AppContext)
   const [participants, setParticipants] = useState<SDK.Participant[]>([])
 
   // Listen for room participants
   useEffect(() => {
     if (!room) return
-    return room.useParticipants((participants) => {
+    return room.useParticipants((participants:any) => {
       setParticipants(participants)
       // Prune non-existent guests from the project
       if (isHost) projectCommands.pruneParticipants()
@@ -31,7 +31,7 @@ export const Participants = () => {
     <div className={Style.column}>
       {participants.map((x) => (
         <div key={x.id} style={{ marginBottom: 10 }}>
-          <Participant participant={x} />
+          <Participant participant={x} room={room} projectCommands={projectCommands} />
         </div>
       ))}
     </div>
@@ -40,11 +40,15 @@ export const Participants = () => {
 
 type ParticipantProps = {
   participant: SDK.Participant
+  room?: SDK.Room
+  projectCommands?:any
+  studio?: any
 }
 export const ParticipantCamera = ({
   participant,
   webcam,
   microphone,
+  projectCommands
 }: ParticipantProps & { webcam: SDK.Track; microphone: SDK.Track }) => {
   const { isHost } = useContext(AppContext)
   const { id, displayName } = participant
@@ -109,7 +113,7 @@ export const ParticipantCamera = ({
           />
         )}
       </div>
-      {isHost && <HostControls participant={participant} type="camera" />}
+      {isHost && <HostControls participant={participant}  projectCommands={projectCommands} type="camera" />}
     </div>
   )
 }
@@ -173,8 +177,7 @@ export const ParticipantScreenshare = ({
   )
 }
 
-export const Participant = ({ participant }: ParticipantProps) => {
-  const { room } = useStudio()
+export const Participant = ({ participant , room , projectCommands}: ParticipantProps) => {
   const [tracks, setTracks] = useState([])
   const screenshare = tracks.find((x) => x.type === 'screen_share')
   const webcam = tracks.find((x) => x.type === 'camera')
@@ -188,6 +191,7 @@ export const Participant = ({ participant }: ParticipantProps) => {
   return (
     <>
       <ParticipantCamera
+        projectCommands={projectCommands}
         participant={participant}
         webcam={webcam}
         microphone={microphone}
@@ -207,9 +211,9 @@ export const Participant = ({ participant }: ParticipantProps) => {
 const HostControls = ({
   participant,
   type,
+  projectCommands,
 }: ParticipantProps & { type: 'screen' | 'camera' }) => {
   const { id } = participant
-  const { projectCommands, studio  } = useStudio()
 
   // Get the initial props in case the participant is on stream
   const projectParticipant = useMemo(
@@ -227,7 +231,7 @@ const HostControls = ({
   useEffect(() => {
     return projectCommands.useParticipantState(
       id,
-      (x) => {
+      (x:any) => {
         setOnStream(Boolean(x))
       },
       type,
@@ -238,14 +242,12 @@ const HostControls = ({
   //  participant/type is active
   useEffect(
     () =>
-      projectCommands.useShowcase((showcase) => {
+      projectCommands.useShowcase((showcase:any) => {
         setIsShowcase(showcase.participantId === id && showcase.type === type)
       }),
 
     [],
   )
-
-
 
   return (
     <div

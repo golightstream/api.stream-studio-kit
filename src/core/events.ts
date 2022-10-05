@@ -16,9 +16,8 @@
 
 import { SDK } from './namespaces'
 import { LiveApiModel } from '@api.stream/sdk'
-import { Disposable, Participant, ProjectBroadcastPhase } from './types'
+import { Disposable, ProjectBroadcastPhase } from './types'
 import { log } from './context'
-import { sourceTypes } from './../compositor/sources'
 
 let currentSubId = 0
 const subscribers = new Map<number, any>()
@@ -278,10 +277,6 @@ export interface ExternalEventMap {
     source: SDK.Source['id']
   }
 
-  ParticipantMetadataUpdate: {
-    participantId: Participant['id']
-    meta: Participant['meta']
-  }
   /* This is a custom event that is triggered by the video player when the video time updates. */
   VideoTimeUpdate: {
     id: string

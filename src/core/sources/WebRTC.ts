@@ -42,6 +42,10 @@ export const RoomParticipant = {
       let previousParticipants = [] as SDK.Participant[]
       let participantStreams = {} as { [id: string]: MediaStream }
 
+      room.onData((payload,sender)=> {
+          console.log(payload,sender)
+      });
+      
       const updateParticipants = () => {
         // Update existing participants' tracks
         previousParticipants.forEach((x) => {
