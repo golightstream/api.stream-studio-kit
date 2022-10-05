@@ -83,7 +83,6 @@ interface ParticipantDataObject extends DataObject {
    */
   participantId?: string
   /**
-   * Field for miscellaneous data
    */
   metadata: { [prop: string]: any }
 }
