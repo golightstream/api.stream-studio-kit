@@ -377,6 +377,9 @@ export const getRoom = (id: string) => {
         room.livekitRoom?.off(RoomEvent.ActiveSpeakersChanged, fn)
       }
     },
+    getHost: () => {
+      return latest.result.participants.find((p) => p.role === 'ROLE_HOST')
+    },
     sendData: (data, recipientIds) => {
       const encoded = encoder.encode(JSON.stringify(data))
       const participants = recipientIds?.map(

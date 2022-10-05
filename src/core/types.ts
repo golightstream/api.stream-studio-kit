@@ -560,7 +560,6 @@ export interface Room {
      */
     cb: (participant: Participant) => void,
   ) => Disposable
-
   /**
    * @returns Array containing all current {@link Participant Participants} in the room
    */
