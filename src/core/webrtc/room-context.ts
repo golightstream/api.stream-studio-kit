@@ -425,10 +425,6 @@ export class RoomContext implements LSRoomContext {
       RoomEvent.LocalTrackUnpublished,
       this._updateParticipants,
     )
-    this.subscribeToRoomEvent(
-      RoomEvent.ParticipantMetadataChanged,
-      this._updateParticipants
-    )
     this.subscribeToRoomEvent(RoomEvent.Disconnected, () => {
       this.livekitRoom.removeAllListeners()
       this.livekitRoom = null

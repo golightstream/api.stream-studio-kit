@@ -383,7 +383,7 @@ const Project = () => {
           padding: 10,
         }}
       >
-        <Participants />
+        <Participants room={room} projectCommands={projectCommands} studio={studio} />
         <div
           className={Style.column}
           style={{ marginLeft: 14, marginBottom: 14 }}
@@ -446,7 +446,7 @@ const Project = () => {
                 marginTop: 12,
               }}
             >
-              <ControlPanel />
+              <ControlPanel room={room} projectCommands={projectCommands} />
             </div>
           </div>
         </div>
