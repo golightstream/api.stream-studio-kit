@@ -42,10 +42,6 @@ export const RoomParticipant = {
       let previousParticipants = [] as SDK.Participant[]
       let participantStreams = {} as { [id: string]: MediaStream }
 
-      room.onData((payload,sender)=> {
-          console.log(payload,sender)
-      });
-      
       const updateParticipants = () => {
         // Update existing participants' tracks
         previousParticipants.forEach((x) => {
@@ -83,7 +79,7 @@ export const RoomParticipant = {
             videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
             audioEnabled: Boolean(microphoneTrack && !microphoneTrack.isMuted),
             displayName: x.displayName,
-            mirrored: x?.meta?.isMirrored
+            mirrored: x?.meta?.isMirrored,
           })
           updateSource(x.id + '-screen', {
             videoEnabled: Boolean(
@@ -171,7 +167,7 @@ export const RoomParticipant = {
               displayName: x.displayName || x.id,
               audioEnabled: false,
               videoEnabled: false,
-              mirrored: x?.meta?.isMirrored
+              mirrored: x?.meta?.isMirrored,
             },
           })
           addSource({

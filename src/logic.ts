@@ -25,6 +25,8 @@ export {
   every,
 } from 'lodash-es'
 import deepEqual from 'fast-deep-equal'
+import { SDK } from './core/namespaces'
+
 export { deepEqual }
 
 // Note: Not reliable for matters of security
@@ -199,3 +201,64 @@ export const asDuration = (x: string | number | null) => {
 
 /** Convert a Map to an array of its values */
 export const values = <T>(map: Map<any, T>) => Array.from(map.values())
+
+type PermissionMap = {
+  [key in SDK.Role]: Permission[]
+}
+
+/**
+ * A contextual repurposing of API.stream roles
+ * https://www.api.stream/docs/api/auth/#permission-roles
+ */
+
+export enum Permission {
+  ReadProject, // LiveAPI / LayoutAPI Read
+  UpdateProject, // LiveAPI / LayoutAPI Write
+  JoinRoom, // Join WebRTC
+  InviteGuests, // Invite Guests
+  ManageGuests, // (Non-API.stream?) Kick / rename guests
+  ManageBroadcast, // Manage Broadcast
+  ManageSelf,
+}
+
+export const permissions = {
+  [SDK.Role.ROLE_HOST]: [
+    Permission.ReadProject,
+    Permission.UpdateProject,
+    Permission.JoinRoom,
+    Permission.InviteGuests,
+    Permission.ManageGuests,
+    Permission.ManageBroadcast,
+  ],
+  [SDK.Role.ROLE_COHOST]: [
+    Permission.ReadProject,
+    Permission.UpdateProject,
+    Permission.JoinRoom,
+    Permission.InviteGuests,
+    Permission.ManageGuests,
+    Permission.ManageBroadcast,
+  ],
+  [SDK.Role.ROLE_CONTRIBUTOR]: [
+    Permission.ReadProject,
+    Permission.UpdateProject,
+    Permission.JoinRoom,
+    Permission.InviteGuests,
+  ],
+  [SDK.Role.ROLE_GUEST]: [
+    Permission.ReadProject,
+    Permission.JoinRoom,
+    Permission.ManageSelf,
+  ],
+  [SDK.Role.ROLE_VIEWER]: [Permission.ReadProject, Permission.JoinRoom],
+  [SDK.Role.ROLE_IMPERSONATE]: [
+    Permission.ReadProject,
+    Permission.UpdateProject,
+    Permission.InviteGuests,
+    Permission.ManageGuests,
+    Permission.ManageBroadcast,
+  ],
+} as PermissionMap
+
+export const hasPermission = (role: SDK.Role, permission: Permission) => {
+  return Boolean(permissions[role].find((x) => x === permission))
+}
