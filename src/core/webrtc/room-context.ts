@@ -411,6 +411,7 @@ export class RoomContext implements LSRoomContext {
               this._updateGuestParticipantsStore(data)
               this._updateParticipants()
             }
+            this._updateParticipants()
             return
           }
           default:
