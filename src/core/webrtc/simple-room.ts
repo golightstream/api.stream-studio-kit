@@ -128,7 +128,6 @@ export const getRoom = (id: string) => {
     RoomEvent.TrackMuted,
     RoomEvent.TrackUnmuted,
     RoomEvent.TrackStreamStateChanged,
-    RoomEvent.DataReceived
   ]
 
   /* Subscribing to the RoomEvent.DataReceived event.
