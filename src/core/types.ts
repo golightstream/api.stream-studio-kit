@@ -560,7 +560,7 @@ export interface Room {
      */
     cb: (participant: Participant) => void,
   ) => Disposable
-  
+
   /**
    * @returns Array containing all current {@link Participant Participants} in the room
    */
@@ -570,6 +570,11 @@ export interface Room {
    * @returns The participant with the supplied id.
    */
   getParticipant: (id: string) => Participant
+  /**
+   * Metadata to store on the participant. Opaque to the SDK.
+   *  Change to a participant's metadata propagates immediately to remote connections.
+   */
+  setLocalParticipantMetadata: (id: string, meta: { [prop: string]: any }) => void
   /**
    * Metadata to store on the participant. Opaque to the SDK.
    *  Change to a participant's metadata propagates immediately to remote connections.

@@ -130,6 +130,17 @@ export const getRoom = (id: string) => {
     RoomEvent.TrackStreamStateChanged,
   ]
 
+  room.subscribeToRoomEvent(
+    RoomEvent.DataReceived,
+    (payload, participant: Participant, kind: DataPacket_Kind) => {
+      const strData = decoder.decode(payload)
+      const data = JSON.parse(strData)
+      if (data.type === 'ParticipantMetadataUpdate') {
+        update()
+      }
+    },
+  )
+
   const unsubscribers = updateEvents.map((evt) =>
     room.subscribeToRoomEvent(evt, () => update()),
   )
@@ -287,7 +298,18 @@ export const getRoom = (id: string) => {
       const track = latest.tracks.find((x) => x.trackSid === id)
       localParticipant.unpublishTrack(track.track as LocalTrack)
     },
-
+    setLocalParticipantMetadata: (id, meta) => {
+      const data = JSON.stringify(meta)
+      const encoded = encoder.encode(
+        JSON.stringify({
+          metadata: meta,
+          type: 'ParticipantMetadataUpdate',
+          participantId: id,
+        }),
+      )
+      localParticipant.setMetadata(data)
+      return localParticipant.publishData(encoded, DataPacket_Kind.RELIABLE)
+    },
     setParticipantMetadata: (id, meta) => {
       return room.updateParticipant(id, meta)
     },

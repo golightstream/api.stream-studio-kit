@@ -18,6 +18,8 @@ import { ApiStream, LiveKitUtils } from '@api.stream/sdk'
 import * as LiveKitServer from '@api.stream/livekit-server-sdk'
 import decode from 'jwt-decode'
 import { log, CoreContext } from '../context'
+import { Role } from '../types'
+import { hasPermission, Permission } from '../../logic'
 export * as Livekit from 'livekit-client'
 
 /**
@@ -25,6 +27,7 @@ export * as Livekit from 'livekit-client'
  */
 enum DataType {
   ChatMessage = 'ChatMessage',
+  ParticipantMetadataUpdate = 'ParticipantMetadataUpdate',
 }
 
 /**
@@ -64,6 +67,28 @@ interface ChatDataObject extends DataObject {
    * Field for miscellaneous data
    */
   metadata?: object | string
+}
+
+/**
+ * Chat message sent/received via websocket.
+ * This is the structure of the message as it is transferred via websocket.
+ */
+interface ParticipantDataObject extends DataObject {
+  /**
+   * Always `'ChatMessage'`
+   */
+  type: DataType.ParticipantMetadataUpdate
+  /**
+   * content of chat message
+   */
+  /**
+   * Identities of the recipient {@link Participant Participants}. Only specified if it is a private message. Otherwise, it is undefined.
+   */
+  participantId?: string
+  /**
+   * Field for miscellaneous data
+   */
+  metadata: { [prop: string]: any }
 }
 
 /**
@@ -326,6 +351,7 @@ export class RoomContext implements LSRoomContext {
   isConnecting: boolean
   livekitRoom: Room
   participants: Participant[]
+  guestParticipantMetadata: ParticipantDataObject[]
   roomName: string
   /**
    * Livekit Room Service client, for performing admin functions
@@ -360,6 +386,7 @@ export class RoomContext implements LSRoomContext {
     this.roomName = roomName
     this.audioTracks = []
     this.participants = []
+    this.guestParticipantMetadata = []
     this.isConnecting = false
     this.subscribeToRoomEvent(
       RoomEvent.DataReceived,
@@ -373,6 +400,20 @@ export class RoomContext implements LSRoomContext {
         switch (data.type) {
           case DataType.ChatMessage: {
             return this._appendChat(payload, participant, kind)
+          }
+          case DataType.ParticipantMetadataUpdate: {
+            const strData = decoder.decode(payload)
+            const data: ParticipantDataObject = JSON.parse(strData)
+            if (
+              hasPermission(
+                data?.metadata?.participantRole,
+                Permission.ManageSelf,
+              )
+            ) {
+              this._updateGuestParticipantsStore(data)
+              this._updateParticipants()
+            }
+            return
           }
           default:
             return
@@ -430,6 +471,22 @@ export class RoomContext implements LSRoomContext {
       this.livekitRoom = null
       this._updateParticipants()
     })
+    this.subscribeToRoomEvent(
+      RoomEvent.ParticipantMetadataChanged,
+      (metadata: string, participant: Participant, prevMetadata: string) => {
+        const meta = JSON.parse(metadata)
+        if (hasPermission(meta?.participantRole, Permission.ManageSelf)) {
+          const data = {
+            participantId: participant?.identity,
+            metadata: meta,
+            type: DataType.ParticipantMetadataUpdate,
+          } as ParticipantDataObject
+          this._updateGuestParticipantsStore(data)
+          this._updateParticipants()
+          return
+        }
+      },
+    )
   }
 
   bindApiClient(client: ApiStream) {
@@ -468,6 +525,21 @@ export class RoomContext implements LSRoomContext {
     this._chatHistory = value
   }
 
+  private _updateGuestParticipantsStore(data: ParticipantDataObject) {
+    if (!this.guestParticipantMetadata.length) {
+      this.guestParticipantMetadata.push(data)
+    } else {
+      const existingGuestIndex = this.guestParticipantMetadata.findIndex(
+        (g) => g.participantId === data?.participantId,
+      )
+      if (existingGuestIndex > -1) {
+        this.guestParticipantMetadata[existingGuestIndex] = data
+      } else {
+        this.guestParticipantMetadata.push(data)
+      }
+    }
+  }
+
   private _updateParticipants() {
     if (
       !this.livekitRoom ||
@@ -479,7 +551,22 @@ export class RoomContext implements LSRoomContext {
       const remotes = Array.from(this.livekitRoom.participants.values())
       const parts = [this.livekitRoom.localParticipant] as Participant[]
       parts.push(...remotes)
-      this.participants = parts
+      const updatedParts = parts.map((participant) => {
+        const existingGuestParticipantMetadata =
+          this.guestParticipantMetadata.find(
+            (g) => g.participantId === participant.identity,
+          )
+        if (existingGuestParticipantMetadata) {
+          let participantMetadataJson = JSON.parse(participant.metadata)
+          participantMetadataJson = {
+            ...participantMetadataJson,
+            ...existingGuestParticipantMetadata.metadata,
+          }
+          participant.metadata = JSON.stringify(participantMetadataJson)
+        }
+        return participant
+      })
+      this.participants = updatedParts
     }
   }
 

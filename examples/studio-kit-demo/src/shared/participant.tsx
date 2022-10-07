@@ -27,6 +27,8 @@ export const Participants = ({room , projectCommands ,studio} : {room:any,projec
   }, [room])
 
 
+
+
   return (
     <div className={Style.column}>
       {participants.map((x) => (
@@ -40,7 +42,7 @@ export const Participants = ({room , projectCommands ,studio} : {room:any,projec
 
 type ParticipantProps = {
   participant: SDK.Participant
-  room?: SDK.Room
+  room?: any
   projectCommands?:any
   studio?: any
 }
@@ -48,7 +50,8 @@ export const ParticipantCamera = ({
   participant,
   webcam,
   microphone,
-  projectCommands
+  projectCommands,
+  room
 }: ParticipantProps & { webcam: SDK.Track; microphone: SDK.Track }) => {
   const { isHost } = useContext(AppContext)
   const { id, displayName } = participant
@@ -113,7 +116,7 @@ export const ParticipantCamera = ({
           />
         )}
       </div>
-      {isHost && <HostControls participant={participant}  projectCommands={projectCommands} type="camera" />}
+      {isHost && <HostControls participant={participant} room={room} projectCommands={projectCommands} type="camera" />}
     </div>
   )
 }
@@ -194,6 +197,7 @@ export const Participant = ({ participant , room , projectCommands}: Participant
         projectCommands={projectCommands}
         participant={participant}
         webcam={webcam}
+        room={room}
         microphone={microphone}
       />
       {screenshare && (
@@ -212,6 +216,7 @@ const HostControls = ({
   participant,
   type,
   projectCommands,
+  room
 }: ParticipantProps & { type: 'screen' | 'camera' }) => {
   const { id } = participant
 
@@ -220,6 +225,7 @@ const HostControls = ({
     () => projectCommands.getParticipantState(id, type),
     [],
   )
+
 
   const [onStream, setOnStream] = useState(Boolean(projectParticipant))
   const [isMuted, setIsMuted] = useState(projectParticipant?.isMuted ?? false)
@@ -286,6 +292,24 @@ const HostControls = ({
           />
           On stream
         </label>
+         <label>
+          <input
+            type="checkbox"
+            checked={onStream}
+            style={{ marginTop: 0, marginBottom: 0 }}
+            onChange={(e) => {
+              const checked = e.target.checked
+              if (checked) {
+                 room.setLocalParticipantMetadata(room?.participantId , { ...participant.meta , isMirrored: true })
+              } else {
+                room.setLocalParticipantMetadata(room?.participantId , { ...participant.meta , isMirrored: false })
+              }
+              setOnStream(checked)
+            }}
+          />
+          On Mirror
+        </label>
+
         <label style={{ opacity: onStream ? 1 : 0.5 }}>
           <input
             type="checkbox"
