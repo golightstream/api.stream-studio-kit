@@ -45,42 +45,70 @@ export const RoomParticipant = {
       const updateParticipants = () => {
         // Update existing participants' tracks
         previousParticipants.forEach((x) => {
-          const srcObject = participantStreams[x.id]
-          const srcObjectScreenshare = participantStreams[x.id + '-screen']
-
-          // Get one webcam track and one microphone track
-          const webcamId = x.trackIds.find((x) => {
+          const cameraTracks = x.trackIds.filter((x) => {
             const track = room.getTrack(x)
             return track?.type === 'camera'
           })
-          const microphoneId = x.trackIds.find((x) => {
-            const track = room.getTrack(x)
-            return track?.type === 'microphone'
+          const srcObjectScreenshare = participantStreams[x.id + '-screen']
+          cameraTracks.forEach((webcamId) => {
+            const srcObject = participantStreams[`${x.id}-${webcamId}`]
+            // const srcObjectScreenshare = participantStreams[x.id + '-screen']
+            const microphoneId = x.trackIds.find((x) => {
+              const track = room.getTrack(x)
+              return track?.type === 'microphone'
+            })
+            const webcamTrack = room.getTrack(webcamId)
+            const microphoneTrack = room.getTrack(microphoneId)
+            updateMediaStreamTracks(srcObject, {
+              video: webcamTrack?.mediaStreamTrack,
+              audio: microphoneTrack?.mediaStreamTrack,
+            })
+
+            updateSource(x.id, {
+              videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
+              audioEnabled: Boolean(
+                microphoneTrack && !microphoneTrack.isMuted,
+              ),
+              displayName: x.displayName,
+              mirrored: x?.meta?.isMirrored,
+            })
           })
+          // Get one webcam track and one microphone track
+          // const webcamId = x.trackIds.find((x) => {
+          //   const track = room.getTrack(x)
+          //   return track?.type === 'camera'
+          // })
+          // const microphoneId = x.trackIds.find((x) => {
+          //   const track = room.getTrack(x)
+          //   return track?.type === 'microphone'
+          // })
+
           const screenshareId = x.trackIds.find((x) => {
             const track = room.getTrack(x)
             return track?.type === 'screen_share'
           })
 
-          const webcamTrack = room.getTrack(webcamId)
-          const microphoneTrack = room.getTrack(microphoneId)
+          // const webcamTrack = room.getTrack(webcamId)
+          // const microphoneTrack = room.getTrack(microphoneId)
           const screenshareTrack = room.getTrack(screenshareId)
 
           // Replace the tracks on the existing MediaStream
-          updateMediaStreamTracks(srcObject, {
-            video: webcamTrack?.mediaStreamTrack,
-            audio: microphoneTrack?.mediaStreamTrack,
-          })
+          // updateMediaStreamTracks(srcObject, {
+          //   video: webcamTrack?.mediaStreamTrack,
+          //   audio: microphoneTrack?.mediaStreamTrack,
+          // })
           updateMediaStreamTracks(srcObjectScreenshare, {
             video: screenshareTrack?.mediaStreamTrack,
           })
 
-          updateSource(x.id, {
-            videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
-            audioEnabled: Boolean(microphoneTrack && !microphoneTrack.isMuted),
-            displayName: x.displayName,
-            mirrored: x?.meta?.isMirrored,
-          })
+          // updateSource(x.id, {
+          //   videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
+          //   audioEnabled: Boolean(
+          //     microphoneTrack && !microphoneTrack.isMuted,
+          //   ),
+          //   displayName: x.displayName,
+          //   mirrored: x?.meta?.isMirrored,
+          // })
           updateSource(x.id + '-screen', {
             videoEnabled: Boolean(
               screenshareTrack && !screenshareTrack.isMuted,
