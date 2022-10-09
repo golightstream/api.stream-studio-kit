@@ -130,6 +130,9 @@ export const getRoom = (id: string) => {
     RoomEvent.TrackStreamStateChanged,
   ]
 
+  /* Subscribing to the RoomEvent.DataReceived event.
+   * Update the room participant info when Participant metadata gets updated
+   */
   room.subscribeToRoomEvent(
     RoomEvent.DataReceived,
     (payload, participant: Participant, kind: DataPacket_Kind) => {
@@ -298,6 +301,7 @@ export const getRoom = (id: string) => {
       const track = latest.tracks.find((x) => x.trackSid === id)
       localParticipant.unpublishTrack(track.track as LocalTrack)
     },
+    /* Setting the local participant metadata. */
     setLocalParticipantMetadata: (id, meta) => {
       const data = JSON.stringify(meta)
       const encoded = encoder.encode(
