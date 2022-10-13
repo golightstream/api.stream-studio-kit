@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
-import { init, Helpers } from '../../../../'
+import { init, Helpers, } from '../../../../'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from './layout-examples'
@@ -14,6 +14,9 @@ import config from '../../config'
 import ReCAPTCHA from 'react-google-recaptcha'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
+import { Banner } from '../../../../types/src/helpers/sceneless-project'
+
+
 
 const { ScenelessProject } = Helpers
 const { useStudio } = Helpers.React
@@ -143,12 +146,15 @@ const Project = () => {
   const [isLive, setIsLive] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [selectedImage, setSelectedImage] = useState(null)
+  const [banners, setBanners] = React.useState<Banner[]>(
+    studio.compositor.getSources('Banner'),
+  )
+
   const [projectedLoaded, setProjectedLoaded] = useState(false)
   // Get custom layout name from metadata we store
   const layout = project.props.layout
   const background = projectCommands.getBackgroundMedia()
-  const overlay = projectCommands.getImageOverlay();
-  
+  const overlay = projectCommands.getImageOverlay()
 
   const overlays = [
     {
@@ -161,7 +167,6 @@ const Project = () => {
     },
   ]
 
-
   const logos = [
     {
       id: '128',
@@ -172,7 +177,6 @@ const Project = () => {
       url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
     },
   ]
-
 
   const videooverlays = [
     {
@@ -208,6 +212,10 @@ const Project = () => {
     })
   }, [])
 
+    React.useEffect(
+      () => studio.compositor.useSources('Banner', setBanners),
+      [],
+    )
   // Generate project links
   useEffect(() => {
     studio.createPreviewLink().then(setPreviewUrl)
@@ -395,21 +403,56 @@ const Project = () => {
               defaultValue={background}
               onChange={(e) => {
                 if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(e.target.value)) {
-        //          projectCommands.setBackgroundImage(e.target.value)
+                  //          projectCommands.setBackgroundImage(e.target.value)
                   projectCommands.setBackgroundImage2(generateId(), {
                     src: e.target.value,
                   })
                 } else {
-      //            projectCommands.setBackgroundVideo(e.target.value)
+                  //            projectCommands.setBackgroundVideo(e.target.value)
                   // projectCommands.setBackgroundVideo2(generateId(), {
                   //   src: e.target.value,
                   // })
-                  projectCommands.addCustomOverlay(generateId(),{
+                  projectCommands.addCustomOverlay(generateId(), {
                     src: e.target.value,
-                    width : "1920px",
-                    height : "1080px"
+                    width: '1920px',
+                    height: '1080px',
                   })
                 }
+              }}
+            />
+          </div>
+          <div className={Style.column}>
+            <label>CHat Overlay</label>
+            <input
+              type="button"
+              defaultValue={background}
+              onClick={(e) => {
+                projectCommands.addChatOverlay(generateId(), {
+                  text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibu',
+                  username: 'Maddygoround',
+                })
+              }}
+            />
+          </div>
+          <div className={Style.column}>
+            <label>Add Banner</label>
+            <input
+              type="button"
+              defaultValue={background}
+              onClick={(e) => {
+                projectCommands.addBanner({
+                  bodyText: 'hey hey hey',
+                })
+              }}
+            />
+          </div>
+          <div className={Style.column}>
+            <label>Set Banner</label>
+            <input
+              type="button"
+              defaultValue={background}
+              onClick={(e) => {
+                projectCommands.setActiveBanner(banners[0].id);
               }}
             />
           </div>
@@ -530,10 +573,9 @@ export const HostView = () => {
               layout,
               layoutProps: props,
             },
-            
+
             // Store our custom layout in metadata for future reference
             { layout: DEFAULT_LAYOUT },
-            
           )
         }
         const activeProject = await studio.Command.setActiveProject({
@@ -545,7 +587,6 @@ export const HostView = () => {
 
         setRoom(room)
         setProject(activeProject)
-
       })
       .catch((e) => {
         console.warn(e)
