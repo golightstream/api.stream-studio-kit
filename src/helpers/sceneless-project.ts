@@ -46,12 +46,13 @@ import { getElementAttributes } from './../logic'
 import { CoreContext } from '../core/context'
 import { getProject, getProjectRoom, toBaseProject } from '../core/data'
 import { SDK, Compositor } from '../core/namespaces'
-import { Disposable, SceneNode } from '../core/types'
+import { Disposable, IChatOverlay, SceneNode } from '../core/types'
 import { Track } from 'livekit-client'
 
 import LayoutName = Compositor.Layout.LayoutName
 import { Banner, BannerSource, BannerProps } from '../core/sources/Banners'
 import { generateId } from '../logic'
+import { ChatOverlayProps } from '../core/transforms/ChatOverlay'
 export type { LayoutName }
 export type { Banner, BannerSource }
 
@@ -68,6 +69,8 @@ export type HTMLVideoElementAttributes = {
   playsinline?: boolean
   disablepictureinpicture?: boolean
 }
+
+
 
 // Local cache to track participants being added
 const addingCache = {
@@ -146,6 +149,22 @@ export interface Commands {
   addLogo(id: string, logo: LogoProps): void
 
   getLogo(): string
+
+  /**
+   * Add an chat comment to the stream.
+   */
+  addChatOverlay(id: string, Options: Omit<IChatOverlay, 'chatOverlayId'>): void
+
+  /**
+   * Add an any exisiting chat comment from the stream.
+   */
+  removeChatOverlay(id: string): void
+
+  /**
+   * get the active chat comment to the stream.
+   */
+  getChatOverlay(): IChatOverlay | null
+
   /**
    * Set the active layout and associated layoutProps
    */
@@ -1179,7 +1198,7 @@ export const commands = (_project: ScenelessProject) => {
         }
       }
 
-      const meta = props.meta || { style : {height : "100%" , width : "100%"}}
+      const meta = props.meta || { style: { height: '100%', width: '100%' } }
 
       const newLogo = {
         id: logoId,
@@ -1250,11 +1269,23 @@ export const commands = (_project: ScenelessProject) => {
         },
       })
     },
-    setActiveBanner(id: string) {
-      const existingBanners = commands.getBanners()
-      const [existingBannerNode, ...excessBannerNodes] =
+    async setActiveBanner(id: string) {
+      const [nodeTocheckForChildren, ...{}] =
         bannerContainer?.children || ([] as SceneNode[])
 
+      /* Checking if the existingBannerNode has a property called chatOverlayId. If it does, it deletes the
+      node. */
+      if (
+        nodeTocheckForChildren?.props?.sourceType?.toLowerCase() ===
+        'chatoverlay'
+      ) {
+        await CoreContext.Command.deleteNode({
+          nodeId: nodeTocheckForChildren.id,
+        })
+      }
+
+      const [existingBannerNode, ...excessBannerNodes] =
+        bannerContainer?.children || ([] as SceneNode[])
       // Delete all except one banner from the project
       excessBannerNodes.forEach((x) => {
         CoreContext.Command.deleteNode({
@@ -1273,6 +1304,7 @@ export const commands = (_project: ScenelessProject) => {
         CoreContext.Command.updateNode({
           nodeId: existingBannerNode.id,
           props: {
+            sourceType: 'Banner',
             bannerId: id,
           },
         })
@@ -1281,6 +1313,67 @@ export const commands = (_project: ScenelessProject) => {
 
     getActiveBanner(): string | null {
       return bannerContainer.children?.[0]?.props?.bannerId ?? null
+    },
+
+    async addChatOverlay(
+      id: string,
+      options: Omit<IChatOverlay, 'chatOverlayId'>,
+    ) {
+      const [nodeTocheckForChildren, ...{}] =
+        bannerContainer?.children || ([] as SceneNode[])
+
+      /* Deleting the existing banner node if it exists. */
+      if (
+        nodeTocheckForChildren?.props?.sourceType?.toLowerCase() === 'banner'
+      ) {
+        await CoreContext.Command.deleteNode({
+          nodeId: nodeTocheckForChildren.id,
+        })
+      }
+
+      const [existingBannerNode, ...excessBannerNodes] =
+        bannerContainer?.children || ([] as SceneNode[])
+
+      // Delete all except one banner from the project
+      excessBannerNodes.forEach((x) => {
+        CoreContext.Command.deleteNode({
+          nodeId: x.id,
+        })
+      })
+
+      if (!existingBannerNode) {
+        return CoreContext.Command.createNode({
+          parentId: bannerContainer?.id,
+          props: {
+            sourceType: 'ChatOverlay',
+            chatOverlayId: id,
+            ...options,
+          },
+        })
+      } else {
+        CoreContext.Command.updateNode({
+          nodeId: existingBannerNode.id,
+          props: {
+            sourceType: 'ChatOverlay',
+            chatOverlayId: id,
+            ...options,
+          },
+        })
+      }
+    },
+
+    removeChatOverlay(id: string) {
+      // Remove dependent nodes from stream
+      bannerContainer?.children?.forEach((x) => {
+        if (x.props.chatOverlayId !== id) return
+        CoreContext.Command.deleteNode({
+          nodeId: x.id,
+        })
+      })
+    },
+
+    getChatOverlay(): IChatOverlay | null {
+      return (bannerContainer.children?.[0]?.props as IChatOverlay) ?? null
     },
 
     getImageOverlay2(): string | string[] {
