@@ -1975,6 +1975,7 @@ export const createCompositor = async (
         size,
         isRoot: true,
         tagName: 'div',
+        version: 'beta',
         fields: {
           style: { background: 'black' },
         },
