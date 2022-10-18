@@ -152,7 +152,8 @@ export const recreateLayout = async (payload: {
     return
   }
 
-  const { layoutId } = response.project.metadata || {}
+  const metadata = response.project.metadata || {}
+  const { layoutId } = metadata
   const { video } = response.project.rendering
   const { type } = response.project.metadata.props || {}
 
@@ -176,14 +177,22 @@ export const recreateLayout = async (payload: {
       projectId,
       updateMask: ['metadata'],
       metadata: {
+        ...metadata,
         layoutId: layout.id,
       },
     })
+
+  CoreContext.log.debug('New layout assigned to project:', { layout })
+    
+  // Trigger event to update state
+  await triggerInternal('ProjectChanged', { project: updateResponse.project })
 
   // Delete the previous layout
   await CoreContext.clients.LayoutApi().layout.deleteLayout({
     layoutId,
   })
+
+  CoreContext.log.debug('Previous layout deleted:', { layoutId })
 
   // Return the base project directly, for convenience
   const internalProject = await hydrateProject(
@@ -427,7 +436,6 @@ export const createNode = async (payload: {
     projectId = state.activeProjectId,
   } = payload
   const project = getProject(projectId)
-  props = { ...props, layoutId: project.layoutApi.layoutId, type: 'child' }
 
   // Update state
   const nodeId = await project.compositor.insert(props, parentId, index)

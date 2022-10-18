@@ -6,6 +6,7 @@ import {
   getBaseUser,
   getProject,
   hydrateProject,
+  layoutToProject,
   toBaseDestination,
   toBaseProject,
 } from './data'
@@ -94,6 +95,11 @@ subscribeInternal(async (event, payload) => {
       }
       if (typeof broadcastId !== 'undefined') {
         internalProject.videoApi.broadcastId = broadcastId
+      }
+      const newLayoutId = project.metadata?.layoutId
+      if (newLayoutId !== internalProject.layoutApi.layoutId) {
+        internalProject.layoutApi.layoutId = project.metadata?.layoutId
+        internalProject.compositor = await layoutToProject(newLayoutId)
       }
       internalProject.videoApi.project = project
       internalProject.props = project.metadata?.props ?? {}
