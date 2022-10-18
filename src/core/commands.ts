@@ -125,6 +125,81 @@ export const createProject = async (
 }
 
 /**
+ * @private
+ * Recreate a project's associated layout
+ */
+export const recreateLayout = async (payload: {
+  projectId: string
+  props?: Props
+}) => {
+  const { projectId, props = {} } = payload
+  const collectionId = getUser().id
+
+  // Get the Vapi project
+  const response = await CoreContext.clients.LiveApi().project.getProject({
+    collectionId,
+    projectId,
+    status: true,
+  })
+
+  // Return if the project is actively broadcasting
+  if (
+    [
+      SDK.ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING,
+      SDK.ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STARTING,
+    ].includes(response.status.phase)
+  ) {
+    return
+  }
+
+  const { layoutId } = response.project.metadata || {}
+  const { video } = response.project.rendering
+  const { type } = response.project.metadata.props || {}
+
+  // Create the new layout
+  const layout = await CoreContext.Request.createLayout({
+    collectionId,
+    projectId,
+    type: type || 'sceneless',
+    settings: {},
+    size: {
+      x: video.width,
+      y: video.height,
+    },
+  })
+
+  // Set the new layout on the project
+  const updateResponse = await CoreContext.clients
+    .LiveApi()
+    .project.updateProject({
+      collectionId,
+      projectId,
+      updateMask: ['metadata'],
+      metadata: {
+        layoutId: layout.id,
+      },
+    })
+
+  // Delete the previous layout
+  await CoreContext.clients.LayoutApi().layout.deleteLayout({
+    layoutId,
+  })
+
+  // Return the base project directly, for convenience
+  const internalProject = await hydrateProject(
+    updateResponse.project,
+    'ROLE_HOST' as SDK.Role,
+  )
+
+  // Add props to the root node
+  await internalProject.compositor.update(
+    internalProject.compositor.getRoot().id,
+    props,
+  )
+  return toBaseProject(internalProject)
+}
+
+/**
  * Delete a project.
  *
  * @category Project

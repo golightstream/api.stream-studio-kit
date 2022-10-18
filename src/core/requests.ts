@@ -20,7 +20,6 @@ import { Helpers } from '.'
 import { Props, Role } from './types'
 import { LiveApiModel } from '@api.stream/sdk'
 
-
 export const createProject = async (request: {
   settings?: { [prop: string]: any }
   props?: Props // Arbitrary metadata (e.g. 'name')
@@ -56,11 +55,12 @@ export const createProject = async (request: {
       },
     })
 
-  const layout = await CoreContext.clients.LayoutApi().layout.createLayout({
-    layout: {
-      projectId: createProjectResponse.project.projectId,
-      collectionId: createProjectResponse.project.collectionId,
-    },
+  const layout = await createLayout({
+    projectId: createProjectResponse.project.projectId,
+    collectionId: createProjectResponse.project.collectionId,
+    settings,
+    size,
+    type,
   })
 
   const { displayName } = getAccessTokenData()
@@ -82,23 +82,6 @@ export const createProject = async (request: {
     })
   createProjectResponse.project = projectResponse.project
   createProjectResponse.project.metadata = metadata
-
-  if (type === 'sceneless') {
-    await Helpers.ScenelessProject.createCompositor(layout.id, size, settings)
-  } else {
-    await CoreContext.compositor.createProject(
-      {
-        props: {
-          name: 'Root',
-          layout: 'Free',
-          ...settings,
-          isRoot: true,
-          size,
-        },
-      },
-      layout.id,
-    )
-  }
 
   return createProjectResponse
 }
@@ -123,8 +106,8 @@ export const deleteProject = async (request: { projectId: string }) => {
  * Load the user data from whatever access token has been registered
  *  with the API.
  */
-export const loadUser = async (size? : {
-  x : number,
+export const loadUser = async (size?: {
+  x: number
   y: number
 }): Promise<{
   user: InternalUser
@@ -161,7 +144,9 @@ export const loadUser = async (size? : {
 
   // Take the Vapi Project and hydrate it with Compositor and Lapi project details
   const projects = await Promise.all(
-    collection.projects.map((project) => hydrateProject(project, 'ROLE_HOST' as Role, size)),
+    collection.projects.map((project) =>
+      hydrateProject(project, 'ROLE_HOST' as Role, size),
+    ),
   )
 
   return {
@@ -179,4 +164,40 @@ export const loadUser = async (size? : {
 export const loadCollections = async () => {
   let result = await CoreContext.clients.LiveApi().collection.getCollections({})
   return result.collections
+}
+
+export const createLayout = async (request: {
+  projectId: string
+  collectionId: string
+  settings: { [prop: string]: any }
+  size: { x: number; y: number }
+  type?: string
+}) => {
+  const { settings, size, type, projectId, collectionId } = request
+
+  const layout = await CoreContext.clients.LayoutApi().layout.createLayout({
+    layout: {
+      projectId,
+      collectionId,
+    },
+  })
+
+  if (type === 'sceneless') {
+    await Helpers.ScenelessProject.createCompositor(layout.id, size, settings)
+  } else {
+    await CoreContext.compositor.createProject(
+      {
+        props: {
+          name: 'Root',
+          layout: 'Free',
+          ...settings,
+          isRoot: true,
+          size,
+        },
+      },
+      layout.id,
+    )
+  }
+
+  return layout
 }
