@@ -107,6 +107,15 @@ const iconStyles = {
   ],
 } as const
 
+type AvatarProps = {
+  width: number
+  height: number
+  background?: string
+  borderColor?: string
+  username?: string
+  marginRight?: number
+  fontSize?: number
+}
 /**
  * ChatOverlayProps is an object with optional properties of chatOverlayId, text, bannerStyle, id,
  * isSender, displayName, avatar, variant, and platform.
@@ -142,6 +151,8 @@ export type ChatOverlayProps = {
   chatOverlayId?: string
 
   bannerStyle?: string
+
+  chatType?: 'platform' | 'guest'
 }
 
 /* It's creating a new transform called ChatOverlay. */
@@ -161,6 +172,38 @@ export const ChatOverlay = {
         render({ ...globalProps, bannerStyle })
       }
     })
+
+    const LetterAvatar = (props: AvatarProps) => {
+      const avatarStyle = {
+        height: `${props.height}px`,
+        width: `${props.width}px`,
+        background: props.background || 'transparent',
+        display: 'inline-block',
+        verticalAlign: 'middle',
+        borderRadius: '50%',
+        fontSize: `${props.fontSize}px`,
+      }
+      return (
+        <div
+          style={{
+            ...avatarStyle,
+            position: 'relative',
+            marginRight: props?.marginRight,
+          }}
+        >
+          <div
+            style={{
+              left: '50%',
+              position: 'absolute',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            {props.username.substring(0, 2).toUpperCase()}
+          </div>
+        </div>
+      )
+    }
 
     const ChatOverlay = (props: ChatOverlayProps) => {
       const [rendered, setRendered] = useState(false)
@@ -226,43 +269,48 @@ export const ChatOverlay = {
             /* It's a ternary operator. If the style is not equal to BannerStyle.BUBBLE.toString(), then it will
             render the first div. Otherwise, it will render the second div. */
             <div style={{ width: '100%', display: 'flex' }}>
-              {avatar && (
+              {avatar ? (
                 <span style={{ marginRight: '20px' }}>
                   <img src={avatar} className="ChatOverlay-avatar" />
                 </span>
+              ) : (
+                <LetterAvatar
+                  height={scale(110)}
+                  width={scale(120)}
+                  background={Colors['primary'](500)}
+                  username={username}
+                  marginRight={20}
+                  fontSize={scale(30)}
+                />
               )}
               <div style={{ width: '100%' }}>
-                {platformStyle && (
-                  <>
-                    {username && (
-                      <button
-                        className="ChatOverlay-platform"
-                        style={{
-                          backgroundColor: platformStyle?.background,
-                        }}
-                      >
-                        {platformStyle?.icon && (
-                          <Icon
-                            width={scale(40)}
-                            height={scale(40)}
-                            name={platformStyle?.icon}
-                            {...(platformStyle.iconColor && {
-                              color: platformStyle?.iconColor,
-                              colorWeight: platformStyle?.iconColorWeight,
-                            })}
-                          />
-                        )}
-                        <div
-                          className="ChatOverlay-username"
-                          style={{
-                            color: platformStyle?.textColor,
-                          }}
-                        >
-                          {username}
-                        </div>
-                      </button>
+                {username && (
+                  <button
+                    className="ChatOverlay-platform"
+                    style={{
+                      backgroundColor: platformStyle?.background,
+                    }}
+                  >
+                    {platformStyle?.icon && (
+                      <Icon
+                        width={scale(40)}
+                        height={scale(40)}
+                        name={platformStyle?.icon}
+                        {...(platformStyle?.iconColor && {
+                          color: platformStyle?.iconColor,
+                          colorWeight: platformStyle?.iconColorWeight,
+                        })}
+                      />
                     )}
-                  </>
+                    <div
+                      className="ChatOverlay-username"
+                      style={{
+                        color: platformStyle?.textColor,
+                      }}
+                    >
+                      {username}
+                    </div>
+                  </button>
                 )}
                 <div
                   className="ChatOverlay"
@@ -294,40 +342,48 @@ export const ChatOverlay = {
                   position: 'relative',
                 }}
               >
-                {avatar && (
+                {avatar ? (
                   <div className="ChatOverlayAvatar-container">
                     <img src={avatar} className="ChatOverlay-avatar" />
                   </div>
+                ) : (
+                  <div className="ChatOverlayAvatar-container">
+                    <LetterAvatar
+                      height={scale(120)}
+                      width={scale(120)}
+                      background={Colors['primary'](500)}
+                      username={username}
+                      fontSize={scale(30)}
+                    />
+                  </div>
                 )}
-                {platformStyle && (
-                  <>
-                    {username && (
-                      <button
-                        className="ChatOverlay-platform"
-                        style={{
-                          backgroundColor: platformStyle?.background,
-                        }}
-                      >
-                        {platformStyle?.icon && (
-                          <Icon
-                            width={scale(40)}
-                            height={scale(40)}
-                            name={platformStyle?.icon}
-                            {...(platformStyle?.iconColor && {
-                              color: platformStyle?.iconColor,
-                              colorWeight: platformStyle?.iconColorWeight,
-                            })}
-                          />
-                        )}
-                        <div
-                          className="ChatOverlay-username"
-                          style={{ color: platformStyle?.textColor }}
-                        >
-                          {username}
-                        </div>
-                      </button>
+                {username && (
+                  <button
+                    className="ChatOverlay-platform"
+                    style={{
+                      backgroundColor: platformStyle?.background,
+                    }}
+                  >
+                    {platformStyle?.icon && (
+                      <Icon
+                        width={scale(40)}
+                        height={scale(40)}
+                        name={platformStyle?.icon}
+                        {...(platformStyle?.iconColor && {
+                          color: platformStyle?.iconColor,
+                          colorWeight: platformStyle?.iconColorWeight,
+                        })}
+                      />
                     )}
-                  </>
+                    <div
+                      className="ChatOverlay-username"
+                      style={{
+                        color: platformStyle?.textColor,
+                      }}
+                    >
+                      {username}
+                    </div>
+                  </button>
                 )}
                 {text && <div className="ChatOverlay-body">{text}</div>}
               </div>
