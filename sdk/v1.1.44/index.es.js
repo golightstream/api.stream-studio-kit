@@ -49132,6 +49132,96 @@ RoomServiceClient$1.RoomServiceClient = RoomServiceClient;
   } });
   __exportStar(RoomServiceClient$1, exports2);
 })(dist);
+const Rendering = lib$2.LiveApiModel.Rendering;
+const VideoRendering = lib$2.LiveApiModel.VideoRendering;
+const AudioRendering = lib$2.LiveApiModel.AudioRendering;
+const RenderingQuality = lib$2.LiveApiModel.RenderingQuality;
+const Encoding = lib$2.LiveApiModel.Encoding;
+const VideoEncoding = lib$2.LiveApiModel.VideoEncoding;
+const AudioEncoding = lib$2.LiveApiModel.AudioEncoding;
+const ProjectBroadcastPhase = lib$2.LiveApiModel.ProjectBroadcastPhase;
+const Role = lib$2.LiveApiModel.Role;
+const DestinationAddress = lib$2.LiveApiModel.DestinationAddress;
+const VideoCodec = lib$2.LiveApiModel.VideoCodec;
+const AudioCodec = lib$2.LiveApiModel.AudioCodec;
+const VideoCodecRateControl = lib$2.LiveApiModel.VideoCodecRateControl;
+const VideoCodecProfile = lib$2.LiveApiModel.VideoCodecProfile;
+var types = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  Rendering,
+  VideoRendering,
+  AudioRendering,
+  RenderingQuality,
+  Encoding,
+  Role,
+  DestinationAddress,
+  VideoEncoding,
+  AudioEncoding,
+  VideoCodec,
+  AudioCodec,
+  VideoCodecRateControl,
+  VideoCodecProfile,
+  ProjectBroadcastPhase
+}, Symbol.toStringTag, { value: "Module" }));
+var Permission = /* @__PURE__ */ ((Permission2) => {
+  Permission2[Permission2["ReadProject"] = 0] = "ReadProject";
+  Permission2[Permission2["UpdateProject"] = 1] = "UpdateProject";
+  Permission2[Permission2["JoinRoom"] = 2] = "JoinRoom";
+  Permission2[Permission2["InviteGuests"] = 3] = "InviteGuests";
+  Permission2[Permission2["ManageGuests"] = 4] = "ManageGuests";
+  Permission2[Permission2["ManageBroadcast"] = 5] = "ManageBroadcast";
+  Permission2[Permission2["ManageSelf"] = 6] = "ManageSelf";
+  return Permission2;
+})(Permission || {});
+const permissions = {
+  [Role.ROLE_HOST]: [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  [Role.ROLE_COHOST]: [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  [Role.ROLE_CONTRIBUTOR]: [
+    0,
+    1,
+    2,
+    3
+  ],
+  [Role.ROLE_GUEST]: [
+    0,
+    2,
+    6
+  ],
+  [Role.ROLE_VIEWER]: [
+    0,
+    2
+  ],
+  [Role.ROLE_IMPERSONATE]: [
+    0,
+    1,
+    3,
+    4,
+    5
+  ]
+};
+const hasPermission = (role, permission) => {
+  var _a2;
+  return role ? Boolean((_a2 = permissions[role]) == null ? void 0 : _a2.find((x) => x === permission)) : false;
+};
+var DataType = /* @__PURE__ */ ((DataType2) => {
+  DataType2["ChatMessage"] = "ChatMessage";
+  DataType2["ParticipantMetadataUpdate"] = "ParticipantMetadataUpdate";
+  return DataType2;
+})(DataType || {});
 var SpecialEvent = /* @__PURE__ */ ((SpecialEvent2) => {
   SpecialEvent2["Chat"] = "Chat";
   return SpecialEvent2;
@@ -49191,13 +49281,24 @@ class RoomContext {
     this.roomName = roomName;
     this.audioTracks = [];
     this.participants = [];
+    this.guestParticipantMetadata = [];
     this.isConnecting = false;
     this.subscribeToRoomEvent(dist$1.RoomEvent.DataReceived, (payload, participant, kind) => {
+      var _a2;
       const strData = decoder$1.decode(payload);
       const data2 = JSON.parse(strData);
       switch (data2.type) {
         case "ChatMessage": {
           return this._appendChat(payload, participant, kind);
+        }
+        case "ParticipantMetadataUpdate": {
+          const strData2 = decoder$1.decode(payload);
+          const data22 = JSON.parse(strData2);
+          if (hasPermission((_a2 = data22 == null ? void 0 : data22.metadata) == null ? void 0 : _a2.participantRole, Permission.ManageSelf)) {
+            this._updateGuestParticipantsStore(data22);
+            this._updateParticipants();
+          }
+          return;
         }
         default:
           return;
@@ -49228,6 +49329,21 @@ class RoomContext {
       this.livekitRoom = null;
       this._updateParticipants();
     });
+    this.subscribeToRoomEvent(dist$1.RoomEvent.ParticipantMetadataChanged, (metadata, participant) => {
+      if (metadata !== (participant == null ? void 0 : participant.metadata)) {
+        const meta = JSON.parse(participant == null ? void 0 : participant.metadata);
+        if (hasPermission(meta == null ? void 0 : meta.participantRole, Permission.ManageSelf)) {
+          const data2 = {
+            participantId: participant == null ? void 0 : participant.identity,
+            metadata: meta.hasOwnProperty("isMirrored") ? meta : JSON.parse(metadata),
+            type: "ParticipantMetadataUpdate"
+          };
+          this._updateGuestParticipantsStore(data2);
+          this._updateParticipants();
+          return;
+        }
+      }
+    });
   }
   bindApiClient(client) {
     this._apiClient = client;
@@ -49256,6 +49372,18 @@ class RoomContext {
   set chatHistory(value) {
     this._chatHistory = value;
   }
+  _updateGuestParticipantsStore(data2) {
+    if (!this.guestParticipantMetadata.length) {
+      this.guestParticipantMetadata.push(data2);
+    } else {
+      const existingGuestIndex = this.guestParticipantMetadata.findIndex((g) => g.participantId === (data2 == null ? void 0 : data2.participantId));
+      if (existingGuestIndex > -1) {
+        this.guestParticipantMetadata[existingGuestIndex] = data2;
+      } else {
+        this.guestParticipantMetadata.push(data2);
+      }
+    }
+  }
   _updateParticipants() {
     if (!this.livekitRoom || this.livekitRoom.state === dist$1.RoomState.Disconnected) {
       this.participants = [];
@@ -49264,7 +49392,19 @@ class RoomContext {
       const remotes = Array.from(this.livekitRoom.participants.values());
       const parts = [this.livekitRoom.localParticipant];
       parts.push(...remotes);
-      this.participants = parts;
+      const updatedParts = parts.map((participant) => {
+        const existingGuestParticipantMetadata = this.guestParticipantMetadata.find((g) => g.participantId === participant.identity);
+        if (existingGuestParticipantMetadata) {
+          let participantMetadataJson = JSON.parse(participant.metadata);
+          participantMetadataJson = {
+            ...participantMetadataJson,
+            ...existingGuestParticipantMetadata.metadata
+          };
+          participant.metadata = JSON.stringify(participantMetadataJson);
+        }
+        return participant;
+      });
+      this.participants = updatedParts;
     }
   }
   async kickParticipant(identity2) {
@@ -49534,6 +49674,13 @@ const getRoom = (id) => {
     });
   };
   const updateEvents = [dist$1.RoomEvent.ParticipantConnected, dist$1.RoomEvent.ParticipantDisconnected, dist$1.RoomEvent.ParticipantMetadataChanged, dist$1.RoomEvent.Disconnected, dist$1.RoomEvent.TrackSubscribed, dist$1.RoomEvent.TrackUnsubscribed, dist$1.RoomEvent.LocalTrackPublished, dist$1.RoomEvent.LocalTrackUnpublished, dist$1.RoomEvent.ConnectionQualityChanged, dist$1.RoomEvent.TrackMuted, dist$1.RoomEvent.TrackUnmuted, dist$1.RoomEvent.TrackStreamStateChanged];
+  room.subscribeToRoomEvent(dist$1.RoomEvent.DataReceived, (payload, participant, kind) => {
+    const strData = decoder.decode(payload);
+    const data2 = JSON.parse(strData);
+    if (data2.type === DataType.ParticipantMetadataUpdate) {
+      update();
+    }
+  });
   const unsubscribers = updateEvents.map((evt) => room.subscribeToRoomEvent(evt, () => update()));
   unsubscribers.push(room.subscribeToSpecialEvent(SpecialEvent.Chat, update));
   const getTrack = (id2) => {
@@ -49670,6 +49817,16 @@ const getRoom = (id) => {
       const track = latest.tracks.find((x) => x.trackSid === id2);
       localParticipant.unpublishTrack(track.track);
     },
+    setLocalParticipantMetadata: (id2, meta) => {
+      const data2 = JSON.stringify(meta);
+      const encoded = encoder.encode(JSON.stringify({
+        metadata: meta,
+        type: DataType.ParticipantMetadataUpdate,
+        participantId: id2
+      }));
+      localParticipant.setMetadata(data2);
+      return localParticipant.publishData(encoded, dist$1.DataPacket_Kind.RELIABLE);
+    },
     setParticipantMetadata: (id2, meta) => {
       return room.updateParticipant(id2, meta);
     },
@@ -49763,37 +49920,6 @@ const getRoom = (id) => {
   simpleRooms.set(id, simpleRoom);
   return simpleRoom;
 };
-const Rendering = lib$2.LiveApiModel.Rendering;
-const VideoRendering = lib$2.LiveApiModel.VideoRendering;
-const AudioRendering = lib$2.LiveApiModel.AudioRendering;
-const RenderingQuality = lib$2.LiveApiModel.RenderingQuality;
-const Encoding = lib$2.LiveApiModel.Encoding;
-const VideoEncoding = lib$2.LiveApiModel.VideoEncoding;
-const AudioEncoding = lib$2.LiveApiModel.AudioEncoding;
-const ProjectBroadcastPhase = lib$2.LiveApiModel.ProjectBroadcastPhase;
-const Role = lib$2.LiveApiModel.Role;
-const DestinationAddress = lib$2.LiveApiModel.DestinationAddress;
-const VideoCodec = lib$2.LiveApiModel.VideoCodec;
-const AudioCodec = lib$2.LiveApiModel.AudioCodec;
-const VideoCodecRateControl = lib$2.LiveApiModel.VideoCodecRateControl;
-const VideoCodecProfile = lib$2.LiveApiModel.VideoCodecProfile;
-var types = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  Rendering,
-  VideoRendering,
-  AudioRendering,
-  RenderingQuality,
-  Encoding,
-  Role,
-  DestinationAddress,
-  VideoEncoding,
-  AudioEncoding,
-  VideoCodec,
-  AudioCodec,
-  VideoCodecRateControl,
-  VideoCodecProfile,
-  ProjectBroadcastPhase
-}, Symbol.toStringTag, { value: "Module" }));
 const {
   state: state$2
 } = CoreContext;
@@ -50288,6 +50414,7 @@ const RoomParticipant$1 = {
       props: props2,
       source: source22
     }) => {
+      var _a2;
       const {
         volume = 1,
         isHidden = false
@@ -50304,8 +50431,8 @@ const RoomParticipant$1 = {
           return;
         ref2.current.play().catch((e2) => {
           document.addEventListener("click", () => {
-            var _a2;
-            return (_a2 = ref2.current) == null ? void 0 : _a2.play();
+            var _a3;
+            return (_a3 = ref2.current) == null ? void 0 : _a3.play();
           }, {
             once: true
           });
@@ -50372,7 +50499,17 @@ const RoomParticipant$1 = {
           justifyContent: "center",
           lineHeight: "1em"
         }
-      }, (source22 == null ? void 0 : source22.props.displayName.slice(0, 1)) || "")), /* @__PURE__ */ React.createElement("video", {
+      }, (source22 == null ? void 0 : source22.props.displayName.slice(0, 1)) || "")), /* @__PURE__ */ React.createElement("div", {
+        style: {
+          position: "relative",
+          display: "flex",
+          height: "100%",
+          width: "100%",
+          ...Boolean((_a2 = source22 == null ? void 0 : source22.props) == null ? void 0 : _a2.mirrored) && {
+            transform: "scaleX(-1)"
+          }
+        }
+      }, /* @__PURE__ */ React.createElement("video", {
         ref: ref2,
         autoPlay: true,
         muted: muteAudio,
@@ -50388,7 +50525,7 @@ const RoomParticipant$1 = {
           objectFit: (source22 == null ? void 0 : source22.props.type) === "screen" ? "contain" : "cover",
           background: "rgba(0,0,0,0.6)"
         }
-      }), (source22 == null ? void 0 : source22.props.displayName) && /* @__PURE__ */ React.createElement("div", {
+      })), (source22 == null ? void 0 : source22.props.displayName) && /* @__PURE__ */ React.createElement("div", {
         className: "NameBannerContainer",
         style: {
           width: "100%",
@@ -53216,7 +53353,7 @@ const updateMediaStreamTracks = (srcObject, tracks) => {
   }
 };
 const getDevicePermissions = async () => {
-  const permissions = {
+  const permissions2 = {
     audio: true,
     video: true
   };
@@ -53226,7 +53363,7 @@ const getDevicePermissions = async () => {
     src.getTracks().forEach((x) => x.stop());
   }).catch((e2) => {
     if (e2.name === "NotAllowedError") {
-      permissions.video = false;
+      permissions2.video = false;
     }
   }), navigator.mediaDevices.getUserMedia({
     audio: true
@@ -53234,9 +53371,9 @@ const getDevicePermissions = async () => {
     src.getTracks().forEach((x) => x.stop());
   }).catch((e2) => {
     if (e2.name === "NotAllowedError") {
-      permissions.audio = false;
+      permissions2.audio = false;
     }
-  })]).then(() => permissions);
+  })]).then(() => permissions2);
 };
 const ensureDevicePermissions = async () => {
   return getDevicePermissions();
@@ -53308,6 +53445,7 @@ const RoomParticipant = {
       let participantStreams = {};
       const updateParticipants = () => {
         previousParticipants.forEach((x) => {
+          var _a2;
           const srcObject = participantStreams[x.id];
           const srcObjectScreenshare = participantStreams[x.id + "-screen"];
           const webcamId = x.trackIds.find((x2) => {
@@ -53335,7 +53473,8 @@ const RoomParticipant = {
           updateSource(x.id, {
             videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
             audioEnabled: Boolean(microphoneTrack && !microphoneTrack.isMuted),
-            displayName: x.displayName
+            displayName: x.displayName,
+            mirrored: (_a2 = x == null ? void 0 : x.meta) == null ? void 0 : _a2.isMirrored
           });
           updateSource(x.id + "-screen", {
             videoEnabled: Boolean(screenshareTrack && !screenshareTrack.isMuted),
@@ -53385,6 +53524,7 @@ const RoomParticipant = {
         const removedParticipants = previousParticipants.filter((participant) => !participants.some((x) => x.id === participant.id));
         previousParticipants = participants;
         newParticipants.forEach((x) => {
+          var _a2;
           const {
             id
           } = x;
@@ -53401,7 +53541,8 @@ const RoomParticipant = {
               type: "camera",
               displayName: x.displayName || x.id,
               audioEnabled: false,
-              videoEnabled: false
+              videoEnabled: false,
+              mirrored: (_a2 = x == null ? void 0 : x.meta) == null ? void 0 : _a2.isMirrored
             }
           });
           addSource({
