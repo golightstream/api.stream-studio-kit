@@ -1,8 +1,3 @@
-import { LogoProps } from './../core/sources/Logo'
-import { Background, BackgroundProps } from './../core/sources/Background'
-import { sourceTypes } from './../compositor/sources'
-import { Overlay, OverlayProps } from './../core/sources/Overlays'
-import { getElementAttributes } from './../logic'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -42,17 +37,20 @@ import { getElementAttributes } from './../logic'
  *
  * @module ScenelessProject
  */
-
+import { LogoProps } from './../core/sources/Logo'
+import { Background, BackgroundProps } from './../core/sources/Background'
+import { Overlay, OverlayProps } from './../core/sources/Overlays'
 import { CoreContext } from '../core/context'
-import { getProject, getProjectRoom, toBaseProject } from '../core/data'
+import { getProject, getProjectRoom } from '../core/data'
 import { SDK, Compositor } from '../core/namespaces'
-import { Disposable, IChatOverlay, SceneNode } from '../core/types'
+import { Disposable, SceneNode } from '../core/types'
 import { Track } from 'livekit-client'
-
-import LayoutName = Compositor.Layout.LayoutName
 import { Banner, BannerSource, BannerProps } from '../core/sources/Banners'
 import { generateId } from '../logic'
 import { ChatOverlayProps } from '../core/transforms/ChatOverlay'
+
+import LayoutName = Compositor.Layout.LayoutName
+
 export type { LayoutName }
 export type { Banner, BannerSource }
 
@@ -69,8 +67,6 @@ export type HTMLVideoElementAttributes = {
   playsinline?: boolean
   disablepictureinpicture?: boolean
 }
-
-
 
 // Local cache to track participants being added
 const addingCache = {
@@ -153,7 +149,10 @@ export interface Commands {
   /**
    * Add an chat comment to the stream.
    */
-  addChatOverlay(id: string, Options: Omit<IChatOverlay, 'chatOverlayId'>): void
+  addChatOverlay(
+    id: string,
+    Options: Omit<ChatOverlayProps, 'chatOverlayId'>,
+  ): void
 
   /**
    * Add an any exisiting chat comment from the stream.
@@ -163,7 +162,7 @@ export interface Commands {
   /**
    * get the active chat comment to the stream.
    */
-  getChatOverlay(): IChatOverlay | null
+  getChatOverlay(): ChatOverlayProps | null
 
   /**
    * Set the active layout and associated layoutProps
@@ -1317,7 +1316,7 @@ export const commands = (_project: ScenelessProject) => {
 
     async addChatOverlay(
       id: string,
-      options: Omit<IChatOverlay, 'chatOverlayId'>,
+      options: Omit<ChatOverlayProps, 'chatOverlayId'>,
     ) {
       const [nodeTocheckForChildren, ...{}] =
         bannerContainer?.children || ([] as SceneNode[])
@@ -1331,6 +1330,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       }
 
+      /* Destructuring an array. */
       const [existingBannerNode, ...excessBannerNodes] =
         bannerContainer?.children || ([] as SceneNode[])
 
@@ -1341,6 +1341,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       })
 
+      /* Creating a banner node if it doesn't exist, or updating it if it does. */
       if (!existingBannerNode) {
         return CoreContext.Command.createNode({
           parentId: bannerContainer?.id,
@@ -1372,8 +1373,13 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
 
-    getChatOverlay(): IChatOverlay | null {
-      return (bannerContainer.children?.[0]?.props as IChatOverlay) ?? null
+    getChatOverlay(): ChatOverlayProps | null {
+      /* Checking if the bannerContainer has a child and if that child has a chatOverlayId property. If it
+        does, it returns the child as an IChatOverlay. If it doesn't, it returns null.
+      */
+      return bannerContainer.children?.[0]?.props?.chatOverlayId
+        ? (bannerContainer.children?.[0]?.props as ChatOverlayProps) || null
+        : null
     },
 
     getImageOverlay2(): string | string[] {

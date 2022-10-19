@@ -1015,12 +1015,12 @@ const themes = {
           flex-direction:row;
           padding: ${scale(10)};
           align-items: center;
-          position: absolute;
+          z-index: 1;
           border: none;
           cursor: pointer;
           top: 0;
-          margin-top: -${scale(40)};
-          margin-left: ${scale(80)};
+          margin-bottom: 4px;
+          margin-left: -${scale(40)};
           border-radius: 30px;
        }
 
@@ -1032,9 +1032,9 @@ const themes = {
        }
 
        .ChatOverlayAvatar-container {
-          position: absolute;
+          height: ${scale(120)};
+          width: ${scale(120)};
           top: 0;
-          margin-top: -${scale(100)};
        }
        .ChatOverlay-avatar {
           height: ${scale(120)};
@@ -1094,7 +1094,7 @@ const themes = {
       .NameBanner[data-size="3"] {
         padding: ${scale(12)} ${scale(30)} ${scale(12)} ${scale(30)} !important;
         font-size: ${scale(40)} !important;
-        margin: -${scale(20)} ${scale(20)};
+        margin: ${scale(20)} ${scale(20)};
       }
       .NameBanner[data-size="2"] {
         padding: ${scale(12)} ${scale(30)} ${scale(12)} ${scale(30)} !important;

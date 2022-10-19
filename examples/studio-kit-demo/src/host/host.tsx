@@ -230,6 +230,11 @@ const Project = () => {
     })
   }, [renderContainer.current])
 
+  function randomIntFromInterval(min: number, max : number) {
+    // min and max included
+    return Math.floor(Math.random() * (max - min + 1) + min)
+  }
+
   if (!room) return null
 
   return (
@@ -428,8 +433,12 @@ const Project = () => {
               defaultValue={background}
               onClick={(e) => {
                 projectCommands.addChatOverlay(generateId(), {
-                  text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibu',
+                  message: JSON.parse(
+                    '[{"type":"text","text":"is now live! Streaming Mobile Legends: Bang Bang: My Stream "},{"type":"emoticon","text":"SirUwU","data":{"type":"direct","url":"https://static-cdn.jtvnw.net/emoticons/v2/301544927/default/light/2.0"}},{"type":"text","text":" Hey hey hey!!! this is going live "},{"type":"emoticon","text":"WutFace","data":{"type":"direct","url":"https://static-cdn.jtvnw.net/emoticons/v2/28087/default/light/2.0"}},{"type":"text","text":" , so lets go"}]',
+                  ),
                   username: 'Maddygoround',
+              
+                  avatar: "https://inf2userdata0wus.blob.core.windows.net/content/62cc383fec1b480054cc2fde/resources/video/EchoBG.mp4/medium.jpg"
                 })
               }}
             />
@@ -441,7 +450,7 @@ const Project = () => {
               defaultValue={background}
               onClick={(e) => {
                 projectCommands.addBanner({
-                  bodyText: 'hey hey hey',
+                  bodyText: `hey hey hey ${Date.now()}`,
                 })
               }}
             />
@@ -452,7 +461,8 @@ const Project = () => {
               type="button"
               defaultValue={background}
               onClick={(e) => {
-                projectCommands.setActiveBanner(banners[0].id);
+                const randomIndex = randomIntFromInterval(0,(banners.length -1));
+                projectCommands.setActiveBanner(banners[randomIndex].id);
               }}
             />
           </div>
