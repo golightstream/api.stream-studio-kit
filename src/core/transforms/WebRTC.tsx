@@ -176,7 +176,9 @@ export const RoomParticipant = {
               display: 'flex',
               height: '100%',
               width: '100%',
-              transform: source?.props?.mirrored && 'scaleX(-1)',
+              ...(Boolean(source?.props?.mirrored) && {
+                transform: 'scaleX(-1)',
+              }),
             }}
           >
             <video

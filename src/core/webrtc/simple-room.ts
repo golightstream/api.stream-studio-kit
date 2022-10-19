@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { webrtcManager } from './index'
-import { SpecialEvent } from './room-context'
+import { DataType, SpecialEvent } from './room-context'
 import {
   RoomEvent,
   Participant,
@@ -138,7 +138,7 @@ export const getRoom = (id: string) => {
     (payload, participant: Participant, kind: DataPacket_Kind) => {
       const strData = decoder.decode(payload)
       const data = JSON.parse(strData)
-      if (data.type === 'ParticipantMetadataUpdate') {
+      if (data.type === DataType.ParticipantMetadataUpdate) {
         update()
       }
     },
@@ -307,7 +307,7 @@ export const getRoom = (id: string) => {
       const encoded = encoder.encode(
         JSON.stringify({
           metadata: meta,
-          type: 'ParticipantMetadataUpdate',
+          type: DataType.ParticipantMetadataUpdate,
           participantId: id,
         }),
       )

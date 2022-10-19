@@ -25,7 +25,7 @@ export * as Livekit from 'livekit-client'
 /**
  * Types of data messages that are sent/received via websocket
  */
-enum DataType {
+export const enum DataType {
   ChatMessage = 'ChatMessage',
   ParticipantMetadataUpdate = 'ParticipantMetadataUpdate',
 }
@@ -33,7 +33,7 @@ enum DataType {
 /**
  * Special events that are implemented/triggered manually
  */
-export enum SpecialEvent {
+export const enum SpecialEvent {
   /** Chat event listener is of type (x: ChatObject) => void */
   Chat = 'Chat',
 }
