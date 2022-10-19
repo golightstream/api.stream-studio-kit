@@ -300,7 +300,7 @@ import VideoCaptureOptions = Livekit.VideoCaptureOptions
 import VideoResolution = Livekit.VideoResolution
 import AudioCaptureOptions = Livekit.AudioCaptureOptions
 import ScreenShareCaptureOptions = Livekit.ScreenShareCaptureOptions
-import { ChatOverlayProps } from './transforms'
+import { ChatOverlayProps } from './transforms/ChatOverlay'
 
 export type { ChatObject, ConnectionQuality, TrackSource }
 
@@ -851,7 +851,3 @@ export interface IframeProps {
   iframeRef?: React.Ref<HTMLIFrameElement>
 }
 
-export interface IChatOverlay extends ChatOverlayProps {
-  // Opaque to the SDK
-  [prop: string]: any
-}

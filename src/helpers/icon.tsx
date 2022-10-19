@@ -86,10 +86,6 @@ const Icon = ({ name, ...props }: IconProps) => {
   return <SVGWrapper {...props}>{IconMap[name]}</SVGWrapper>
 }
 
-type SVGProps = Props & { svg: JSX.Element }
-const SVG = ({ svg, ...props }: SVGProps) => {
-  return <SVGWrapper {...props}>{svg}</SVGWrapper>
-}
 
-export { SVGWrapper, Icon, SVG }
+export { SVGWrapper, Icon }
 export default Icon
