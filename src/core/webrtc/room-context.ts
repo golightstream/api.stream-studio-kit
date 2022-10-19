@@ -70,19 +70,16 @@ interface ChatDataObject extends DataObject {
 }
 
 /**
- * Chat message sent/received via websocket.
+ * ParticipantMeta data sent/received via websocket.
  * This is the structure of the message as it is transferred via websocket.
  */
 interface ParticipantDataObject extends DataObject {
   /**
-   * Always `'ChatMessage'`
+   * Always `'ParticipantMetadataUpdate'`
    */
   type: DataType.ParticipantMetadataUpdate
   /**
-   * content of chat message
-   */
-  /**
-   * Identities of the recipient {@link Participant Participants}. Only specified if it is a private message. Otherwise, it is undefined.
+   * Identity of the participant {@link Participant Participant}.
    */
   participantId?: string
   /**
