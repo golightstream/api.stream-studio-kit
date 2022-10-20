@@ -93,3 +93,5 @@ export const Logo = {
     })
   },
 } as SourceDeclaration
+
+export const Declaration = Logo

@@ -54,19 +54,6 @@ import { ChatObject } from './webrtc/room-context'
 import { render } from '../helpers/compositor'
 import * as Livekit from 'livekit-client'
 
-/**
- * Represents a simple interface over a project's child nodes,
- * used only to query. Node updates should be run using commands.
- *
- * @private @internal
- */
-export interface Scene {
-  nodes: Compositor.SceneNode[]
-  get: (id: string) => Compositor.SceneNode
-  getRoot: () => Compositor.SceneNode
-  getParent: (id: string) => Compositor.SceneNode
-}
-
 // Import everything we need from LiveApiModel
 import Rendering = LiveApiModel.Rendering
 import VideoRendering = LiveApiModel.VideoRendering
@@ -158,10 +145,7 @@ export interface Project {
    * Use this method to join the WebRTC {@link Room}
    */
   joinRoom: (settings?: { displayName?: string }) => Promise<Room>
-  /**
-   * @private
-   */
-  scene: Scene
+  scene: Compositor.Project
   /**
    * Field to store arbitrary data. Not used by the SDK.
    */
@@ -300,7 +284,6 @@ import VideoCaptureOptions = Livekit.VideoCaptureOptions
 import VideoResolution = Livekit.VideoResolution
 import AudioCaptureOptions = Livekit.AudioCaptureOptions
 import ScreenShareCaptureOptions = Livekit.ScreenShareCaptureOptions
-import { ChatOverlayProps } from './transforms/ChatOverlay'
 
 export type { ChatObject, ConnectionQuality, TrackSource }
 

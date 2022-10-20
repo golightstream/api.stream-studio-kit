@@ -7,9 +7,8 @@ import React, { useLayoutEffect, useState } from 'react'
 import { isMatch } from 'lodash-es'
 import { useEffect, useRef } from 'react'
 import { CoreContext } from '../context'
-import { Compositor } from '../namespaces'
+import { Compositor, Source } from '../namespaces'
 import { getRoom } from '../webrtc/simple-room'
-import { RoomParticipantSource } from '../sources'
 import { getProject } from '../data'
 
 type Props = {
@@ -68,7 +67,7 @@ export const RoomParticipant = {
       source,
     }: {
       props: Props
-      source: RoomParticipantSource
+      source: Source.WebRTC.RoomParticipantSource
     }) => {
       const { volume = 1, isHidden = false } = props
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
@@ -259,3 +258,5 @@ export const RoomParticipant = {
     }
   },
 } as Compositor.Transform.TransformDeclaration
+
+export const Declaration = RoomParticipant

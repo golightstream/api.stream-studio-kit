@@ -59,3 +59,5 @@ export const Image2 = {
     }
   },
 } as Compositor.Transform.TransformDeclaration
+
+export const Declaration = Image2

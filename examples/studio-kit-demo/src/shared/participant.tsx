@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { Helpers, SDK } from '@api.stream/studio-kit'
+import { init, Helpers, Component, Source, SDK } from '../../../../'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppContext } from './context'
 import Style from './shared.module.css'
@@ -10,9 +10,8 @@ import Style from './shared.module.css'
 const { Room } = Helpers
 const { useStudio } = Helpers.React
 
-
-export const Participants = ({room , projectCommands ,studio} : {room:any,projectCommands:any ,studio:any}) => {
-
+export const Participants = () => {
+  const { room, studio } = useStudio()
   const { isHost } = useContext(AppContext)
   const [participants, setParticipants] = useState<SDK.Participant[]>([])
 
@@ -22,18 +21,15 @@ export const Participants = ({room , projectCommands ,studio} : {room:any,projec
     return room.useParticipants((participants:any) => {
       setParticipants(participants)
       // Prune non-existent guests from the project
-      if (isHost) projectCommands.pruneParticipants()
+      // if (isHost) projectCommands.pruneParticipants()
     })
   }, [room])
-
-
-
 
   return (
     <div className={Style.column}>
       {participants.map((x) => (
         <div key={x.id} style={{ marginBottom: 10 }}>
-          <Participant participant={x} room={room} projectCommands={projectCommands} />
+          <Participant participant={x} room={room} />
         </div>
       ))}
     </div>
@@ -126,7 +122,6 @@ export const ParticipantScreenshare = ({
   screenshare,
 }: ParticipantProps & { screenshare: SDK.Track }) => {
   const { isHost } = useContext(AppContext)
-  const { projectCommands } = useStudio()
   const { id, displayName } = participant
   const ref = useRef<HTMLVideoElement>()
   const [srcObject] = useState(new MediaStream([]))
@@ -216,13 +211,18 @@ const HostControls = ({
   participant,
   type,
   projectCommands,
-  room
 }: ParticipantProps & { type: 'screen' | 'camera' }) => {
   const { id } = participant
+  const { studio, project, room } = useStudio()
+  const root = project.scene.getRoot()
+  const component = studio.compositor.useComponent(
+    root.id,
+  ) as Component.ScenelessProject.Interface
+  const { execute, query, source } = component
 
   // Get the initial props in case the participant is on stream
   const projectParticipant = useMemo(
-    () => projectCommands.getParticipantState(id, type),
+    () => execute.getParticipantProps(id, type),
     [],
   )
 
@@ -235,25 +235,26 @@ const HostControls = ({
   // Monitor whether the participant has been removed from the stream
   //  from some other means (e.g. dragged off canvas by host)
   useEffect(() => {
-    return projectCommands.useParticipantState(
+    return execute.useParticipantProps(
       id,
-      (x:any) => {
+      type,
+      (x) => {
         setOnStream(Boolean(x))
       },
-      type,
     )
   }, [])
 
   // Monitor the project's showcase to determine whether this
   //  participant/type is active
-  useEffect(
-    () =>
-      projectCommands.useShowcase((showcase:any) => {
-        setIsShowcase(showcase.participantId === id && showcase.type === type)
-      }),
+  // TODO:
+  // useEffect(
+  //   () =>
+  //     projectCommands.useShowcase((showcase) => {
+  //       setIsShowcase(showcase.participantId === id && showcase.type === type)
+  //     }),
 
-    [],
-  )
+  //   [],
+  // )
 
   return (
     <div
@@ -283,31 +284,14 @@ const HostControls = ({
             onChange={(e) => {
               const checked = e.target.checked
               if (checked) {
-                projectCommands.addParticipant(id, { isMuted, volume }, type)
+                execute.addParticipant(id, { isMuted, volume }, type)
               } else {
-                projectCommands.removeParticipant(id, type)
+                execute.removeParticipant(id, type)
               }
               setOnStream(checked)
             }}
           />
           On stream
-        </label>
-         <label>
-          <input
-            type="checkbox"
-            checked={onStream}
-            style={{ marginTop: 0, marginBottom: 0 }}
-            onChange={(e) => {
-              const checked = e.target.checked
-              if (checked) {
-                 room.setLocalParticipantMetadata(room?.participantId , { ...participant.meta , isMirrored: true })
-              } else {
-                room.setLocalParticipantMetadata(room?.participantId , { ...participant.meta , isMirrored: false })
-              }
-              setOnStream(checked)
-            }}
-          />
-          On Mirror
         </label>
 
         <label style={{ opacity: onStream ? 1 : 0.5 }}>
@@ -318,9 +302,9 @@ const HostControls = ({
             checked={isShowcase}
             onChange={() => {
               if (isShowcase) {
-                projectCommands.setShowcase(null)
+                // projectCommands.setShowcase(null)
               } else {
-                projectCommands.setShowcase(id, type)
+                // projectCommands.setShowcase(id, type)
               }
             }}
           />

@@ -94,3 +94,5 @@ export const Banner = {
     })
   },
 } as SourceDeclaration
+
+export const Declaration = Banner

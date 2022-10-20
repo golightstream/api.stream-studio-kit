@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { useEffect, useState } from 'react'
-import { Helpers, SDK } from '@api.stream/studio-kit'
+import { Helpers, SDK } from '../../../../'
 import Style from '../shared/shared.module.css'
 
 const { useStudio, useDevices } = Helpers.React
@@ -56,14 +56,8 @@ export const DeviceSelection = () => {
   )
 }
 
-export const ControlPanel = ({
-  room,
-  projectCommands,
-}: {
-  room: any
-  projectCommands
- :any}) => {
-
+export const ControlPanel = () => {
+  const { room } = useStudio()
   const [isSharingScreen, setIsSharingScreen] = useState(false)
   const [participant, setParticipant] = useState<SDK.Participant>()
 
@@ -79,7 +73,7 @@ export const ControlPanel = ({
       (x) => room.getTrack(x)?.type === 'screen_share',
     )
     if (!screenshare) {
-      projectCommands.removeParticipant(room.participantId, 'screen')
+      // projectCommands.removeParticipant(room.participantId, 'screen')
     }
     setIsSharingScreen(Boolean(screenshare))
   }, [participant?.trackIds])

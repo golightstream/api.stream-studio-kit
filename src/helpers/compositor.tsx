@@ -109,7 +109,7 @@ const onDrop = async (
 }
 
 let foundDropTarget = false
-const ElementTree = (props: { nodeId: string }) => {
+const ElementTree = (props: { node: SceneNode }) => {
   const isDragging = useRef(false)
   const interactiveRef = useRef<HTMLDivElement>()
   const transformRef = useRef<HTMLDivElement>()
@@ -121,9 +121,7 @@ const ElementTree = (props: { nodeId: string }) => {
     checkIsDragTarget,
     checkIsDropTarget,
   } = useContext(CompositorContext)
-  const { nodeId } = props
-  const node = project.compositor.get(nodeId)
-  if (!node) return null
+  const { node } = props
 
   const element = CoreContext.compositor.getElement(node)
   const layout = node.props.layout || 'Row'
@@ -323,7 +321,7 @@ const ElementTree = (props: { nodeId: string }) => {
             layout={layout}
           >
             {node.children.map((x) => (
-              <ElementTree key={x.id} nodeId={x.id} />
+              <ElementTree key={x.id} node={x} />
             ))}
           </ls-layout>
         </ErrorBoundary>
@@ -352,8 +350,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
   }, [])
 
   useEffect(() => {
-    const root = project.compositor.getRoot()
-    const { x: rootWidth } = root.props.size
+    const { x: rootWidth } = project.compositor.settings.size
 
     const updateCSS = () => {
       const {
@@ -400,8 +397,8 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
       }}
       style={{
         userSelect: 'none',
-        width: `${tree.props.size.x + PADDING * 2}px`,
-        height: `${tree.props.size.y + PADDING * 2}px`,
+        width: `${project.compositor.settings.size.x + PADDING * 2}px`,
+        height: `${project.compositor.settings.size.y + PADDING * 2}px`,
         margin: PADDING + 'px',
       }}
     >
@@ -412,7 +409,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
           overflow: 'hidden',
         }}
       >
-        <ElementTree nodeId={tree.id} />
+        <ElementTree node={tree} />
       </div>
     </div>
   )

@@ -16,3 +16,7 @@ export * as Room from './webrtc/index'
 export * as Request from './requests'
 /** @private */
 export * as Context from './context'
+export * as Component from './components'
+export * as Transform from './transforms'
+export * as Layout from './layouts'
+export * as Source from './sources'

@@ -6,14 +6,13 @@ import {
   getBaseUser,
   getProject,
   hydrateProject,
-  layoutToProject,
   toBaseDestination,
   toBaseProject,
 } from './data'
 import { InternalEventMap, subscribeInternal, trigger } from './events'
 import { SDK } from './namespaces'
 import { CoreContext, log } from './context'
-import { OverlaySource } from './sources'
+import { Overlay } from './sources'
 
 const { state } = CoreContext
 
@@ -99,7 +98,9 @@ subscribeInternal(async (event, payload) => {
       const newLayoutId = project.metadata?.layoutId
       if (newLayoutId !== internalProject.layoutApi.layoutId) {
         internalProject.layoutApi.layoutId = project.metadata?.layoutId
-        internalProject.compositor = await layoutToProject(newLayoutId)
+        internalProject.compositor = await CoreContext.compositor.loadProject(
+          newLayoutId,
+        )
       }
       internalProject.videoApi.project = project
       internalProject.props = project.metadata?.props ?? {}
@@ -269,7 +270,7 @@ subscribeInternal(async (event, payload) => {
         const internalProject = getProject(projectId)
         if (!internalProject) return
         let source = internalProject.props.overlays.find(
-          (x: OverlaySource) => x.id === sourceId,
+          (x: Overlay.OverlaySource) => x.id === sourceId,
         )
         if (source) {
           source = {
@@ -284,7 +285,7 @@ subscribeInternal(async (event, payload) => {
           }
 
           const overlayIndex = internalProject.props.overlays.findIndex(
-            (x: OverlaySource) => x.id === sourceId,
+            (x: Overlay.OverlaySource) => x.id === sourceId,
           )
 
           if (overlayIndex > -1) {

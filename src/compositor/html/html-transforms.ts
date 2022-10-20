@@ -2,21 +2,16 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { asArray } from '../../logic'
+import { asArray, isMatch } from '../../logic'
 import type { CompositorBase, Disposable, SceneNode } from '../compositor'
-import { SourceManager } from '../sources'
+import { Source, SourceManager } from '../sources'
 import {
-  Filter,
-  runFilters,
   TransformDeclaration,
   TransformElement,
   TransformMap,
   TransformRegister,
   TransformSettings,
 } from '../transforms'
-import CoreContext from '../../core/context';
-import { InternalEventMap, triggerInternal } from './../../core/events'
-import { getRoom } from '../../core/webrtc/simple-room';
 
 const createDefault: TransformDeclaration['create'] = () => {
   return {
@@ -86,6 +81,17 @@ export const init = (
     })
   })
 
+  const getFirstMatchingSource = (node: SceneNode, sources: Source[] = []) => {
+    if (node.props.sourceId) {
+      return sources.find((x) => x.id === node.props.sourceId)
+    }
+
+    const matchingSources = sources.filter((x) =>
+      isMatch(x.props, node.props.sourceProps || {}),
+    )
+    return matchingSources.find((x) => x.isActive) || matchingSources[0]
+  }
+
   /**
    * Check whether the Transform should use a different Source
    *  based on its `useSource` method.
@@ -96,12 +102,15 @@ export const init = (
     const element = getElementByNodeId(nodeId)
     if (!element) return
     const transform = getTransformByName(element.transformName)
-    if (!transform.useSource) return
 
     const node = compositor.getNode(nodeId)
-     const elementSourceType = element.proxySource ? element.proxySource : element.sourceType;
-    const sources = sourceManager.getSources(elementSourceType) 
-    const source = transform.useSource(sources, node.props)
+    const elementSourceType = element.proxySource
+      ? element.proxySource
+      : element.sourceType
+    const sources = sourceManager.getSources(elementSourceType) || []
+    const source = transform.useSource
+      ? transform.useSource(sources, node.props)
+      : getFirstMatchingSource(node, sources)
     const previousValue = element.sourceValue
     const newValue = source?.value
 
@@ -128,33 +137,12 @@ export const init = (
     }
   }
 
-  // TODO: Describe
-  const renderTree = (node: SceneNode): SceneNode => {
-    const element = getElement(node)
-
-    // Run children through node's filter pipeline
-    const filters = [] as Filter[]
-    const result = runFilters(node, filters)
-
-    // Ensure node has the proper source based on its props
-    updateSourceForNode(node.id)
-
-    // Pass update to the existing element
-    element?._onUpdateHandlers.forEach((x) => x(node.props || {}))
-
-    // Call renderTree recursively for each child
-    return {
-      ...result,
-      children: result.children.map(renderTree),
-    }
-  }
-
   const getElement = (node: SceneNode) => {
     // Return the element if it exists
     if (nodeElementIndex[node.id]) return nodeElementIndex[node.id]
 
     const { props = {} } = node
-    const { sourceType , proxySource } = props
+    const { sourceType, proxySource } = props
 
     if (!sourceType) return null
 
@@ -183,7 +171,7 @@ export const init = (
 
     const create = transform.create || createDefault
 
-    // Create the node and update it immediately
+    // Create the element and update it immediately
     const result = {
       ...create(
         {
@@ -196,7 +184,7 @@ export const init = (
           },
           onNewSource: (cb) => _onNewSourceHandlers.push(cb),
           onUpdate: (cb) => _onUpdateHandlers.push(cb),
-          onRemove: (cb) => _onRemoveHandlers.push(cb)
+          onRemove: (cb) => _onRemoveHandlers.push(cb),
         },
         node.props,
       ),
@@ -211,7 +199,7 @@ export const init = (
 
     // Update indexes
     nodeElementIndex[node.id] = result
-    const elementSourceType = proxySource ? proxySource : sourceType;
+    const elementSourceType = proxySource ? proxySource : sourceType
     elementSourceTypeIndex[elementSourceType] = [
       ...(elementSourceTypeIndex[elementSourceType] || []),
       result,
@@ -228,7 +216,7 @@ export const init = (
         if (nodeId === node.id) {
           const node = compositor.getNode(nodeId)
           const { sourceType = 'Element' } = node.props
-          
+
           listeners.forEach((x) => x?.())
           _disposables.forEach((x) => x?.())
           _onRemoveHandlers.forEach((x) => x?.())
@@ -255,7 +243,6 @@ export const init = (
     getElementByNodeId,
     getTransformByName,
     updateSourceForNode,
-    renderTree,
     getElement,
   }
 }

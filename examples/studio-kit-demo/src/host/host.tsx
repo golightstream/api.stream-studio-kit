@@ -3,7 +3,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
-import { init, Helpers } from '../../../../'
+// TODO: Change import to @api.stream/studio-kit
+import { init, Helpers, Component, Source } from '../../../../'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from './layout-examples'
@@ -16,7 +17,28 @@ import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { Banner } from '../../../../types/src/helpers/sceneless-project'
 
-const { ScenelessProject } = Helpers
+const overlays = [
+  {
+    id: '123',
+    url: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
+  },
+  {
+    id: '124',
+    url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
+  },
+]
+
+const logos = [
+  {
+    id: '128',
+    url: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
+  },
+  {
+    id: '129',
+    url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
+  },
+]
+
 const { useStudio } = Helpers.React
 
 const getUrl = () =>
@@ -131,65 +153,45 @@ const Login = (props: {
 }
 
 const Project = () => {
-  const { studio, project, room, projectCommands } = useStudio()
+  const { studio, project, room } = useStudio()
+  const root = project.scene.getRoot()
+  const component = studio.compositor.useComponent(
+    root.id,
+  ) as Component.ScenelessProject.Interface
+  const { execute, query, source } = component
   const renderContainer = useRef()
   const destination = project.destinations[0]
   const destinationAddress = destination?.address.rtmpPush
   const { Command } = studio
+
+  // Debug helpers
+  // @ts-ignore
+  window.component = component
 
   const [rtmpUrl, setRtmpUrl] = useState(destinationAddress?.url)
   const [streamKey, setStreamKey] = useState(destinationAddress?.key)
   const [previewUrl, setPreviewUrl] = useState('')
   const [guestUrl, setGuestUrl] = useState('')
   const [isLive, setIsLive] = useState(false)
-  const [selectedVideo, setSelectedVideo] = useState(null)
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [banners, setBanners] = React.useState<Banner[]>(
-    studio.compositor.getSources('Banner'),
-  )
 
+  // TODO: Read these from the ScenelessProject
   const [projectedLoaded, setProjectedLoaded] = useState(false)
   // Get custom layout name from metadata we store
   const layout = project.props.layout
-  const background = projectCommands.getBackgroundMedia()
-  const overlay = projectCommands.getImageOverlay()
+  // const background = projectCommands.getBackgroundMedia()
+  // const overlay = projectCommands.getImageOverlay()
 
-  const overlays = [
-    {
-      id: '123',
-      url: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
-    },
-    {
-      id: '124',
-      url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
-    },
-  ]
+  // Sources
+  const [images, setImages] = useState<Source.Image.ImageSource[]>([])
+  const [videos, setVideos] = useState<Source.Video.VideoSource[]>([])
+  const background = execute.getBackground()
 
-  const logos = [
-    {
-      id: '128',
-      url: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
-    },
-    {
-      id: '129',
-      url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
-    },
-  ]
+  console.log({ images, videos })
 
-  const videooverlays = [
-    {
-      id: '125',
-      url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4',
-    },
-    {
-      id: '126',
-      url: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
-    },
-    {
-      id: '127',
-      url: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
-    },
-  ]
+  useEffect(() => {
+    source.useAll('Image', setImages)
+    source.useAll('Video', setVideos)
+  }, [source])
 
   // Listen for project events
   useEffect(() => {
@@ -210,7 +212,13 @@ const Project = () => {
     })
   }, [])
 
-  React.useEffect(() => studio.compositor.useSources('Banner', setBanners), [])
+  useEffect(() => {
+    if (!execute || !room) return
+    // Prune non-existent participants from the project
+    // TODO:
+    // projectCommands.pruneParticipants()
+  }, [execute, room])
+
   // Generate project links
   useEffect(() => {
     studio.createPreviewLink().then(setPreviewUrl)
@@ -311,17 +319,12 @@ const Project = () => {
                 {overlays.map((overlay) => (
                   <li
                     key={overlay.id}
-                    onClick={() => {
-                      if (selectedImage !== overlay.id) {
-                        setSelectedImage(overlay.id)
-                        projectCommands.addImageOverlay2(overlay.id, {
-                          src: overlay.url,
-                        })
-                      } else {
-                        projectCommands.removeImageOverlay2(selectedImage)
-                        setSelectedImage(null)
-                      }
+                    style={{
+                      border: `1px solid ${
+                        background?.id === overlay.id ? 'white' : 'black'
+                      }`,
                     }}
+                    onClick={() => {}}
                   >
                     <img width="40px" height="50px" src={overlay.url} />
                   </li>
@@ -333,23 +336,36 @@ const Project = () => {
             <span>
               Video clips
               <ul style={{ listStyle: 'none' }}>
-                {videooverlays.map((overlay) => (
+                {videos.map((overlay) => (
+                  <li
+                    key={overlay.id}
+                    style={{
+                      border: `1px solid ${
+                        background?.id === overlay.id ? 'white' : 'black'
+                      }`,
+                    }}
+                    onClick={() => {
+                      execute.setBackground({ type: 'Video', id: overlay.id })
+                    }}
+                  >
+                    <video width="40px" height="50px" src={overlay.props.src} />
+                  </li>
+                ))}
+              </ul>
+            </span>
+          </div>
+          <div>
+            <span>
+              Images
+              <ul style={{ listStyle: 'none' }}>
+                {images.map((overlay) => (
                   <li
                     key={overlay.id}
                     onClick={() => {
-                      if (selectedVideo !== overlay.id) {
-                        setSelectedVideo(overlay.id)
-                        projectCommands.addVideoOverlay2(overlay.id, {
-                          src: overlay.url,
-                          loop: true,
-                        })
-                      } else {
-                        projectCommands.removeVideoOverlay2(selectedVideo)
-                        setSelectedVideo(null)
-                      }
+                      execute.setBackground({ type: 'Image', id: overlay.id })
                     }}
                   >
-                    <video width="40px" height="50px" src={overlay.url} />
+                    <img width="40px" height="50px" src={overlay.props.src} />
                   </li>
                 ))}
               </ul>
@@ -365,11 +381,11 @@ const Project = () => {
                     onClick={() => {
                       if (selectedImage !== logo.id) {
                         setSelectedImage(logo.id)
-                        projectCommands.addLogo(logo.id, {
-                          src: logo.url,
-                        })
+                        // projectCommands.addLogo(logo.id, {
+                        //   src: logo.url,
+                        // })
                       } else {
-                        projectCommands.removeLogo(selectedImage)
+                        // projectCommands.removeLogo(selectedImage)
                         setSelectedImage(null)
                       }
                     }}
@@ -391,11 +407,7 @@ const Project = () => {
           padding: 10,
         }}
       >
-        <Participants
-          room={room}
-          projectCommands={projectCommands}
-          studio={studio}
-        />
+        <Participants />
         <div
           className={Style.column}
           style={{ marginLeft: 14, marginBottom: 14 }}
@@ -404,24 +416,22 @@ const Project = () => {
             <label>Background URL</label>
             <input
               type="text"
-              defaultValue={background}
+              defaultValue={root.props.backgroundImage}
               onChange={(e) => {
-                if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(e.target.value)) {
-                  //          projectCommands.setBackgroundImage(e.target.value)
-                  projectCommands.setBackgroundImage2(generateId(), {
-                    src: e.target.value,
-                  })
-                } else {
-                  //            projectCommands.setBackgroundVideo(e.target.value)
-                  // projectCommands.setBackgroundVideo2(generateId(), {
-                  //   src: e.target.value,
-                  // })
-                  projectCommands.addCustomOverlay(generateId(), {
-                    src: e.target.value,
-                    width: '1920px',
-                    height: '1080px',
-                  })
-                }
+                // if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(e.target.value)) {
+                //          projectCommands.setBackgroundImage(e.target.value)
+                execute.setBackground(e.target.value)
+                // } else {
+                //   //            projectCommands.setBackgroundVideo(e.target.value)
+                //   // projectCommands.setBackgroundVideo2(generateId(), {
+                //   //   src: e.target.value,
+                //   // })
+                //   projectCommands.addCustomOverlay(generateId(), {
+                //     src: e.target.value,
+                //     width: '1920px',
+                //     height: '1080px',
+                //   })
+                // }
               }}
             />
           </div>
@@ -473,7 +483,7 @@ const Project = () => {
               defaultValue={layout}
               onChange={(e) => {
                 const { layout, props } = getLayout(e.target.value)
-                projectCommands.setLayout(layout, props)
+                execute.setLayout(props)
 
                 // Store our custom layout configuration by name
                 studio.Command.updateProjectMeta({
@@ -500,7 +510,7 @@ const Project = () => {
                 marginTop: 12,
               }}
             >
-              <ControlPanel room={room} projectCommands={projectCommands} />
+              <ControlPanel />
             </div>
           </div>
         </div>
@@ -533,15 +543,7 @@ const Project = () => {
 }
 
 export const HostView = () => {
-  const {
-    studio,
-    project,
-    projectCommands,
-    room,
-    setProject,
-    setRoom,
-    setStudio,
-  } = useStudio()
+  const { studio, project, room, setProject, setRoom, setStudio } = useStudio()
   const [token, setToken] = useState<string>(localStorage['token'])
   const [failure, setFailure] = useState<string>(null)
 
@@ -578,16 +580,36 @@ export const HostView = () => {
         let project = user.projects[0]
         if (!project) {
           const { layout, props } = getLayout(DEFAULT_LAYOUT)
-          project = await ScenelessProject.create(
-            {
-              backgroundImage: getUrl() + 'bg.png',
-              layout,
-              layoutProps: props,
+          project = await studio.Command.createProject({
+            settings: {
+              type: 'ScenelessProject',
+              props: {
+                layout,
+                layoutProps: props,
+                background: {
+                  type: 'image',
+                },
+              },
+              sources: {
+                Image: [
+                  {
+                    src: getUrl() + 'bg.png',
+                  },
+                ],
+                Video: [
+                  {
+                    src: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4',
+                  },
+                  {
+                    src: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
+                  },
+                  {
+                    src: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
+                  },
+                ],
+              },
             },
-
-            // Store our custom layout in metadata for future reference
-            { layout: DEFAULT_LAYOUT },
-          )
+          })
         }
         const activeProject = await studio.Command.setActiveProject({
           projectId: project.id,
@@ -611,12 +633,6 @@ export const HostView = () => {
       room.sendData({ type: 'UserJoined' })
     }
   }, [room])
-
-  useEffect(() => {
-    if (!projectCommands || !room) return
-    // Prune non-existent participants from the project
-    projectCommands.pruneParticipants()
-  }, [projectCommands, room])
 
   if (project && room) {
     return <Project />
