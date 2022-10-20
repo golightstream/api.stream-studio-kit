@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
-import { init, Helpers, } from '../../../../'
+import { init, Helpers } from '../../../../'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from './layout-examples'
@@ -15,8 +15,6 @@ import ReCAPTCHA from 'react-google-recaptcha'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { Banner } from '../../../../types/src/helpers/sceneless-project'
-
-
 
 const { ScenelessProject } = Helpers
 const { useStudio } = Helpers.React
@@ -212,10 +210,7 @@ const Project = () => {
     })
   }, [])
 
-    React.useEffect(
-      () => studio.compositor.useSources('Banner', setBanners),
-      [],
-    )
+  React.useEffect(() => studio.compositor.useSources('Banner', setBanners), [])
   // Generate project links
   useEffect(() => {
     studio.createPreviewLink().then(setPreviewUrl)
@@ -230,7 +225,7 @@ const Project = () => {
     })
   }, [renderContainer.current])
 
-  function randomIntFromInterval(min: number, max : number) {
+  function randomIntFromInterval(min: number, max: number) {
     // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
@@ -396,7 +391,11 @@ const Project = () => {
           padding: 10,
         }}
       >
-        <Participants room={room} projectCommands={projectCommands} studio={studio} />
+        <Participants
+          room={room}
+          projectCommands={projectCommands}
+          studio={studio}
+        />
         <div
           className={Style.column}
           style={{ marginLeft: 14, marginBottom: 14 }}
@@ -437,8 +436,10 @@ const Project = () => {
                     '[{"type":"text","text":"is now live! Streaming Mobile Legends: Bang Bang: My Stream "},{"type":"emoticon","text":"SirUwU","data":{"type":"direct","url":"https://static-cdn.jtvnw.net/emoticons/v2/301544927/default/light/2.0"}},{"type":"text","text":" Hey hey hey!!! this is going live "},{"type":"emoticon","text":"WutFace","data":{"type":"direct","url":"https://static-cdn.jtvnw.net/emoticons/v2/28087/default/light/2.0"}},{"type":"text","text":" , so lets go"}]',
                   ),
                   username: 'Maddygoround',
-              
-                  avatar: "https://inf2userdata0wus.blob.core.windows.net/content/62cc383fec1b480054cc2fde/resources/video/EchoBG.mp4/medium.jpg"
+                  metadata: {
+                    avatar:
+                      'https://inf2userdata0wus.blob.core.windows.net/content/62cc383fec1b480054cc2fde/resources/video/EchoBG.mp4/medium.jpg',
+                  },
                 })
               }}
             />
@@ -461,8 +462,8 @@ const Project = () => {
               type="button"
               defaultValue={background}
               onClick={(e) => {
-                const randomIndex = randomIntFromInterval(0,(banners.length -1));
-                projectCommands.setActiveBanner(banners[randomIndex].id);
+                const randomIndex = randomIntFromInterval(0, banners.length - 1)
+                projectCommands.setActiveBanner(banners[randomIndex].id)
               }}
             />
           </div>
