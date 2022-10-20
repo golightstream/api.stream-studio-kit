@@ -161,19 +161,13 @@ const fixLink = (link: string): string => {
   return link
 }
 
+
 /**
- * ChatOverlayProps is an object with optional properties id, isSender, username, avatar, variant,
- * platform, message, chatOverlayId, bannerStyle, and chatType.
+ * ChatOverlayProps is an object that has a property called metadata that can be of any type.
  * @property {string} id - Unique identifier for the chat message.
- * @property {boolean} isSender - Whether the chat message was sent by the current user.
- * @property {string} username - The name of the user who sent the message.
- * @property {string} avatar - The URL of the user's avatar.
- * @property {number} variant - This is the type of chat message.
- * @property platform - The platform the message was sent from.
- * @property message - The message to be displayed.
- * @property {string} chatOverlayId - This is the unique identifier for the chat message.
- * @property {'platform' | 'guest'} chatType - This is the type of chat message. It can be either
- * platform or guest.
+ * @property {string} username - The display name of the chat message.
+ * @property {any} message - The message that the user has sent.
+ * @property metadata - This is a property that can be of any type.
  */
 export type ChatOverlayProps = {
   // Unique identifier for the chat message.
@@ -181,21 +175,9 @@ export type ChatOverlayProps = {
   // Display name of the chat messages
   username?: string
   // Users avatar
-  avatar?: string
-
-  variant?: number
-
-  platform?: keyof typeof iconStyles
-
   message?: any
-
-  chatOverlayId?: string
-
-  chatType?: 'platform' | 'guest'
-
-  index?: number
-
-  [prop:string]: any
+  /* Defining a property called metadata that can be of any type. */
+  metadata: { [prop: string]: any }
 }
 
 /* It's creating a new transform called ChatOverlay. */
@@ -210,7 +192,7 @@ export const ChatOverlay = {
     /* Setting the rootWidth to the width of the projectRoot. */
     const { x: rootWidth } = projectRoot.props.size
     const scalar = (rootWidth ?? 1280) / 1920
-    const scale = (px: number) => (px * scalar) + 'px'
+    const scale = (px: number) => px * scalar + 'px'
 
     let globalProps: ChatOverlayProps
 
@@ -219,7 +201,13 @@ export const ChatOverlay = {
     CoreContext.onInternal('ProjectChanged', () => {
       const { bannerStyle } = project.props ?? {}
       if (bannerStyle) {
-        render({ ...globalProps, bannerStyle })
+        render({
+          ...globalProps,
+          metadata: {
+            ...globalProps.metadata,
+            bannerStyle,
+          },
+        })
       }
     })
 
@@ -292,26 +280,22 @@ export const ChatOverlay = {
 
     const ChatOverlay = (props: ChatOverlayProps) => {
       /* It's destructuring the props. */
-      const {
-        platform,
-        message,
-        avatar,
-        chatOverlayId,
-        username,
-        variant,
-        bannerStyle,
-        index,
-      } = props || {}
+      const { message, id, username, metadata } = props || {}
+
+      const { index, platform, variant, avatar, bannerStyle } = metadata || {}
 
       const platformStyle = useMemo(
         () =>
-          iconStyles[platform]?.[variant || 0 % iconStyles[platform]?.length],
+          iconStyles[platform as keyof typeof iconStyles]?.[
+            variant ||
+              0 % iconStyles[platform as keyof typeof iconStyles]?.length
+          ],
         [platform, variant],
       )
 
       return (
         <APIKitAnimation
-          id={`${chatOverlayId}_${index}`}
+          id={`${id}_${index}`}
           type="chatoverlay"
           enter={APIKitAnimationTypes.SLIDE_IN_LEFT}
           exit={APIKitAnimationTypes.SLIDE_OUT_LEFT}
@@ -505,7 +489,13 @@ export const ChatOverlay = {
     /* It's a callback that is called when the props are updated. */
     onUpdate((props: ChatOverlayProps) => {
       const { bannerStyle = BannerStyle.DEFAULT } = project.props ?? {}
-      globalProps = { ...props, bannerStyle }
+      globalProps = {
+        ...props,
+        metadata: {
+          ...props.metadata,
+          bannerStyle,
+        },
+      }
       render(globalProps)
     })
 

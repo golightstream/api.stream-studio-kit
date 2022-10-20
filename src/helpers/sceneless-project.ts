@@ -151,7 +151,7 @@ export interface Commands {
    */
   addChatOverlay(
     id: string,
-    Options: Omit<ChatOverlayProps, 'chatOverlayId'>,
+    Options: ChatOverlayProps,
   ): void
 
   /**
@@ -1316,7 +1316,7 @@ export const commands = (_project: ScenelessProject) => {
 
     async addChatOverlay(
       id: string,
-      options: Omit<ChatOverlayProps, 'chatOverlayId'>,
+      options: ChatOverlayProps,
     ) {
       const [nodeTocheckForChildren, ...{}] =
         bannerContainer?.children || ([] as SceneNode[])
@@ -1348,6 +1348,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'ChatOverlay',
             chatOverlayId: id,
+            id,
             ...options,
           },
         })
@@ -1357,6 +1358,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'ChatOverlay',
             chatOverlayId: id,
+            id,
             ...options,
           },
         })
