@@ -163,6 +163,7 @@ export interface LSRoomContext {
   isConnecting: boolean
   livekitRoom?: Room
   participants: Participant[]
+  guestParticipantMetadata: ParticipantDataObject[]
   /** name of room */
   roomName: string
   /**
@@ -409,7 +410,6 @@ export class RoomContext implements LSRoomContext {
               )
             ) {
               this._updateGuestParticipantsStore(data)
-              this._updateParticipants()
             }
             return
           }
@@ -487,7 +487,6 @@ export class RoomContext implements LSRoomContext {
                 type: DataType.ParticipantMetadataUpdate,
               } as ParticipantDataObject
               this._updateGuestParticipantsStore(data)
-              this._updateParticipants()
             }
             return
           }
@@ -565,24 +564,7 @@ export class RoomContext implements LSRoomContext {
         (gp) => parts.find((p) => p?.identity === gp?.participantId),
       )
 
-      /* Updating the metadata of the participants in the room. */
-      const updatedParts = parts.map((participant) => {
-        const existingGuestParticipantMetadata =
-          this.guestParticipantMetadata.find(
-            (g) => g.participantId === participant.identity,
-          )
-        if (existingGuestParticipantMetadata) {
-          let participantMetadataJson = JSON.parse(participant.metadata)
-          participantMetadataJson = {
-            ...participantMetadataJson,
-            ...existingGuestParticipantMetadata.metadata,
-          }
-          participant.metadata = JSON.stringify(participantMetadataJson)
-        }
-        return participant
-      })
-
-      this.participants = updatedParts
+      this.participants = parts
     }
   }
 

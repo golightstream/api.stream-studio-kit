@@ -58,7 +58,7 @@ export const getRoom = (id: string) => {
   }
   const update = () => {
     const participants = room.participants
-
+    const guestParticipantMetadata = room.guestParticipantMetadata
     const tracks = participants.flatMap((participant: Participant) =>
       participant.getTracks().map((pub) => ({
         ...pub,
@@ -66,8 +66,24 @@ export const getRoom = (id: string) => {
       })),
     ) as FullTrack[]
 
+    
     const result = {
       participants: participants.map((x) => {
+        
+        // /* Updating the metadata of the participants in the room. */
+        const existingGuestParticipantMetadata = guestParticipantMetadata.find(
+          (g) => g.participantId === x.identity,
+        )
+
+        if (existingGuestParticipantMetadata) {
+          let participantMetadataJson = JSON.parse(x.metadata)
+          participantMetadataJson = {
+            ...participantMetadataJson,
+            ...existingGuestParticipantMetadata.metadata,
+          }
+          x.metadata = JSON.stringify(participantMetadataJson)
+        }
+
         const meta = JSON.parse(x.metadata)
         return {
           id: x.identity,
