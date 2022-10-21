@@ -17,96 +17,16 @@ import { APIKitAnimationTypes } from '../../animation/core/types'
  */
 
 const iconStyles = {
-  twitch: [
-    {
-      icon: 'Twitch',
-      background: Colors.neutral(900),
-      iconColor: 'neutral',
-      iconColorWeight: 0,
-      textColor: Colors.white.toHexString(),
-    },
-    {
-      icon: 'TwitchDuo',
-      background: Colors.white.toHexString(),
-      iconColor: 'neutral',
-      iconColorWeight: 900,
-      textColor: Colors.neutral(900),
-    },
-    {
-      icon: 'Twitch',
-      background: Colors.neutral(900),
-      iconColor: 'neutral',
-      iconColorWeight: 0,
-      textColor: Colors.white.toHexString(),
-    },
-    {
-      icon: 'TwitchDuo',
-      background: Colors.white.toHexString(),
-      iconColor: 'neutral',
-      iconColorWeight: 900,
-      textColor: Colors.neutral(900),
-    },
-  ],
-  youtube: [
-    {
-      icon: 'YouTube',
-      background: Colors.neutral(900),
-      iconColor: 'neutral',
-      iconColorWeight: 0,
-      textColor: Colors.white.toHexString(),
-    },
-    {
-      icon: 'YouTubeDuo',
-      background: Colors.white.toHexString(),
-      iconColor: 'neutral',
-      iconColorWeight: 900,
-      textColor: Colors.neutral(900),
-    },
-    {
-      icon: 'YouTube',
-      background: Colors.neutral(900),
-      iconColor: 'neutral',
-      iconColorWeight: 0,
-      textColor: Colors.white.toHexString(),
-    },
-    {
-      icon: 'YouTubeDuo',
-      background: Colors.white.toHexString(),
-      iconColor: 'neutral',
-      iconColorWeight: 900,
-      textColor: Colors.neutral(900),
-    },
-  ],
-  facebook: [
-    {
-      icon: 'Facebook',
-      background: Colors.neutral(900),
-      iconColor: 'neutral',
-      iconColorWeight: 0,
-      textColor: Colors.white.toHexString(),
-    },
-    {
-      icon: 'Facebook',
-      background: Colors.white.toHexString(),
-      iconColor: 'neutral',
-      iconColorWeight: 900,
-      textColor: Colors.neutral(900),
-    },
-    {
-      icon: 'Facebook',
-      background: Colors.neutral(900),
-      iconColor: 'neutral',
-      iconColorWeight: 0,
-      textColor: Colors.white.toHexString(),
-    },
-    {
-      icon: 'Facebook',
-      background: Colors.white.toHexString(),
-      iconColor: 'neutral',
-      iconColorWeight: 900,
-      textColor: Colors.neutral(900),
-    },
-  ],
+  twitch: {
+    icon: 'Twitch',
+  },
+  youtube: {
+    icon: 'YouTube',
+  },
+
+  facebook: {
+    icon: 'Facebook',
+  },
 } as const
 
 /**
@@ -160,7 +80,6 @@ const fixLink = (link: string): string => {
 
   return link
 }
-
 
 /**
  * ChatOverlayProps is an object that has a property called metadata that can be of any type.
@@ -285,12 +204,8 @@ export const ChatOverlay = {
       const { index, platform, variant, avatar, bannerStyle } = metadata || {}
 
       const platformStyle = useMemo(
-        () =>
-          iconStyles[platform as keyof typeof iconStyles]?.[
-            variant ||
-              0 % iconStyles[platform as keyof typeof iconStyles]?.length
-          ],
-        [platform, variant],
+        () => iconStyles[platform as keyof typeof iconStyles],
+        [platform],
       )
 
       return (
@@ -336,29 +251,14 @@ export const ChatOverlay = {
                 )}
                 <div style={{ width: '100%' }}>
                   {username && (
-                    <button
-                      className="ChatOverlay-platform"
-                      style={{
-                        backgroundColor: platformStyle?.background,
-                      }}
-                    >
+                    <button className="ChatOverlay-badge-container">
                       {platformStyle?.icon && (
                         <Icon
-                          width={scale(40)}
-                          height={scale(40)}
+                          className="ChatOverlay-badge-icon"
                           name={platformStyle?.icon}
-                          {...(platformStyle?.iconColor && {
-                            color: platformStyle?.iconColor,
-                            colorWeight: platformStyle?.iconColorWeight,
-                          })}
                         />
                       )}
-                      <div
-                        className="ChatOverlay-username"
-                        style={{
-                          color: platformStyle?.textColor,
-                        }}
-                      >
+                      <div className="ChatOverlay-badge-username">
                         {username}
                       </div>
                     </button>
@@ -411,8 +311,11 @@ export const ChatOverlay = {
                   <div
                     style={{
                       display: 'flex',
-                      marginTop: `-${scale(135)}`,
+                      marginTop: `-${scale(160)}`,
                       alignItems: 'flex-end',
+                      padding: `${scale(14)} ${scale(0)} ${scale(14)} ${scale(
+                        0,
+                      )}`,
                     }}
                   >
                     {avatar ? (
@@ -431,29 +334,14 @@ export const ChatOverlay = {
                       </div>
                     )}
                     {username && (
-                      <button
-                        className="ChatOverlay-platform"
-                        style={{
-                          backgroundColor: platformStyle?.background,
-                        }}
-                      >
+                      <button className="ChatOverlay-badge-container">
                         {platformStyle?.icon && (
                           <Icon
-                            width={scale(40)}
-                            height={scale(40)}
+                            className="ChatOverlay-badge-icon"
                             name={platformStyle?.icon}
-                            {...(platformStyle?.iconColor && {
-                              color: platformStyle?.iconColor,
-                              colorWeight: platformStyle?.iconColorWeight,
-                            })}
                           />
                         )}
-                        <div
-                          className="ChatOverlay-username"
-                          style={{
-                            color: platformStyle?.textColor,
-                          }}
-                        >
+                        <div className="ChatOverlay-badge-username">
                           {username}
                         </div>
                       </button>
