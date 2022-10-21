@@ -397,7 +397,7 @@ export class RoomContext implements LSRoomContext {
           case DataType.ChatMessage: {
             return this._appendChat(payload, participant, kind)
           }
-          
+
           /* Updating the participant metadata. */
           case DataType.ParticipantMetadataUpdate: {
             const strData = decoder.decode(payload)
@@ -411,7 +411,6 @@ export class RoomContext implements LSRoomContext {
               this._updateGuestParticipantsStore(data)
               this._updateParticipants()
             }
-            this._updateParticipants()
             return
           }
           default:
@@ -470,7 +469,7 @@ export class RoomContext implements LSRoomContext {
       this.livekitRoom = null
       this._updateParticipants()
     })
-    
+
     /* The above code is subscribing to the RoomEvent.ParticipantMetadataChanged event. When the event is
     triggered, the code checks if the metadata has changed. If it has, it parses the metadata and checks
     if the participant has the permission to manage themselves. If they do, it updates the
@@ -480,16 +479,16 @@ export class RoomContext implements LSRoomContext {
       (metadata: string, participant: Participant) => {
         if (metadata !== participant?.metadata) {
           const meta = JSON.parse(participant?.metadata)
-          if (
-            hasPermission(meta?.participantRole, Permission.ManageSelf) 
-          ) {
-            const data = {
-              participantId: participant?.identity,
-              metadata: meta.hasOwnProperty('isMirrored') ? meta : JSON.parse(metadata),
-              type: DataType.ParticipantMetadataUpdate,
-            } as ParticipantDataObject
-            this._updateGuestParticipantsStore(data)
-            this._updateParticipants()
+          if (hasPermission(meta?.participantRole, Permission.ManageSelf)) {
+            if (meta.hasOwnProperty('isMirrored')) {
+              const data = {
+                participantId: participant?.identity,
+                metadata: meta,
+                type: DataType.ParticipantMetadataUpdate,
+              } as ParticipantDataObject
+              this._updateGuestParticipantsStore(data)
+              this._updateParticipants()
+            }
             return
           }
         }
@@ -560,6 +559,12 @@ export class RoomContext implements LSRoomContext {
       const parts = [this.livekitRoom.localParticipant] as Participant[]
       parts.push(...remotes)
 
+      /* Filtering the guestParticipantMetadata array to only include the participants that are in the
+      parts array. */
+      this.guestParticipantMetadata = this.guestParticipantMetadata.filter(
+        (gp) => parts.find((p) => p?.identity === gp?.participantId),
+      )
+
       /* Updating the metadata of the participants in the room. */
       const updatedParts = parts.map((participant) => {
         const existingGuestParticipantMetadata =
@@ -576,7 +581,7 @@ export class RoomContext implements LSRoomContext {
         }
         return participant
       })
-      
+
       this.participants = updatedParts
     }
   }
