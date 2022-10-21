@@ -69,7 +69,7 @@ export const getRoom = (id: string) => {
     
     const result = {
       participants: participants.map((x) => {
-        
+
         // /* Updating the metadata of the participants in the room. */
         const existingGuestParticipantMetadata = guestParticipantMetadata.find(
           (g) => g.participantId === x.identity,
@@ -318,7 +318,7 @@ export const getRoom = (id: string) => {
       localParticipant.unpublishTrack(track.track as LocalTrack)
     },
     /* Setting the local participant metadata. */
-    setLocalParticipantMetadata: (id, meta) => {
+    setLocalParticipantMetadata: async(id, meta) => {
       const data = JSON.stringify(meta)
       const encoded = encoder.encode(
         JSON.stringify({
@@ -328,7 +328,7 @@ export const getRoom = (id: string) => {
         }),
       )
       localParticipant.setMetadata(data)
-      return localParticipant.publishData(encoded, DataPacket_Kind.RELIABLE)
+      return await localParticipant.publishData(encoded, DataPacket_Kind.RELIABLE)
     },
     setParticipantMetadata: (id, meta) => {
       return room.updateParticipant(id, meta)
