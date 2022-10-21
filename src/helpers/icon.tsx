@@ -30,7 +30,7 @@ type Props = {
 
   width?: number | string
   height?: number | string
-
+  className:string
   marginLeft?: number
   marginTop?: number
   marginBottom?: number
@@ -51,6 +51,7 @@ const SVGWrapper = ({
   marginTop,
   marginRight,
   marginBottom,
+  className,
   ...props
 }: Props & { children: JSX.Element }) => {
   let colorStyle = 'inherit'
@@ -60,16 +61,15 @@ const SVGWrapper = ({
 
   return (
     <div
+      className={className}
       style={{
         ...nudge(props),
         display: 'flex',
         justifyContent: 'center',
         flexBasis: width || 'auto',
         flexShrink: 0,
-        width: width || '1em',
-        height: height || (width ? 'fit-content' : '1em'),
-        fill: 'currentColor',
-        color: colorStyle,
+        width,
+        height: height || (width && 'fit-content'),
         marginLeft,
         marginTop,
         marginBottom,

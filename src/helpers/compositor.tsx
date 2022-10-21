@@ -743,6 +743,10 @@ const themes = {
     scalar: number = 1280 / 1920,
   ) => {
     const textColor = color(primaryColor).lightness() < 0.6 ? '#FFF' : '#000'
+    const chatBadgeBackgroundColor =
+      color(primaryColor).lightness() < 0.6 ? '#FFF' : '#000'
+    const chatBadgeTextColor =
+      color(primaryColor).lightness() < 0.6 ? '#000' : '#FFF'
     const scale = (px: number) => px * scalar + 'px'
 
     return `
@@ -757,11 +761,19 @@ const themes = {
         padding: ${scale(40)} ${scale(100)} !important;
         border-radius: ${scale(20)} !important;
       }
+      
+      .ChatOverlay-badge-icon {
+          width:${scale(32)};
+          height: ${scale(32)};
+          fill: currentcolor;
+          color: ${chatBadgeTextColor}
+      }
 
-       .ChatOverlay-platform {
+       .ChatOverlay-badge-container {
+          background-color:${chatBadgeBackgroundColor};
           display:flex;
           flex-direction:row;
-          padding: ${scale(10)};
+          padding: ${scale(6)} ${scale(12)} ${scale(6)} ${scale(6)};
           border-radius: ${scale(10)};
           align-items: center;
           border-bottom-left-radius: 0px !important;
@@ -770,22 +782,34 @@ const themes = {
           cursor: pointer;
        }
       
-       .ChatOverlay-username {
+       .ChatOverlay-badge-username {
+          color:${chatBadgeTextColor};
           padding:${scale(6)};
-          font-size:${scale(20)};
+          font-size:${scale(18)};
           font-weight:700;
           text-transform: capitalize; 
        }
 
-       .ChatOverlay-platform:after {
-          content: "";
-          height: 11px;
-          width: 96%;
-          position: absolute;
+       .ChatOverlay-badge-container:before {
+          background-color:${chatBadgeBackgroundColor};
+          bottom: -14px;
+          content: '';
+          height: 15px;
           left: 0;
-          bottom:-10px;
-          z-index: 0;
-          background-color: inherit;
+          position: absolute;
+          width: 15px;
+        }
+
+       .ChatOverlay-badge-container:after {
+          z-index: 1;
+          background: ${primaryColor} !important;
+          border-radius: 15px 0 0 0;
+          bottom: -15px;
+          content: '';
+          height: 15px;
+          left: 0;
+          position: absolute;
+          width: 15px;
        }
 
        .ChatOverlay-avatar {
@@ -871,24 +895,35 @@ const themes = {
     scalar = 1280 / 1920,
   ) => {
     const textColor = 'white'
+    const chatBadgeBackgroundColor = '#fff'
+    const chatBadgeTextColor = '#000'
+
     const scale = (px: number) => px * scalar + 'px'
 
     return `
 
-       .ChatOverlay-platform {
+      .ChatOverlay-badge-icon {
+          width:${scale(32)};
+          height: ${scale(32)};
+          fill: currentcolor;
+          color: ${chatBadgeTextColor}
+      }
+
+       .ChatOverlay-badge-container {
+          background-color:${chatBadgeBackgroundColor};
           display:flex;
           flex-direction:row;
-          padding: ${scale(10)};
+          padding: ${scale(6)} ${scale(12)} ${scale(6)} ${scale(6)};
           align-items: center;
           position: relative;
           border: none;
           cursor: pointer;
        }
 
- 
-       .ChatOverlay-username {
+       .ChatOverlay-badge-username {
+          color:${chatBadgeTextColor};
           padding:${scale(6)};
-          font-size:${scale(20)};
+          font-size:${scale(18)};
           font-weight:700;
           text-transform: capitalize; 
        }
@@ -1006,27 +1041,40 @@ const themes = {
     scalar = 1280 / 1920,
   ) => {
     const textColor = color(primaryColor).lightness() < 0.6 ? '#FFF' : '#000'
+    const chatBadgeBackgroundColor =
+      color(primaryColor).lightness() < 0.6 ? '#FFF' : '#000'
+    const chatBadgeTextColor =
+      color(primaryColor).lightness() < 0.6 ? '#000' : '#FFF'
+
     const scale = (px: number) => px * scalar + 'px'
 
     return `
+      .ChatOverlay-badge-icon {
+          width:${scale(32)};
+          height: ${scale(32)};
+          fill: currentcolor;
+          color: ${chatBadgeTextColor}
+      }
 
-       .ChatOverlay-platform {
+       .ChatOverlay-badge-container {
+          background-color:${chatBadgeBackgroundColor};
           display:flex;
           flex-direction:row;
-          padding: ${scale(10)};
+          padding: ${scale(6)} ${scale(12)} ${scale(6)} ${scale(6)};
           align-items: center;
           z-index: 1;
           border: none;
           cursor: pointer;
           top: 0;
-          margin-bottom: 4px;
-          margin-left: -${scale(40)};
+          margin-bottom: 2px;
+          margin-left: -${scale(30)};
           border-radius: 30px;
        }
 
-       .ChatOverlay-username {
+       .ChatOverlay-badge-username {
+          color:${chatBadgeTextColor};
           padding:${scale(6)};
-          font-size:${scale(20)};
+          font-size:${scale(18)};
           font-weight:700;
           text-transform: capitalize; 
        }
