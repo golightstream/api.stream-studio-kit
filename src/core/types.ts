@@ -574,7 +574,7 @@ export interface Room {
    * Metadata to store on the participant. Opaque to the SDK.
    *  Change to a participant's metadata propagates immediately to remote connections.
    */
-  setLocalParticipantMetadata: (id: string, meta: { [prop: string]: any }) => void
+  setLocalParticipantMetadata: (id: string, meta: { [prop: string]: any }) => Promise<void>
   /**
    * Metadata to store on the participant. Opaque to the SDK.
    *  Change to a participant's metadata propagates immediately to remote connections.
