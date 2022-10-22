@@ -790,26 +790,16 @@ const themes = {
           text-transform: capitalize; 
        }
 
-       .ChatOverlay-badge-container:before {
-          background-color:${chatBadgeBackgroundColor};
+
+       .ChatOverlay-badge-container:after {
+          background-color: inherit;
           bottom: -14px;
           content: '';
           height: 15px;
           left: 0;
           position: absolute;
           width: 15px;
-        }
-
-       .ChatOverlay-badge-container:after {
-          z-index: 1;
-          background: ${primaryColor} !important;
-          border-radius: 15px 0 0 0;
-          bottom: -15px;
-          content: '';
-          height: 15px;
-          left: 0;
-          position: absolute;
-          width: 15px;
+          z-index: 0;
        }
 
        .ChatOverlay-avatar {
@@ -1056,6 +1046,7 @@ const themes = {
           color: ${chatBadgeTextColor}
       }
 
+
        .ChatOverlay-badge-container {
           background-color:${chatBadgeBackgroundColor};
           display:flex;
@@ -1135,6 +1126,13 @@ const themes = {
         }
       }
 
+      ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .NameBanner {
+        top: 0% !important;
+        transform: translateY(0%) !important;
+        margin: ${scale(20)} ${scale(20)};
+      }
+
+
       .NameBanner[data-size="4"] {
         padding: ${scale(40)} ${scale(80)} ${scale(40)} ${scale(80)} !important;
         font-size: ${scale(40)} !important;
@@ -1142,7 +1140,7 @@ const themes = {
       .NameBanner[data-size="3"] {
         padding: ${scale(12)} ${scale(30)} ${scale(12)} ${scale(30)} !important;
         font-size: ${scale(40)} !important;
-        margin: ${scale(20)} ${scale(20)};
+        margin: -${scale(20)} ${scale(20)};
       }
       .NameBanner[data-size="2"] {
         padding: ${scale(12)} ${scale(30)} ${scale(12)} ${scale(30)} !important;

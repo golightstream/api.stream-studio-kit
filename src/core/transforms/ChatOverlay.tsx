@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import ReactDOM from 'react-dom'
-import React, { useMemo } from 'react'
+import React, { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Compositor } from '../namespaces'
 import * as Colors from '../../helpers/colors'
 import Icon from '../../helpers/icon'
@@ -115,6 +115,32 @@ export const ChatOverlay = {
 
     let globalProps: ChatOverlayProps
 
+    /**
+     * It takes an element and a canvas, and returns a number between 0 and 4, depending on the size of the
+     * element relative to the canvas
+     * @param ele - The element that is being rendered
+     * @param canvas - The canvas object that the element is on.
+     * @returns The size of the element
+     */
+    const getSize = (
+      ele: { width: number; height: number },
+      canvas: { width: number; height: number },
+    ) => {
+      const widthAsPercentage = ele.width / canvas.width
+      const heightAsPercentage = ele.height / canvas.height
+      if (heightAsPercentage >= 0.25 && widthAsPercentage >= 0.75) {
+        return 4
+      }
+      if (widthAsPercentage >= 0.75) {
+        return 1
+      } else if (widthAsPercentage >= 0.5) {
+        return -2
+      } else if (widthAsPercentage > 0.25) {
+        return -3
+      }
+      return -4
+    }
+
     /* It's listening for a ProjectChanged event, and if the payload has a bannerStyle, it will render the
       component with the new style. */
     CoreContext.onInternal('ProjectChanged', () => {
@@ -200,13 +226,53 @@ export const ChatOverlay = {
     const ChatOverlay = (props: ChatOverlayProps) => {
       /* It's destructuring the props. */
       const { message, id, username, metadata } = props || {}
-
-      const { index, platform, variant, avatar, bannerStyle } = metadata || {}
+      const [labelSize, setLabelSize] = useState<number>(0)
+      const { index, platform, avatar, bannerStyle } = metadata || {}
 
       const platformStyle = useMemo(
         () => iconStyles[platform as keyof typeof iconStyles],
         [platform],
       )
+
+      /* Creating a ref to a div element. */
+      const ref = useRef<HTMLDivElement>()
+
+      /* Using the useLayoutEffect hook to calculate the size of the label. */
+      useLayoutEffect(() => {
+        if (!ref.current) return
+
+        /**
+         * It calculates the size of the label based on the size of the canvas
+         */
+        const calculate = () => {
+          const rect = ref.current
+          if (rect) {
+            setLabelSize(
+              getSize(
+                { width: rect.clientWidth, height: rect.clientHeight },
+                {
+                  width: project.compositor.getRoot().props.size.x,
+                  height: project.compositor.getRoot().props.size.y,
+                },
+              ),
+            )
+          }
+        }
+
+        /* Using the ResizeObserver API to observe the ref.current element and call the calculate function when
+        the element is resized. */
+        const resizeObserver = new ResizeObserver((entries) => {
+          calculate()
+        })
+        calculate()
+        resizeObserver.observe(ref.current)
+
+        return () => {
+          if (ref?.current) {
+            resizeObserver.unobserve(ref?.current)
+          }
+        }
+      }, [ref.current, project])
 
       return (
         <APIKitAnimation
@@ -316,6 +382,7 @@ export const ChatOverlay = {
                       padding: `${scale(14)} ${scale(0)} ${scale(14)} ${scale(
                         0,
                       )}`,
+                      marginLeft: `${labelSize * 10}px`,
                     }}
                   >
                     {avatar ? (
@@ -349,10 +416,10 @@ export const ChatOverlay = {
                   </div>
                   {message && (
                     <div
+                      ref={ref}
                       className="ChatOverlay-body"
                       style={{
                         gap: 10,
-
                         alignItems: 'center',
                         flexWrap: 'wrap',
                         verticalAlign: 'middle',
