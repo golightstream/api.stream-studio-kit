@@ -10,6 +10,7 @@ import { Compositor } from '../namespaces'
 import { InternalEventMap, trigger, triggerInternal } from '../events'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
+import { hasPermission, Permission } from '../../helpers/permission'
 
 interface ISourceMap {
   sourceType: string
@@ -39,10 +40,7 @@ export const Video2 = {
   useSource(sources, props) {
     return sources.find((x) => x.props.type === props.id)
   },
-  create(
-    { onUpdate, onNewSource, onRemove },
-    initialProps,
-  ) {
+  create({ onUpdate, onNewSource, onRemove }, initialProps) {
     onRemove(() => {
       clearInterval(interval)
     })
@@ -50,12 +48,11 @@ export const Video2 = {
     const root = document.createElement('div')
     const room = getProjectRoom(CoreContext.state.activeProjectId)
     const role = getProject(CoreContext.state.activeProjectId).role
-   
+
     let source: any
     let interval: NodeJS.Timer
 
     const Video = ({ source }: { source: any }) => {
-
       const SourceTrigger = SourceTriggerMap.find(
         (x) => x.sourceType === initialProps.proxySource,
       )
@@ -63,7 +60,15 @@ export const Video2 = {
       const { id } = source || {}
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
+      console.log('Updated current time', videoRef?.current?.currentTime)
 
+      /* A callback function that is called when the video element is created. */
+      const handleRect = React.useCallback((node: HTMLVideoElement) => {
+        videoRef.current = node
+        setRefId(node ? node.id : null)
+      }, [])
+
+      /* A callback function that is called when the video element is loaded. */
       const onLoadedData = React.useCallback(() => {
         if (videoRef?.current) {
           videoRef.current!.play().catch(() => {
@@ -71,8 +76,9 @@ export const Video2 = {
             videoRef.current?.play()
           })
         }
-      }, [src, videoRef])
+      }, [src])
 
+      /* A callback function that is called when the video playback ended. */
       const onEnded = React.useCallback(() => {
         if (interval) {
           clearInterval(interval)
@@ -80,42 +86,18 @@ export const Video2 = {
         trigger('VideoEnded', { id: id, category: type })
       }, [src])
 
+      /* Checking if the video is playing and if the user has permission to manage self and if the guest is
+      the same as the room participant id. If all of these are true, then it sets the current time of the
+      video to the meta time. */
       React.useEffect(() => {
-        if (meta) {
-          if (room?.participantId !== meta?.owner && videoRef?.current) {
-            videoRef.current.currentTime = meta?.time || 0
+        if (meta && videoRef?.current && refId) {
+          if (hasPermission(role, Permission.ManageSelf)) {
+            videoRef.current.currentTime = Number(meta?.time)
           }
         }
-      }, [meta, videoRef])
+      }, [meta?.time, refId])
 
-      React.useEffect(() => {
-        return room?.onData((event, senderId) => {
-          // Handle request for time sync.
-          if (videoRef?.current?.currentTime) {
-            if (
-              event.type === 'UserJoined' &&
-              senderId !== room?.participantId
-            ) {
-              triggerInternal(SourceTrigger.trigger, {
-                projectId: CoreContext.state.activeProjectId,
-                role,
-                sourceId: id,
-                doTrigger: true,
-                metadata: {
-                  time: Math.floor(videoRef?.current?.currentTime) || 0,
-                  owner: room?.participantId,
-                },
-              })
-            }
-          }
-        })
-      }, [videoRef])
-
-      const handleRect = React.useCallback((node: HTMLVideoElement) => {
-        videoRef.current = node
-        setRefId(node ? node.id : null)
-      }, [])
-
+      /* This is a React hook that is called when the component is unmounted. It clears the interval. */
       React.useEffect(() => {
         return () => {
           if (interval) {
@@ -124,6 +106,7 @@ export const Video2 = {
         }
       }, [id])
 
+      /* This is a React hook that is called when the component is mounted and when the refId changes. */
       React.useEffect(() => {
         if (!refId) {
           if (interval) {
@@ -152,15 +135,43 @@ export const Video2 = {
               }
             }, 1000)
 
-            triggerInternal(SourceTrigger.trigger, {
-              projectId: CoreContext.state.activeProjectId,
-              role,
-              sourceId: id,
-              doTrigger: true,
-              metadata: {
-                time: Math.floor(videoRef?.current?.currentTime) || 0,
-                owner: room?.participantId,
-              },
+            /* This is checking if the user has permission to manage guests. If they do, then it triggers an
+            internal event. */
+            if (hasPermission(role, Permission.ManageGuests)) {
+              triggerInternal(SourceTrigger.trigger, {
+                projectId: CoreContext.state.activeProjectId,
+                role,
+                sourceId: id,
+                doTrigger: true,
+                metadata: {
+                  time: Math.floor(videoRef?.current?.currentTime) || 0,
+                  owner: room?.participantId,
+                },
+              })
+            }
+
+            return room?.onData((event, senderId) => {
+              // Handle request for time sync.
+              if (videoRef?.current?.currentTime) {
+                /* This is checking if the user has permission to manage guests. If they do, then it triggers an
+                    internal event. */
+                if (
+                  event.type === 'UserJoined' &&
+                  hasPermission(role, Permission.ManageGuests)
+                ) {
+                  triggerInternal(SourceTrigger.trigger, {
+                    projectId: CoreContext.state.activeProjectId,
+                    role,
+                    sourceId: refId,
+                    doTrigger: true,
+                    metadata: {
+                      time: Math.floor(videoRef?.current?.currentTime) || 0,
+                      owner: room?.participantId,
+                      guest: senderId,
+                    },
+                  })
+                }
+              }
             })
           }
         }
@@ -177,7 +188,6 @@ export const Video2 = {
           {src && (
             <video
               id={id}
-      
               ref={handleRect}
               style={initialProps.style}
               {...initialProps.props}
