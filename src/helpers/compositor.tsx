@@ -789,18 +789,18 @@ const themes = {
           font-weight:700;
           text-transform: capitalize; 
        }
-
-
-       .ChatOverlay-badge-container:after {
-          background-color: inherit;
-          bottom: -14px;
-          content: '';
-          height: 15px;
-          left: 0;
+       
+       .ChatOverlay-badge-container::before {
+          content:"";
+          width:15px;
+          height:15px;
+          background-color:${chatBadgeBackgroundColor};
           position: absolute;
-          width: 15px;
-          z-index: 0;
-       }
+          bottom:-15px;
+          left:0;
+          clip-path:polygon(0% 0%, 100% 0%, 79% 4%, 65% 10%, 55% 17%, 44% 24%, 34% 33%, 24% 46%, 15% 61%, 9% 77%, 0 100%);
+        }
+       
 
        .ChatOverlay-avatar {
           height: ${scale(120)};
