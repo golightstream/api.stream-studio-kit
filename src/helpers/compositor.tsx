@@ -796,7 +796,7 @@ const themes = {
           height:15px;
           background-color:${chatBadgeBackgroundColor};
           position: absolute;
-          bottom:-15px;
+          bottom:-14px;
           left:0;
           clip-path:polygon(0% 0%, 100% 0%, 79% 4%, 65% 10%, 55% 17%, 44% 24%, 34% 33%, 24% 46%, 15% 61%, 9% 77%, 0 100%);
         }
