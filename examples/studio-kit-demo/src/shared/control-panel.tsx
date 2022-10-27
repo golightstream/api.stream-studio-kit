@@ -61,9 +61,8 @@ export const ControlPanel = ({
   projectCommands,
 }: {
   room: any
-  projectCommands
- :any}) => {
-
+  projectCommands: any
+}) => {
   const [isSharingScreen, setIsSharingScreen] = useState(false)
   const [participant, setParticipant] = useState<SDK.Participant>()
 
@@ -89,15 +88,17 @@ export const ControlPanel = ({
       <label>
         <input
           type="checkbox"
-          onChange={(e) => {
-            
-          room.addCamera({
-            deviceId:
-              '7360456cb5f177a56d708c3dc4981b540ecc5197ec79fb67ee5e573bf434a760',
-          })
+          onChange={async (e) => {
+            const track = await room.addCamera({
+              deviceId:
+                '7360456cb5f177a56d708c3dc4981b540ecc5197ec79fb67ee5e573bf434a760',
+            })
+            setTimeout(() => {
+              projectCommands.addParticipantTrack(track.id, {}, 'camera')
+            }, 5000)
           }}
         />
-       Add Additional Camera
+        Add Additional Camera
       </label>
       <label>
         <input
