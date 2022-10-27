@@ -66,10 +66,8 @@ export const getRoom = (id: string) => {
       })),
     ) as FullTrack[]
 
-    
     const result = {
       participants: participants.map((x) => {
-
         // /* Updating the metadata of the participants in the room. */
         const existingGuestParticipantMetadata = guestParticipantMetadata.find(
           (g) => g.participantId === x.identity,
@@ -98,13 +96,21 @@ export const getRoom = (id: string) => {
             .map((x) => x.trackSid),
         }
       }) as SDK.Participant[],
-      tracks: tracks.map((x) => ({
-        mediaStreamTrack: x.track?.mediaStreamTrack,
-        id: x.trackSid,
-        participantId: x.participant?.identity,
-        isMuted: x.track?.isMuted,
-        type: x.source,
-      })) as SDK.Track[],
+      tracks: tracks.map((x) => {
+        const meta = JSON.parse(x?.participant?.metadata)
+        x.track
+        const deviceId =
+          x.source === 'camera' &&
+          x.track?.mediaStreamTrack?.getSettings().deviceId
+        return {
+          mediaStreamTrack: x.track?.mediaStreamTrack,
+          id: x.trackSid,
+          participantId: x.participant?.identity,
+          isMuted: x.track?.isMuted,
+          type: x.source,
+          isMirrored: deviceId ? meta[deviceId]?.isMirrored : false,
+        }
+      }) as SDK.Track[],
     }
 
     latest = {
@@ -296,7 +302,18 @@ export const getRoom = (id: string) => {
       const published = await Promise.all(
         tracks.map((x) => localParticipant.publishTrack(x)),
       )
+
+      const participant = getParticipant(localParticipant?.identity)
+
+      const meta = participant?.meta
+
+      room.updateParticipant(participant?.id, {
+        ...meta,
+        externalTracks: [...meta?.externalTracks, published[0]?.trackSid],
+      })
+
       settingMic = false
+
       return getTrack(published[0]?.trackSid)
     },
     addScreen: async (options = { audio: false }) => {
@@ -318,7 +335,7 @@ export const getRoom = (id: string) => {
       localParticipant.unpublishTrack(track.track as LocalTrack)
     },
     /* Setting the local participant metadata. */
-    setLocalParticipantMetadata: async(id, meta) => {
+    setLocalParticipantMetadata: async (id, meta) => {
       const data = JSON.stringify(meta)
       const encoded = encoder.encode(
         JSON.stringify({
@@ -328,7 +345,10 @@ export const getRoom = (id: string) => {
         }),
       )
       localParticipant.setMetadata(data)
-      return await localParticipant.publishData(encoded, DataPacket_Kind.RELIABLE)
+      return await localParticipant.publishData(
+        encoded,
+        DataPacket_Kind.RELIABLE,
+      )
     },
     setParticipantMetadata: (id, meta) => {
       return room.updateParticipant(id, meta)

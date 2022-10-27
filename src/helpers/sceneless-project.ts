@@ -46,13 +46,14 @@ import { SDK, Compositor } from '../core/namespaces'
 import { Disposable, SceneNode } from '../core/types'
 import { Track } from 'livekit-client'
 import { Banner, BannerSource, BannerProps } from '../core/sources/Banners'
+import { RoomParticipantSource } from '../core/sources/WebRTC'
 import { generateId } from '../logic'
 import { ChatOverlayProps } from '../core/transforms/ChatOverlay'
 
 import LayoutName = Compositor.Layout.LayoutName
 
 export type { LayoutName }
-export type { Banner, BannerSource }
+export type { Banner, BannerSource, RoomParticipantSource }
 
 export type ParticipantProps = {
   volume: number
@@ -149,10 +150,7 @@ export interface Commands {
   /**
    * Add an chat comment to the stream.
    */
-  addChatOverlay(
-    id: string,
-    Options: ChatOverlayProps,
-  ): void
+  addChatOverlay(id: string, Options: ChatOverlayProps): void
 
   /**
    * Add an any exisiting chat comment from the stream.
@@ -315,6 +313,27 @@ export interface Commands {
   useShowcase(
     cb: (state: { participantId: string; type: ParticipantType }) => void,
   ): Disposable
+  /**
+   * Add a participant camera track to the stream canvas.
+   * Available participants can be gleaned from the WebRTC {@link Room} using
+   * {@link Room.useParticipants}.
+   *
+   * A participant will remain on stream even if there is no active feed, until
+   * it is removed using {@link removeParticipantTrack removeParticipantTrack()} or {@link pruneParticipants pruneParticipants()}.
+   */
+  addParticipantTrack(
+    trackId: string,
+    props: Partial<ParticipantProps>,
+    /**
+     * The type of participant feed to add.
+     * @default `'camera'`
+     */
+    type?: ParticipantType,
+  ): Promise<void>
+  /**
+   * Remove a stream participant from the stream canvas.
+   */
+  removeParticipantTrack(trackId: string, type?: ParticipantType): void
   /**
    * Add a participant to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
@@ -1314,10 +1333,7 @@ export const commands = (_project: ScenelessProject) => {
       return bannerContainer.children?.[0]?.props?.bannerId ?? null
     },
 
-    async addChatOverlay(
-      id: string,
-      options: ChatOverlayProps,
-    ) {
+    async addChatOverlay(id: string, options: ChatOverlayProps) {
       const [nodeTocheckForChildren, ...{}] =
         bannerContainer?.children || ([] as SceneNode[])
 
@@ -1776,6 +1792,23 @@ export const commands = (_project: ScenelessProject) => {
         sendState()
       })
     },
+
+    async addParticipantTrack(
+      trackId: string,
+      props: Partial<ParticipantProps> = {
+        isMuted: true,
+        isHidden: false,
+        volume: 0,
+      },
+      type: ParticipantType = 'camera',
+    ) {
+      return await commands.addParticipant(trackId, props, type)
+    },
+
+    removeParticipantTrack(trackId: string, type: ParticipantType = 'camera') {
+      return commands.removeParticipant(trackId, type)
+    },
+
     async addParticipant(
       participantId: string,
       props: Partial<ParticipantProps> = {},
