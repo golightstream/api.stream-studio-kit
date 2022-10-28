@@ -76,16 +76,8 @@ export type InternalProject = {
   layoutApi: {
     layoutId: string
   }
-  sfuToken?: string
   role?: SDK.Role
-  /**
-   * @private The room
-   */
   isInitial?: boolean
-  /**
-   * @private
-   * @deprecated
-   */
   roomId?: string
   // From Vapi project metadata
   props: Props

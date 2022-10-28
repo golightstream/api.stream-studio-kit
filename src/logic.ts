@@ -22,7 +22,10 @@ export {
   camelCase,
   kebabCase,
   isArray,
+  isMatch,
   every,
+  mapValues,
+  memoize,
 } from 'lodash-es'
 import deepEqual from 'fast-deep-equal'
 
@@ -41,7 +44,7 @@ export const insertAt = <T>(
   ...arr.slice(0, index),
   ...[ins].flat(),
   ...arr.slice(replace ? index + 1 : index),
-]
+] as T[]
 
 export const replaceItem = <T>(
   match: T | ((item: T) => Boolean),
@@ -113,6 +116,7 @@ export const forEachDown = (
   node: Compositor.SceneNode,
   fn: (next: Compositor.SceneNode, parent?: Compositor.SceneNode) => void,
 ): void => {
+  if (!node) return
   fn(node)
   const children = node.children || []
   children.forEach((x) =>

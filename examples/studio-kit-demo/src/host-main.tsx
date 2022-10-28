@@ -26,7 +26,7 @@ const Content = () => {
         </h1>
       </div>
       <AppProvider isHost={true}>
-        <StudioProvider>
+        <StudioProvider useCommands={false}>
           <HostView />
         </StudioProvider>
       </AppProvider>

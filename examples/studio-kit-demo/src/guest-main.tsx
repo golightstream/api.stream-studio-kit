@@ -6,7 +6,7 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { GuestView } from './guest/guest'
 import { AppProvider } from './shared/context'
-import { Helpers } from '@api.stream/studio-kit'
+import { Helpers } from '../../../'
 import url from '../logo.png'
 import './index.css'
 
@@ -26,7 +26,7 @@ const Content = () => {
         <h3>Guest View</h3>
       </div>
       <AppProvider isHost={false}>
-        <StudioProvider>
+        <StudioProvider useCommands={false}>
           <GuestView />
         </StudioProvider>
       </AppProvider>

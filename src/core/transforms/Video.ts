@@ -4,83 +4,44 @@
  * -------------------------------------------------------------------------------------------- */
 import { trigger } from '../events'
 import { Compositor } from '../namespaces'
+import { VideoSource } from '../sources/Video'
 
 type Props = {
-  id: string
-
-  tagName: keyof HTMLElementTagNameMap
-  // e.g. Element.attribute.width
-  attributes: { [name: string]: string }
-
-  sourceProps: { [name: string]: string }
   // e.g. Element.style / Element.textContent
-  fields: { [name: string]: any }
+  loop?: boolean
+  muted?: boolean
+  volume?: number
+  fit?: 'cover' | 'contain' | 'stretch'
 }
 
 export const Video = {
   name: 'LS-Video',
-  sourceType: 'LS-Video',
-  create({ onUpdate, onEvent, onRemove }) {
-    onRemove(() => {
-      clearInterval(interval)
+  sourceType: 'Video',
+  create({ onUpdate, onNewSource, onRemove }) {
+    const el = document.createElement('video')
+    el.autoplay = true
+    Object.assign(el.style, {
+      width: '100%',
+      height: '100%',
     })
 
-    const el = document.createElement('video')
+    onNewSource((source) => {
+      el.src = source.props.src
+    })
 
-    let interval: NodeJS.Timer
-
-    onUpdate(
-      ({ attributes = {}, fields = {}, sourceProps = {}, id }: Props) => {
-        if (
-          el.src !== attributes['src'] ||
-          (el.id !== attributes['id'] && attributes['id'])
-        ) {
-          if (interval) {
-            clearInterval(interval)
-          }
-
-          Object.keys(attributes).forEach((attr) => {
-            el.setAttribute(attr, attributes[attr])
-          })
-
-          el.onloadedmetadata = () => {
-            if (attributes['muted']) {
-              el.muted = true
-              el.play()
-            } else {
-              el.muted = false
-            }
-          }
-
-          interval = setInterval(() => {
-            if (el.duration) {
-              const timePending = el.duration - el.currentTime
-              trigger('VideoTimeUpdate', {
-                category: id,
-                id: sourceProps?.id,
-                time: Math.floor(timePending),
-              })
-            }
-          }, 1000)
-
-          el.loop = Boolean(attributes['loop'])
-
-          el.onended = () => {
-            if (interval) {
-              clearInterval(interval)
-            }
-            trigger('VideoEnded', { id: sourceProps?.id, category: id })
-          }
-
-          Object.keys(fields).forEach((field) => {
-            Object.assign(el[field as keyof HTMLElement], fields[field])
-          })
-        }
-      },
-    )
+    onUpdate(({ fit = 'cover', loop = false, muted = false, volume = 1 }) => {
+      Object.assign(el.style, {
+        objectFit: fit,
+      })
+      el.loop = loop
+      el.muted = muted
+      el.volume = volume
+    })
 
     return {
       root: el,
     }
   },
-} as Compositor.Transform.TransformDeclaration
+} as Compositor.Transform.TransformDeclaration<VideoSource, Props>
+
+export const Declaration = Video

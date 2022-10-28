@@ -8,6 +8,7 @@ import { Context, SDK, Compositor } from './namespaces'
 import { LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
 import { getRoom } from './webrtc/simple-room'
 import { ProjectBroadcastPhase } from './types'
+import { hasPermission, Permission } from '../helpers/permission'
 
 const { state } = CoreContext
 
@@ -32,19 +33,8 @@ export const getBaseUser = (): SDK.User => {
 export const toBaseProject = (
   project: Context.InternalProject,
 ): SDK.Project => {
-  const { compositor, videoApi, props = {}, role } = project
+  const { videoApi, props = {}, role } = project
   const { destinations, encoding, rendering, sources } = videoApi.project
-
-  const scene = {
-    get: compositor.get,
-    getRoot: compositor.getRoot,
-    getParent: compositor.getParent,
-  }
-  Object.defineProperty(scene, 'nodes', {
-    get() {
-      return compositor.nodes.filter((x) => !x._deleted)
-    },
-  })
 
   const broadcastPhase = project.videoApi.phase
   const broadcastId = project.videoApi.broadcastId || null
@@ -60,7 +50,7 @@ export const toBaseProject = (
       ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING,
       ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPING,
     ].includes(broadcastPhase),
-    scene: scene as SDK.Scene,
+    scene: project.compositor,
     joinRoom: async (settings = {}) => {
       return CoreContext.Command.joinRoom({
         projectId: project.id,
@@ -108,6 +98,13 @@ export const toBaseSource = (source: InternalSource): SDK.Source => {
   }
 }
 
+export const getProjectSize = (project: LiveApiModel.Project) => {
+  return {
+    x: project.rendering.video.width,
+    y: project.rendering.video.height,
+  }
+}
+
 export const hydrateProject = async (
   project: LiveApiModel.Project,
   role: SDK.Role,
@@ -117,8 +114,9 @@ export const hydrateProject = async (
   },
 ) => {
   const metadata = project.metadata || {}
+  size = size || getProjectSize(project)
 
-  if (size) {
+  if (size && hasPermission(role, Permission.UpdateProject)) {
     await CoreContext.clients.LiveApi().project.updateProject({
       collectionId: project.collectionId,
       projectId: project.projectId,
@@ -133,7 +131,15 @@ export const hydrateProject = async (
     })
   }
 
-  const compositorProject = await layoutToProject(metadata.layoutId, size)
+  size = size || getProjectSize(project)
+
+  const compositorProject = await CoreContext.compositor.loadProject(
+    metadata.layoutId,
+    {
+      size,
+      canEdit: hasPermission(role, Permission.UpdateProject),
+    },
+  )
 
   return {
     id: project.projectId,
@@ -190,66 +196,6 @@ export const layerToNode = (
     },
     childIds: layer.children.map((x) => String(x)),
   }
-}
-
-export const layoutToProject = async (
-  layoutId: LayoutApiModel.Layout['id'],
-  size?: {
-    x: number
-    y: number
-  },
-): Promise<Compositor.Project> => {
-  const { layers } = await CoreContext.clients.LayoutApi().layer.listLayers({
-    layoutId,
-  })
-
-  if (size && layers) {
-    const { x, y } = size
-
-    const rootLayer = layers?.reduce((acc, x) => {
-      if (!acc) return x
-      if (acc.data.isRoot) return acc
-      if (x.data.isRoot) return x
-      if (!layers.some((y) => y.children.includes(x.id))) return x
-      return acc
-    }, null)
-
-    if (rootLayer) {
-      const layer = await CoreContext.clients.LayoutApi().layer.updateLayer({
-        layoutId: rootLayer.layoutId,
-        layerId: rootLayer.id,
-        layer: {
-          x,
-          y,
-          data: {
-            ...rootLayer.data,
-            size: {
-              x,
-              y,
-            },
-          },
-        },
-      })
-
-      const layerIndex = layers.findIndex((l) => l.id === layer.id)
-      layers[layerIndex] = layer
-    }
-  }
-
-  const dataNodes = layers.map(layerToNode)
-
-  // The root node is a child to no other node
-  const rootNode = dataNodes.reduce((acc, x) => {
-    if (!acc) return x
-    // Check for an explicit root declaration
-    if (acc.props.isRoot) return acc
-    if (x.props.isRoot) return x
-    // Or fall back to checking children
-    if (!dataNodes.some((y) => y.childIds.includes(x.id))) return x
-    return acc
-  }, null)
-  const tree = rootNode ? toSceneTree(dataNodes, rootNode.id) : null
-  return CoreContext.compositor.loadProject(tree, layoutId)
 }
 
 /**
