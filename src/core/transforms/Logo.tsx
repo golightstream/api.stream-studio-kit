@@ -64,3 +64,5 @@ export const Logo = {
     }
   },
 } as Compositor.Transform.TransformDeclaration
+
+export const Declaration = Logo

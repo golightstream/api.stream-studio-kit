@@ -98,3 +98,5 @@ export const Overlays = {
     })
   },
 } as SourceDeclaration
+
+export const Declaration = Overlays

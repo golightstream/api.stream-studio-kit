@@ -2,64 +2,43 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
+import { Source } from '../../compositor/sources'
 import { Compositor, SDK } from '../namespaces'
 
-type SourceDeclaration = Compositor.Source.SourceDeclaration
-
 type Props = {
-  headerText?: string
-  bodyText?: string
-  // Opaque to the SDK
-  meta: {
-    [prop: string]: any
-  }
+  src?: string
+  // TODO: Other fields
 }
 
-type Value = {
-  headerText?: string
-  bodyText?: string
-}
+type Value = HTMLImageElement
 
-export type Banner = {
-  id: string
-  props: Props
-}
-
-export type BannerSource = {
-  id: string
-  value: Value
-  props: Props
-}
-
-export const Banner = {
-  type: 'Banner',
-  // valueType: Object,
+export const VideoSource = {
+  type: 'Video',
+  // valueType: HTMLImageElement,
   // TODO: Validate
   props: {},
-  init({}) {
+  init({ on }) {
     return {
       onChange(value, props) {
-        value.headerText = props.headerText
-        value.bodyText = props.bodyText
-
+        value.src = props.src
         return {
           isActive: true,
           value,
         }
       },
       getValue(props) {
-        const value = {
-          headerText: props.headerText,
-          bodyText: props.bodyText,
-        }
+        const image = new Image()
+        image.src = props.src
 
         return {
           isActive: true,
-          value,
+          value: image,
         }
       },
     }
   },
 } as Compositor.Source.SourceDeclaration<Props, Value>
 
-export const Declaration = Banner
+export const Declaration = VideoSource
+
+export type VideoSource = Source<Props, Value>

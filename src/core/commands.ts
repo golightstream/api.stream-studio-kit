@@ -45,9 +45,8 @@ import {
   toBaseProject,
 } from './data'
 import { CoreContext } from './context'
-import decode from 'jwt-decode'
 import { Props } from './types'
-import { SDK } from './namespaces'
+import { SDK, Source } from './namespaces'
 import { webrtcManager } from './webrtc'
 import { getRoom } from './webrtc/simple-room'
 import { trigger, triggerInternal } from './events'
@@ -98,16 +97,28 @@ export const updateUserProps = async (payload: {
  */
 export const createProject = async (
   payload: {
-    /** @private Settings associated with ScenelessProject (or other such wrapper) */
-    settings?: { [prop: string]: any }
+    /** Settings associated with the root node component (e.g. ScenelessProject) */
+    settings?: {
+      // The name of the component to use as the root of the project
+      type?: string
+      props?: {
+        [prop: string]: any
+      }
+      sources?: {
+        [type: string]: { [prop: string]: unknown }[]
+      }
+    }
     /** Arbitrary metadata to associate with this project */
     props?: Props
-    /** Pixel dimenions of the canvas (default: `{ x: 1280, y: 720 }`) */
+    /** Pixel dimensions of the canvas (default: `{ x: 1280, y: 720 }`) */
     size?: { x: number; y: number }
+    /** @deprecated - use `settings.type` */
+    type?: string
   } = {},
 ) => {
-  const { props = {}, size, settings = {} } = payload
+  const { type, props = {}, size, settings = {} } = payload
   const response = await CoreContext.Request.createProject({
+    type: settings.type || type,
     settings,
     props,
     size,
@@ -119,7 +130,7 @@ export const createProject = async (
   // Return the base project directly, for convenience
   const internalProject = await hydrateProject(
     response.project,
-    'ROLE_HOST' as SDK.Role,
+    SDK.Role.ROLE_HOST,
   )
   return toBaseProject(internalProject)
 }
@@ -161,8 +172,9 @@ export const recreateLayout = async (payload: {
   const layout = await CoreContext.Request.createLayout({
     collectionId,
     projectId,
-    type: type || 'sceneless',
-    settings: {},
+    settings: {
+      type: type || 'sceneless',
+    },
     size: {
       x: video.width,
       y: video.height,
@@ -379,26 +391,18 @@ export const joinRoom = async (payload: {
   const project = state.projects.find((x) => x.id === projectId)
 
   // Get the SFU token
-  let token = project.sfuToken
-  if (!token) {
-    let { webrtcAccess } = await CoreContext.clients
-      .LiveApi()
-      .authentication.createWebRtcAccessToken({
-        collectionId: project.videoApi.project.collectionId,
-        projectId: project.videoApi.project.projectId,
-        displayName,
-      })
-    token = webrtcAccess.accessToken
-  }
-  const tokenData = decode(token) as any
-  const roomName = tokenData.video.room
-  const url = new URL(CoreContext.clients.getLiveKitServer())
-  const baseUrl = url.host + url.pathname
-  const roomContext = webrtcManager.ensureRoom(baseUrl, roomName, token)
-  roomContext.bindApiClient(CoreContext.clients)
-  await roomContext.connect()
+  let { webrtcAccess } = await CoreContext.clients
+    .LiveApi()
+    .authentication.createWebRtcAccessToken({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+      displayName,
+    })
 
-  project.sfuToken = token
+  const roomName = await Source.WebRTC.joinRoom(webrtcAccess.accessToken, {
+    displayName,
+  })
+
   project.roomId = roomName
   const room = getRoom(roomName)
   trigger('RoomJoined', {
@@ -490,6 +494,7 @@ export const updateNode = async (payload: {
   // Prune protected fields
   delete props.type
   delete props.sourceType
+  delete props.version
 
   // Update state
   project.compositor.update(nodeId, props)

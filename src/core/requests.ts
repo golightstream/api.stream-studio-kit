@@ -19,20 +19,32 @@ import { getAccessTokenData, getProject, getUser, hydrateProject } from './data'
 import { Helpers } from '.'
 import { Props, Role } from './types'
 import { LiveApiModel } from '@api.stream/sdk'
+import { generateId, mapValues } from '../logic'
+
+type RootComponent = {
+  type?: string
+  props?: {
+    [prop: string]: any
+  }
+  sources?: {
+    [type: string]: { [prop: string]: unknown }[]
+  }
+}
 
 export const createProject = async (request: {
-  settings?: { [prop: string]: any }
+  settings?: RootComponent
   props?: Props // Arbitrary metadata (e.g. 'name')
   size?: { x: number; y: number }
-  type?: 'sceneless' | 'freeform'
+  /** @deprecated - use `settings.type` */
+  type?: string
 }) => {
   const collectionId = getUser().id
-  const type = request.type || 'sceneless'
+  const settings = request.settings || {}
+  const type = settings.type || request.type || 'sceneless'
   const size = request.size || {
     x: 1280,
     y: 720,
   }
-  const settings = request.settings || {}
 
   // Create a project to go with the collection
   let createProjectResponse = await CoreContext.clients
@@ -60,7 +72,6 @@ export const createProject = async (request: {
     collectionId: createProjectResponse.project.collectionId,
     settings,
     size,
-    type,
   })
 
   const { displayName } = getAccessTokenData()
@@ -145,7 +156,7 @@ export const loadUser = async (size?: {
   // Take the Vapi Project and hydrate it with Compositor and Lapi project details
   const projects = await Promise.all(
     collection.projects.map((project) =>
-      hydrateProject(project, 'ROLE_HOST' as Role, size),
+      hydrateProject(project, Role.ROLE_HOST, size),
     ),
   )
 
@@ -169,35 +180,48 @@ export const loadCollections = async () => {
 export const createLayout = async (request: {
   projectId: string
   collectionId: string
-  settings: { [prop: string]: any }
+  settings?: RootComponent
   size: { x: number; y: number }
-  type?: string
 }) => {
-  const { settings, size, type, projectId, collectionId } = request
+  const { settings = {}, size, projectId, collectionId } = request
+  const type = settings.type
 
-  const layout = await CoreContext.clients.LayoutApi().layout.createLayout({
-    layout: {
+  const compositorProject = await CoreContext.compositor.createProject(
+    {
+      canEdit: true,
+    },
+    {
       projectId,
       collectionId,
     },
-  })
+  )
 
-  if (type === 'sceneless') {
-    await Helpers.ScenelessProject.createCompositor(layout.id, size, settings)
-  } else {
-    await CoreContext.compositor.createProject(
-      {
-        props: {
-          name: 'Root',
-          layout: 'Free',
-          ...settings,
-          isRoot: true,
-          size,
-        },
-      },
-      layout.id,
+  const component = CoreContext.compositor.getComponent(type)
+  if (component) {
+    const tempNode = CoreContext.compositor.createComponent(
+      type,
+      settings.props,
+      settings.sources,
     )
+    await compositorProject.insertRoot({
+      ...tempNode.props,
+      size,
+    })
+  } else if (type === 'sceneless') {
+    // @deprecated - Use settings.type="ScenelessProject"
+    await Helpers.ScenelessProject.createCompositor(
+      compositorProject.id,
+      size,
+      settings.props,
+    )
+  } else {
+    await compositorProject.insertRoot({
+      layout: 'Free',
+      ...settings,
+      isRoot: true,
+      size,
+    })
   }
 
-  return layout
+  return compositorProject
 }
