@@ -198,7 +198,7 @@ export const createLayout = async (request: {
 
   const component = CoreContext.compositor.getComponent(type)
   if (component) {
-    const tempNode = CoreContext.compositor.createComponent(
+    const tempNode = CoreContext.compositor.createComponent(compositorProject.id)(
       type,
       settings.props,
       settings.sources,

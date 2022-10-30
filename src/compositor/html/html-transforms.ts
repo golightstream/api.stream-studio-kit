@@ -3,7 +3,12 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { asArray, isMatch } from '../../logic'
-import type { CompositorBase, Disposable, SceneNode } from '../compositor'
+import type {
+  CompositorBase,
+  Disposable,
+  SceneNode,
+  TransformNode,
+} from '../compositor'
 import { Source, SourceManager } from '../sources'
 import {
   TransformDeclaration,
@@ -81,7 +86,10 @@ export const init = (
     })
   })
 
-  const getFirstMatchingSource = (node: SceneNode, sources: Source[] = []) => {
+  const getFirstMatchingSource = (
+    node: TransformNode,
+    sources: Source[] = [],
+  ) => {
     if (node.props.sourceId) {
       return sources.find((x) => x.id === node.props.sourceId)
     }
@@ -137,17 +145,17 @@ export const init = (
     }
   }
 
-  const getElement = (node: SceneNode) => {
+  const getElement = (node: TransformNode) => {
     // Return the element if it exists
     if (nodeElementIndex[node.id]) return nodeElementIndex[node.id]
 
     const { props = {} } = node
-    const { sourceType, proxySource } = props
+    const { sourceType, proxySource, element } = props
 
-    if (!sourceType) return null
+    if (!element && !sourceType) return null
 
     // Try to find a match on the default transforms
-    let transformName = defaultTransforms[sourceType]
+    let transformName = element || defaultTransforms[sourceType]
     let transform: TransformDeclaration
     if (transformName) {
       transform = transforms[transformName]
@@ -214,7 +222,7 @@ export const init = (
       // Dispose when node is removed
       compositor.on('NodeRemoved', ({ nodeId }) => {
         if (nodeId === node.id) {
-          const node = compositor.getNode(nodeId)
+          const node = compositor.getNode<TransformNode>(nodeId)
           const { sourceType = 'Element' } = node.props
 
           listeners.forEach((x) => x?.())

@@ -6,18 +6,11 @@ import { SceneNode } from '../../compositor'
 import {
   Component,
   ComponentContext,
+  ComponentNodeInterface,
   NodeInterface,
 } from '../../compositor/components'
 
 const commands = {
-  addScene:
-    (context: Context) =>
-    (type = 'ScenelessProject', props: { [name: string]: any } = {}) => {
-      context.addChild('scenes', context.createComponent(type, props))
-    },
-  removeScene: (context: Context) => (sceneId: string) => {
-    return context.removeChild('scenes', sceneId)
-  },
   setActiveScene: (context: Context) => (sceneId: string) => {
     return context.update({
       activeSceneId: sceneId,
@@ -37,6 +30,8 @@ const MultiSceneProject = {
   name: 'MultiSceneProject',
   version: '1',
   sources: ['Image', 'Video', 'RoomParticipant'],
+  children,
+  commands,
   create(props, { createComponent }) {
     const children = { scenes: [createComponent('ScenelessProject')] }
     return {
@@ -45,8 +40,6 @@ const MultiSceneProject = {
       activeSceneId: children.scenes[0].id,
     }
   },
-  children,
-  commands,
   render(context, { id, renderMethods, renderNode }) {
     const { source, props, children } = context
 
@@ -72,6 +65,6 @@ export type Props = {
   activeSceneId: string
 }
 
-export type Interface = NodeInterface<typeof MultiSceneProject, Props>
+export type Interface = ComponentNodeInterface<typeof MultiSceneProject, Props>
 
 export const Declaration = MultiSceneProject

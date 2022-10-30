@@ -9,6 +9,8 @@ import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from '../layout-examples'
 import Style from '../shared/shared.module.css'
 import { Chat } from '../shared/chat'
+import { useRenderRef, useRoot } from '../shared/hooks'
+import { Column } from '../ui/layout/Box'
 
 const overlays = [
   {
@@ -32,17 +34,39 @@ const logos = [
   },
 ]
 
-export const ScenelessProject = ({ project, Command }: { project: SDK.Project; Command: any }) => {
-  const { execute, source } =
-    project.scene.component() as Component.ScenelessProject.Interface
+export const ScenelessProject = ({
+  project,
+  Command,
+}: {
+  project: SDK.Project
+  Command: any
+}) => {
+  const root = useRoot<Component.ScenelessProject.Interface>(project)
+  const renderContainer = useRenderRef(project)
+
+  // @ts-ignore Debug helper
+  window.root = root
+
+  if (!root) return null
+
+  return (
+    <Column>
+      <div ref={renderContainer} style={{ width: 840, height: 500 }}></div>
+      <ScenelessComponent component={root} />
+    </Column>
+  )
+}
+
+export const ScenelessComponent = ({
+  component,
+}: {
+  component: Component.ScenelessProject.Interface
+}) => {
+  const { execute, sources } = component
   const renderContainer = useRef()
 
-  // Debug helpers
-  // @ts-ignore
-  window.project = project
-
   // Get custom layout name from metadata we store
-  const layout = project.props.layout
+  const layout = component.props.layout
   // const background = projectCommands.getBackgroundMedia()
   // const overlay = projectCommands.getImageOverlay()
 
@@ -52,17 +76,9 @@ export const ScenelessProject = ({ project, Command }: { project: SDK.Project; C
   const background = execute.getBackground()
 
   useEffect(() => {
-    source.useAll('Image', setImages)
-    source.useAll('Video', setVideos)
-  }, [source])
-
-  useEffect(() => {
-    project.scene.render({
-      containerEl: renderContainer.current,
-    })
-  }, [renderContainer.current])
-
-  if (!project.scene.getRoot()) return null
+    sources.useAll('Image', setImages)
+    sources.useAll('Video', setVideos)
+  }, [sources])
 
   return (
     <div className={Style.column}>
@@ -182,14 +198,6 @@ export const ScenelessProject = ({ project, Command }: { project: SDK.Project; C
               onChange={(e) => {
                 const { layout, props } = getLayout(e.target.value)
                 execute.setLayout(layout, props)
-
-                // Store our custom layout configuration by name
-                Command.updateProjectMeta({
-                  projectId: project.id,
-                  meta: {
-                    layout: e.target.value,
-                  },
-                })
               }}
             >
               {layouts.map((x) => (

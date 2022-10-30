@@ -9,6 +9,9 @@ import type {
   SceneNode,
   Project,
   Disposable,
+  ComponentNode,
+  AnyProps,
+  TransformNode,
 } from './compositor'
 import { Get } from 'type-fest'
 import { SourceManager } from './sources'
@@ -28,17 +31,34 @@ export type CommandsInterface<Dict extends ComponentCommands = {}> = {
 }
 type SourceInterface = ReturnType<SourceManager['wrap']>
 
-export type NodeInterface<
-  Declaration extends Partial<Component> = {},
-  Props = { [prop: string]: any },
-> = {
+export type NodeInterface<Props = AnyProps> = {
   id: string
+  kind: 'Base' | 'Element' | 'Component'
+  type: string
+  props: Props
+  execute: {}
+  sources: SourceInterface
+}
+
+export type ComponentNodeInterface<
+  Declaration extends Partial<Component> = {},
+  Props = AnyProps,
+> = NodeInterface & {
   props: Props
   execute: CommandsInterface<Declaration['commands']>
-  // TODO: Determine available sources from C and make methods type safe
-  source: SourceInterface
+  getChild: ComponentContext<Props, Declaration['children']>['getChild']
+  addChildComponent: ComponentContext<
+    Props,
+    Declaration['children']
+  >['addChildComponent']
+  addChildElement: ComponentContext<
+    Props,
+    Declaration['children']
+  >['addChildElement']
+  removeChild: ComponentContext<Props, Declaration['children']>['removeChild']
+  updateChild: ComponentContext<Props, Declaration['children']>['updateChild']
   children: {
-    [childCollection in keyof Declaration['children']]: NodeInterface<
+    [childCollection in keyof Declaration['children']]: ComponentNodeInterface<
       Declaration,
       unknown
     >[]
@@ -47,14 +67,6 @@ export type NodeInterface<
 
 // TODO:
 type ChildDeclaration = { [childType: string]: any }
-
-// Extend a scene node with the props expected by a component
-export type ComponentNode<Props = {}> = {
-  id?: string
-  props: SceneNode['props'] & {
-    componentProps: Props
-  }
-}
 
 export type ComponentContext<
   Props = {},
@@ -70,22 +82,39 @@ export type ComponentContext<
   createComponent: CreateComponent
   // Update the the node in context
   update: (props: Partial<Props>) => void
+  // Get a child by type and ID
+  getChild: <I extends NodeInterface = NodeInterface>(
+    childCollection: keyof Children,
+    id: string,
+  ) => NodeInterface
+  // Get a list of children by type
+  getChildren: (childCollection: keyof Children) => NodeInterface[]
   // Create a child node to be managed by the component
-  addChild: (
-    childType: string,
-    props: SceneNode['props'],
+  addChildComponent: <ComponentProps extends {} = AnyProps>(
+    childCollection: keyof Children,
+    type: string,
+    props: Partial<ComponentProps>,
+    index?: number,
+  ) => Promise<void>
+  // Create a child node to be managed by the component
+  addChildElement: <
+    ElementProps extends Partial<TransformNode['props']> = AnyProps,
+  >(
+    childCollection: string,
+    type: string,
+    props: Partial<ElementProps>,
     index?: number,
   ) => Promise<void>
   // Remove a child node managed by the component
-  removeChild: (childType: string, id: string) => Promise<void>
+  removeChild: (childCollection: string, id: string) => Promise<void>
   // Update a child node managed by the component
-  updateChild: (
-    childType: string,
+  updateChild: <Props extends {} = AnyProps>(
+    childCollection: string,
     id: string,
-    props: SceneNode['props'],
+    props: Props,
   ) => Promise<void>
   // Reorder child nodes managed by the component
-  reorderChildren: (childType: string, ids: string[]) => Promise<void>
+  reorderChildren: (childCollection: string, ids: string[]) => Promise<void>
   // Execute a command on the node in context
   execute: CommandsInterface<Commands> & {
     [name: string]: (...args: unknown[]) => any
@@ -227,7 +256,7 @@ export const init = (
   }
 
   const getNodeComponentChildren = (nodeId: string) => {
-    const node = compositor.getNode(nodeId)
+    const node = compositor.getNode<ComponentNode>(nodeId)
     const component = getComponent(node.props.type)
     return Object.keys(component?.children || {}).reduce(
       (acc, x) => ({
@@ -240,8 +269,66 @@ export const init = (
 
   const storedContext = {} as { [nodeId: string]: ComponentContext }
 
+  const _createComponent: (
+    projectId: string,
+    parentId?: string,
+  ) => CreateComponent =
+    (projectId, parentId) =>
+    (type, props = {}, sources = {}, children = {}): ComponentNode => {
+      const component = getComponent(type)
+      if (!component) {
+        throw new Error(
+          `Component type ${type} could not be created: Not Found`,
+        )
+      }
+
+      const defaultSources = (component.sources || []).reduce(
+        (acc, sourceType) => {
+          return {
+            ...acc,
+            [sourceType]: [],
+          }
+        },
+        {},
+      )
+
+      const componentChildren = Object.keys(component.children || {}).reduce(
+        (acc, x) => ({ ...acc, [x]: children[x] || [] }),
+        {},
+      )
+
+      const id = generateId()
+      const childNode = {
+        id,
+        props: {
+          type,
+          sources: {
+            ...defaultSources,
+            ...mapValues(sources, (list) =>
+              list.map((x) => ({
+                id: generateId(),
+                props: x,
+              })),
+            ),
+          },
+          componentProps: component.create(props, {
+            createComponent: _createComponent(projectId, id),
+          }),
+          componentChildren,
+        },
+        children: [],
+      } as ComponentNode
+
+      compositor.nodeIndex[childNode.id] = childNode
+      compositor.parentIdIndex[childNode.id] = parentId
+      compositor.projectIdIndex[childNode.id] =
+        compositor.projectIdIndex[projectId]
+      // TODO: index componentChildren
+      return childNode
+    }
+
   const getNodeContext = (nodeId: string) => {
-    const node = compositor.getNode(nodeId)
+    const node = compositor.getNode<ComponentNode>(nodeId)
     if (storedContext[nodeId]) {
       return {
         ...storedContext[nodeId],
@@ -250,7 +337,23 @@ export const init = (
       }
     }
 
+    const addChild = (
+      childCollection: string,
+      childNode: SceneNode,
+      index: number,
+    ) => {
+      const previous = node.props.componentChildren?.[childCollection] || []
+      const current = insertAt(index || previous.length, childNode, previous)
+      return project.update(node.id, {
+        ...node.props,
+        componentChildren: { [childCollection]: current },
+      })
+    }
+
     const project = compositor.getNodeProject(node.id)
+
+    const createComponent = _createComponent(project.id, node.id)
+
     const context = {
       id: node.id,
       props: node.props.componentProps,
@@ -259,18 +362,28 @@ export const init = (
       query: {},
       source: sourceManager.wrap(node),
       createComponent,
-      addChild: (childCollection, props = {}, index) => {
-        const childNode = {
+      getChild: (childCollection, id) => {
+        const list = context.getChildren(childCollection)
+        return list.find((x) => x.id === id)
+      },
+      getChildren: (childCollection) => {
+        const nodeInterface = getNodeInterface<ComponentNodeInterface>(node.id)
+        return nodeInterface.children?.[childCollection] || []
+      },
+      addChildComponent: (childCollection, type, props, index) => {
+        const node = createComponent(type, props)
+        return addChild(childCollection, node, index)
+      },
+      addChildElement: (childCollection, type, props, index) => {
+        const node = {
           id: generateId(),
-          props,
+          props: {
+            element: type,
+            ...props,
+          },
           children: [],
-        } as SceneNode
-        const previous = node.props.componentChildren?.[childCollection] || []
-        const current = insertAt(index || previous.length, childNode, previous)
-        return project.update(node.id, {
-          ...node.props,
-          componentChildren: { [childCollection]: current },
-        })
+        } as ComponentNode
+        return addChild(childCollection, node, index)
       },
       removeChild: (childCollection, id) => {
         const previous = node.props.componentChildren?.[childCollection] || []
@@ -280,12 +393,24 @@ export const init = (
           componentChildren: { [childCollection]: current },
         })
       },
-      updateChild: (childCollection, id, props = {}) => {
+      updateChild: (childCollection, id, props) => {
         const childNodes = node.props.componentChildren?.[childCollection] || []
         const childNode = childNodes.find((x) => x.id === id)
         if (!childNode) return
 
-        childNode.props = props
+        // If the node is a component, update its componentProps
+        if (childNode.props.type) {
+          childNode.props.componentProps = {
+            ...(childNode.props.componentProps || {}),
+            ...props,
+          }
+        } else {
+          childNode.props = {
+            ...childNode.props,
+            ...props,
+          }
+        }
+
         return project.update(node.id, {
           ...node.props,
           componentChildren: { [childCollection]: childNodes },
@@ -333,19 +458,37 @@ export const init = (
     return context
   }
 
-  const getNodeInterface = (nodeId: string, shallow = false): NodeInterface => {
+  const getNodeInterface = <I extends NodeInterface = NodeInterface>(
+    nodeId: string,
+    shallow = false,
+  ): I => {
     const node = compositor.getNode(nodeId)
     const component = componentManager.getComponent(node.props.type)
 
     const children = getNodeComponentChildren(
       nodeId,
-    ) as SceneNode['props']['componentChildren']
+    ) as ComponentNode['props']['componentChildren']
+
+    let kind = 'Base'
+    if ((node as ComponentNode).props.type) {
+      kind = 'Component'
+    } else if ((node as TransformNode).props.element) {
+      kind = 'Element'
+    }
 
     const nodeInterface = {
       id: node.id,
-      props: {},
+      kind,
+      type:
+        kind === 'Component'
+          ? (node as ComponentNode).props.type
+          : (node as TransformNode).props.element,
+      props:
+        kind === 'Component'
+          ? (node as ComponentNode).props.componentProps || {}
+          : (node as TransformNode).props,
       execute: {},
-      source: sourceManager.wrap(node),
+      sources: sourceManager.wrap(node),
       children: shallow
         ? []
         : Object.keys(children).reduce(
@@ -355,71 +498,27 @@ export const init = (
             }),
             {},
           ),
-    }
+    } as NodeInterface
 
     if (component) {
       const context = getNodeContext(node.id)
       Object.assign(nodeInterface, {
         props: node.props.componentProps,
+        getChild: context.getChild,
+        getChildren: context.getChildren,
+        addChildComponent: context.addChildComponent,
+        addChildElement: context.addChildElement,
+        updateChild: context.updateChild,
+        removeChild: context.removeChild,
+        reorderChildren: context.reorderChildren,
         execute: context.execute,
       })
     }
 
-    return nodeInterface
+    return nodeInterface as I
   }
 
   const getComponent = (type: string) => components[type]
-
-  const createComponent: CreateComponent = (
-    type,
-    props = {},
-    sources = {},
-    children = {},
-  ): SceneNode => {
-    const component = getComponent(type)
-    if (!component) {
-      throw new Error(`Component type ${type} could not be created: Not Found`)
-    }
-
-    const defaultSources = (component.sources || []).reduce(
-      (acc, sourceType) => {
-        return {
-          ...acc,
-          [sourceType]: [],
-        }
-      },
-      {},
-    )
-
-    const componentChildren = Object.keys(component.children || {}).reduce(
-      (acc, x) => ({ ...acc, [x]: children[x] || [] }),
-      {},
-    )
-
-    const node = {
-      id: generateId(),
-      props: {
-        type,
-        sources: {
-          ...defaultSources,
-          ...mapValues(sources, (list) =>
-            list.map((x) => ({
-              id: generateId(),
-              props: x,
-            })),
-          ),
-        },
-        componentProps: component.create(props, { createComponent }),
-        componentChildren,
-      },
-      children: [],
-    } as SceneNode
-
-    // TODO: This is awkward and does not index the parent
-    compositor.nodeIndex[node.id] = node
-    // TODO: index componentChildren
-    return node
-  }
 
   const getChildRenderMethods = memoize(
     (nodeId: string, childCollection: string) => {
@@ -475,11 +574,11 @@ export const init = (
   const componentManager = {
     components,
     getComponent,
-    createComponent,
     useNodeInterface,
     getNodeInterface,
     registerComponent,
     renderVirtualNode,
+    createComponent: _createComponent,
   }
   return componentManager
 }

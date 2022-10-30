@@ -57,9 +57,6 @@ export type PropsDefinition = {
 }
 
 export type NodeId = string
-type Nodelike = {
-  id: NodeId
-}
 
 export type DataNode = {
   id: NodeId
@@ -69,40 +66,67 @@ export type DataNode = {
   childIds: NodeId[]
 }
 
-// The crucial difference between SceneNode vs DataNode is that SceneNode has
-//  fully-populated children[] rather than childIds[]
-export type SceneNode = {
+export type AnyProps = {
+  [prop: string]: any
+}
+
+type BaseNode = {
   id: NodeId
-  // Applies to a node during render (virtual nodes only)
-  render?: {
-    methods: Renderer.RenderMethods
-  }
-  props: DataNode['props'] & {
-    version?: string
-    type?: string
+  props: {
     sources?: { [type: string]: Sources.NodeSource[] }
-    sourceType?: string
-    sourceId?: string
-    sourceProps?: {
-      [prop: string]: any
-    }
-    componentProps?: {
-      [prop: string]: any
-    }
-    componentChildren?: {
-      [childType: string]: SceneNode[]
-    }
     layout?: string
     layoutProps?: {
       [prop: string]: any
     }
-    objectFit?: 'contain' | 'cover' | 'fill'
+
+    // IMPLEMENT: Generic properties shared by all nodes:
+    muted?: boolean
+    hidden?: boolean
     opacity?: number
     size?: { x: number; y: number }
     position?: { x: number; y: number }
   }
   children: SceneNode[]
+}
+
+export type ComponentNode<Props extends {} = AnyProps> = BaseNode & {
+  props: {
+    /** Component type */
+    type?: string
+    /** The version of this node's Component its data currently fits */
+    version?: string
+    componentProps?: Props
+    componentChildren?: {
+      [childType: string]: SceneNode[]
+    }
+  }
+}
+
+export type TransformNode<Props extends {} = AnyProps> = BaseNode & {
+  props: Props & {
+    element?: string
+    sourceId?: string
+    sourceProps?: {
+      [prop: string]: any
+    }
+
+    /** @deprecated */
+    sourceType?: string
+  }
+}
+
+// The crucial difference between SceneNode vs DataNode is that SceneNode has
+//  fully-populated children[] rather than childIds[]
+// TODO: Can we infer Node type Transform vs Component?
+export type SceneNode = {
   _deleted?: boolean
+} & (TransformNode | ComponentNode)
+
+export type VirtualNode = SceneNode & {
+  // Applies to a node during render (virtual nodes only)
+  render?: {
+    methods: Renderer.RenderMethods
+  }
 }
 
 export type DB = {
@@ -165,6 +189,9 @@ export type CompositorBase = {
   parentIdIndex: {
     [nodeId: NodeId]: NodeId
   }
+  projectIdIndex: {
+    [nodeId: NodeId]: NodeId
+  }
   settings: Settings
   projects: ProjectIndex
   registerCommand: RegisterCommand
@@ -180,7 +207,7 @@ export type CompositorBase = {
   getProject: (id: string) => Project
   getNodeProject: (id: string) => Project
   getNodeParent: (id: string) => SceneNode
-  getNode: (id: string) => SceneNode
+  getNode: <T = SceneNode>(id: string) => T
 }
 
 /**
@@ -344,6 +371,7 @@ export const start = (settings: Settings): CompositorInstance => {
   const compositorBase = {
     nodeIndex,
     parentIdIndex,
+    projectIdIndex,
     settings,
     projects: projectIndex,
     subscribe,
@@ -430,12 +458,13 @@ export const start = (settings: Settings): CompositorInstance => {
       nodeIndex[node.id] = node
       parentIdIndex[node.id] = parent?.id
       projectIdIndex[node.id] = id
-      
+
       if (node.props?.componentChildren) {
         Object.keys(node.props.componentChildren).forEach((x) =>
           (node.props.componentChildren || {})[x].forEach((x: SceneNode) => {
             nodeIndex[x.id] = x
             parentIdIndex[x.id] = node.id
+            projectIdIndex[x.id] = id
           }),
         )
       }

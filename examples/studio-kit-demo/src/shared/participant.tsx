@@ -6,6 +6,7 @@ import { init, Helpers, Component, Source, SDK } from '../../../../'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppContext } from './context'
 import Style from './shared.module.css'
+import { useRoot } from './hooks'
 
 const { Room } = Helpers
 const { useStudio } = Helpers.React
@@ -14,13 +15,13 @@ type Participant = Source.WebRTC.RoomParticipantSource
 
 export const Participants = () => {
   const { project } = useStudio()
-  const { execute, source } = project.scene.component()
+  const { execute, sources } = project.scene.component()
   const { isHost } = useContext(AppContext)
   const [participants, setParticipants] = useState<Participant[]>([])
 
   // Listen for room participants
   useEffect(() => {
-    source.useAll('RoomParticipant', setParticipants)
+    sources.useAll('RoomParticipant', setParticipants)
   }, [])
 
   return (
@@ -160,16 +161,12 @@ const HostControls = ({ participant }: ParticipantProps) => {
   const { id } = participant
   const { type } = participant.props
   const { studio, project, room } = useStudio()
-  const root = project.scene.getRoot()
-  const component = studio.compositor.useComponent(
-    root.id,
-  ) as Component.ScenelessProject.Interface
-  const { execute, query, source } = component
+  const root = useRoot<Component.ScenelessProject.Interface>(project)
 
   // Get the initial props in case the participant is on stream
   const projectParticipant = useMemo(
-    () => execute.getParticipantProps(id, type),
-    [],
+    () => root.execute.getParticipantProps(id, type),
+    [root],
   )
 
   const [onStream, setOnStream] = useState(Boolean(projectParticipant))
@@ -180,7 +177,7 @@ const HostControls = ({ participant }: ParticipantProps) => {
   // Monitor whether the participant has been removed from the stream
   //  from some other means (e.g. dragged off canvas by host)
   useEffect(() => {
-    return execute.useParticipantProps(id, type, (x) => {
+    return root.execute.useParticipantProps(id, type, (x) => {
       setOnStream(Boolean(x))
     })
   }, [])
@@ -225,13 +222,13 @@ const HostControls = ({ participant }: ParticipantProps) => {
             onChange={(e) => {
               const checked = e.target.checked
               if (checked) {
-                execute.addParticipant(
+                root.execute.addParticipant(
                   participant.props.participantId,
                   { isMuted, volume },
                   participant.props.type,
                 )
               } else {
-                execute.removeParticipant(id, type)
+                root.execute.removeParticipant(id, type)
               }
               setOnStream(checked)
             }}

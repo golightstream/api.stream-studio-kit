@@ -6,6 +6,7 @@ import { SceneNode } from '../../compositor'
 import {
   Component,
   ComponentContext,
+  ComponentNodeInterface,
   NodeInterface,
 } from '../../compositor/components'
 import { generateId, isMatch } from '../../logic'
@@ -112,6 +113,8 @@ const ScenelessProject = {
   name: 'ScenelessProject',
   version: '1',
   sources: ['Image', 'Video', 'RoomParticipant'],
+  children,
+  commands,
   create(props) {
     return {
       layout: 'Grid',
@@ -121,11 +124,6 @@ const ScenelessProject = {
       ...props,
     }
   },
-  children,
-  // requests: {
-  //   getImage: () => {}
-  // },
-  commands,
   render(context, { id, renderMethods }) {
     const { source, props, children } = context
     const { layout = 'Grid', layoutProps = {} } = props
@@ -221,6 +219,6 @@ export type Props = {
   }
 }
 
-export type Interface = NodeInterface<typeof ScenelessProject, Props>
+export type Interface = ComponentNodeInterface<typeof ScenelessProject, Props>
 
 export const Declaration = ScenelessProject

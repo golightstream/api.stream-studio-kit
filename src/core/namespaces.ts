@@ -20,3 +20,6 @@ export * as Component from './components'
 export * as Transform from './transforms'
 export * as Layout from './layouts'
 export * as Source from './sources'
+
+// Alias
+export * as Element from './transforms'

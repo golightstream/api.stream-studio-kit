@@ -205,12 +205,10 @@ const Top = ({
   const [rtmpUrl, setRtmpUrl] = useState(destinationAddress?.url)
   const [streamKey, setStreamKey] = useState(destinationAddress?.key)
   const [isLive, setIsLive] = useState(false)
-  const [previewUrl, setPreviewUrl] = useState('')
   const [guestUrl, setGuestUrl] = useState('')
 
   // Generate project links
   useEffect(() => {
-    studio.createPreviewLink().then(setPreviewUrl)
     studio.createGuestLink(getUrl() + 'guest/').then(setGuestUrl)
   }, [])
 
@@ -287,16 +285,6 @@ const Top = ({
             End broadcast
           </button>
         )}
-      </div>
-      <div className={Style.column}>
-        <label>Preview URL</label>
-        <input
-          // @ts-ignore
-          onClick={(e) => e.target.select()}
-          value={previewUrl}
-          readOnly={true}
-          style={{ width: 630 }}
-        />
       </div>
       <div className={Style.column}>
         <label>Guest URL</label>

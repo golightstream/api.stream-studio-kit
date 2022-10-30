@@ -10,33 +10,22 @@ import { DEFAULT_LAYOUT, getLayout, layouts } from '../layout-examples'
 import Style from '../shared/shared.module.css'
 import { Chat } from '../shared/chat'
 import { Column, Flex, Row } from '../ui/layout/Box'
+import { useRenderRef, useRoot } from '../shared/hooks'
+import { ScenelessComponent } from './Sceneless'
 
-type NodeInterface = Compositor.Component.NodeInterface
+type MultiSceneInterface = Component.MultiSceneProject.Interface
+type ScenelessInterface = Component.ScenelessProject.Interface
+type ScenelessProps = Component.ScenelessProject.Props
 
-function useRoot<I extends NodeInterface>(project: SDK.Project): I {
-  const [root, setRoot] = useState<I>()
-  useEffect(() => {
-    return project.scene.useRoot<I>(setRoot)
-  }, [])
-  return root
-}
-
-function useComponent<I extends NodeInterface>(project: SDK.Project): I {
-  const [root, setRoot] = useState<I>()
-  useEffect(() => {
-    return project.scene.useRoot<I>(setRoot)
-  }, [])
-  return root
-}
-
-function useRenderRef(project: SDK.Project) {
-  const renderContainer = useRef()
-  useEffect(() => {
-    project.scene.render({
-      containerEl: renderContainer.current,
-    })
-  }, [renderContainer.current])
-  return renderContainer
+const ComponentUI = ({
+  component,
+}: {
+  component: Compositor.Component.NodeInterface
+}) => {
+  // @ts-ignore
+  const Component = components[component.type]
+  if (!Component) return null
+  return <Component component={component} />
 }
 
 export const MultiSceneProject = ({ project }: { project: SDK.Project }) => {
@@ -63,7 +52,12 @@ export const MultiSceneComponent = ({
 }) => {
   const [images, setImages] = useState<Source.Image.ImageSource[]>([])
   const [videos, setVideos] = useState<Source.Video.VideoSource[]>([])
-  
+
+  const activeScene = component.getChild(
+    'scenes',
+    component.props.activeSceneId,
+  )
+
   return (
     <Column>
       <Row>
@@ -84,8 +78,31 @@ export const MultiSceneComponent = ({
             }}
           />
         ))}
-        <button onClick={(e) => component.execute.addScene()}>Add scene</button>
+        <button
+          onClick={(e) =>
+            component.addChildComponent<ScenelessProps>(
+              'scenes',
+              'ScenelessProject',
+              {},
+            )
+          }
+        >
+          Add scene
+        </button>
+      </Row>
+      <Row>
+        {activeScene && (
+          <Column>
+            <div>Scene ID: {activeScene.id}</div>
+            <ComponentUI component={activeScene} />
+          </Column>
+        )}
       </Row>
     </Column>
   )
+}
+
+const components = {
+  ScenelessProject: ScenelessComponent,
+  MultiSceneProject: MultiSceneComponent,
 }
