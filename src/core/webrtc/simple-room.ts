@@ -99,16 +99,16 @@ export const getRoom = (id: string) => {
       tracks: tracks.map((x) => {
         const meta = JSON.parse(x?.participant?.metadata)
         x.track
-        const deviceId =
-          x.source === 'camera' &&
-          x.track?.mediaStreamTrack?.getSettings().deviceId
         return {
           mediaStreamTrack: x.track?.mediaStreamTrack,
           id: x.trackSid,
           participantId: x.participant?.identity,
           isMuted: x.track?.isMuted,
           type: x.source,
-          isMirrored: deviceId ? meta[deviceId]?.isMirrored : false,
+          isExternal:
+            meta?.externalTracks?.some(
+              (trackId: string) => trackId === x.trackSid,
+            ) || false,
         }
       }) as SDK.Track[],
     }
@@ -303,15 +303,6 @@ export const getRoom = (id: string) => {
         tracks.map((x) => localParticipant.publishTrack(x)),
       )
 
-      const participant = getParticipant(localParticipant?.identity)
-
-      const meta = participant?.meta
-
-      room.updateParticipant(participant?.id, {
-        ...meta,
-        externalTracks: [...meta?.externalTracks, published[0]?.trackSid],
-      })
-
       settingMic = false
 
       return getTrack(published[0]?.trackSid)
@@ -383,7 +374,7 @@ export const getRoom = (id: string) => {
       cb(latest.result.participants)
 
       return () => {
-        listeners.useTracks.delete(cb)
+        listeners.useParticipants.delete(cb)
       }
     },
     useParticipant: (id, cb) => {

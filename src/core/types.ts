@@ -291,6 +291,8 @@ export interface Track {
    */
   participantId: string
   type: TrackSource
+
+  isExternal: boolean
 }
 
 // Import everything we need from Livekit
@@ -854,4 +856,3 @@ export interface IframeProps {
   children?: React.ReactNode
   iframeRef?: React.Ref<HTMLIFrameElement>
 }
-
