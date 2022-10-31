@@ -410,7 +410,9 @@ export const init = (
         sourceMethods[type].load(nodeSourceMethods as NodeSourceMethods) ||
         (() => {})
     }
-    const component = getCompositorInstance().getComponent(node.props.type)
+    const component = getCompositorInstance().components.getComponent(
+      node.props.type,
+    )
     const componentSources = (component as Component)?.sources || []
     const nodeSourceTypes = [
       ...Object.keys(node.props.sources || {}),

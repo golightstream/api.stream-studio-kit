@@ -760,3 +760,10 @@ export const registerLayout: LayoutRegister = (declaration) => {
     htmlLayouts[x.name] = x
   })
 }
+
+export const layoutManager = {
+  registerLayout,
+  Layout,
+}
+
+export type LayoutManager = typeof layoutManager

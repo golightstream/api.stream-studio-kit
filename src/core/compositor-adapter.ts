@@ -142,7 +142,7 @@ export const compositorAdapter: Compositor.DBAdapter = {
             },
           },
         }
-        log.trace('Update layer', update)
+        log.debug('Update layer', update)
 
         // Update the database
         await CoreContext.clients.LayoutApi().layer.updateLayer(update)

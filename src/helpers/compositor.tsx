@@ -124,7 +124,7 @@ const ElementTree = (props: { node: TransformNode }) => {
   } = useContext(CompositorContext)
   const { node } = props
 
-  const element = CoreContext.compositor.getElement(node)
+  const element = CoreContext.compositor.transforms.getElement(node)
   const layout = node.props.layout || 'Row'
 
   const isDragTarget = interactive && checkIsDragTarget(node)

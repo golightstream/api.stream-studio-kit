@@ -2,16 +2,19 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { init, Helpers, Component, Source, SDK, Compositor } from '../../../../'
+import {
+  init,
+  Helpers,
+  Components,
+  Sources,
+  SDK,
+  Compositor,
+} from '../../../../'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppContext } from './context'
 import Style from './shared.module.css'
-import { useRoot } from './hooks'
 
-const { Room } = Helpers
-const { useStudio } = Helpers.React
-
-type Participant = Source.WebRTC.RoomParticipantSource
+type Participant = Sources.WebRTC.RoomParticipantSource
 type NodeInterface = Compositor.Component.NodeInterface
 
 export const Participants = ({ component }: { component: NodeInterface }) => {
@@ -26,11 +29,13 @@ export const Participants = ({ component }: { component: NodeInterface }) => {
 
   return (
     <div className={Style.column}>
-      {participants.map((x) => (
-        <div key={x.id} style={{ marginBottom: 10 }}>
-          <Participant participant={x} component={component} />
-        </div>
-      ))}
+      {participants
+        .filter((x) => x.isActive)
+        .map((x) => (
+          <div key={x.id} style={{ marginBottom: 10 }}>
+            <Participant participant={x} component={component} />
+          </div>
+        ))}
     </div>
   )
 }
@@ -46,7 +51,7 @@ export const ParticipantCamera = ({
   const { isHost } = useContext(AppContext)
   const { displayName } = participant.props
   const ref = useRef<HTMLVideoElement>()
-  const isEnabled = participant.value && !participant.props.videoEnabled
+  const isEnabled = participant.props.videoEnabled
 
   useEffect(() => {
     if (ref.current) {
@@ -82,20 +87,19 @@ export const ParticipantCamera = ({
             zIndex: -1,
           }}
         />
-        {isEnabled && (
-          <video
-            // Mute because audio is only communicated through the compositor
-            muted={true}
-            autoPlay={true}
-            ref={ref}
-            style={{
-              background: 'transparent',
-              objectFit: 'cover',
-              height: '100%',
-              width: '100%',
-            }}
-          />
-        )}
+        <video
+          // Mute because audio is only communicated through the compositor
+          muted={true}
+          autoPlay={true}
+          ref={ref}
+          style={{
+            background: 'transparent',
+            objectFit: 'cover',
+            height: '100%',
+            width: '100%',
+            display: isEnabled ? 'block' : 'none',
+          }}
+        />
       </div>
       {isHost && (
         <HostControls participant={participant} component={component} />

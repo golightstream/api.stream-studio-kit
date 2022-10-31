@@ -216,17 +216,10 @@ export type CompositorBase = {
 /**
  */
 export interface CompositorInstance extends CompositorBase {
-  registerComponent: ComponentRegister
-  registerLayout: LayoutRegister
-  registerTransform: TransformRegister
-  registerSource: SourceRegister
-  getElement: TransformElementGetter
-  getSource: SourceManager['getSource']
-  getSources: SourceManager['getSources']
-  useSource: SourceManager['useSource']
-  useSources: SourceManager['useSources']
-  createComponent: ComponentManager['createComponent']
-  getComponent: ComponentManager['getComponent']
+  sources: SourceManager
+  components: ComponentManager
+  transforms: HtmlTransforms.TransformManager
+  layouts: HtmlLayouts.LayoutManager
 }
 
 type RenderSettings = {
@@ -411,20 +404,13 @@ export const start = (settings: Settings): CompositorInstance => {
     compositor,
     sourceManager,
   )
+  const layoutManager = HtmlLayouts.layoutManager
 
   Object.assign(compositor, {
-    registerComponent: componentManager.registerComponent,
-    registerLayout: HtmlLayouts.registerLayout,
-    registerTransform: transformManager.registerTransform,
-    registerSource: sourceManager.registerSource,
-    getElement: transformManager.getElement,
-    getSource: sourceManager.getSource,
-    getSources: sourceManager.getSources,
-    useSource: sourceManager.useSource,
-    useSources: sourceManager.useSources,
-    createComponent: componentManager.createComponent,
-    getComponent: componentManager.getComponent,
-    useComponent: componentManager.getNodeInterface,
+    layouts: layoutManager,
+    transforms: transformManager,
+    sources: sourceManager,
+    components: componentManager,
   })
 
   /** Project init */

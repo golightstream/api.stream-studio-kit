@@ -269,7 +269,7 @@ export const init = (
   const storedContext = {} as { [nodeId: string]: ComponentContext }
 
   const _createComponent: (
-    projectId: string,
+    projectId?: string,
     parentId?: string,
   ) => CreateComponent =
     (projectId, parentId) =>
@@ -303,10 +303,12 @@ export const init = (
         children: [],
       } as ComponentNode
 
-      const project = compositor.getProject(projectId)
-      project.indexNode(childNode, parentId)
-
       // Index the node before initializing it:
+      if (projectId) {
+        const project = compositor.getProject(projectId)
+        project.indexNode(childNode, parentId)
+      }
+
       childNode.props = {
         type,
         sources: {
@@ -576,7 +578,7 @@ export const init = (
     getNodeInterface,
     registerComponent,
     renderVirtualNode,
-    createComponent: _createComponent,
+    createTempComponent: _createComponent(),
   }
   return componentManager
 }

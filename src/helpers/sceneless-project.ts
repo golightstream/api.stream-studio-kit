@@ -151,10 +151,7 @@ export interface Commands {
   /**
    * Add an chat comment to the stream.
    */
-  addChatOverlay(
-    id: string,
-    Options: ChatOverlayProps,
-  ): void
+  addChatOverlay(id: string, Options: ChatOverlayProps): void
 
   /**
    * Add an any exisiting chat comment from the stream.
@@ -1328,10 +1325,7 @@ export const commands = (_project: ScenelessProject) => {
       return bannerContainer.children?.[0]?.props?.bannerId ?? null
     },
 
-    async addChatOverlay(
-      id: string,
-      options: ChatOverlayProps,
-    ) {
+    async addChatOverlay(id: string, options: ChatOverlayProps) {
       const [nodeTocheckForChildren, ...{}] =
         bannerContainer?.children || ([] as SceneNode[])
 
@@ -1399,7 +1393,7 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     getImageOverlay2(): string | string[] {
-      const existingImageOverlays = CoreContext.compositor
+      const existingImageOverlays = CoreContext.compositor.sources
         .getSources('Overlay')
         .filter((x) => x.props?.meta?.type === 'image-overlay')
       const foregroundImageIds = existingImageOverlays.map((f) => f?.id)
@@ -1409,7 +1403,7 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     getVideoOverlay2(): string | string[] {
-      const existingVideoOverlays = CoreContext.compositor
+      const existingVideoOverlays = CoreContext.compositor.sources
         .getSources('Overlay')
         .filter((x) => x.props.type === 'video-overlay')
       const foregroundVideoIds = existingVideoOverlays.map((f) => f?.id)
@@ -1419,7 +1413,7 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     getCustomOverlay(): string | string[] {
-      const existingCustomOverlays = CoreContext.compositor
+      const existingCustomOverlays = CoreContext.compositor.sources
         .getSources('Overlay')
         .filter((x) => x.props?.meta?.type === 'html-overlay')
       const foregroundCustomOverlayIds = existingCustomOverlays.map(
@@ -1666,7 +1660,8 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     getBackgroundMedia2(type?: string) {
-      const backgroundMedia = CoreContext.compositor.getSources('Background')
+      const backgroundMedia =
+        CoreContext.compositor.sources.getSources('Background')
       const backgroundMediaIds = type
         ? backgroundMedia.filter((x) => x.props.type === type).map((x) => x.id)
         : backgroundMedia.map((x) => x.id)

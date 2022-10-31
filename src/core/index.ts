@@ -126,10 +126,16 @@ export const init = async (
   const getDeclarations = (modules: object) =>
     Object.values(modules).flatMap((x) => asArray(x.Declaration)) as any[]
 
-  compositor.registerSource([...getDeclarations(Sources), ...sources])
-  compositor.registerTransform([...getDeclarations(Transforms), ...transforms])
-  compositor.registerLayout([...getDeclarations(Layouts), ...layouts])
-  compositor.registerComponent([...getDeclarations(Components), ...components])
+  compositor.sources.registerSource([...getDeclarations(Sources), ...sources])
+  compositor.transforms.registerTransform([
+    ...getDeclarations(Transforms),
+    ...transforms,
+  ])
+  compositor.layouts.registerLayout([...getDeclarations(Layouts), ...layouts])
+  compositor.components.registerComponent([
+    ...getDeclarations(Components),
+    ...components,
+  ])
 
   let initialProject: SDK.Project
   if (guestProject) {

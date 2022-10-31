@@ -29,6 +29,8 @@ type Props = {
   participantId: string
   type: 'screen' | 'camera'
   displayName?: string
+  hasAudioTrack: boolean
+  hasVideoTrack: boolean
   // Video track muted by owner
   videoEnabled: boolean
   // Audio track muted by owner
@@ -107,16 +109,17 @@ export const RoomParticipant = {
           // Update the existing sources based on the participant
           participantSources.camera.props = {
             ...participantSources.camera.props,
-            videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
-            audioEnabled: Boolean(microphoneTrack && !microphoneTrack.isMuted),
+            hasVideoTrack: Boolean(webcamTrack),
+            hasAudioTrack: Boolean(microphoneTrack),
+            videoEnabled: webcamTrack && !webcamTrack.isMuted,
+            audioEnabled: microphoneTrack && !microphoneTrack.isMuted,
             displayName: x.displayName,
             mirrored: x.meta.isMirrored,
           }
           participantSources.screen.props = {
             ...participantSources.screen.props,
-            videoEnabled: Boolean(
-              screenshareTrack && !screenshareTrack.isMuted,
-            ),
+            hasVideoTrack: Boolean(screenshareTrack),
+            videoEnabled: screenshareTrack && !screenshareTrack.isMuted,
             displayName:
               x.meta.screenDisplayName || `${x.displayName}'s Screen`,
           }
@@ -155,6 +158,8 @@ export const RoomParticipant = {
             props: {
               participantId: id,
               type: 'camera',
+              hasVideoTrack: false,
+              hasAudioTrack: false,
               audioEnabled: false,
               videoEnabled: false,
               mirrored: Boolean(x.meta.isMirrored),
@@ -166,6 +171,8 @@ export const RoomParticipant = {
             props: {
               participantId: id,
               type: 'screen',
+              hasVideoTrack: false,
+              hasAudioTrack: false,
               audioEnabled: false,
               videoEnabled: false,
               mirrored: false,
@@ -221,7 +228,7 @@ export const RoomParticipant = {
         const value = getRoomParticipant(props)?.value
         return {
           value,
-          isActive: true,
+          isActive: props.hasVideoTrack || props.hasAudioTrack,
         }
       },
       onChange(_, props) {
@@ -231,7 +238,7 @@ export const RoomParticipant = {
         const value = getRoomParticipant(props)?.value
         return {
           value,
-          isActive: true,
+          isActive: props.hasVideoTrack || props.hasAudioTrack,
         }
       },
     }
