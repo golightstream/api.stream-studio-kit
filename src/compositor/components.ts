@@ -86,7 +86,7 @@ export type ComponentContext<
   getChild: <I extends NodeInterface = NodeInterface>(
     childCollection: keyof Children,
     id: string,
-  ) => NodeInterface
+  ) => I
   // Get a list of children by type
   getChildren: (childCollection: keyof Children) => NodeInterface[]
   // Create a child node to be managed by the component
@@ -141,9 +141,6 @@ type RenderHelpers = {
   ) => SceneNode
   renderMethods: (childType: string) => RenderMethods
 }
-type CreateHelpers = {
-  createComponent: CreateComponent
-}
 
 type CreateComponent = (
   type: string,
@@ -172,7 +169,10 @@ export type Component<
   /** The list of sources that can be assigned to this node */
   sources?: string[]
   /** Returns valid component props used to persist a new Node */
-  create: (props: Props, helpers: CreateHelpers) => { [prop: string]: any }
+  create: (
+    props: Props,
+    children?: ComponentNode['props']['componentChildren'],
+  ) => { [prop: string]: any }
   render: (
     context: ComponentContext<Props, Children>,
     helpers: RenderHelpers,
@@ -300,30 +300,29 @@ export const init = (
       const id = generateId()
       const childNode = {
         id,
-        props: {
-          type,
-          sources: {
-            ...defaultSources,
-            ...mapValues(sources, (list) =>
-              list.map((x) => ({
-                id: generateId(),
-                props: x,
-              })),
-            ),
-          },
-          componentProps: component.create(props, {
-            createComponent: _createComponent(projectId, id),
-          }),
-          componentChildren,
-        },
+        props: {},
         children: [],
       } as ComponentNode
 
-      compositor.nodeIndex[childNode.id] = childNode
-      compositor.parentIdIndex[childNode.id] = parentId
-      compositor.projectIdIndex[childNode.id] =
-        compositor.projectIdIndex[projectId]
-      // TODO: index componentChildren
+      const project = compositor.getProject(projectId)
+      project.indexNode(childNode, parentId)
+
+      // Index the node before initializing it:
+      childNode.props = {
+        type,
+        sources: {
+          ...defaultSources,
+          ...mapValues(sources, (list) =>
+            list.map((x) => ({
+              id: generateId(),
+              props: x,
+            })),
+          ),
+        },
+        componentProps: component.create(props, componentChildren),
+        componentChildren,
+      }
+
       return childNode
     }
 

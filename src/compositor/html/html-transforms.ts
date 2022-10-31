@@ -65,6 +65,10 @@ export const init = (
   const getTransformByName = (name: string) => {
     return transforms[name]
   }
+  const getNodeSourceType = (node: TransformNode) => {
+    if (node.props.sourceType) return node.props.sourceType
+    return transforms[node.props.element || 'Element']?.sourceType
+  }
 
   compositor.on('SourceChanged', (source) => {
     const elements = getElementsBySource(source.id)
@@ -150,7 +154,7 @@ export const init = (
     if (nodeElementIndex[node.id]) return nodeElementIndex[node.id]
 
     const { props = {} } = node
-    const { sourceType, proxySource, element } = props
+    let { sourceType, proxySource, element } = props
 
     if (!element && !sourceType) return null
 
@@ -159,6 +163,7 @@ export const init = (
     let transform: TransformDeclaration
     if (transformName) {
       transform = transforms[transformName]
+      sourceType = transform.sourceType
     } else {
       // If there's no match, check the remaining register transforms for a sourceType match
       transform = Object.values(transforms).find(
@@ -223,7 +228,7 @@ export const init = (
       compositor.on('NodeRemoved', ({ nodeId }) => {
         if (nodeId === node.id) {
           const node = compositor.getNode<TransformNode>(nodeId)
-          const { sourceType = 'Element' } = node.props
+          const sourceType = getNodeSourceType(node)
 
           listeners.forEach((x) => x?.())
           _disposables.forEach((x) => x?.())

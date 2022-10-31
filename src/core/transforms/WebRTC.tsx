@@ -18,7 +18,7 @@ type Props = {
 }
 
 export const RoomParticipant = {
-  name: 'LS-Room-Participant',
+  name: 'RoomParticipant',
   sourceType: 'RoomParticipant',
   props: {
     isMuted: {

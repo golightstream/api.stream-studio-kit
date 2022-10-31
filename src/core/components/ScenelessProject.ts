@@ -52,10 +52,10 @@ const commands = {
       )
       if (existing) return
 
-      context.addChild(
+      context.addChildElement(
         'content',
+        'RoomParticipant',
         {
-          sourceType: 'RoomParticipant',
           sourceProps: {
             participantId,
             type,
@@ -70,10 +70,9 @@ const commands = {
   removeParticipant:
     (context: Context) =>
     (participantId: string, type: ParticipantType = 'camera') => {
-      const { children } = context
-      const participant = children.content.find((x) =>
-        isMatch(x.props.sourceProps, { participantId, type }),
-      )
+      const participant = context
+        .getChildren('content')
+        .find((x) => isMatch(x.props.sourceProps, { participantId, type }))
       if (participant) context.removeChild('content', participant.id)
     },
   getParticipant:

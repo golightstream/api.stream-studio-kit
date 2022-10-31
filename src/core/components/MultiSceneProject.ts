@@ -29,15 +29,13 @@ const children = {
 const MultiSceneProject = {
   name: 'MultiSceneProject',
   version: '1',
-  sources: ['Image', 'Video', 'RoomParticipant'],
+  sources: ['Image', 'Video'],
   children,
   commands,
-  create(props, { createComponent }) {
-    const children = { scenes: [createComponent('ScenelessProject')] }
+  create(props, children) {
     return {
+      activeSceneId: children.scenes[0]?.id,
       ...props,
-      children,
-      activeSceneId: children.scenes[0].id,
     }
   },
   render(context, { id, renderMethods, renderNode }) {

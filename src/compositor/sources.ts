@@ -22,7 +22,7 @@ type SourceContext = {
 }
 
 type SourceMethods<Props = SourceProps, Value = {}> = {
-  load?: (methods: ReturnType<SourceManager['wrap']>) => Disposable | void
+  load?: (methods: NodeSourceMethods) => Disposable | void
   onChange: (value: Value, props: Props) => { value: Value; isActive?: boolean }
   /** Get the initial value of a Source */
   getValue: (props: Props) => { value: Value; isActive?: boolean }
@@ -67,6 +67,37 @@ export type SourceRegister = (
 // Note: Currently no settings are supported
 export type SourceSettings = {}
 
+type NodeSourceMethods = {
+  get: <S extends Source<SourceProps, unknown> = Source<SourceProps, unknown>>(
+    id: string,
+  ) => S
+  getAll: <
+    S extends Source<SourceProps, unknown> = Source<SourceProps, unknown>,
+  >(
+    type: string,
+  ) => S[]
+  use: <S extends Source<SourceProps, unknown> = Source<SourceProps, unknown>>(
+    id: string,
+    cb: (source: S) => void,
+  ) => Disposable
+  useAll: <
+    S extends Source<SourceProps, unknown> = Source<SourceProps, unknown>,
+  >(
+    type: string,
+    cb: (sources: S[]) => void,
+  ) => Disposable
+  add: (type: string, source: NodeSource) => Promise<void>
+  remove: (id: string) => Promise<void>
+  update: (id: string, props: Source['props']) => Promise<void>
+  reset: (type: string, newSources?: NodeSource[]) => Promise<void>
+  modifyValue: (
+    id: string,
+    cb: (value: Source['value']) => void,
+  ) => Promise<void>
+  setActive: (id: string, isActive?: boolean) => void
+  unload: () => Promise<void>
+}
+
 export const getSourceDifference = <T extends NodeSource>(
   previousSources: T[] = [],
   newSources: T[] = [],
@@ -96,7 +127,7 @@ export const init = (
   }
 
   const nodeIndex = {} as {
-    [id: string]: ReturnType<typeof wrap>
+    [id: string]: NodeSourceMethods
   }
   const nodeLoadedIndex = {} as {
     [id: string]: {
@@ -133,7 +164,8 @@ export const init = (
     delete nodeIndex[nodeId]
   })
 
-  const wrap = (node: SceneNode) => {
+  const wrap = (node: SceneNode): NodeSourceMethods => {
+    if (nodeIndex[node.id]) return nodeIndex[node.id]
     const project = compositor.getNodeProject(node.id)
 
     nodeLoadedIndex[node.id] = {}
@@ -147,9 +179,10 @@ export const init = (
 
     const handleSourceChanged = (source: Source) => {
       if (sourceMethods[source.type].onChange) {
-        const { value, isActive = true } = sourceMethods[
-          source.type
-        ].onChange(source.value, source.props)
+        const { value, isActive = true } = sourceMethods[source.type].onChange(
+          source.value,
+          source.props,
+        )
         source.value = value
         source.isActive = isActive
       }
@@ -222,7 +255,7 @@ export const init = (
 
     const nodeSourceMethods = {
       get: <S extends Source = Source>(id: string) => {
-        return nodeSourceIndex[id] as S
+        return nodeSourceIndex[id] || (sourceIndex[id] as S)
       },
       getAll: <S extends Source = Source>(type: string): Source[] => {
         return (nodeSourceTypeIndex[type] as S[]) || []
@@ -347,7 +380,8 @@ export const init = (
         })
       },
     }
-    nodeIndex[node.id] = nodeSourceMethods
+
+    nodeIndex[node.id] = nodeSourceMethods as NodeSourceMethods
 
     let loadedSources = {} as { [type: string]: Disposable }
     const loadSourceTypeForNode = (type: string) => {
@@ -356,10 +390,11 @@ export const init = (
         return
       }
       if (loadedSources[type]) return
-      loadedSources[type] =
-        sourceMethods[type].load(nodeSourceMethods) || (() => {})
-      sourceTypeIndex[type] = sourceTypeIndex[type] || []
       nodeSourceTypeIndex[type] = []
+      sourceTypeIndex[type] = sourceTypeIndex[type] || []
+      loadedSources[type] =
+        sourceMethods[type].load(nodeSourceMethods as NodeSourceMethods) ||
+        (() => {})
     }
     const nodeSourceTypes = [...Object.keys(node.props.sources || {})]
     nodeSourceTypes.forEach(loadSourceTypeForNode)
@@ -370,7 +405,7 @@ export const init = (
       sources[type].forEach((x) => createSource(type, x)),
     )
 
-    return nodeSourceMethods
+    return nodeSourceMethods as NodeSourceMethods
   }
 
   const sourceManager = {

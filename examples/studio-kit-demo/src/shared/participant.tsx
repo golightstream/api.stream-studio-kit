@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { init, Helpers, Component, Source, SDK } from '../../../../'
+import { init, Helpers, Component, Source, SDK, Compositor } from '../../../../'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppContext } from './context'
 import Style from './shared.module.css'
@@ -12,10 +12,10 @@ const { Room } = Helpers
 const { useStudio } = Helpers.React
 
 type Participant = Source.WebRTC.RoomParticipantSource
+type NodeInterface = Compositor.Component.NodeInterface
 
-export const Participants = () => {
-  const { project } = useStudio()
-  const { execute, sources } = project.scene.component()
+export const Participants = ({ component }: { component: NodeInterface }) => {
+  const { execute, sources } = component
   const { isHost } = useContext(AppContext)
   const [participants, setParticipants] = useState<Participant[]>([])
 
@@ -28,7 +28,7 @@ export const Participants = () => {
     <div className={Style.column}>
       {participants.map((x) => (
         <div key={x.id} style={{ marginBottom: 10 }}>
-          <Participant participant={x} />
+          <Participant participant={x} component={component} />
         </div>
       ))}
     </div>
@@ -37,8 +37,12 @@ export const Participants = () => {
 
 type ParticipantProps = {
   participant: Participant
+  component: NodeInterface
 }
-export const ParticipantCamera = ({ participant }: ParticipantProps) => {
+export const ParticipantCamera = ({
+  participant,
+  component,
+}: ParticipantProps) => {
   const { isHost } = useContext(AppContext)
   const { displayName } = participant.props
   const ref = useRef<HTMLVideoElement>()
@@ -93,12 +97,17 @@ export const ParticipantCamera = ({ participant }: ParticipantProps) => {
           />
         )}
       </div>
-      {isHost && <HostControls participant={participant} />}
+      {isHost && (
+        <HostControls participant={participant} component={component} />
+      )}
     </div>
   )
 }
 
-export const ParticipantScreenshare = ({ participant }: ParticipantProps) => {
+export const ParticipantScreenshare = ({
+  participant,
+  component,
+}: ParticipantProps) => {
   const { isHost } = useContext(AppContext)
   const { displayName } = participant.props
   const ref = useRef<HTMLVideoElement>()
@@ -140,33 +149,36 @@ export const ParticipantScreenshare = ({ participant }: ParticipantProps) => {
           }}
         />
       </div>
-      {isHost && <HostControls participant={participant} />}
+      {isHost && (
+        <HostControls participant={participant} component={component} />
+      )}
     </div>
   )
 }
 
-export const Participant = ({ participant }: ParticipantProps) => {
+export const Participant = ({ participant, component }: ParticipantProps) => {
   return (
     <>
       {participant.props.type === 'screen' ? (
-        <ParticipantScreenshare participant={participant} />
+        <ParticipantScreenshare
+          participant={participant}
+          component={component}
+        />
       ) : (
-        <ParticipantCamera participant={participant} />
+        <ParticipantCamera participant={participant} component={component} />
       )}
     </>
   )
 }
 
-const HostControls = ({ participant }: ParticipantProps) => {
+const HostControls = ({ participant, component }: ParticipantProps) => {
   const { id } = participant
   const { type } = participant.props
-  const { studio, project, room } = useStudio()
-  const root = useRoot<Component.ScenelessProject.Interface>(project)
 
   // Get the initial props in case the participant is on stream
   const projectParticipant = useMemo(
-    () => root.execute.getParticipantProps(id, type),
-    [root],
+    () => component.execute.getParticipantProps(id, type),
+    [component],
   )
 
   const [onStream, setOnStream] = useState(Boolean(projectParticipant))
@@ -177,7 +189,7 @@ const HostControls = ({ participant }: ParticipantProps) => {
   // Monitor whether the participant has been removed from the stream
   //  from some other means (e.g. dragged off canvas by host)
   useEffect(() => {
-    return root.execute.useParticipantProps(id, type, (x) => {
+    return component.execute.useParticipantProps(id, type, (x) => {
       setOnStream(Boolean(x))
     })
   }, [])
@@ -222,13 +234,13 @@ const HostControls = ({ participant }: ParticipantProps) => {
             onChange={(e) => {
               const checked = e.target.checked
               if (checked) {
-                root.execute.addParticipant(
+                component.execute.addParticipant(
                   participant.props.participantId,
                   { isMuted, volume },
                   participant.props.type,
                 )
               } else {
-                root.execute.removeParticipant(id, type)
+                component.execute.removeParticipant(id, type)
               }
               setOnStream(checked)
             }}

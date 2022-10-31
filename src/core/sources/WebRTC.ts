@@ -197,6 +197,7 @@ export const RoomParticipant = {
     const subscribeToSources = (cb: SourcesCallback) => {
       const id = cid++
       listeners[id] = cb
+      cb(Object.values(currentRoomParticipants))
 
       return () => {
         delete listeners[id]

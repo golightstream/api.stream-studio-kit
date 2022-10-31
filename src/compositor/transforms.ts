@@ -4,7 +4,7 @@
  * -------------------------------------------------------------------------------------------- */
 import { InternalEventMap } from '../core/events'
 import { Disposable, Room } from '../core/types'
-import type { NodeId, PropsDefinition, SceneNode } from './compositor'
+import type { NodeId, PropsDefinition, SceneNode, TransformNode } from './compositor'
 import type { Source } from './sources'
 
 // TODO: Make this generic to HTML/Canvas when canvas compositing is supported

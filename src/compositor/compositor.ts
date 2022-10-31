@@ -192,6 +192,9 @@ export type CompositorBase = {
   projectIdIndex: {
     [nodeId: NodeId]: NodeId
   }
+  parentComponentIdIndex: {
+    [nodeId: NodeId]: NodeId
+  }
   settings: Settings
   projects: ProjectIndex
   registerCommand: RegisterCommand
@@ -262,8 +265,10 @@ export type Project = DB &
     get: (id: NodeId) => SceneNode
     getElement: TransformElementGetter
     getParent: (id: NodeId) => SceneNode
+    getParentComponent: (id: NodeId) => SceneNode
     getRoot: () => SceneNode
     insertRoot: (props: DataNode['props']) => Promise<NodeId>
+    indexNode: (node: SceneNode, parentId: string) => void
     render: (settings: RenderSettings) => Disposable
     renderVirtualTree: () => SceneNode
     // Local database controls will not be forwarded to other connections
@@ -310,6 +315,9 @@ export const start = (settings: Settings): CompositorInstance => {
 
   // Node indexes
   const projectIdIndex = {} as {
+    [nodeId: NodeId]: NodeId
+  }
+  const parentComponentIdIndex = {} as {
     [nodeId: NodeId]: NodeId
   }
   const parentIdIndex = {} as {
@@ -453,21 +461,35 @@ export const start = (settings: Settings): CompositorInstance => {
       // TODO: Validate the scene tree
     }
 
-    // Traverse root and index each node as SceneNode
-    forEachDown(root, (node, parent) => {
+    const indexNode = (
+      node: SceneNode,
+      parentId?: string,
+      componentId?: string,
+    ) => {
       nodeIndex[node.id] = node
-      parentIdIndex[node.id] = parent?.id
+      parentIdIndex[node.id] = parentId || parentIdIndex[node.id]
       projectIdIndex[node.id] = id
+      parentComponentIdIndex[node.id] =
+        componentId || parentComponentIdIndex[node.id]
+
+      // Wrap the node to initialize its source management
+      window.setTimeout(() => {
+        sourceManager.wrap(node)
+      })
 
       if (node.props?.componentChildren) {
         Object.keys(node.props.componentChildren).forEach((x) =>
-          (node.props.componentChildren || {})[x].forEach((x: SceneNode) => {
-            nodeIndex[x.id] = x
-            parentIdIndex[x.id] = node.id
-            projectIdIndex[x.id] = id
-          }),
+          (node.props.componentChildren || {})[x].forEach((x: SceneNode) =>
+            // Component ID will be passed down from the topmost component
+            indexNode(x, node.id, componentId || node.id),
+          ),
         )
       }
+    }
+
+    // Traverse root and index each node as SceneNode
+    forEachDown(root, (node, parent) => {
+      indexNode(node, parent?.id)
     })
 
     const dbApi = {
@@ -512,7 +534,6 @@ export const start = (settings: Settings): CompositorInstance => {
         if (childIds) {
           const children = childIds.map((x) => {
             const node = nodeIndex[x]
-            parentIdIndex[node.id] = id
             return node
           })
           current.children = children
@@ -524,14 +545,9 @@ export const start = (settings: Settings): CompositorInstance => {
           ...props,
         }
 
-        // Index component nodes
+        // Re-index to ensure child/component nodes are indexed
         if (props.componentChildren) {
-          Object.keys(props.componentChildren).forEach((x) =>
-            (props.componentChildren || {})[x].forEach((node: SceneNode) => {
-              nodeIndex[node.id] = node
-              parentIdIndex[node.id] = current.id
-            }),
-          )
+          indexNode(current)
         }
 
         triggerEvent('NodeChanged', { nodeId: id, projectId: project.id })
@@ -642,6 +658,9 @@ export const start = (settings: Settings): CompositorInstance => {
       getParent(id) {
         return nodeIndex[parentIdIndex[id]]
       },
+      getParentComponent(id) {
+        return nodeIndex[parentComponentIdIndex[id]]
+      },
       getElement: (node) => transformManager.getElement(node),
       render({ containerEl }) {
         return Renderer.renderProject(project as Project, containerEl)
@@ -689,7 +708,15 @@ export const start = (settings: Settings): CompositorInstance => {
       update: async (id, props) => {
         if (!canEdit) return
         await dbApi.update(id, props)
-        return projectDb.update(id, props)
+        const componentNode = project.getParentComponent(id)
+
+        // If the node is not part of a component, update it directly
+        if (!componentNode) {
+          return projectDb.update(id, props)
+        } else {
+          // Otherwise, update the component node
+          return project.update(componentNode.id, componentNode.props)
+        }
       },
       remove: async (id) => {
         if (!canEdit) return
@@ -771,6 +798,7 @@ export const start = (settings: Settings): CompositorInstance => {
         ])
         return
       },
+      indexNode,
     } as Partial<Project>
 
     Object.defineProperty(project, 'nodes', {

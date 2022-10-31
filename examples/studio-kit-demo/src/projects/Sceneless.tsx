@@ -186,7 +186,7 @@ export const ScenelessComponent = ({
           padding: 10,
         }}
       >
-        <Participants />
+        <Participants component={component} />
         <div
           className={Style.column}
           style={{ marginLeft: 14, marginBottom: 14 }}
