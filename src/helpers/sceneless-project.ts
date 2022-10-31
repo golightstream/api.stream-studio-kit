@@ -334,6 +334,9 @@ export interface Commands {
    * Remove a stream participant from the stream canvas.
    */
   removeParticipantTrack(trackId: string, type?: ParticipantType): void
+
+  /* Setting the participant track as external. */
+  setParticipantTrackAsExternal(track: SDK.Track): void
   /**
    * Add a participant to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
@@ -1807,6 +1810,20 @@ export const commands = (_project: ScenelessProject) => {
 
     removeParticipantTrack(trackId: string, type: ParticipantType = 'camera') {
       return commands.removeParticipant(trackId, type)
+    },
+
+    setParticipantTrackAsExternal(track : SDK.Track) {
+      const room = getProjectRoom(projectId)
+      if (!room) return
+      const participant = room.getParticipant(track?.participantId)
+      const meta = participant?.meta
+      const externalTracks = meta?.externalTracks
+        ? [...meta?.externalTracks, track?.id]
+        : [track?.id]
+      return room.setParticipantMetadata(track?.participantId, {
+        ...meta,
+        externalTracks,
+      })
     },
 
     async addParticipant(

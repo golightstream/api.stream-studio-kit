@@ -25,10 +25,6 @@ export type RoomParticipantSource = {
     audioEnabled: boolean
     // Is Video mirrored
     mirrored: boolean
-    // Is video an external camera
-    externalTrack: boolean
-    //actual deviceId
-    deviceId : string
   }
 }
 
@@ -53,18 +49,13 @@ export const RoomParticipant = {
             Adding multi camera support
         */
         previousTracks
-          .filter((p) => p?.type === 'camera')
+          .filter((p) => p?.type === 'camera' && p?.isExternal === true)
           .forEach((track, index) => {
             if (track.type === 'camera') {
               const srcObject = participantStreams[track.id]
               const participant = room.getParticipant(track.participantId)
               const webcamTrack = room.getTrack(track.id)
 
-              const deviceId = track?.mediaStreamTrack?.getSettings()?.deviceId
-
-              const isExternalTrack = participant?.meta?.externalTracks?.some(
-                (trackId: string) => trackId === track.id,
-              )
               updateMediaStreamTracks(srcObject, {
                 video: webcamTrack?.mediaStreamTrack,
               })
@@ -72,8 +63,7 @@ export const RoomParticipant = {
               updateSource(track.id, {
                 videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
                 displayName: `${participant.displayName}'s Camera ${index + 1}`,
-                mirrored: participant?.meta[deviceId]?.isMirrored,
-                externalTrack: isExternalTrack,
+                mirrored: participant?.meta[track.id]?.isMirrored,
               })
             }
           })
@@ -105,7 +95,7 @@ export const RoomParticipant = {
           const webcamTrack = room.getTrack(webcamId)
           const microphoneTrack = room.getTrack(microphoneId)
           const screenshareTrack = room.getTrack(screenshareId)
-
+          
           // Replace the tracks on the existing MediaStream
           updateMediaStreamTracks(srcObject, {
             video: webcamTrack?.mediaStreamTrack,
@@ -119,9 +109,7 @@ export const RoomParticipant = {
             videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
             audioEnabled: Boolean(microphoneTrack && !microphoneTrack.isMuted),
             displayName: x.displayName,
-            mirrored: x?.meta?.isMirrored,
-            deviceId: webcamTrack?.mediaStreamTrack?.getSettings()?.deviceId,
-            externalTrack: false,
+            mirrored: x?.meta?.isMirrored
           })
           updateSource(x.id + '-screen', {
             videoEnabled: Boolean(
@@ -146,14 +134,12 @@ export const RoomParticipant = {
         previousTracks = tracks
 
         newTracks.forEach((x) => {
-          const { id, participantId, type } = room.getTrack(x.id)
+          const { id, participantId, type , isExternal } = room.getTrack(x.id)
           if (type === 'camera') {
             const { displayName, meta } = room.getParticipant(participantId)
 
             const srcObject = new MediaStream([])
             participantStreams[id] = srcObject
-
-            const deviceId = x?.mediaStreamTrack?.getSettings()?.deviceId;
 
             addSource({
               id,
@@ -165,11 +151,7 @@ export const RoomParticipant = {
                 displayName: displayName || participantId,
                 audioEnabled: false,
                 videoEnabled: false,
-                mirrored: meta[deviceId]?.isMirrored,
-                deviceId,
-                externalTrack: meta?.externalTracks?.some(
-                  (trackId: string) => trackId === id,
-                ),
+                mirrored: meta[id]?.isMirrored,
               },
             })
           }
@@ -214,7 +196,6 @@ export const RoomParticipant = {
               audioEnabled: false,
               videoEnabled: false,
               mirrored: x?.meta?.isMirrored,
-              externalTrack: false,
             },
           })
           addSource({
