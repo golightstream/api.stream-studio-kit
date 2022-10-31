@@ -57,10 +57,7 @@ export type ComponentNodeInterface<
   removeChild: ComponentContext<Props, Declaration['children']>['removeChild']
   updateChild: ComponentContext<Props, Declaration['children']>['updateChild']
   children: {
-    [childCollection in keyof Declaration['children']]: ComponentNodeInterface<
-      Declaration,
-      unknown
-    >[]
+    [childCollection in keyof Declaration['children']]: NodeInterface<AnyProps>[]
   }
 }
 
@@ -102,6 +99,7 @@ export type ComponentContext<
     childCollection: string,
     type: string,
     props: Partial<ElementProps>,
+    sourceId?: string,
     index?: number,
   ) => Promise<void>
   // Remove a child node managed by the component
@@ -119,7 +117,7 @@ export type ComponentContext<
     [name: string]: (...args: unknown[]) => any
   }
   // Execute a source method on the node in context
-  source: SourceInterface
+  sources: SourceInterface
   // Listen to changes to props of the node
   onChange: (cb: (newProps: Props) => void) => Disposable
 }
@@ -360,7 +358,7 @@ export const init = (
       children: getNodeComponentChildren(node.id),
       execute: {},
       query: {},
-      source: sourceManager.wrap(node),
+      sources: sourceManager.wrap(node),
       createComponent,
       getChild: (childCollection, id) => {
         const list = context.getChildren(childCollection)
@@ -374,15 +372,16 @@ export const init = (
         const node = createComponent(type, props)
         return addChild(childCollection, node, index)
       },
-      addChildElement: (childCollection, type, props, index) => {
+      addChildElement: (childCollection, type, props, sourceId, index) => {
         const node = {
           id: generateId(),
           props: {
             element: type,
             ...props,
+            sourceId,
           },
           children: [],
-        } as ComponentNode
+        } as TransformNode
         return addChild(childCollection, node, index)
       },
       removeChild: (childCollection, id) => {

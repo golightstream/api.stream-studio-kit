@@ -22,4 +22,4 @@ export * as Layouts from './layouts'
 export * as Sources from './sources'
 
 // Alias
-export * as Element from './transforms'
+export * as Elements from './transforms'

@@ -160,11 +160,9 @@ export const GuestView = () => {
   return (
     <Column>
       <Top project={project} studio={studio} />
-      <Row align="flex-start">
+      <Row align="stretch">
         <Renderer project={project} />
-        <Column style={{ marginLeft: 10 }}>
-          <Chat />
-        </Column>
+        <Chat />
       </Row>
     </Column>
   )

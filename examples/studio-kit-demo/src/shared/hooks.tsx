@@ -5,9 +5,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { SDK, Compositor } from '../../../../'
 
+type ComponentNodeInterface = Compositor.Component.ComponentNodeInterface
 type NodeInterface = Compositor.Component.NodeInterface
+type Source = Compositor.Source.Source
 
-export function useRoot<I extends NodeInterface>(project: SDK.Project): I {
+export function useRoot<I extends ComponentNodeInterface>(project: SDK.Project): I {
   const [root, setRoot] = useState<I>()
   useEffect(() => {
     if (!project?.scene) return
@@ -22,6 +24,19 @@ export function useComponent<I extends NodeInterface>(project: SDK.Project): I {
     return project.scene.useRoot<I>(setComponent)
   }, [])
   return component
+}
+
+export function useSources<S extends Source>(
+  component: NodeInterface,
+  sourceType: string,
+): S[] {
+  const [sources, setSources] = useState<S[]>([])
+
+  useEffect(() => {
+    return component.sources.useAll(sourceType, setSources)
+  }, [])
+
+  return sources
 }
 
 export function useRenderRef(project: SDK.Project) {

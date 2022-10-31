@@ -188,17 +188,6 @@ export const ScenelessComponent = ({
             </select>
           </div>
           <div ref={renderContainer} style={{ width: 840, height: 500 }}></div>
-          <div className={Style.row}>
-            <DeviceSelection />
-            <div
-              style={{
-                marginLeft: 20,
-                marginTop: 12,
-              }}
-            >
-              <ControlPanel />
-            </div>
-          </div>
         </div>
         <div style={{ marginLeft: 14 }}>
           <Chat />

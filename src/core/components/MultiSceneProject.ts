@@ -39,7 +39,7 @@ const MultiSceneProject = {
     }
   },
   render(context, { id, renderMethods, renderNode }) {
-    const { source, props, children } = context
+    const { props, children } = context
 
     return renderNode(
       {

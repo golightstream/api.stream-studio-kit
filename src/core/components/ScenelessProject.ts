@@ -32,9 +32,9 @@ const commands = {
       })
     },
   getBackground:
-    ({ update, props, execute, source }: Context) =>
+    ({ update, props, execute, sources }: Context) =>
     () => {
-      return source.get(props.background?.id)
+      return sources.get(props.background?.id)
     },
   addParticipant:
     (context: Context) =>
@@ -124,9 +124,9 @@ const ScenelessProject = {
     }
   },
   render(context, { id, renderMethods }) {
-    const { source, props, children } = context
+    const { sources, props, children } = context
     const { layout = 'Grid', layoutProps = {} } = props
-    let background = source.get(props.background?.id)
+    let background = sources.get(props.background?.id)
 
     return {
       id: id('root'),

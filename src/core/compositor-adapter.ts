@@ -67,7 +67,6 @@ export const compositorAdapter: Compositor.DBAdapter = {
           childIds: [],
         })
 
-        // Note: Layer.type is used only as a fallback if props.type is not set
         if (!parentId) {
           layer.type = 'root'
         } else {
@@ -75,6 +74,7 @@ export const compositorAdapter: Compositor.DBAdapter = {
         }
 
         log.debug('Insert layer', layer)
+        
         // Save the layer to the database
         const result = await CoreContext.clients.LayoutApi().layer.createLayer({
           layoutId,

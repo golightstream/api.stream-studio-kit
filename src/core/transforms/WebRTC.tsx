@@ -7,11 +7,11 @@ import React, { useLayoutEffect, useState } from 'react'
 import { isMatch } from 'lodash-es'
 import { useEffect, useRef } from 'react'
 import { CoreContext } from '../context'
-import { Compositor, Source } from '../namespaces'
+import { Compositor, Sources } from '../namespaces'
 import { getRoom } from '../webrtc/simple-room'
 import { getProject } from '../data'
 
-type Props = {
+export type Props = {
   volume: number
   isMuted: boolean
   isHidden: boolean
@@ -67,7 +67,7 @@ export const RoomParticipant = {
       source,
     }: {
       props: Props
-      source: Source.WebRTC.RoomParticipantSource
+      source: Sources.WebRTC.RoomParticipantSource
     }) => {
       const { volume = 1, isHidden = false } = props
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)

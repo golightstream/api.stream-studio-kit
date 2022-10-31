@@ -16,9 +16,10 @@ import ReCAPTCHA from 'react-google-recaptcha'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { StringNullableChain } from 'lodash'
-import { Column } from '../ui/layout/Box'
+import { Column, Row } from '../ui/layout/Box'
 import { Component, Renderer } from '../components'
 import { useRoot } from '../shared/hooks'
+import { SourceList } from '../shared/sources'
 
 const { useStudio } = Helpers.React
 
@@ -297,6 +298,22 @@ const Top = ({
   )
 }
 
+const Bottom = () => {
+  return (
+    <Row>
+      <DeviceSelection />
+      <div
+        style={{
+          marginTop: 12,
+          marginLeft: 20,
+        }}
+      >
+        <ControlPanel />
+      </div>
+    </Row>
+  )
+}
+
 export const HostView = () => {
   const { studio, project, room, setProject, setRoom, setStudio } = useStudio()
   const [token, setToken] = useState<string>(localStorage['token'])
@@ -308,7 +325,7 @@ export const HostView = () => {
 
   // Store as a global for debugging in console
   window.SDK = useStudio()
-  
+
   // @ts-ignore Debug helper
   window.component = root
 
@@ -377,11 +394,18 @@ export const HostView = () => {
     return (
       <Column>
         <Top studio={studio} project={project} />
-        <Renderer project={project} />
-        <Component component={root} />
+        <Row align='stretch'>
+          <Column gap={10} marginTop={10}>
+            <SourceList component={root} sourceType="RoomParticipant" />
+          </Column>
+          <Renderer project={project} />
+          <Chat />
+        </Row>
+        <Bottom />
       </Column>
     )
   }
+
   if (studio && !token) {
     return (
       <Login
