@@ -1,3 +1,4 @@
+import { primary } from './../../helpers/colors'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -222,7 +223,7 @@ export const getRoom = (id: string) => {
 
       try {
         const existing = localParticipant.getTracks().find((x) => {
-          return x.source === Track.Source.Camera
+          return x?.source === Track.Source.Camera
         })
         const tracks = await localParticipant.createTracks({
           video: {
@@ -299,9 +300,28 @@ export const getRoom = (id: string) => {
           },
         },
       })
+
+      const inUseTrack = localParticipant.getTracks().find((x) => {
+        return (
+          x?.source === Track.Source.Camera &&
+          x?.track?.mediaStreamTrack?.getSettings()?.deviceId ===
+            options.deviceId
+        )
+      })
+
+      if (inUseTrack?.isMuted) {
+        tracks.forEach((x) => {
+          x.mute()
+        })
+      }
+
       const published = await Promise.all(
         tracks.map((x) => localParticipant.publishTrack(x)),
       )
+
+      if (inUseTrack) {
+        localParticipant.unpublishTrack(inUseTrack.track as LocalTrack)
+      }
 
       settingMic = false
 

@@ -334,9 +334,6 @@ export interface Commands {
    * Remove a stream participant from the stream canvas.
    */
   removeParticipantTrack(trackId: string, type?: ParticipantType): void
-
-  /* Setting the participant track as external. */
-  setParticipantTrackAsExternal(track: SDK.Track): void
   /**
    * Add a participant to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
@@ -1805,26 +1802,63 @@ export const commands = (_project: ScenelessProject) => {
       },
       type: ParticipantType = 'camera',
     ) {
-      return await commands.addParticipant(trackId, props, type)
+      if (addingCache[type].has(trackId)) return
+
+      const { isMuted = false, isHidden = false, volume = 1 } = props
+      const existing = content.children.find(
+        (x) =>
+          x.props.sourceProps?.id === trackId &&
+          x.props.sourceProps?.type === type,
+      )
+      if (existing) return
+
+      addingCache[type].add(trackId)
+      // Get the participant type in the first position
+      const currentFirst = content.children[0]
+      let index = content.children.length
+
+      // If we're adding a screen and the first position is not already
+      //  a screen, then we add it in the first position.
+      if (
+        type === 'screen' &&
+        currentFirst?.props.sourceProps.type !== 'screen'
+      ) {
+        index = 0
+      }
+      await CoreContext.Command.createNode({
+        props: {
+          name: 'Participant',
+          sourceType: 'RoomParticipant',
+          sourceProps: {
+            type,
+            id: trackId,
+          },
+          volume,
+          isMuted,
+          isHidden,
+        },
+        parentId: content.id,
+        index,
+      }).finally(() => {
+        addingCache[type].delete(trackId)
+      })
     },
 
     removeParticipantTrack(trackId: string, type: ParticipantType = 'camera') {
-      return commands.removeParticipant(trackId, type)
+        content.children
+          .filter(
+            (x) =>
+              x.props.sourceProps?.id === trackId &&
+              x.props.sourceProps?.type === type &&
+              x.props.sourceType === 'RoomParticipant',
+          )
+          .forEach((x) => {
+            CoreContext.Command.deleteNode({
+              nodeId: x.id,
+            })
+          })
     },
 
-    setParticipantTrackAsExternal(track : SDK.Track) {
-      const room = getProjectRoom(projectId)
-      if (!room) return
-      const participant = room.getParticipant(track?.participantId)
-      const meta = participant?.meta
-      const externalTracks = meta?.externalTracks
-        ? [...meta?.externalTracks, track?.id]
-        : [track?.id]
-      return room.setParticipantMetadata(track?.participantId, {
-        ...meta,
-        externalTracks,
-      })
-    },
 
     async addParticipant(
       participantId: string,
@@ -1990,8 +2024,12 @@ export const commands = (_project: ScenelessProject) => {
           const nodeParticipant = room.getParticipant(
             node.props.sourceProps?.id,
           )
+
+          // Get the participant track associated with the node
+          const nodeParticipantTrack = room.getTrack(node.props.sourceProps?.id)
+
           // If the participant is not in the room, remove the node
-          if (!nodeParticipant) return true
+          if (!nodeParticipant && !nodeParticipantTrack) return true
 
           // Keep "camera" nodes around as long as the participant is available.
           //  This is to facilitate camera switching or other such feed interruptions
