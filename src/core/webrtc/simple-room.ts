@@ -98,7 +98,7 @@ export const getRoom = (id: string) => {
       }) as SDK.Participant[],
       tracks: tracks.map((x) => {
         const meta = JSON.parse(x?.participant?.metadata)
-        x.track
+
         return {
           mediaStreamTrack: x.track?.mediaStreamTrack,
           id: x.trackSid,
