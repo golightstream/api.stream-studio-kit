@@ -1,13 +1,18 @@
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
-import { Component, Source, SDK, Compositor } from '../../../../'
+import { SDK, Compositor } from '../../../../'
 
 type NodeInterface = Compositor.Component.NodeInterface
 
 export function useRoot<I extends NodeInterface>(project: SDK.Project): I {
   const [root, setRoot] = useState<I>()
   useEffect(() => {
+    if (!project?.scene) return
     return project.scene.useRoot<I>(setRoot)
-  }, [])
+  }, [project?.scene])
   return root
 }
 

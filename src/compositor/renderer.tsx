@@ -110,7 +110,9 @@ export const renderProject = (
   }
 
   const listeners = [
-    project.on('NodeChanged', () => {
+    project.on('NodeChanged', ({ nodeId }) => {
+      // Do not re-render if the node is a sub-component
+      if (project.getParentComponent(nodeId)) return
       render()
     }),
   ]

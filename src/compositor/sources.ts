@@ -5,11 +5,13 @@
 import { CoreContext } from '../core/context'
 import { Disposable } from '../core/types'
 import { asArray, pick, deepEqual } from '../logic'
-import type {
+import { Component } from './components'
+import {
   PropsDefinition,
   CompositorInstance,
   CompositorBase,
   SceneNode,
+  getCompositorInstance,
 } from './compositor'
 
 type SourceProps = {
@@ -31,6 +33,7 @@ type SourceMethods<Props = SourceProps, Value = {}> = {
 export type SourceDeclaration<Props = {}, Value = {}> = {
   /** The type to declare support for (e.g. 'MediaStreamVideo') */
   type: string
+  local?: boolean
   /** The properties associated with an individual Source */
   props?: PropsDefinition
   init?: (context: SourceContext) => void | SourceMethods<Props, Value>
@@ -141,6 +144,8 @@ export const init = (
     [type: string]: Source[] // Array of source IDs by type
   }
 
+  const localSources = [] as string[]
+
   const registerSource: SourceRegister = (declaration) => {
     asArray(declaration).forEach((x) => {
       // TODO: Validation / ensure type isn't already registered
@@ -156,6 +161,9 @@ export const init = (
       }
       sourceTypes[x.type] = x
       sourceTypeIndex[x.type] = []
+      if (x.local) {
+        localSources.push(x.type)
+      }
     })
   }
 
@@ -340,6 +348,12 @@ export const init = (
           })
         })
 
+        console.log('SOURCE - NodeID: ' + node.id, {
+          added: difference.added.map((x) => x.id),
+          removed: difference.removed.map((x) => x.id),
+          specified: newSources.map((x) => x.id),
+        })
+
         // Remove sources from index
         difference.removed.forEach((x) => deleteSource(x.id))
 
@@ -396,7 +410,12 @@ export const init = (
         sourceMethods[type].load(nodeSourceMethods as NodeSourceMethods) ||
         (() => {})
     }
-    const nodeSourceTypes = [...Object.keys(node.props.sources || {})]
+    const component = getCompositorInstance().getComponent(node.props.type)
+    const componentSources = (component as Component)?.sources || []
+    const nodeSourceTypes = [
+      ...Object.keys(node.props.sources || {}),
+      ...componentSources,
+    ]
     nodeSourceTypes.forEach(loadSourceTypeForNode)
 
     // Index the NodeSources as Sources
@@ -410,6 +429,7 @@ export const init = (
 
   const sourceManager = {
     sourceTypes,
+    localSources,
     registerSource,
     getSource: <S extends Source = Source>(id: string) => {
       return sourceIndex[id] as S

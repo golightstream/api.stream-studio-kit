@@ -289,12 +289,14 @@ type Subscribe = (cb: SubscribeCallback, nodeId?: string) => Disposable
 type OnCallback = ((payload: EventPayload) => void) & { nodeId?: string }
 type On = (event: string, cb: OnCallback, nodeId?: string) => Disposable
 
+export const getCompositorInstance = () => compositorInstance
+
 // Invoke callback to dispose of an active callback hook
 export type Disposable = () => void
 
-let compositor: CompositorInstance
+let compositorInstance: CompositorInstance
 export const start = (settings: Settings): CompositorInstance => {
-  if (compositor) return compositor
+  if (compositorInstance) return compositorInstance
   const {
     dbAdapter,
     transformSettings = {},
@@ -376,7 +378,7 @@ export const start = (settings: Settings): CompositorInstance => {
     return command(...args)
   }
 
-  const compositorBase = {
+  const compositor = {
     nodeIndex,
     parentIdIndex,
     projectIdIndex,
@@ -398,19 +400,19 @@ export const start = (settings: Settings): CompositorInstance => {
     loadProject: (...args) => loadProject(...args),
   } as CompositorBase
 
-  const sourceManager = Sources.init(sourceSettings, compositorBase)
+  const sourceManager = Sources.init(sourceSettings, compositor)
   const componentManager = Components.init(
     componentSettings,
-    compositorBase,
+    compositor,
     sourceManager,
   )
   const transformManager = HtmlTransforms.init(
     transformSettings,
-    compositorBase,
+    compositor,
     sourceManager,
   )
 
-  compositor = {
+  Object.assign(compositor, {
     registerComponent: componentManager.registerComponent,
     registerLayout: HtmlLayouts.registerLayout,
     registerTransform: transformManager.registerTransform,
@@ -423,8 +425,7 @@ export const start = (settings: Settings): CompositorInstance => {
     createComponent: componentManager.createComponent,
     getComponent: componentManager.getComponent,
     useComponent: componentManager.getNodeInterface,
-    ...compositorBase,
-  } as CompositorInstance
+  })
 
   /** Project init */
   const loadProject = async (
@@ -492,6 +493,11 @@ export const start = (settings: Settings): CompositorInstance => {
       indexNode(node, parent?.id)
     })
 
+    const filterLocalSources = (props: SceneNode['props']) => ({
+      ...props,
+      sources: Logic.omit(props.sources || {}, sourceManager.localSources),
+    })
+
     const dbApi = {
       insert: async (node, parentId, index = 0) => {
         if (node.id && nodeIndex[node.id]) return nodeIndex[node.id] // Already exists
@@ -543,6 +549,10 @@ export const start = (settings: Settings): CompositorInstance => {
         current.props = {
           ...current.props,
           ...props,
+          sources: {
+            ...(current.props.sources || {}),
+            ...(props.sources || {}),
+          },
         }
 
         // Re-index to ensure child/component nodes are indexed
@@ -712,10 +722,13 @@ export const start = (settings: Settings): CompositorInstance => {
 
         // If the node is not part of a component, update it directly
         if (!componentNode) {
-          return projectDb.update(id, props)
+          return projectDb.update(id, filterLocalSources(props))
         } else {
-          // Otherwise, update the component node
-          return project.update(componentNode.id, componentNode.props)
+          // Update the component node
+          return project.update(
+            componentNode.id,
+            filterLocalSources(componentNode.props),
+          )
         }
       },
       remove: async (id) => {
@@ -819,5 +832,6 @@ export const start = (settings: Settings): CompositorInstance => {
     return project
   }
 
-  return compositor
+  compositorInstance = compositor as CompositorInstance
+  return compositorInstance
 }

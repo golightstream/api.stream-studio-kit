@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
-import { init, Helpers, Component, Source, SDK, Command } from '../../../../'
+import { Components, Sources } from '../../../../'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from '../layout-examples'
@@ -11,6 +11,9 @@ import Style from '../shared/shared.module.css'
 import { Chat } from '../shared/chat'
 import { useRenderRef, useRoot } from '../shared/hooks'
 import { Column } from '../ui/layout/Box'
+
+export type ScenelessInterface = Components.ScenelessProject.Interface
+export type ScenelessProps = Components.ScenelessProject.Props
 
 const overlays = [
   {
@@ -34,33 +37,10 @@ const logos = [
   },
 ]
 
-export const ScenelessProject = ({
-  project,
-  Command,
-}: {
-  project: SDK.Project
-  Command: any
-}) => {
-  const root = useRoot<Component.ScenelessProject.Interface>(project)
-  const renderContainer = useRenderRef(project)
-
-  // @ts-ignore Debug helper
-  window.root = root
-
-  if (!root) return null
-
-  return (
-    <Column>
-      <div ref={renderContainer} style={{ width: 840, height: 500 }}></div>
-      <ScenelessComponent component={root} />
-    </Column>
-  )
-}
-
 export const ScenelessComponent = ({
   component,
 }: {
-  component: Component.ScenelessProject.Interface
+  component: ScenelessInterface
 }) => {
   const { execute, sources } = component
   const renderContainer = useRef()
@@ -71,8 +51,8 @@ export const ScenelessComponent = ({
   // const overlay = projectCommands.getImageOverlay()
 
   // Sources
-  const [images, setImages] = useState<Source.Image.ImageSource[]>([])
-  const [videos, setVideos] = useState<Source.Video.VideoSource[]>([])
+  const [images, setImages] = useState<Sources.Image.ImageSource[]>([])
+  const [videos, setVideos] = useState<Sources.Video.VideoSource[]>([])
   const background = execute.getBackground()
 
   useEffect(() => {

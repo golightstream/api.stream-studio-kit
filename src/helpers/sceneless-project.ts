@@ -2,10 +2,6 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { LogoProps } from '../core/sources/Logo'
-import { Background, BackgroundProps } from '../core/sources/Background'
-import { Overlay, OverlayProps } from '../core/sources/Overlays'
-import { getElementAttributes } from './../logic'
 /**
  * @deprecated Use component ScenelessProject instead (Command.createProject({ type: 'ScenelessProject' }))
  *

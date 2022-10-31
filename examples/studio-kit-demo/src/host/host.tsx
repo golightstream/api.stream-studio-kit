@@ -4,7 +4,7 @@
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
 // TODO: Change import to @api.stream/studio-kit
-import { init, Helpers, Component, Source, SDK } from '../../../../'
+import { init, Helpers, SDK } from '../../../../'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from '../layout-examples'
@@ -12,14 +12,13 @@ import { Chat } from '../shared/chat'
 import Style from '../shared/shared.module.css'
 import config from '../../config'
 
-import { ScenelessProject } from '../projects/Sceneless'
-import { MultiSceneProject } from '../projects/MultiScene'
-
 import ReCAPTCHA from 'react-google-recaptcha'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { StringNullableChain } from 'lodash'
 import { Column } from '../ui/layout/Box'
+import { Component, Renderer } from '../components'
+import { useRoot } from '../shared/hooks'
 
 const { useStudio } = Helpers.React
 
@@ -59,7 +58,7 @@ const sources = {
   ],
 }
 
-const projects = {
+export const projects = {
   ScenelessProject: {
     settings: {
       type: 'ScenelessProject',
@@ -69,7 +68,6 @@ const projects = {
       },
       sources,
     },
-    Component: ScenelessProject,
   },
   MultiSceneProject: {
     settings: {
@@ -77,7 +75,6 @@ const projects = {
       props: {},
       sources,
     },
-    Component: MultiSceneProject,
   },
 }
 
@@ -307,9 +304,13 @@ export const HostView = () => {
   const [projectType, setProjectType] = useState<keyof typeof projects>(
     localStorage['projectType'],
   )
+  const root = useRoot(project)
 
   // Store as a global for debugging in console
   window.SDK = useStudio()
+  
+  // @ts-ignore Debug helper
+  window.component = root
 
   useEffect(() => {
     init({
@@ -372,12 +373,12 @@ export const HostView = () => {
     }
   }, [project])
 
-  if (project && room) {
-    const Project = projects[projectType].Component
+  if (project && room && root) {
     return (
       <Column>
         <Top studio={studio} project={project} />
-        <Project project={project} Command={studio.Command} />
+        <Renderer project={project} />
+        <Component component={root} />
       </Column>
     )
   }

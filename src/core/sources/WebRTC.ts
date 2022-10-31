@@ -42,6 +42,7 @@ export type RoomParticipantSource = Source<Props, Value>
 
 export const RoomParticipant = {
   type: 'RoomParticipant',
+  local: true,
   valueType: MediaStream,
   props: {
     participantId: {},

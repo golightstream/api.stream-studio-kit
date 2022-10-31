@@ -4,7 +4,6 @@
  * -------------------------------------------------------------------------------------------- */
 export * as Command from './commands'
 export * as Helpers from '../helpers/index'
-/** @private */
 export * as Compositor from '../compositor/index'
 export * as Events from './events'
 export * as SDK from './types'
@@ -16,10 +15,11 @@ export * as Room from './webrtc/index'
 export * as Request from './requests'
 /** @private */
 export * as Context from './context'
-export * as Component from './components'
-export * as Transform from './transforms'
-export * as Layout from './layouts'
-export * as Source from './sources'
+
+export * as Components from './components'
+export * as Transforms from './transforms'
+export * as Layouts from './layouts'
+export * as Sources from './sources'
 
 // Alias
 export * as Element from './transforms'

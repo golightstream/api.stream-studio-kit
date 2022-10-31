@@ -10,6 +10,7 @@ import { CoreContext, log, InternalProject } from '../core/context'
 import { Compositor } from '../core/namespaces'
 import { CompositorSettings, SceneNode } from '../core/types'
 import { color } from 'csx'
+import { TransformNode } from '../compositor'
 
 const dragImageSvg = `
   <svg height="75" width="120" viewBox="0 0 120 75" xmlns="http://www.w3.org/2000/svg" style="">
@@ -109,7 +110,7 @@ const onDrop = async (
 }
 
 let foundDropTarget = false
-const ElementTree = (props: { node: SceneNode }) => {
+const ElementTree = (props: { node: TransformNode }) => {
   const isDragging = useRef(false)
   const interactiveRef = useRef<HTMLDivElement>()
   const transformRef = useRef<HTMLDivElement>()
@@ -531,13 +532,13 @@ export const render = (settings: CompositorSettings) => {
 type CompositorContext = {
   interactive: boolean
   project: InternalProject
-  checkIsDragTarget: (node: SceneNode) => boolean
-  checkIsDropTarget: (node: SceneNode) => boolean
-  onElementDoubleClick: (node: SceneNode) => void
+  checkIsDragTarget: (node: TransformNode) => boolean
+  checkIsDropTarget: (node: TransformNode) => boolean
+  onElementDoubleClick: (node: TransformNode) => void
 }
 
 /** This is a default check based on legacy behavior */
-const scenelessProjectDragCheck = (node: SceneNode) => {
+const scenelessProjectDragCheck = (node: TransformNode) => {
   return (
     node.props.name === 'Participant' ||
     node.props.sourceType === 'RoomParticipant'
@@ -545,15 +546,15 @@ const scenelessProjectDragCheck = (node: SceneNode) => {
 }
 
 /** This is a default check based on legacy behavior */
-const scenelessProjectDropCheck = (node: SceneNode) => {
+const scenelessProjectDropCheck = (node: TransformNode) => {
   return node.props.name === 'Content'
 }
 
 /** This is a default based on legacy behavior */
 const scenelessProjectDoubleClick =
-  (project: InternalProject) => (node: SceneNode) => {
+  (project: InternalProject) => (node: TransformNode) => {
     const content = project.compositor.nodes.find(
-      (x) => x.props.name === 'Content',
+      (x: TransformNode) => x.props.name === 'Content',
     )
     if (content) {
       const showcase = content.props.layoutProps?.showcase

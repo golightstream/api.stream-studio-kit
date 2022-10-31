@@ -46,7 +46,7 @@ import {
 } from './data'
 import { CoreContext } from './context'
 import { Props } from './types'
-import { SDK, Source } from './namespaces'
+import { SDK, Sources } from './namespaces'
 import { webrtcManager } from './webrtc'
 import { getRoom } from './webrtc/simple-room'
 import { trigger, triggerInternal } from './events'
@@ -399,7 +399,7 @@ export const joinRoom = async (payload: {
       displayName,
     })
 
-  const roomName = await Source.WebRTC.joinRoom(webrtcAccess.accessToken, {
+  const roomName = await Sources.WebRTC.joinRoom(webrtcAccess.accessToken, {
     displayName,
   })
 

@@ -5,19 +5,24 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { init, Helpers, SDK } from '../../../../'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
-import { Participant } from '../shared/participant'
 import Style from '../shared/shared.module.css'
 import { Chat } from '../shared/chat'
 import config from '../../config'
+import { Column, Row } from '../ui/layout/Box'
+import { Renderer } from '../components'
 
 const { Room } = Helpers
 const { useStudio } = Helpers.React
 
 const DEFAULT_GUEST_NAME = 'Guest-' + Math.floor(Math.random() * 1e4)
 
-const Project = () => {
-  const { studio, project, room } = useStudio()
-  const renderContainer = useRef()
+const Top = ({
+  studio,
+  project,
+}: {
+  studio: SDK.Studio
+  project: SDK.Project
+}) => {
   const [isLive, setIsLive] = useState(false)
 
   useEffect(() => {
@@ -35,26 +40,10 @@ const Project = () => {
     })
   }, [])
 
-  useEffect(()=>{
-    if(room){
-      room.sendData({type : "UserJoined"});
-    }
-  },[room])
-  useEffect(() => {
-    studio.render({
-      containerEl: renderContainer.current,
-      projectId: project.id,
-      dragAndDrop: false, // Disable controls for guests
-    })
-  }, [renderContainer.current])
-
-  if (!room) return null
-
   return (
-    <div className={Style.column} style={{ marginLeft: 10 }}>
-      <div ref={renderContainer}></div>
+    <Column style={{ marginLeft: 10 }}>
       {isLive && <div style={{ fontWeight: 'bold' }}>You're live!</div>}
-      <div className={Style.row}>
+      <Row>
         <DeviceSelection />
         <div
           style={{
@@ -64,8 +53,8 @@ const Project = () => {
         >
           <ControlPanel />
         </div>
-      </div>
-    </div>
+      </Row>
+    </Column>
   )
 }
 
@@ -73,18 +62,11 @@ export const GuestView = () => {
   const { studio, project, room, setStudio, setProject, setRoom } = useStudio()
   const [joining, setJoining] = useState(false)
   const [displayName, setDisplayName] = useState(DEFAULT_GUEST_NAME)
-  const [participant, setParticipant] = useState<SDK.Participant>()
   const [error, setError] = useState<string>()
   const [inRoom, setInRoom] = useState<boolean>(false)
 
   // Store as a global for debugging in console
   window.SDK = useStudio()
-
-  // Listen for room participants
-  useEffect(() => {
-    if (!room) return
-    return room.useParticipant(room.participantId, setParticipant)
-  }, [room])
 
   // Initialize studio
   useEffect(() => {
@@ -176,17 +158,14 @@ export const GuestView = () => {
   }
 
   return (
-    <div
-      className={Style.row}
-      style={{ marginTop: 14, background: '#242533', padding: 10 }}
-    >
-      <div className={Style.column}>
-        {participant && <Participant participant={participant} />}
-      </div>
-      <Project />
-      <div style={{ marginLeft: 10 }}>
-        <Chat />
-      </div>
-    </div>
+    <Column>
+      <Top project={project} studio={studio} />
+      <Row align="flex-start">
+        <Renderer project={project} />
+        <Column style={{ marginLeft: 10 }}>
+          <Chat />
+        </Column>
+      </Row>
+    </Column>
   )
 }

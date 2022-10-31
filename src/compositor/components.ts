@@ -16,7 +16,6 @@ import type {
 import { Get } from 'type-fest'
 import { SourceManager } from './sources'
 import { RenderMethods } from './renderer'
-import { Component, Source } from '../core/namespaces'
 
 export type Filter = (node: SceneNode) => SceneNode
 
