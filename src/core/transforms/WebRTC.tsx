@@ -93,8 +93,15 @@ export const RoomParticipant = {
             once: true,
           })
         })
-        if (source?.value && source?.value !== ref.current.srcObject) {
-          ref.current.srcObject = source.value
+
+        const mediaSource =
+          source?.value instanceof MediaStreamTrack &&
+          source?.value?.kind === 'video'
+            ? new MediaStream([source?.value as MediaStreamTrack])
+            : (source?.value as MediaStream)
+
+        if (mediaSource && mediaSource !== ref.current.srcObject) {
+          ref.current.srcObject = mediaSource
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
