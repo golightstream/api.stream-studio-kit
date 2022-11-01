@@ -9,8 +9,8 @@ import { MultiSceneComponent } from './MultiScene'
 import { ScenelessComponent } from './Sceneless'
 
 const components = {
-  ScenelessProject: ScenelessComponent,
-  MultiSceneProject: MultiSceneComponent,
+  Sceneless: ScenelessComponent,
+  MultiScene: MultiSceneComponent,
 }
 
 export const Component = ({

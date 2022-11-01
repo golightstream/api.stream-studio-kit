@@ -115,14 +115,22 @@ export const init = (
     if (!element) return
     const transform = getTransformByName(element.transformName)
 
-    const node = compositor.getNode(nodeId)
+    const node = compositor.getNode<TransformNode>(nodeId)
     const elementSourceType = element.proxySource
       ? element.proxySource
       : element.sourceType
     const sources = sourceManager.getSources(elementSourceType) || []
-    const source = transform.useSource
-      ? transform.useSource(sources, node.props)
-      : getFirstMatchingSource(node, sources)
+
+    let source: Source
+    if (node.props.sourceId) {
+      source = sources.find((x) => x.id === node.props.sourceId)
+    }
+    if (!source) {
+      source = transform.useSource
+        ? transform.useSource(sources, node.props)
+        : getFirstMatchingSource(node, sources)
+    }
+    
     const previousValue = element.sourceValue
     const newValue = source?.value
 

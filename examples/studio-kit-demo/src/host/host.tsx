@@ -4,7 +4,14 @@
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
 // TODO: Change import to @api.stream/studio-kit
-import { init, Helpers, SDK } from '../../../../'
+import {
+  init,
+  Helpers,
+  SDK,
+  Sources,
+  Components,
+  Compositor,
+} from '../../../../'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from '../layout-examples'
@@ -20,6 +27,7 @@ import { Column, Row } from '../ui/layout/Box'
 import { Component, Renderer } from '../components'
 import { useRoot } from '../shared/hooks'
 import { SourceList } from '../shared/sources'
+import { Source } from '../../../../types/src/compositor'
 
 const { useStudio } = Helpers.React
 
@@ -60,9 +68,9 @@ const sources = {
 }
 
 export const projects = {
-  ScenelessProject: {
+  Sceneless: {
     settings: {
-      type: 'ScenelessProject',
+      type: 'Sceneless',
       props: {
         layout: getLayout(DEFAULT_LAYOUT).layout,
         layoutProps: getLayout(DEFAULT_LAYOUT).props,
@@ -70,9 +78,9 @@ export const projects = {
       sources,
     },
   },
-  MultiSceneProject: {
+  MultiScene: {
     settings: {
-      type: 'MultiSceneProject',
+      type: 'MultiScene',
       props: {},
       sources,
     },
@@ -91,7 +99,7 @@ const Login = (props: {
   const { onLogin } = props
   const [userName, setUserName] = useState(storage.userName)
   const [projectType, setProjectType] =
-    useState<keyof typeof projects>('ScenelessProject')
+    useState<keyof typeof projects>('Sceneless')
   const [recaptchaToken, setRecaptchaToken] = useState<string>()
 
   const login = async (e: any) => {
@@ -321,7 +329,7 @@ export const HostView = () => {
   const [projectType, setProjectType] = useState<keyof typeof projects>(
     localStorage['projectType'],
   )
-  const root = useRoot(project)
+  const root = useRoot<Components.Project.Interface>(project)
 
   // Store as a global for debugging in console
   window.SDK = useStudio()
@@ -394,9 +402,15 @@ export const HostView = () => {
     return (
       <Column>
         <Top studio={studio} project={project} />
-        <Row align='stretch'>
+        <Row align="stretch">
           <Column gap={10} marginTop={10}>
-            <SourceList component={root} sourceType="RoomParticipant" />
+            <SourceList
+              component={
+                root.children
+                  .content[0] as Compositor.Component.NodeInterface
+              }
+              sourceType="RoomParticipant"
+            />
           </Column>
           <Renderer project={project} />
           <Chat />

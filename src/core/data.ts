@@ -39,9 +39,6 @@ export const toBaseProject = (
   const broadcastPhase = project.videoApi.phase
   const broadcastId = project.videoApi.broadcastId || null
 
-  // TODO: Check project root node type and extend functionality
-  //  e.g. ScenelessProject
-
   return {
     broadcastPhase,
     role,

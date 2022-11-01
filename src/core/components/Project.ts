@@ -2,39 +2,26 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { SceneNode } from '../../compositor'
 import {
   Component,
   ComponentContext,
-  ComponentNodeInterface,
   NodeInterface,
 } from '../../compositor/components'
 
-const commands = {
-  setActiveScene: (context: Context) => (sceneId: string) => {
-    return context.update({
-      activeSceneId: sceneId,
-    })
-  },
-}
+const commands = {}
 
 const children = {
-  scenes: {
-    validate: (x: SceneNode) => {
-      return true
-    },
-  },
+  content: {},
 }
 
-const MultiSceneProject = {
-  name: 'MultiSceneProject',
+const Project = {
+  name: 'Project',
   version: '1',
-  sources: ['Image', 'Video'],
+  sources: ['Image', 'Video', 'RoomParticipant'],
   children,
   commands,
   create(props, children) {
     return {
-      activeSceneId: children.scenes[0]?.id,
       ...props,
     }
   },
@@ -43,11 +30,11 @@ const MultiSceneProject = {
 
     return renderNode(
       {
-        key: 'root',
+        key: 'project',
         layout: 'Grid',
         layoutProps: { cover: true },
       },
-      children.scenes.filter((x) => x.id === props.activeSceneId),
+      children.content,
     )
   },
   migrations: [],
@@ -59,10 +46,8 @@ const MultiSceneProject = {
 
 type Context = ComponentContext<Props, typeof children>
 
-export type Props = {
-  activeSceneId: string
-}
+export type Props = {}
 
-export type Interface = ComponentNodeInterface<typeof MultiSceneProject, Props>
+export type Interface = NodeInterface<Props, typeof Project>
 
-export const Declaration = MultiSceneProject
+export const Declaration = Project

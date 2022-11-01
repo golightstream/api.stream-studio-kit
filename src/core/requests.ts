@@ -203,8 +203,16 @@ export const createLayout = async (request: {
       settings.props,
       settings.sources,
     )
+    const project = CoreContext.compositor.components.createTempComponent(
+      'Project',
+      {},
+      {},
+      {
+        content: [tempNode],
+      },
+    )
     await compositorProject.insertRoot({
-      ...tempNode.props,
+      ...project.props,
       size,
     })
   } else if (type === 'sceneless') {

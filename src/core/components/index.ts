@@ -2,7 +2,8 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import * as ScenelessProject from './ScenelessProject'
-import * as MultiSceneProject from './MultiSceneProject'
+import * as Sceneless from './Sceneless'
+import * as MultiScene from './MultiScene'
+import * as Project from './Project'
 
-export { ScenelessProject, MultiSceneProject }
+export { Sceneless, MultiScene, Project }

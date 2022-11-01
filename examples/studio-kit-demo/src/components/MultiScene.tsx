@@ -8,7 +8,7 @@ import { Column, Flex, Row } from '../ui/layout/Box'
 import { Component } from '.'
 import { ScenelessProps } from './Sceneless'
 
-export type MultiSceneInterface = Components.MultiSceneProject.Interface
+export type MultiSceneInterface = Components.MultiScene.Interface
 
 export const MultiSceneComponent = ({
   component,
@@ -47,7 +47,7 @@ export const MultiSceneComponent = ({
           onClick={(e) =>
             component.addChildComponent<ScenelessProps>(
               'scenes',
-              'ScenelessProject',
+              'Sceneless',
               {},
             )
           }

@@ -13,7 +13,6 @@ import { useSources } from './hooks'
 
 type Participant = Sources.WebRTC.RoomParticipantSource
 type NodeInterface = Compositor.Component.NodeInterface
-type ComponentNodeInterface = Compositor.Component.ComponentNodeInterface
 type ParticipantElementProps = Elements.WebRTC.Props
 type Source = Compositor.Source.Source
 
@@ -25,7 +24,7 @@ export function SourceList<SourceProps>({
   sourceType,
 }: // childTarget,
 {
-  component: ComponentNodeInterface
+  component: NodeInterface
   sourceType: keyof typeof items
   // childTarget: string
 }) {
@@ -48,7 +47,7 @@ const RoomParticipant = ({
 }: // childTarget,
 {
   participant: Participant
-  component: ScenelessInterface // TODO: Abstract as ComponentNodeInterface
+  component: ScenelessInterface // TODO: Abstract as NodeInterface
   // childTarget: string
 }) => {
   const { isHost } = useContext(AppContext)
@@ -72,7 +71,7 @@ const RoomParticipant = ({
   const updateChildProps = useCallback(
     (props: Partial<ParticipantElementProps>) => {
       if (child) {
-        component.updateChild('content', child.id, props)
+        component.updateChild(child.id, props, 'content')
       } else {
         setChildProps({ ...childProps, ...props })
       }
@@ -160,14 +159,14 @@ const RoomParticipant = ({
                   if (!onStream) {
                     // TODO: Abstract this to "add()"
                     component.addChildElement(
-                      'content',
                       'RoomParticipant',
                       childProps,
                       participant.id,
+                      'content',
                     )
                   } else {
                     // TODO: Abstract this to "remove()"
-                    component.removeChild('content', child.id)
+                    component.removeChild(child.id, 'content')
                   }
                   setOnStream(checked)
                 }}

@@ -16,6 +16,7 @@ import type {
 import { Get } from 'type-fest'
 import { SourceManager } from './sources'
 import { RenderMethods } from './renderer'
+import { Props } from '../core/types'
 
 export type Filter = (node: SceneNode) => SceneNode
 
@@ -30,39 +31,61 @@ export type CommandsInterface<Dict extends ComponentCommands = {}> = {
 }
 type SourceInterface = ReturnType<SourceManager['wrap']>
 
-export type NodeInterface<Props = AnyProps> = {
+type ChildMethods<ChildTypes = never> = {
+  getChild: <I extends NodeInterface = NodeInterface>(
+    childId: string,
+    childCollection?: ChildTypes,
+  ) => I
+  getChildren: (childCollection?: ChildTypes) => NodeInterface[]
+  addChildComponent: <I extends NodeInterface = NodeInterface>(
+    type: string,
+    props: Partial<I['props']>,
+    childCollection?: ChildTypes,
+    index?: number,
+  ) => Promise<void>
+  addChildElement: <
+    ElementProps extends Partial<TransformNode['props']> = AnyProps,
+  >(
+    type: string,
+    props: Partial<ElementProps>,
+    sourceId?: string,
+    childCollection?: ChildTypes,
+    index?: number,
+  ) => Promise<void>
+  removeChild: (id: string, childCollection?: ChildTypes) => Promise<void>
+  updateChild: <Props extends {} = AnyProps>(
+    id: string,
+    props: Props,
+    childCollection?: ChildTypes,
+  ) => Promise<void>
+  reorderChildren: (
+    ids: string[],
+    childCollection?: ChildTypes,
+  ) => Promise<void>
+}
+
+export type NodeInterface<
+  Props = AnyProps,
+  Declaration extends Partial<Component> = {},
+> = {
   id: string
   kind: 'Base' | 'Element' | 'Component'
   type: string
   props: Props
-  execute: {}
+  // Update the the node props
+  update: (props: Partial<Props>) => void
   sources: SourceInterface
-}
-
-export type ComponentNodeInterface<
-  Declaration extends Partial<Component> = {},
-  Props = AnyProps,
-> = NodeInterface & {
-  props: Props
   execute: CommandsInterface<Declaration['commands']>
-  getChild: ComponentContext<Props, Declaration['children']>['getChild']
-  addChildComponent: ComponentContext<
-    Props,
-    Declaration['children']
-  >['addChildComponent']
-  addChildElement: ComponentContext<
-    Props,
-    Declaration['children']
-  >['addChildElement']
-  removeChild: ComponentContext<Props, Declaration['children']>['removeChild']
-  updateChild: ComponentContext<Props, Declaration['children']>['updateChild']
   children: {
     [childCollection in keyof Declaration['children']]: NodeInterface<AnyProps>[]
   }
-}
+} & ChildMethods<keyof Declaration['children']>
 
 // TODO:
 type ChildDeclaration = { [childType: string]: any }
+
+type x = Component['children']
+const x = {} as x
 
 export type ComponentContext<
   Props = {},
@@ -71,6 +94,8 @@ export type ComponentContext<
 > = {
   // The node ID
   id: string
+  // The project the node belongs to
+  project: Project
   // The node props
   props: Props
   // The node props
@@ -78,40 +103,6 @@ export type ComponentContext<
   createComponent: CreateComponent
   // Update the the node in context
   update: (props: Partial<Props>) => void
-  // Get a child by type and ID
-  getChild: <I extends NodeInterface = NodeInterface>(
-    childCollection: keyof Children,
-    id: string,
-  ) => I
-  // Get a list of children by type
-  getChildren: (childCollection: keyof Children) => NodeInterface[]
-  // Create a child node to be managed by the component
-  addChildComponent: <ComponentProps extends {} = AnyProps>(
-    childCollection: keyof Children,
-    type: string,
-    props: Partial<ComponentProps>,
-    index?: number,
-  ) => Promise<void>
-  // Create a child node to be managed by the component
-  addChildElement: <
-    ElementProps extends Partial<TransformNode['props']> = AnyProps,
-  >(
-    childCollection: string,
-    type: string,
-    props: Partial<ElementProps>,
-    sourceId?: string,
-    index?: number,
-  ) => Promise<void>
-  // Remove a child node managed by the component
-  removeChild: (childCollection: string, id: string) => Promise<void>
-  // Update a child node managed by the component
-  updateChild: <Props extends {} = AnyProps>(
-    childCollection: string,
-    id: string,
-    props: Props,
-  ) => Promise<void>
-  // Reorder child nodes managed by the component
-  reorderChildren: (childCollection: string, ids: string[]) => Promise<void>
   // Execute a command on the node in context
   execute: CommandsInterface<Commands> & {
     [name: string]: (...args: unknown[]) => any
@@ -120,7 +111,7 @@ export type ComponentContext<
   sources: SourceInterface
   // Listen to changes to props of the node
   onChange: (cb: (newProps: Props) => void) => Disposable
-}
+} & ChildMethods<keyof Children>
 
 export type ComponentCommand<Props = {}> = (
   context: ComponentContext<Props>,
@@ -354,25 +345,26 @@ export const init = (
 
     const context = {
       id: node.id,
+      project,
       props: node.props.componentProps,
       children: getNodeComponentChildren(node.id),
       execute: {},
       query: {},
       sources: sourceManager.wrap(node),
       createComponent,
-      getChild: (childCollection, id) => {
+      getChild: (id, childCollection) => {
         const list = context.getChildren(childCollection)
         return list.find((x) => x.id === id)
       },
       getChildren: (childCollection) => {
-        const nodeInterface = getNodeInterface<ComponentNodeInterface>(node.id)
+        const nodeInterface = getNodeInterface<NodeInterface>(node.id)
         return nodeInterface.children?.[childCollection] || []
       },
-      addChildComponent: (childCollection, type, props, index) => {
+      addChildComponent: (type, props, childCollection, index) => {
         const node = createComponent(type, props)
         return addChild(childCollection, node, index)
       },
-      addChildElement: (childCollection, type, props, sourceId, index) => {
+      addChildElement: (type, props, sourceId, childCollection, index) => {
         const node = {
           id: generateId(),
           props: {
@@ -384,7 +376,7 @@ export const init = (
         } as TransformNode
         return addChild(childCollection, node, index)
       },
-      removeChild: (childCollection, id) => {
+      removeChild: (id, childCollection) => {
         const previous = node.props.componentChildren?.[childCollection] || []
         const current = previous.filter((x) => x.id !== id)
         return project.update(node.id, {
@@ -392,7 +384,7 @@ export const init = (
           componentChildren: { [childCollection]: current },
         })
       },
-      updateChild: (childCollection, id, props) => {
+      updateChild: (id, props, childCollection) => {
         const childNodes = node.props.componentChildren?.[childCollection] || []
         const childNode = childNodes.find((x) => x.id === id)
         if (!childNode) return
@@ -415,7 +407,7 @@ export const init = (
           componentChildren: { [childCollection]: childNodes },
         })
       },
-      reorderChildren: (childCollection, ids) => {
+      reorderChildren: (ids, childCollection) => {
         const previous = node.props.componentChildren?.[childCollection] || []
         const current = ids.map((x) => previous.find((y) => y.id === x))
 
@@ -440,7 +432,7 @@ export const init = (
 
     const component = componentManager.getComponent(node.props.type)
 
-    const execute = Object.entries(component.commands || {}).reduce(
+    const execute = Object.entries(component?.commands || {}).reduce(
       (acc, [name, fn]) => {
         return {
           ...acc,
@@ -462,7 +454,6 @@ export const init = (
     shallow = false,
   ): I => {
     const node = compositor.getNode(nodeId)
-    const component = componentManager.getComponent(node.props.type)
 
     const children = getNodeComponentChildren(
       nodeId,
@@ -475,6 +466,8 @@ export const init = (
       kind = 'Element'
     }
 
+    const context = getNodeContext(node.id)
+
     const nodeInterface = {
       id: node.id,
       kind,
@@ -486,8 +479,12 @@ export const init = (
         kind === 'Component'
           ? (node as ComponentNode).props.componentProps || {}
           : (node as TransformNode).props,
-      execute: {},
+      update:
+        kind === 'Component'
+          ? context.update
+          : (props) => context.project.update(node.id, props),
       sources: sourceManager.wrap(node),
+      execute: context.execute,
       children: shallow
         ? []
         : Object.keys(children).reduce(
@@ -497,21 +494,17 @@ export const init = (
             }),
             {},
           ),
+      getChild: context.getChild,
+      getChildren: context.getChildren,
+      addChildComponent: context.addChildComponent,
+      addChildElement: context.addChildElement,
+      updateChild: context.updateChild,
+      removeChild: context.removeChild,
+      reorderChildren: context.reorderChildren,
     } as NodeInterface
 
-    if (component) {
-      const context = getNodeContext(node.id)
-      Object.assign(nodeInterface, {
-        props: node.props.componentProps,
-        getChild: context.getChild,
-        getChildren: context.getChildren,
-        addChildComponent: context.addChildComponent,
-        addChildElement: context.addChildElement,
-        updateChild: context.updateChild,
-        removeChild: context.removeChild,
-        reorderChildren: context.reorderChildren,
-        execute: context.execute,
-      })
+    if (kind === 'Component') {
+      nodeInterface.props = node.props.componentProps
     }
 
     return nodeInterface as I
@@ -525,10 +518,12 @@ export const init = (
 
       return {
         remove: (id: string) => {
-          return context.removeChild(childCollection, id)
+          // @ts-ignore
+          return context.removeChild(id, childCollection)
         },
         reorder: (ids: string[]) => {
-          return context.reorderChildren(childCollection, ids)
+          // @ts-ignore
+          return context.reorderChildren(ids, childCollection)
         },
       } as RenderMethods
     },

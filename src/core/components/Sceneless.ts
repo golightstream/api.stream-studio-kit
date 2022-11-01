@@ -6,110 +6,21 @@ import { SceneNode } from '../../compositor'
 import {
   Component,
   ComponentContext,
-  ComponentNodeInterface,
   NodeInterface,
 } from '../../compositor/components'
-import { generateId, isMatch } from '../../logic'
-import { Disposable } from '../types'
 
-const commands = {
-  setLayout:
-    (context: Context) =>
-    (layout: LayoutName, layoutProps: LayoutProps = {}) => {
-      return context.update({
-        layout,
-        layoutProps,
-      })
-    },
-  setBackground:
-    ({ update, props, execute }: Context) =>
-    (background: Props['background']) => {
-      update({
-        background: {
-          ...props.background,
-          ...background,
-        },
-      })
-    },
-  getBackground:
-    ({ update, props, execute, sources }: Context) =>
-    () => {
-      return sources.get(props.background?.id)
-    },
-  addParticipant:
-    (context: Context) =>
-    (
-      participantId: string,
-      participantProps: Partial<ParticipantProps> = {},
-      type: ParticipantType = 'camera',
-    ) => {
-      const { props, children } = context
-      // TODO: Caching during "add" to prevent multiple adds (see sceneless-project.ts)
-
-      const { isMuted = false, isHidden = false, volume = 1 } = participantProps
-      const existing = children.content.find((x) =>
-        isMatch(x.props.sourceProps, { participantId, type }),
-      )
-      if (existing) return
-
-      context.addChildElement(
-        'content',
-        'RoomParticipant',
-        {
-          sourceProps: {
-            participantId,
-            type,
-          },
-          isMuted,
-          isHidden,
-          volume,
-        },
-        type === 'screen' ? 0 : null,
-      )
-    },
-  removeParticipant:
-    (context: Context) =>
-    (participantId: string, type: ParticipantType = 'camera') => {
-      const participant = context
-        .getChildren('content')
-        .find((x) => isMatch(x.props.sourceProps, { participantId, type }))
-      if (participant) context.removeChild('content', participant.id)
-    },
-  getParticipant:
-    (context: Context) =>
-    (participantId: string, type: ParticipantType = 'camera') => {
-      return context.children.content.find((x) =>
-        isMatch(x.props.sourceProps, { participantId, type }),
-      )
-    },
-  getParticipantProps:
-    (context: Context) =>
-    (participantId: string, type: ParticipantType = 'camera') => {
-      return context.execute.getParticipant(participantId, type)?.props
-    },
-  useParticipantProps:
-    (context: Context) =>
-    (
-      participantId: string,
-      type: ParticipantType = 'camera',
-      cb: (props: ParticipantProps) => void,
-    ): Disposable => {
-      return context.onChange(() => {
-        cb(context.execute.getParticipantProps(participantId, type))
-      })
-    },
-}
+const commands = {}
 
 const children = {
   content: {
     validate: (x: SceneNode) => {
-      return ['RoomParticipant'].includes(x.props.sourceType)
+      return true
     },
   },
 }
 
-const ScenelessProject = {
-  name: 'ScenelessProject',
+const Sceneless = {
+  name: 'Sceneless',
   version: '1',
   sources: ['Image', 'Video', 'RoomParticipant'],
   children,
@@ -218,6 +129,6 @@ export type Props = {
   }
 }
 
-export type Interface = ComponentNodeInterface<typeof ScenelessProject, Props>
+export type Interface = NodeInterface<Props, typeof Sceneless>
 
-export const Declaration = ScenelessProject
+export const Declaration = Sceneless

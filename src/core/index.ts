@@ -111,12 +111,33 @@ export const init = async (
     },
   })
 
+  // Emit events to compositor
+  CoreContext.subscribe((event, payload) => {
+    compositor.triggerEvent(event, payload)
+  })
+
   CoreContext.config = conf
   CoreContext.clients = client
   CoreContext.compositor = compositor
   CoreContext.logLevel = logLevel
   CoreContext.Request = await import('./requests')
   CoreContext.Command = await import('./commands')
+
+  compositor.registerCommand('Core.StartBroadcast', () => {
+    const project = getProject(CoreContext.state.activeProjectId)
+    if (!project) return
+    CoreContext.Command.startBroadcast({
+      projectId: project.id,
+    })
+  })
+
+  compositor.registerCommand('Core.StopBroadcast', () => {
+    const project = getProject(CoreContext.state.activeProjectId)
+    if (!project) return
+    CoreContext.Command.stopBroadcast({
+      projectId: project.id,
+    })
+  })
 
   // Tie context to global scope for debugging purposes
   window.__StudioKit = {

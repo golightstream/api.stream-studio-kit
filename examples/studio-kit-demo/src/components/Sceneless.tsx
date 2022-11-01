@@ -12,8 +12,8 @@ import { Chat } from '../shared/chat'
 import { useRenderRef, useRoot } from '../shared/hooks'
 import { Column } from '../ui/layout/Box'
 
-export type ScenelessInterface = Components.ScenelessProject.Interface
-export type ScenelessProps = Components.ScenelessProject.Props
+export type ScenelessInterface = Components.Sceneless.Interface
+export type ScenelessProps = Components.Sceneless.Props
 
 const overlays = [
   {
@@ -171,22 +171,6 @@ export const ScenelessComponent = ({
           className={Style.column}
           style={{ marginLeft: 14, marginBottom: 14 }}
         >
-          <div className={Style.column}>
-            <label>Layout</label>
-            <select
-              defaultValue={layout}
-              onChange={(e) => {
-                const { layout, props } = getLayout(e.target.value)
-                execute.setLayout(layout, props)
-              }}
-            >
-              {layouts.map((x) => (
-                <option key={x} value={x}>
-                  {x}
-                </option>
-              ))}
-            </select>
-          </div>
           <div ref={renderContainer} style={{ width: 840, height: 500 }}></div>
         </div>
         <div style={{ marginLeft: 14 }}>
