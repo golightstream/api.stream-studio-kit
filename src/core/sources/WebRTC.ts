@@ -1,10 +1,8 @@
-import { primary } from './../../helpers/colors'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { updateMediaStreamTracks } from '../../helpers/webrtc'
-import { deepEqual } from '../../logic'
 import { CoreContext } from '../context'
 import { Compositor, SDK } from '../namespaces'
 
@@ -39,7 +37,7 @@ export const RoomParticipant = {
     videoEnabled: {},
     audioEnabled: {},
   },
-  init({ addSource, removeSource, updateSource }) {
+  init({ addSource, removeSource, updateSource, getSource }) {
     CoreContext.on('RoomJoined', ({ room }) => {
       let listeners = {} as { [id: string]: Function }
       let previousTracks = [] as SDK.Track[]
@@ -54,18 +52,20 @@ export const RoomParticipant = {
           .filter((p) => p?.type === 'camera' && p?.isExternal === true)
           .forEach((track) => {
             if (track.type === 'camera') {
-
               const participant = room.getParticipant(track.participantId)
               const webcamTrack = room.getTrack(track.id)
-
-              updateSource(track.id, {
-                videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
-                audioEnabled: false,
-                displayName:
-                  participant?.meta[track.id]?.displayName || 'External Track',
-                mirrored: participant?.meta[track.id]?.isMirrored,
-                external: track?.isExternal,
-              })
+              const source = getSource(track?.id)
+              if (source) {
+                updateSource(track.id, {
+                  videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
+                  audioEnabled: false,
+                  displayName:
+                    participant?.meta[track.id]?.displayName ||
+                    'External Track',
+                  mirrored: participant?.meta[track.id]?.isMirrored,
+                  external: track?.isExternal,
+                })
+              }
             }
           })
 
@@ -128,7 +128,10 @@ export const RoomParticipant = {
         const removedTracks = previousTracks.filter(
           (track) => !tracks.some((x) => x.id === track.id),
         )
-        previousTracks = tracks
+
+      /* Filtering out the tracks that have a mediaStreamTrack. */
+        previousTracks =
+          tracks.filter((t) => Boolean(t?.mediaStreamTrack)) 
 
         newTracks.forEach((x) => {
           const { mediaStreamTrack, id, participantId, type } = room.getTrack(
@@ -149,7 +152,6 @@ export const RoomParticipant = {
           } as Compositor.Source.NewSource
 
           // Add each new track as a source
-
           if (mediaStreamTrack) {
             if (mediaStreamTrack.kind === 'video') {
               addSource(source)
@@ -164,9 +166,8 @@ export const RoomParticipant = {
           removeSource(x.id)
           listeners[x.id]?.()
         })
-        
-        updateParticipants()
 
+        updateParticipants()
       })
 
       // Listen for changes to available participants
