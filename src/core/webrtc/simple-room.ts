@@ -1,4 +1,3 @@
-import { primary } from './../../helpers/colors'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -100,6 +99,7 @@ export const getRoom = (id: string) => {
       tracks: tracks.map((x) => {
         const meta = JSON.parse(x?.participant?.metadata)
 
+        /* A function that takes in a track and returns a track object. */
         return {
           mediaStreamTrack: x.track?.mediaStreamTrack,
           id: x.trackSid,

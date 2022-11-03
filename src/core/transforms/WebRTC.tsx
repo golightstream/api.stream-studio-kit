@@ -94,6 +94,8 @@ export const RoomParticipant = {
           })
         })
 
+        /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
+           but the video element requires a MediaStream. */
         const mediaSource =
           source?.value instanceof MediaStreamTrack &&
           source?.value?.kind === 'video'
