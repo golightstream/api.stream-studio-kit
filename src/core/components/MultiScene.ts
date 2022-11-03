@@ -3,14 +3,12 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { SceneNode } from '../../compositor'
-import {
-  Component,
-  ComponentContext,
-  NodeInterface,
-} from '../../compositor/components'
+import { Component, NodeInterface } from '../../compositor/components'
+import { Components } from '../namespaces'
 
 const commands = {
-  setActiveScene: (context: Context) => (sceneId: string) => {
+  // TODO: Type of context
+  setActiveScene: (context: any) => (sceneId: string) => {
     return context.update({
       activeSceneId: sceneId,
     })
@@ -18,10 +16,8 @@ const commands = {
 }
 
 const children = {
-  scenes: {
-    validate: (x: SceneNode) => {
-      return true
-    },
+  validate: (x: SceneNode) => {
+    return true
   },
 }
 
@@ -33,35 +29,39 @@ const MultiScene = {
   commands,
   create(props, children) {
     return {
-      activeSceneId: children.scenes[0]?.id,
+      activeSceneId: children[0]?.id,
       ...props,
     }
   },
-  render(context, { id, renderMethods, renderNode }) {
-    const { props, children } = context
+  render(context, { id, renderNode, renderChildren }) {
+    const { props } = context
 
-    return renderNode(
+    return renderChildren(
       {
-        key: 'root',
         layout: 'Grid',
         layoutProps: { cover: true },
       },
-      children.scenes.filter((x) => x.id === props.activeSceneId),
+      (children) =>
+        children.filter((x) => x.id === props.activeSceneId),
     )
   },
   migrations: [],
-} as Component<Props, typeof children, typeof commands>
+} as Component<Interface>
 
 /**
  * --- Types ---
  */
 
-type Context = ComponentContext<Props, typeof children>
-
 export type Props = {
   activeSceneId: string
 }
 
-export type Interface = NodeInterface<Props, typeof MultiScene>
+export type Interface = NodeInterface<
+  Props,
+  typeof commands,
+  // TODO: Issue where Interface declaration is circular
+  //  when declaring own Interface as possible child
+  Components.Sceneless.Interface // | Interface
+>
 
 export const Declaration = MultiScene

@@ -85,6 +85,7 @@ type BaseNode = {
     opacity?: number
     size?: { x: number; y: number }
     position?: { x: number; y: number }
+    componentChildren?: SceneNode[]
   }
   children: SceneNode[]
 }
@@ -96,9 +97,6 @@ export type ComponentNode<Props extends {} = AnyProps> = BaseNode & {
     /** The version of this node's Component its data currently fits */
     version?: string
     componentProps?: Props
-    componentChildren?: {
-      [childType: string]: SceneNode[]
-    }
   }
 }
 
@@ -118,14 +116,17 @@ export type TransformNode<Props extends {} = AnyProps> = BaseNode & {
 // The crucial difference between SceneNode vs DataNode is that SceneNode has
 //  fully-populated children[] rather than childIds[]
 // TODO: Can we infer Node type Transform vs Component?
-export type SceneNode = {
+export type SceneNode<Props extends {} = AnyProps> = {
   _deleted?: boolean
-} & (TransformNode | ComponentNode)
+} & (TransformNode<Props> | ComponentNode<Props>)
 
-export type VirtualNode = SceneNode & {
+export type VirtualNode<Props extends {} = AnyProps> = SceneNode<Props> & {
   // Applies to a node during render (virtual nodes only)
   render?: {
     methods: Renderer.RenderMethods
+  }
+  props: SceneNode<Props>['props'] & {
+    key?: string
   }
 }
 
@@ -464,12 +465,10 @@ export const start = (settings: Settings): CompositorInstance => {
         sourceManager.wrap(node)
       })
 
-      if (node.props?.componentChildren) {
-        Object.keys(node.props.componentChildren).forEach((x) =>
-          (node.props.componentChildren || {})[x].forEach((x: SceneNode) =>
-            // Component ID will be passed down from the topmost component
-            indexNode(x, node.id, componentId || node.id),
-          ),
+      if (node.props.componentChildren) {
+        node.props.componentChildren.forEach((x: SceneNode) =>
+          // Component ID will be passed down from the topmost component
+          indexNode(x, node.id, componentId || node.id),
         )
       }
     }
@@ -588,14 +587,12 @@ export const start = (settings: Settings): CompositorInstance => {
       node: SceneNode,
       parentId?: string,
     ): SceneNode => {
-      // Ensure index in case it's a virtual node
-      nodeIndex[node.id] = node
-      parentIdIndex[node.id] = parentId
+      projectIdIndex[node.id] = project.id
       lastRenderIds.add(node.id)
       lastRenderRemovedIds.delete(node.id)
       const element = transformManager.getElement(node)
       const component = componentManager.getComponent(node.props.type)
-      let result = componentManager.renderVirtualNode(node)
+      let result = componentManager.renderVirtualNode(node, parentId)
 
       // Run children through node's filter pipeline
       // TODO: Figure this out
@@ -608,13 +605,7 @@ export const start = (settings: Settings): CompositorInstance => {
       // Pass update to the existing element
       element?._onUpdateHandlers.forEach((x) => x(node.props || {}))
 
-      // Call renderTree recursively for each child
-      return {
-        ...result,
-        children: result.children.map((x) =>
-          renderVirtualTreeOfNode(x, node.id),
-        ),
-      }
+      return result
     }
 
     const project = {

@@ -6,7 +6,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { log, InternalProject } from '../core/context'
 import { swapItems } from '../logic'
-import { Disposable, LayoutUpdates, Project, SceneNode } from './compositor'
+import { Component, ComponentNode, Disposable, LayoutUpdates, Project, SceneNode, VirtualNode } from './compositor'
 
 const PADDING = 0
 
@@ -118,6 +118,7 @@ export const renderProject = (
   ]
 
   const render = () => {
+    log.debug('Renderer: Rendering tree')
     const tree = project.renderVirtualTree()
     ReactDOM.render(
       <RendererProvider
@@ -352,7 +353,7 @@ const onDrop =
 
 let foundDropTarget = false
 const ElementTree = (props: {
-  node: SceneNode
+  node: VirtualNode
   transformDragHandlers?: (node: SceneNode) => any
 }) => {
   const isDragging = useRef(false)

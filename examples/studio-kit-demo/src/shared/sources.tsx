@@ -55,7 +55,7 @@ const RoomParticipant = ({
   const isEnabled = participant.props.videoEnabled
 
   // TODO: Find a way to abstract this by child type/list
-  const child = component.children.content.find(
+  const child = component.children.find(
     (x) => x.props.sourceId === participant.id,
   ) as ParticipantNode
   const [onStream, setOnStream] = useState(Boolean(child))
@@ -71,7 +71,7 @@ const RoomParticipant = ({
   const updateChildProps = useCallback(
     (props: Partial<ParticipantElementProps>) => {
       if (child) {
-        component.updateChild(child.id, props, 'content')
+        component.updateChild(child.id, props)
       } else {
         setChildProps({ ...childProps, ...props })
       }
@@ -162,11 +162,10 @@ const RoomParticipant = ({
                       'RoomParticipant',
                       childProps,
                       participant.id,
-                      'content',
                     )
                   } else {
                     // TODO: Abstract this to "remove()"
-                    component.removeChild(child.id, 'content')
+                    component.removeChild(child.id)
                   }
                   setOnStream(checked)
                 }}

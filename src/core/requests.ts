@@ -207,9 +207,7 @@ export const createLayout = async (request: {
       'Project',
       {},
       {},
-      {
-        content: [tempNode],
-      },
+      [tempNode],
     )
     await compositorProject.insertRoot({
       ...project.props,

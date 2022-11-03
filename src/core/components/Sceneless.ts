@@ -3,19 +3,14 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { SceneNode } from '../../compositor'
-import {
-  Component,
-  ComponentContext,
-  NodeInterface,
-} from '../../compositor/components'
+import { Component, NodeInterface } from '../../compositor/components'
+import { Elements } from '../namespaces'
 
 const commands = {}
 
 const children = {
-  content: {
-    validate: (x: SceneNode) => {
-      return true
-    },
+  validate: (x: SceneNode) => {
+    return true
   },
 }
 
@@ -34,7 +29,7 @@ const Sceneless = {
       ...props,
     }
   },
-  render(context, { id, renderMethods }) {
+  render(context, { id, renderChildren }) {
     const { sources, props, children } = context
     const { layout = 'Grid', layoutProps = {} } = props
     let background = sources.get(props.background?.id)
@@ -65,19 +60,14 @@ const Sceneless = {
               ]
             : [],
         },
-        {
-          id: id('content'),
-          render: {
-            methods: renderMethods('content'),
-          },
-          props: {
+        renderChildren(
+          {
             layout,
             layoutProps,
           },
-          children: children.content.map((x) => ({
-            ...x,
-          })),
-        },
+          (x) => x,
+          { controls: true },
+        ),
         {
           id: id('foreground'),
           props: {
@@ -89,17 +79,11 @@ const Sceneless = {
     }
   },
   migrations: [],
-} as Component<Props, typeof children, typeof commands>
+} as Component<Interface>
 
 /**
  * --- Types ---
  */
-
-type ParticipantProps = {
-  volume: number
-  isMuted: boolean
-  isHidden: boolean
-}
 
 // TODO: These should be derived from the active layout
 export type LayoutProps = {
@@ -115,10 +99,6 @@ export type LayoutProps = {
 
 type LayoutName = string
 
-type ParticipantType = 'camera' | 'screen'
-
-type Context = ComponentContext<Props, typeof children>
-
 export type Props = {
   layout: LayoutName
   layoutProps: LayoutProps
@@ -129,6 +109,12 @@ export type Props = {
   }
 }
 
-export type Interface = NodeInterface<Props, typeof Sceneless>
+type ParticipantInterface = NodeInterface<Elements.WebRTC.Props>
+
+export type Interface = NodeInterface<
+  Props,
+  typeof commands,
+  ParticipantInterface
+>
 
 export const Declaration = Sceneless

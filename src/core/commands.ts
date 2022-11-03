@@ -423,7 +423,8 @@ export const joinRoom = async (payload: {
  * ----
  * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- *
+ * 
+ * @deprecated
  * @internal _Use with caution_
  * @category Node
  */
@@ -455,6 +456,7 @@ export const createNode = async (payload: {
  * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
  *
+ * @deprecated
  * @internal _Use with caution_
  * @category Node
  */
@@ -480,6 +482,7 @@ export const deleteNode = async (payload: {
  * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
  *
+ * @deprecated
  * @internal _Use with caution_
  * @category Node
  */
@@ -509,6 +512,7 @@ export const updateNode = async (payload: {
  * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
  *
+ * @deprecated
  * @internal _Use with caution_
  * @category Node
  */
@@ -541,6 +545,7 @@ export const setNodeLayout = async (payload: {
  * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
  *
+ * @deprecated
  * @internal _Use with caution_
  * @category Node
  */
@@ -566,6 +571,7 @@ export const moveNode = async (payload: {
  * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
  *
+ * @deprecated
  * @internal _Use with caution_
  * @category Node
  */
@@ -593,6 +599,7 @@ export const swapNodes = async (payload: {
  * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
  *
+ * @deprecated
  * @internal _Use with caution_
  * @category Node
  */

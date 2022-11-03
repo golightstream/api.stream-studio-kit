@@ -406,11 +406,13 @@ export const HostView = () => {
           <Column gap={10} marginTop={10}>
             <SourceList
               component={
-                root.children
-                  .content[0] as Compositor.Component.NodeInterface
+                root.children[0] as Compositor.Component.NodeInterface
               }
               sourceType="RoomParticipant"
             />
+            <Column>
+              <label>Background</label>
+            </Column>
           </Column>
           <Renderer project={project} />
           <Chat />

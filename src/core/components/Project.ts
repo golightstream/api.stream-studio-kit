@@ -2,16 +2,16 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import {
-  Component,
-  ComponentContext,
-  NodeInterface,
-} from '../../compositor/components'
+import { SceneNode } from '../../compositor'
+import { Component, NodeInterface } from '../../compositor/components'
+import { Components } from '../namespaces'
 
 const commands = {}
 
 const children = {
-  content: {},
+  validate: (x: SceneNode) => {
+    return true
+  },
 }
 
 const Project = {
@@ -25,29 +25,27 @@ const Project = {
       ...props,
     }
   },
-  render(context, { id, renderMethods, renderNode }) {
+  render(context, { id, renderNode, renderChildren }) {
     const { props, children } = context
 
-    return renderNode(
-      {
-        key: 'project',
-        layout: 'Grid',
-        layoutProps: { cover: true },
-      },
-      children.content,
-    )
+    return renderChildren({
+      layout: 'Grid',
+      layoutProps: { cover: true },
+    })
   },
   migrations: [],
-} as Component<Props, typeof children, typeof commands>
+} as Component<Interface>
 
 /**
  * --- Types ---
  */
 
-type Context = ComponentContext<Props, typeof children>
-
 export type Props = {}
 
-export type Interface = NodeInterface<Props, typeof Project>
+export type Interface = NodeInterface<
+  Props,
+  typeof commands,
+  Components.Sceneless.Interface | Components.MultiScene.Interface
+>
 
 export const Declaration = Project
