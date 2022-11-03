@@ -103,7 +103,6 @@ type RenderHelpers = {
   renderNode: (
     props: SceneNode['props'] & { key: string },
     children: SceneNode[],
-    virtual: boolean,
   ) => SceneNode
 }
 
@@ -433,7 +432,6 @@ export const init = (
   const renderVirtualNode = (
     node: SceneNode | NodeInterface,
     parentId: string,
-    virtual = false,
   ): VirtualNode => {
     // Ensure index in case it's a virtual node
     compositor.nodeIndex[node.id] = (node as NodeInterface).toNode
@@ -443,19 +441,12 @@ export const init = (
     compositor.projectIdIndex[node.id] =
       compositor.projectIdIndex[node.id] || compositor.projectIdIndex[parentId]
 
-    // if (!compositor.nodeIndex[node.id]) return node as VirtualNode
-    // if (virtual) return {
-    //   ...node,
-    //   children: node.children.map(x => renderVirtualNode(x, id))
-    //  } as VirtualNode
-
     const nodeInterface = getNodeInterface(node.id)
 
     const keyToId = (id: string) => `${node.id}-${id}`
     const renderNode: RenderHelpers['renderNode'] = (
       props,
       children = [],
-      virtual = true,
     ) => {
       if (!props.key) console.warn('Every child should have a `key`')
       const id = keyToId(props.key || 'child')
@@ -467,7 +458,6 @@ export const init = (
           children,
         },
         node.id,
-        virtual,
       )
     }
 
