@@ -107,6 +107,7 @@ export const RoomParticipant = {
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
+
       }, [ref.current, source?.value])
 
       useLayoutEffect(() => {
@@ -130,8 +131,11 @@ export const RoomParticipant = {
 
         return () => {
           resizeObserver.unobserve(ref.current)
+          ref.current.srcObject = null
         }
       }, [ref.current, project])
+
+
 
       useEffect(() => {
         if (!ref.current) return
