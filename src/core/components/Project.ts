@@ -27,6 +27,7 @@ const Project = {
   },
   render(context, { id, renderNode, renderChildren }) {
     const { props, sources } = context
+    let banner = sources.get(props.bannerId)
     let background = sources.get(props.backgroundId)
 
     return renderNode({ key: 'project-root', layout: 'Layered' }, [
@@ -47,6 +48,12 @@ const Project = {
         layout: 'Grid',
         layoutProps: { cover: true },
       }),
+      banner &&
+        renderNode({
+          key: 'banner',
+          element: 'LS-Banner',
+          sourceId: banner.id,
+        }),
     ])
   },
   migrations: [],
@@ -58,6 +65,7 @@ const Project = {
 
 export type Props = {
   backgroundId?: string
+  bannerId?: string
 }
 
 export type Interface = NodeInterface<

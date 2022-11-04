@@ -14,6 +14,7 @@ import { useSources } from './hooks'
 type Participant = Sources.WebRTC.RoomParticipantSource
 type Image = Sources.Image.ImageSource
 type Video = Sources.Video.VideoSource
+type Banner = Sources.Banner.BannerSource
 
 type NodeInterface = Compositor.Component.NodeInterface
 type ParticipantElementProps = Elements.WebRTC.Props
@@ -62,6 +63,7 @@ export const BackgroundSelect = ({ component }: { component: Project }) => {
                 width={70}
                 height={40}
                 style={{
+                  cursor: 'pointer',
                   outline: isActive ? '1px solid white' : 'none',
                 }}
                 onClick={() =>
@@ -85,6 +87,7 @@ export const BackgroundSelect = ({ component }: { component: Project }) => {
                 width={70}
                 height={40}
                 style={{
+                  cursor: 'pointer',
                   outline: isActive ? '1px solid white' : 'none',
                 }}
                 onClick={() =>
@@ -98,6 +101,38 @@ export const BackgroundSelect = ({ component }: { component: Project }) => {
         </Row>
       </Column>
     </Column>
+  )
+}
+
+export const BannerSelect = ({ component }: { component: Project }) => {
+  const banners = useSources<Banner>(component, 'Banner')
+
+  return (
+    <Row gap={6}>
+      {banners.map((x) => {
+        const isActive = component.props.bannerId === x.id
+        return (
+          <Flex
+            align="center"
+            justify="center"
+            width={70}
+            height={40}
+            style={{
+              cursor: 'pointer',
+              outline: isActive ? '1px solid white' : '1px solid #555',
+              fontSize: 18,
+            }}
+            onClick={() =>
+              component.update({
+                bannerId: isActive ? null : x.id,
+              })
+            }
+          >
+            {x.props.meta.title}
+          </Flex>
+        )
+      })}
+    </Row>
   )
 }
 

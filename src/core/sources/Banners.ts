@@ -34,7 +34,7 @@ export type BannerSource = {
 export const Banner = {
   type: 'Banner',
   // valueType: Object,
-  // TODO: Validate
+  // TODO: Validate / add defaults
   props: {},
   init({}) {
     return {

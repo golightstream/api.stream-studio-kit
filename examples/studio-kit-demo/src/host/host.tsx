@@ -24,7 +24,7 @@ import { nanoid } from 'nanoid'
 import { Column, Flex, Row } from '../ui/layout/Box'
 import { Component, Renderer } from '../components'
 import { useRoot } from '../shared/hooks'
-import { BackgroundSelect, SourceList } from '../shared/sources'
+import { BackgroundSelect, BannerSelect, SourceList } from '../shared/sources'
 
 const { useStudio } = Helpers.React
 
@@ -57,6 +57,21 @@ const sources = {
     },
     {
       src: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
+    },
+  ],
+  Banner: [
+    {
+      headerText: 'Header',
+      bodyText: 'Some banner text',
+      meta: {
+        title: 'Short'
+      }
+    },
+    {
+      bodyText: 'This is a banner without a header. It has more text.',
+      meta: {
+        title: 'Long'
+      }
     },
   ],
 }
@@ -401,6 +416,12 @@ export const HostView = () => {
               <label>Background</label>
               <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>
                 <BackgroundSelect component={root} />
+              </Flex>
+            </Column>
+            <Column>
+              <label>Banner</label>
+              <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>
+                <BannerSelect component={root} />
               </Flex>
             </Column>
           </Column>
