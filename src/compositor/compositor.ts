@@ -212,6 +212,8 @@ export type CompositorBase = {
   getNodeProject: (id: string) => Project
   getNodeParent: (id: string) => SceneNode
   getNode: <T = SceneNode>(id: string) => T
+  lastRenderRemovedIds: Set<string>
+  lastRenderIds: Set<string>
 }
 
 /**
@@ -302,6 +304,9 @@ export const start = (settings: Settings): CompositorInstance => {
   const projectDbMap = {} as ProjectDbMap
   const projectIndex = {} as ProjectIndex
 
+  let lastRenderRemovedIds: Set<string>
+  let lastRenderIds: Set<string> = new Set()
+
   // Add ls-layout to the custom element registry
   try {
     customElements.define('ls-layout', HtmlLayouts.Layout)
@@ -376,6 +381,7 @@ export const start = (settings: Settings): CompositorInstance => {
     nodeIndex,
     parentIdIndex,
     projectIdIndex,
+    parentComponentIdIndex,
     settings,
     projects: projectIndex,
     subscribe,
@@ -392,6 +398,8 @@ export const start = (settings: Settings): CompositorInstance => {
       return compositor.loadProject(id, projectSettings)
     },
     loadProject: (...args) => loadProject(...args),
+    lastRenderIds,
+    lastRenderRemovedIds,
   } as CompositorBase
 
   const sourceManager = Sources.init(sourceSettings, compositor)
@@ -578,35 +586,11 @@ export const start = (settings: Settings): CompositorInstance => {
     // Store a set of all node IDs as they are rendered. On the following render,
     //  we'll remove from this list one-by-one to determine which virtual nodes
     //  have been removed from the scene tree
-    let lastRenderIds = new Set<string>()
-    let lastRenderRemovedIds = new Set<string>()
+    compositor.lastRenderIds = new Set<string>()
+    compositor.lastRenderRemovedIds = new Set<string>()
 
     // Crawl a node recursively, return its pre-processed render result,
     //  and update each element based on its node's resulting props
-    const renderVirtualTreeOfNode = (
-      node: SceneNode,
-      parentId?: string,
-    ): SceneNode => {
-      projectIdIndex[node.id] = project.id
-      lastRenderIds.add(node.id)
-      lastRenderRemovedIds.delete(node.id)
-      const element = transformManager.getElement(node)
-      const component = componentManager.getComponent(node.props.type)
-      let result = componentManager.renderVirtualNode(node, parentId)
-
-      // Run children through node's filter pipeline
-      // TODO: Figure this out
-      // const filters = [] as Components.Filter[]
-      // const result = runFilters(node, filters)
-
-      // Ensure node has the proper source based on its props
-      transformManager.updateSourceForNode(node.id)
-
-      // Pass update to the existing element
-      element?._onUpdateHandlers.forEach((x) => x(node.props || {}))
-
-      return result
-    }
 
     const project = {
       id,
@@ -653,12 +637,16 @@ export const start = (settings: Settings): CompositorInstance => {
         return Renderer.renderProject(project as Project, containerEl)
       },
       renderVirtualTree() {
-        lastRenderRemovedIds = lastRenderIds
-        lastRenderIds = new Set()
-        const result = renderVirtualTreeOfNode(project.getRoot())
+        compositor.lastRenderRemovedIds = compositor.lastRenderIds
+        compositor.lastRenderIds = new Set()
+
+        const node = project.getRoot()
+        projectIdIndex[node.id] = project.id
+
+        let result = componentManager.renderVirtualNode(node)
 
         // TODO: This will result in redundant NodeRemoved events for non-virtual nodes
-        lastRenderRemovedIds.forEach((x) =>
+        compositor.lastRenderRemovedIds.forEach((x) =>
           triggerEvent('NodeRemoved', {
             projectId: project.id,
             nodeId: x,

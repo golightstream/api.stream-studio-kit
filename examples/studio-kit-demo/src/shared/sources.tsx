@@ -7,17 +7,21 @@ import React, {
 } from 'react'
 import { Sources, Components, Compositor, Elements } from '../../../../'
 import { ScenelessInterface } from '../components/Sceneless'
-import { Column, Flex } from '../ui/layout/Box'
+import { Column, Flex, Row } from '../ui/layout/Box'
 import { AppContext } from './context'
 import { useSources } from './hooks'
 
 type Participant = Sources.WebRTC.RoomParticipantSource
+type Image = Sources.Image.ImageSource
+type Video = Sources.Video.VideoSource
+
 type NodeInterface = Compositor.Component.NodeInterface
 type ParticipantElementProps = Elements.WebRTC.Props
 type Source = Compositor.Source.Source
 
 type ParticipantNode =
   Compositor.Component.NodeInterface<ParticipantElementProps>
+type Project = Components.Project.Interface
 
 export function SourceList<SourceProps>({
   component,
@@ -38,6 +42,62 @@ export function SourceList<SourceProps>({
           <Component participant={x} component={component as any} />
         ))}
     </>
+  )
+}
+
+export const BackgroundSelect = ({ component }: { component: Project }) => {
+  const images = useSources<Image>(component, 'Image')
+  const videos = useSources<Video>(component, 'Video')
+
+  return (
+    <Column>
+      <Column>
+        <label>Images</label>
+        <Row gap={6}>
+          {images.map((x) => {
+            const isActive = component.props.backgroundId === x.id
+            return (
+              <img
+                src={x.props.src}
+                width={70}
+                height={40}
+                style={{
+                  outline: isActive ? '1px solid white' : 'none',
+                }}
+                onClick={() =>
+                  component.update({
+                    backgroundId: isActive ? null : x.id,
+                  })
+                }
+              />
+            )
+          })}
+        </Row>
+      </Column>
+      <Column>
+        <label>Videos</label>
+        <Row gap={6}>
+          {videos.map((x) => {
+            const isActive = component.props.backgroundId === x.id
+            return (
+              <video
+                src={x.props.src}
+                width={70}
+                height={40}
+                style={{
+                  outline: isActive ? '1px solid white' : 'none',
+                }}
+                onClick={() =>
+                  component.update({
+                    backgroundId: isActive ? null : x.id,
+                  })
+                }
+              />
+            )
+          })}
+        </Row>
+      </Column>
+    </Column>
   )
 }
 

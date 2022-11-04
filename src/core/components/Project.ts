@@ -26,12 +26,28 @@ const Project = {
     }
   },
   render(context, { id, renderNode, renderChildren }) {
-    const { props, children } = context
+    const { props, sources } = context
+    let background = sources.get(props.backgroundId)
 
-    return renderChildren({
-      layout: 'Grid',
-      layoutProps: { cover: true },
-    })
+    return renderNode({ key: 'project-root', layout: 'Layered' }, [
+      background &&
+        (background.type === 'Image'
+          ? renderNode({
+              key: background.id,
+              element: 'LS-Image',
+              sourceId: background.id,
+            })
+          : renderNode({
+              key: background.id,
+              element: 'LS-Video',
+              sourceId: background.id,
+              loop: true,
+            })),
+      renderChildren({
+        layout: 'Grid',
+        layoutProps: { cover: true },
+      }),
+    ])
   },
   migrations: [],
 } as Component<Interface>
@@ -40,7 +56,9 @@ const Project = {
  * --- Types ---
  */
 
-export type Props = {}
+export type Props = {
+  backgroundId?: string
+}
 
 export type Interface = NodeInterface<
   Props,

@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { asArray, generateId, insertAt, mapValues, memoize } from '../logic'
-import type {
+import {
   PropsDefinition,
   CompositorBase,
   SceneNode,
@@ -13,6 +13,8 @@ import type {
   AnyProps,
   TransformNode,
   VirtualNode,
+  CompositorInstance,
+  getCompositorInstance,
 } from './compositor'
 import { Get } from 'type-fest'
 import { SourceManager } from './sources'
@@ -102,7 +104,7 @@ type RenderHelpers = {
   ) => SceneNode
   renderNode: (
     props: SceneNode['props'] & { key: string },
-    children: SceneNode[],
+    children?: Array<SceneNode | undefined | null>,
   ) => SceneNode
 }
 
@@ -271,9 +273,9 @@ export const init = (
     let existing = nodeInterfaceIndex[nodeId] as I
     const node = compositor.getNode(nodeId)
     const getInterfaceChildren = () => {
-      return (node.props.componentChildren || node.children).map((x) =>
-        getNodeInterface(x.id),
-      )
+      return (node.props.componentChildren || node.children).map((x) => {
+        return getNodeInterface(x.id)
+      })
     }
 
     if (existing) {
@@ -431,7 +433,7 @@ export const init = (
 
   const renderVirtualNode = (
     node: SceneNode | NodeInterface,
-    parentId: string,
+    parentId?: string,
   ): VirtualNode => {
     // Ensure index in case it's a virtual node
     compositor.nodeIndex[node.id] = (node as NodeInterface).toNode
@@ -441,13 +443,27 @@ export const init = (
     compositor.projectIdIndex[node.id] =
       compositor.projectIdIndex[node.id] || compositor.projectIdIndex[parentId]
 
+    let transformManager = getCompositorInstance().transforms
+    const element = transformManager.getElement(node)
+
+    compositor.lastRenderIds.add(node.id)
+    compositor.lastRenderRemovedIds.delete(node.id)
+
+    // Run children through node's filter pipeline
+    // TODO: Figure this out
+    // const filters = [] as Components.Filter[]
+    // const result = runFilters(node, filters)
+
+    // Ensure node has the proper source based on its props
+    transformManager.updateSourceForNode(node.id)
+
+    // Pass update to the existing element
+    element?._onUpdateHandlers.forEach((x) => x(node.props || {}))
+
     const nodeInterface = getNodeInterface(node.id)
 
     const keyToId = (id: string) => `${node.id}-${id}`
-    const renderNode: RenderHelpers['renderNode'] = (
-      props,
-      children = [],
-    ) => {
+    const renderNode: RenderHelpers['renderNode'] = (props, children = []) => {
       if (!props.key) console.warn('Every child should have a `key`')
       const id = keyToId(props.key || 'child')
 
@@ -455,7 +471,7 @@ export const init = (
         {
           id,
           props,
-          children,
+          children: children.filter(Boolean),
         },
         node.id,
       )
@@ -470,7 +486,6 @@ export const init = (
             key: '__children',
           },
           nodeInterface.children,
-          false,
         )
         return {
           ...containerNode,

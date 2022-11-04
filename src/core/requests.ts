@@ -201,12 +201,11 @@ export const createLayout = async (request: {
     const tempNode = CoreContext.compositor.components.createTempComponent(
       type,
       settings.props,
-      settings.sources,
     )
     const project = CoreContext.compositor.components.createTempComponent(
       'Project',
       {},
-      {},
+      settings.sources,
       [tempNode],
     )
     await compositorProject.insertRoot({

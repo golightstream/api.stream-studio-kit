@@ -12,7 +12,6 @@ import {
   Components,
   Compositor,
 } from '../../../../'
-import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from '../layout-examples'
 import { Chat } from '../shared/chat'
@@ -22,12 +21,10 @@ import config from '../../config'
 import ReCAPTCHA from 'react-google-recaptcha'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
-import { StringNullableChain } from 'lodash'
-import { Column, Row } from '../ui/layout/Box'
+import { Column, Flex, Row } from '../ui/layout/Box'
 import { Component, Renderer } from '../components'
 import { useRoot } from '../shared/hooks'
-import { SourceList } from '../shared/sources'
-import { Source } from '../../../../types/src/compositor'
+import { BackgroundSelect, SourceList } from '../shared/sources'
 
 const { useStudio } = Helpers.React
 
@@ -57,9 +54,6 @@ const sources = {
   Video: [
     {
       src: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4',
-    },
-    {
-      src: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
     },
     {
       src: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
@@ -393,11 +387,6 @@ export const HostView = () => {
     }
   }, [room])
 
-  useEffect(() => {
-    if (project) {
-    }
-  }, [project])
-
   if (project && room && root) {
     return (
       <Column>
@@ -405,13 +394,14 @@ export const HostView = () => {
         <Row align="stretch">
           <Column gap={10} marginTop={10}>
             <SourceList
-              component={
-                root.children[0] as Compositor.Component.NodeInterface
-              }
+              component={root.children[0] as Compositor.Component.NodeInterface}
               sourceType="RoomParticipant"
             />
             <Column>
               <label>Background</label>
+              <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>
+                <BackgroundSelect component={root} />
+              </Flex>
             </Column>
           </Column>
           <Renderer project={project} />

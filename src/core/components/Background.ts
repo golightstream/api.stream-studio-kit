@@ -14,10 +14,9 @@ const children = {
   },
 }
 
-const Sceneless = {
-  name: 'Sceneless',
+const Background = {
+  name: 'Background',
   version: '1',
-  sources: ['Image', 'Video', 'RoomParticipant'],
   children,
   commands,
   create(props) {
@@ -29,31 +28,30 @@ const Sceneless = {
       ...props,
     }
   },
-  render(context, { id, renderNode, renderChildren }) {
-    const { sources, props, children } = context
+  render(context, { id, renderNode }) {
+    const { sources, props } = context
     const { layout = 'Grid', layoutProps = {} } = props
+    let background = sources.get(props.background?.id)
 
     return renderNode(
       {
-        key: 'sceneless-root',
-        layout: 'Layered',
+        key: 'background',
+        layout: 'Free',
       },
-      [
-        renderChildren(
-          {
-            layout,
-            layoutProps,
-          },
-          (x) => x,
-          { controls: true },
-        ),
-        renderNode(
-          {
-            key: 'foreground',
-            layout: 'Free',
-          },
-        ),
-      ],
+      background
+        ? [
+            {
+              id: background.id,
+              props: {
+                sourceType: background.type,
+                sourceId: background.id,
+                loop: true,
+                fit: props.background.stretch ? 'fill' : 'cover',
+              },
+              children: [],
+            },
+          ]
+        : [],
     )
   },
   migrations: [],
