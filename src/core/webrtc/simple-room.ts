@@ -222,9 +222,15 @@ export const getRoom = (id: string) => {
       let published: LocalTrackPublication[]
 
       try {
-        const existing = localParticipant.getTracks().find((x) => {
+        const existingWebcams = localParticipant.getTracks().filter((x) => {
           return x?.source === Track.Source.Camera
         })
+
+        const existingPrimaryWebCam = existingWebcams.find((x) => {
+          const track = getTrack(x?.trackSid)
+          return !track.isExternal
+        })
+
         const tracks = await localParticipant.createTracks({
           video: {
             deviceId: options.deviceId,
@@ -236,22 +242,39 @@ export const getRoom = (id: string) => {
             },
           },
         })
-        if (existing?.isMuted) {
+
+        if (existingPrimaryWebCam) {
+          existingPrimaryWebCam.setTrack(tracks[0])
+        }
+
+        if (existingPrimaryWebCam?.isMuted) {
           tracks.forEach((x) => {
             x.mute()
           })
         }
-        published = await Promise.all(
-          tracks.map((x) => localParticipant.publishTrack(x)),
-        )
-        if (existing) {
-          localParticipant.unpublishTrack(existing.track as LocalTrack)
+
+        if (!existingPrimaryWebCam) {
+          published = await Promise.all(
+            tracks.map((x) => localParticipant.publishTrack(x)),
+          )
+          return getTrack(published[0]?.trackSid)
+        } else {
+          tracks.forEach((x) => {
+            existingPrimaryWebCam.setTrack(x)
+          })
+          return existingPrimaryWebCam?.trackSid
         }
+
+        // return getTrack(published[0]?.trackSid)
+        // if (existingPrimaryWebCam) {
+        //   localParticipant.unpublishTrack(
+        //     existingPrimaryWebCam.track as LocalTrack,
+        //   )
+        // }
       } catch (e) {
         throw e
       } finally {
         settingCamera = false
-        return getTrack(published[0]?.trackSid)
       }
     },
     setMicrophone: async (options) => {
