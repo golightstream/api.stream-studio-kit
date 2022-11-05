@@ -14,9 +14,6 @@ import {
   TransformRegister,
   TransformSettings,
 } from '../transforms'
-import CoreContext from '../../core/context';
-import { InternalEventMap, triggerInternal } from './../../core/events'
-import { getRoom } from '../../core/webrtc/simple-room';
 
 const createDefault: TransformDeclaration['create'] = () => {
   return {
