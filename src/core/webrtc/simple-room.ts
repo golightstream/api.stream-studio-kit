@@ -299,6 +299,41 @@ export const getRoom = (id: string) => {
         return getTrack(published[0]?.trackSid)
       }
     },
+    addMicrophone: async (options) => {
+      if (settingMic) {
+        log.warn('Cannot set microphone until previous has resolved')
+        return
+      }
+      settingMic = true
+
+      const tracks = await localParticipant.createTracks({
+        audio: options || true,
+      })
+
+      const inUseTrack = localParticipant.getTracks().find((x) => {
+        return (
+          x?.source === Track.Source.Microphone &&
+          x?.track?.mediaStreamTrack?.getSettings()?.deviceId ===
+            options.deviceId
+        )
+      })
+
+      if (inUseTrack?.isMuted) {
+        tracks.forEach((x) => {
+          x.mute()
+        })
+      }
+
+      const published = await Promise.all(
+        tracks.map((x) => localParticipant.publishTrack(x)),
+      )
+      if (inUseTrack) {
+        localParticipant.unpublishTrack(inUseTrack.track as LocalTrack)
+      }
+      
+      settingMic = false
+      return getTrack(published[0]?.trackSid)
+    },
     addCamera: async (options = {}) => {
       const tracks = await localParticipant.createTracks({
         video: {
