@@ -38,6 +38,7 @@ export const RoomParticipant = {
     audioEnabled: {},
   },
   init({ addSource, removeSource, updateSource, getSource }) {
+    
     CoreContext.on('RoomJoined', ({ room }) => {
       let listeners = {} as { [id: string]: Function }
       let previousTracks = [] as SDK.Track[]
