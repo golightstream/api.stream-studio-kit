@@ -10,12 +10,14 @@ import { CoreContext } from '../context'
 import { Compositor } from '../namespaces'
 import { getRoom } from '../webrtc/simple-room'
 import { RoomParticipantSource } from '../sources'
-import { getProject } from '../data'
+import { getProject, getProjectRoom } from '../data'
+import { updateMediaStreamTracks } from '../../helpers/webrtc'
 
 type Props = {
   volume: number
   isMuted: boolean
   isHidden: boolean
+  microphone: string
 }
 
 export const RoomParticipant = {
@@ -39,11 +41,12 @@ export const RoomParticipant = {
   },
   create({ onUpdate, onNewSource }, initialProps) {
     const root = document.createElement('div')
-
+    const room = getProjectRoom(CoreContext.state.activeProjectId)
     Object.assign(root.style, {
       position: 'relative',
     })
-
+    
+    let mediaSource: MediaStream
     let source: any
     let props = initialProps
 
@@ -96,19 +99,32 @@ export const RoomParticipant = {
 
         /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
            but the video element requires a MediaStream. */
-        const mediaSource =
-          source?.value instanceof MediaStreamTrack &&
-          source?.value?.kind === 'video'
-            ? new MediaStream([source?.value as MediaStreamTrack])
-            : (source?.value as MediaStream)
+        if (source?.value instanceof MediaStreamTrack) {
+          mediaSource = new MediaStream([])
+          updateMediaStreamTracks(mediaSource, {
+            video: source?.value,
+            audio: source?.props?.microphone,
+          })
+        } else {
+          mediaSource = source?.value
+        }
 
         if (mediaSource && mediaSource !== ref.current.srcObject) {
           ref.current.srcObject = mediaSource
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
+      }, [ref.current, source?.value, source?.props?.microphone])
 
-      }, [ref.current, source?.value])
+      // useEffect(() => {
+      //   if (props?.microphone) {
+      //     const audioTrack = room.getTrack(props?.microphone)
+      //     updateMediaStreamTracks(ref.current.srcObject as MediaStream, {
+      //       video: source?.value as MediaStreamTrack,
+      //       audio: audioTrack?.mediaStreamTrack,
+      //     })
+      //   }
+      // }, [props?.microphone])
 
       useLayoutEffect(() => {
         if (!ref.current) return
@@ -134,8 +150,6 @@ export const RoomParticipant = {
           ref.current.srcObject = null
         }
       }, [ref.current, project])
-
-
 
       useEffect(() => {
         if (!ref.current) return

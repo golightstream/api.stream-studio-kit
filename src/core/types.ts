@@ -336,6 +336,11 @@ export interface Room {
    */
   setMicrophone: (options?: AudioCaptureOptions) => Promise<Track>
   /**
+   * Create audio {@link Track} and publish, replacing a Microphone if it already exists
+   * @category Media
+   */
+  addMicrophone: (options?: AudioCaptureOptions) => Promise<Track>
+  /**
    * Create webcam/audio {@link Track Tracks} and publish.
    * @category Media
    */
