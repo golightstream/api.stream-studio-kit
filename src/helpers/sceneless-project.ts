@@ -334,6 +334,9 @@ export interface Commands {
    * Remove a stream participant from the stream canvas.
    */
   removeParticipantTrack(trackId: string, type?: ParticipantType): void
+  
+  /* Attaching the microphone to the camera. */
+  attachMicrophoneToCamera(cameraTrackId: string, microphoneTrackId: string) : void
   /**
    * Add a participant to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
@@ -342,6 +345,7 @@ export interface Commands {
    * A participant will remain on stream even if there is no active feed, until
    * it is removed using {@link removeParticipant removeParticipant()} or {@link pruneParticipants pruneParticipants()}.
    */
+
   addParticipant(
     participantId: string,
     props: Partial<ParticipantProps>,
