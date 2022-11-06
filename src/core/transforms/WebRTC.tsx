@@ -103,6 +103,7 @@ export const RoomParticipant = {
           mediaSource = new MediaStream([])
           updateMediaStreamTracks(mediaSource, {
             video: source?.value,
+            audio: source?.props?.microphone,
           })
         } else {
           mediaSource = source?.value
@@ -113,17 +114,17 @@ export const RoomParticipant = {
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
-      }, [ref.current, source?.value])
+      }, [ref.current, source?.value, source?.props?.microphone])
 
-      useEffect(() => {
-        if (props?.microphone) {
-          const audioTrack = room.getTrack(props?.microphone)
-          updateMediaStreamTracks(ref.current.srcObject as MediaStream, {
-            video: source?.value as MediaStreamTrack,
-            audio: audioTrack?.mediaStreamTrack,
-          })
-        }
-      }, [props?.microphone])
+      // useEffect(() => {
+      //   if (props?.microphone) {
+      //     const audioTrack = room.getTrack(props?.microphone)
+      //     updateMediaStreamTracks(ref.current.srcObject as MediaStream, {
+      //       video: source?.value as MediaStreamTrack,
+      //       audio: audioTrack?.mediaStreamTrack,
+      //     })
+      //   }
+      // }, [props?.microphone])
 
       useLayoutEffect(() => {
         if (!ref.current) return

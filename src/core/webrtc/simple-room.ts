@@ -106,10 +106,7 @@ export const getRoom = (id: string) => {
           participantId: x.participant?.identity,
           isMuted: x.track?.isMuted,
           type: x.source,
-          isExternal:
-            meta?.externalTracks?.some(
-              (trackId: string) => trackId === x.trackSid,
-            ) || false,
+          isExternal: Boolean(meta?.[x.trackSid])
         }
       }) as SDK.Track[],
     }

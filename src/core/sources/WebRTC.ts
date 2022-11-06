@@ -15,7 +15,9 @@ export type RoomParticipantSource = {
   props: {
     // Equivalent to room participantId
     id: string
+
     type: 'screen' | 'camera'
+
     displayName: string
     // Video track muted by owner
     videoEnabled: boolean
@@ -25,6 +27,8 @@ export type RoomParticipantSource = {
     mirrored: boolean
 
     external: boolean
+
+    microphone?: MediaStreamTrack
   }
 }
 
@@ -57,6 +61,9 @@ export const RoomParticipant = {
               const webcamTrack = room.getTrack(track.id)
               const source = getSource(track?.id)
               if (source) {
+                const microphoneTrack = room.getTrack(
+                  participant?.meta[track.id]?.microphone,
+                )
                 updateSource(track.id, {
                   videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
                   audioEnabled: false,
@@ -64,6 +71,7 @@ export const RoomParticipant = {
                     participant?.meta[track.id]?.displayName ||
                     'External Track',
                   mirrored: participant?.meta[track.id]?.isMirrored,
+                  ...(microphoneTrack) && {microphone : microphoneTrack},
                   external: track?.isExternal,
                 })
               }
