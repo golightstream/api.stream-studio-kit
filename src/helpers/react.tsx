@@ -220,4 +220,3 @@ const usePrevious = <T extends {}>(value: T) => {
   return ref.current
 }
 
-export default usePrevious
