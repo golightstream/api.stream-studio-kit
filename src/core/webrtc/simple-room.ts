@@ -106,7 +106,7 @@ export const getRoom = (id: string) => {
           participantId: x.participant?.identity,
           isMuted: x.track?.isMuted,
           type: x.source,
-          isExternal: Boolean(meta?.[x.trackSid])
+          isExternal: Boolean(meta?.[x.trackSid]),
         }
       }) as SDK.Track[],
     }
@@ -307,12 +307,14 @@ export const getRoom = (id: string) => {
         audio: options || true,
       })
 
-      const inUseTrack = localParticipant.getTracks().find((x) => {
-        return (
-          x?.source === Track.Source.Microphone &&
-          x?.track?.mediaStreamTrack?.getSettings()?.deviceId ===
-            options.deviceId
-        )
+      const audioTracks = localParticipant.getTracks().filter((track) => {
+        return track.source === Track.Source.Microphone
+      })
+
+      const inUseTrack = audioTracks.find((x) => {
+        const track = getTrack(x?.trackSid)
+        track?.mediaStreamTrack?.getSettings()?.deviceId === options.deviceId &&
+          track?.isExternal
       })
 
       if (inUseTrack?.isMuted) {
@@ -327,7 +329,7 @@ export const getRoom = (id: string) => {
       if (inUseTrack) {
         localParticipant.unpublishTrack(inUseTrack.track as LocalTrack)
       }
-      
+
       settingMic = false
       return getTrack(published[0]?.trackSid)
     },
