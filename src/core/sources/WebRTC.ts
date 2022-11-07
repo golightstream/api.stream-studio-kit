@@ -90,7 +90,7 @@ export const RoomParticipant = {
           })
           const microphoneId = x.trackIds.find((x) => {
             const track = room.getTrack(x)
-            return track?.type === 'microphone'
+            return track?.type === 'microphone' && !track?.isExternal
           })
           const screenshareId = x.trackIds.find((x) => {
             const track = room.getTrack(x)
