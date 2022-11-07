@@ -96,12 +96,13 @@ export const RoomParticipant = {
           })
         })
 
-      /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
+        /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
          but the video element requires a MediaStream. */
         let mediaSource = new MediaStream([])
         if (source?.value instanceof MediaStreamTrack) {
           updateMediaStreamTracks(mediaSource, {
             video: source?.value,
+            audio: source?.props?.microphone?.mediaStreamTrack,
           })
         } else {
           mediaSource = source?.value
@@ -112,18 +113,8 @@ export const RoomParticipant = {
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
+        
       }, [ref.current, source?.value, source?.props?.microphone])
-
-      useEffect(() => {
-        /*  It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
-            but the video element requires a MediaStream. */
-        if (source?.props?.microphone) {
-          updateMediaStreamTracks(ref.current.srcObject as MediaStream, {
-            video: source?.value as MediaStreamTrack,
-            audio: source?.props?.microphone?.mediaStreamTrack,
-          })
-        }
-      }, [source?.value, source?.props?.microphone])
 
       useLayoutEffect(() => {
         if (!ref.current) return
