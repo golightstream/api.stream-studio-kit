@@ -106,7 +106,7 @@ export const getRoom = (id: string) => {
           participantId: x.participant?.identity,
           isMuted: x.track?.isMuted,
           type: x.source,
-          isExternal: Boolean(meta?.[x.trackSid])
+          isExternal: Boolean(meta?.[x.trackSid]),
         }
       }) as SDK.Track[],
     }
@@ -271,13 +271,19 @@ export const getRoom = (id: string) => {
       let published: LocalTrackPublication[]
 
       try {
-        const existing = localParticipant.getTracks().find((x) => {
+        const existingMicroPhones = localParticipant.getTracks().filter((x) => {
           return x.source === Track.Source.Microphone
         })
+
+         const existingPrimaryMicrophone = existingMicroPhones.find((x) => {
+           const track = getTrack(x?.trackSid)
+           return !track.isExternal
+         })
+
         const tracks = await localParticipant.createTracks({
           audio: options || true,
         })
-        if (existing?.isMuted) {
+        if (existingPrimaryMicrophone?.isMuted) {
           tracks.forEach((x) => {
             x.mute()
           })
@@ -285,10 +291,11 @@ export const getRoom = (id: string) => {
         published = await Promise.all(
           tracks.map((x) => localParticipant.publishTrack(x)),
         )
-        if (existing) {
-          localParticipant.unpublishTrack(existing.track as LocalTrack)
+        if (existingPrimaryMicrophone) {
+          localParticipant.unpublishTrack(
+            existingPrimaryMicrophone.track as LocalTrack,
+          )
         }
-        return getTrack(published[0]?.trackSid)
       } catch (e) {
         throw e
       } finally {
@@ -307,12 +314,14 @@ export const getRoom = (id: string) => {
         audio: options || true,
       })
 
-      const inUseTrack = localParticipant.getTracks().find((x) => {
-        return (
-          x?.source === Track.Source.Microphone &&
-          x?.track?.mediaStreamTrack?.getSettings()?.deviceId ===
-            options.deviceId
-        )
+      const audioTracks = localParticipant.getTracks().filter((track) => {
+        return track.source === Track.Source.Microphone
+      })
+
+      const inUseTrack = audioTracks.find((x) => {
+        const track = getTrack(x?.trackSid)
+        track?.mediaStreamTrack?.getSettings()?.deviceId === options.deviceId &&
+          track?.isExternal
       })
 
       if (inUseTrack?.isMuted) {
@@ -327,7 +336,7 @@ export const getRoom = (id: string) => {
       if (inUseTrack) {
         localParticipant.unpublishTrack(inUseTrack.track as LocalTrack)
       }
-      
+
       settingMic = false
       return getTrack(published[0]?.trackSid)
     },

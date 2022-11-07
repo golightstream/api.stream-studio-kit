@@ -334,9 +334,12 @@ export interface Commands {
    * Remove a stream participant from the stream canvas.
    */
   removeParticipantTrack(trackId: string, type?: ParticipantType): void
-  
+
   /* Attaching the microphone to the camera. */
-  attachMicrophoneToCamera(cameraTrackId: string, microphoneTrackId: string) : void
+  attachAudioSinkToCamera(
+    cameraTrackId: string,
+    audioSinkId: string,
+  ): void
   /**
    * Add a participant to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
@@ -1864,13 +1867,13 @@ export const commands = (_project: ScenelessProject) => {
     },
 
 
-    attachMicrophoneToCamera(cameraTrackId: string, microphoneTrackId:string) {
+    attachAudioSinkToCamera(cameraTrackId: string, audioSinkId:string) {
       const node = commands.getParticipantNode(cameraTrackId)
       if (!node) return
       CoreContext.Command.updateNode({
         nodeId: node.id,
         props: {
-          microphone: microphoneTrackId,
+          sink: audioSinkId,
         },
       })
     },
