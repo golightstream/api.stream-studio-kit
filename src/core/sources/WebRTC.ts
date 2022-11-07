@@ -71,7 +71,7 @@ export const RoomParticipant = {
                     participant?.meta[track.id]?.displayName ||
                     'External Track',
                   mirrored: participant?.meta[track.id]?.isMirrored,
-                  ...(microphoneTrack) && {microphone : microphoneTrack?.mediaStreamTrack},
+                  microphone : microphoneTrack && microphoneTrack?.mediaStreamTrack,
                   external: track?.isExternal,
                 })
               }
