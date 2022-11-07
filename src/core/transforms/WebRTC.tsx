@@ -45,8 +45,7 @@ export const RoomParticipant = {
     Object.assign(root.style, {
       position: 'relative',
     })
-    
-    let mediaSource: MediaStream
+
     let source: any
     let props = initialProps
 
@@ -97,13 +96,12 @@ export const RoomParticipant = {
           })
         })
 
-        /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
-           but the video element requires a MediaStream. */
+      /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
+         but the video element requires a MediaStream. */
+        let mediaSource = new MediaStream([])
         if (source?.value instanceof MediaStreamTrack) {
-          mediaSource = new MediaStream([])
           updateMediaStreamTracks(mediaSource, {
             video: source?.value,
-            audio: source?.props?.microphone,
           })
         } else {
           mediaSource = source?.value
@@ -116,15 +114,16 @@ export const RoomParticipant = {
         }
       }, [ref.current, source?.value, source?.props?.microphone])
 
-      // useEffect(() => {
-      //   if (props?.microphone) {
-      //     const audioTrack = room.getTrack(props?.microphone)
-      //     updateMediaStreamTracks(ref.current.srcObject as MediaStream, {
-      //       video: source?.value as MediaStreamTrack,
-      //       audio: audioTrack?.mediaStreamTrack,
-      //     })
-      //   }
-      // }, [props?.microphone])
+      useEffect(() => {
+        /*  It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
+            but the video element requires a MediaStream. */
+        if (source?.props?.microphone) {
+          updateMediaStreamTracks(ref.current.srcObject as MediaStream, {
+            video: source?.value as MediaStreamTrack,
+            audio: source?.props?.microphone,
+          })
+        }
+      }, [source?.value, source?.props?.microphone])
 
       useLayoutEffect(() => {
         if (!ref.current) return
