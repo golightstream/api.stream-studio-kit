@@ -17,7 +17,11 @@ type Props = {
   volume: number
   isMuted: boolean
   isHidden: boolean
-  microphone: string
+  sink: string
+}
+
+interface LBVideoElement extends HTMLVideoElement {
+  setSinkId(id: string): Promise<void>
 }
 
 export const RoomParticipant = {
@@ -39,8 +43,10 @@ export const RoomParticipant = {
     // TODO: Filter source.isActive to ensure we're getting the best match
     return sources.find((x) => isMatch(x.props, props.sourceProps))
   },
-  create({ onUpdate, onNewSource }, initialProps) {
+  create({ onUpdate, onNewSource, onRemove }, initialProps) {
     const root = document.createElement('div')
+    // TODO: Transforms should not rely on external state
+    const project = getProject(CoreContext.state.activeProjectId)
     const room = getProjectRoom(CoreContext.state.activeProjectId)
     Object.assign(root.style, {
       position: 'relative',
@@ -48,6 +54,7 @@ export const RoomParticipant = {
 
     let source: any
     let props = initialProps
+    let mediaSource = new MediaStream([])
 
     const getSize = (
       width: number,
@@ -72,21 +79,22 @@ export const RoomParticipant = {
       props: Props
       source: RoomParticipantSource
     }) => {
-      const { volume = 1, isHidden = false } = props
+      const ref = useRef<LBVideoElement>()
+
+
+      const { volume = 1, isHidden = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
-      const ref = useRef<HTMLVideoElement>()
-      // TODO: Transforms should not rely on external state
-      const project = getProject(CoreContext.state.activeProjectId)
-      const room = getRoom(CoreContext.state.activeProjectId)
+
+
       const isSelf = source?.id === room?.participantId
 
       // Mute audio if explicitly isMuted by host,
       //  or the participant is our local participant
-      const muteAudio = isSelf || props.isMuted
+      const muteAudio = isSelf || props?.isMuted
 
       // Hide video if explicitly isHidden by host or
       //  if the participant is sending no video
-      const hasVideo = !props.isHidden && source?.props.videoEnabled
+      const hasVideo = !props?.isHidden && source?.props?.videoEnabled
 
       useEffect(() => {
         if (!ref.current) return
@@ -96,12 +104,13 @@ export const RoomParticipant = {
           })
         })
 
-      /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
+        /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
          but the video element requires a MediaStream. */
-        let mediaSource = new MediaStream([])
+
         if (source?.value instanceof MediaStreamTrack) {
           updateMediaStreamTracks(mediaSource, {
             video: source?.value,
+            audio: source?.props?.microphone?.mediaStreamTrack,
           })
         } else {
           mediaSource = source?.value
@@ -115,32 +124,49 @@ export const RoomParticipant = {
       }, [ref.current, source?.value, source?.props?.microphone])
 
       useEffect(() => {
-        /*  It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
-            but the video element requires a MediaStream. */
-        if (source?.props?.microphone) {
-          updateMediaStreamTracks(ref.current.srcObject as MediaStream, {
-            video: source?.value as MediaStreamTrack,
-            audio: source?.props?.microphone?.mediaStreamTrack,
-          })
+        if(!props && ref.current) {
+          ref.current.srcObject = null
+          ref.current = null
         }
-      }, [source?.value, source?.props?.microphone])
+      }, [props])
+
+      useEffect(() => {
+        if (ref?.current && props?.sink) {
+          ref.current
+            .setSinkId(props?.sink)
+            .then(() => {
+              console.log(`Success, audio output device attached`)
+            })
+            .catch((error) => {
+              let errorMessage = error
+              if (error.name === 'SecurityError') {
+                errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`
+              }
+              console.error(errorMessage)
+              // Jump back to first output device in the list as it's the default.
+            })
+        }
+      }, [props?.sink])
 
       useLayoutEffect(() => {
         if (!ref.current) return
 
         const calculate = () => {
           const rect = ref.current
-          setLabelSize(
-            getSize(rect.clientWidth, {
-              width: project.compositor.getRoot().props.size.x,
-              height: project.compositor.getRoot().props.size.y,
-            }),
-          )
+          if (rect) {
+            setLabelSize(
+              getSize(rect.clientWidth, {
+                width: project.compositor.getRoot().props.size.x,
+                height: project.compositor.getRoot().props.size.y,
+              }),
+            )
+          }
         }
 
         const resizeObserver = new ResizeObserver((entries) => {
           calculate()
         })
+        
         calculate()
         resizeObserver.observe(ref.current)
 
@@ -277,6 +303,11 @@ export const RoomParticipant = {
 
     onNewSource((_source) => {
       source = _source
+      render()
+    })
+
+    onRemove((_props) => {
+      props = _props
       render()
     })
 

@@ -10,8 +10,7 @@
  *
  * @module React
  */
-import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { on } from '../core/events'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { SDK } from '../core/namespaces'
 import { Callback, ScenelessProject } from './index'
 import { watchDevices } from './webrtc'
@@ -142,6 +141,7 @@ export const StudioProvider = ({
   const [studio, setStudio] = useState<SDK.Studio>()
   const [webcamId, setWebcamId] = useState<string>(stored.webcamId)
   const [microphoneId, setMicrophoneId] = useState<string>(stored.microphoneId)
+
   const projectCommands = useMemo(
     () => (project ? ScenelessProject.commands(project) : null),
     [project],
@@ -205,3 +205,4 @@ export const StudioProvider = ({
     </StudioContext.Provider>
   )
 }
+
