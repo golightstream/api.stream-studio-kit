@@ -120,7 +120,7 @@ export const RoomParticipant = {
         if (source?.props?.microphone) {
           updateMediaStreamTracks(ref.current.srcObject as MediaStream, {
             video: source?.value as MediaStreamTrack,
-            audio: source?.props?.microphone,
+            audio: source?.props?.microphone?.mediaStreamTrack,
           })
         }
       }, [source?.value, source?.props?.microphone])
