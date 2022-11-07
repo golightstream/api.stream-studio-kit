@@ -28,7 +28,7 @@ export type RoomParticipantSource = {
 
     external: boolean
 
-    microphone?: MediaStreamTrack
+    microphone?: SDK.Track
   }
 }
 
@@ -42,7 +42,6 @@ export const RoomParticipant = {
     audioEnabled: {},
   },
   init({ addSource, removeSource, updateSource, getSource }) {
-    
     CoreContext.on('RoomJoined', ({ room }) => {
       let listeners = {} as { [id: string]: Function }
       let previousTracks = [] as SDK.Track[]
@@ -71,7 +70,7 @@ export const RoomParticipant = {
                     participant?.meta[track.id]?.displayName ||
                     'External Track',
                   mirrored: participant?.meta[track.id]?.isMirrored,
-                  microphone : microphoneTrack && microphoneTrack?.mediaStreamTrack,
+                  microphone: microphoneTrack,
                   external: track?.isExternal,
                 })
               }
@@ -138,9 +137,8 @@ export const RoomParticipant = {
           (track) => !tracks.some((x) => x.id === track.id),
         )
 
-      /* Filtering out the tracks that have a mediaStreamTrack. */
-        previousTracks =
-          tracks.filter((t) => Boolean(t?.mediaStreamTrack)) 
+        /* Filtering out the tracks that have a mediaStreamTrack. */
+        previousTracks = tracks.filter((t) => Boolean(t?.mediaStreamTrack))
 
         newTracks.forEach((x) => {
           const { mediaStreamTrack, id, participantId, type } = room.getTrack(
