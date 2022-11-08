@@ -242,39 +242,27 @@ export const getRoom = (id: string) => {
             },
           },
         })
-
-        if (existingPrimaryWebCam) {
-          existingPrimaryWebCam.setTrack(tracks[0])
-        }
-
+        
         if (existingPrimaryWebCam?.isMuted) {
           tracks.forEach((x) => {
             x.mute()
           })
         }
+        
+        published = await Promise.all(
+          tracks.map((x) => localParticipant.publishTrack(x)),
+        )
 
-        if (!existingPrimaryWebCam) {
-          published = await Promise.all(
-            tracks.map((x) => localParticipant.publishTrack(x)),
+        if (existingPrimaryWebCam) {
+          localParticipant.unpublishTrack(
+            existingPrimaryWebCam.track as LocalTrack,
           )
-          return getTrack(published[0]?.trackSid)
-        } else {
-          tracks.forEach((x) => {
-            existingPrimaryWebCam.setTrack(x)
-          })
-          return existingPrimaryWebCam?.trackSid
         }
-
-        // return getTrack(published[0]?.trackSid)
-        // if (existingPrimaryWebCam) {
-        //   localParticipant.unpublishTrack(
-        //     existingPrimaryWebCam.track as LocalTrack,
-        //   )
-        // }
       } catch (e) {
         throw e
       } finally {
         settingCamera = false
+        return getTrack(published[0]?.trackSid)
       }
     },
     setMicrophone: async (options) => {
