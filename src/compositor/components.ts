@@ -98,7 +98,7 @@ export type ComponentCommands<Props = {}> = {
 type RenderHelpers = {
   id: (id: string) => string
   renderChildren: (
-    props: SceneNode['props'],
+    props: SceneNode['props'] & { key?: string },
     map?: (children: NodeInterface[]) => NodeInterface[],
     settings?: { controls: boolean },
   ) => SceneNode
@@ -483,7 +483,7 @@ export const init = (
         const containerNode = renderNode(
           {
             ...props,
-            key: '__children',
+            key: props.key || '__children',
           },
           nodeInterface.children,
         )

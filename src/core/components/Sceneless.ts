@@ -41,18 +41,17 @@ const Sceneless = {
       [
         renderChildren(
           {
+            key: 'sceneless-children',
             layout,
             layoutProps,
           },
           (x) => x,
           { controls: true },
         ),
-        renderNode(
-          {
-            key: 'foreground',
-            layout: 'Free',
-          },
-        ),
+        renderNode({
+          key: 'foreground',
+          layout: 'Free',
+        }),
       ],
     )
   },
