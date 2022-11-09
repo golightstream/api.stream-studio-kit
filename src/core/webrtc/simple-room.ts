@@ -271,13 +271,19 @@ export const getRoom = (id: string) => {
       let published: LocalTrackPublication[]
 
       try {
-        const existing = localParticipant.getTracks().find((x) => {
+        const existingMicroPhones = localParticipant.getTracks().filter((x) => {
           return x.source === Track.Source.Microphone
         })
+
+         const existingPrimaryMicrophone = existingMicroPhones.find((x) => {
+           const track = getTrack(x?.trackSid)
+           return !track.isExternal
+         })
+
         const tracks = await localParticipant.createTracks({
           audio: options || true,
         })
-        if (existing?.isMuted) {
+        if (existingPrimaryMicrophone?.isMuted) {
           tracks.forEach((x) => {
             x.mute()
           })
@@ -285,10 +291,11 @@ export const getRoom = (id: string) => {
         published = await Promise.all(
           tracks.map((x) => localParticipant.publishTrack(x)),
         )
-        if (existing) {
-          localParticipant.unpublishTrack(existing.track as LocalTrack)
+        if (existingPrimaryMicrophone) {
+          localParticipant.unpublishTrack(
+            existingPrimaryMicrophone.track as LocalTrack,
+          )
         }
-        return getTrack(published[0]?.trackSid)
       } catch (e) {
         throw e
       } finally {

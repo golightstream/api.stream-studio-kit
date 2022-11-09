@@ -98,22 +98,24 @@ export const RoomParticipant = {
 
         /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
          but the video element requires a MediaStream. */
-        let mediaSource = new MediaStream([])
-        if (source?.value instanceof MediaStreamTrack) {
-          updateMediaStreamTracks(mediaSource, {
-            video: source?.value,
-            audio: source?.props?.microphone?.mediaStreamTrack,
-          })
-        } else {
-          mediaSource = source?.value
-        }
+        let mediaSource =
+          source?.value instanceof MediaStreamTrack
+            ? source?.props?.value
+            : source?.value
+        // if (source?.value instanceof MediaStreamTrack) {
+        //   updateMediaStreamTracks(mediaSource, {
+        //     video: source?.value,
+        //     audio: source?.props?.microphone?.mediaStreamTrack,
+        //   })
+        // } else {
+        //   mediaSource = source?.value
+        // }
 
         if (mediaSource && mediaSource !== ref.current.srcObject) {
           ref.current.srcObject = mediaSource
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
-        
       }, [ref.current, source?.value, source?.props?.microphone])
 
       useLayoutEffect(() => {
