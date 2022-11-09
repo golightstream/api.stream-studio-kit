@@ -29,8 +29,6 @@ export type RoomParticipantSource = {
     external: boolean
 
     microphone?: SDK.Track
-
-    value: MediaStream
   }
 }
 
@@ -65,12 +63,6 @@ export const RoomParticipant = {
                 const microphoneTrack = room.getTrack(
                   participant?.meta[track.id]?.microphone,
                 )
-
-                updateMediaStreamTracks(source?.props?.value, {
-                  video: webcamTrack?.mediaStreamTrack,
-                  audio: microphoneTrack?.mediaStreamTrack,
-                })
-
                 updateSource(track.id, {
                   videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
                   audioEnabled: false,
@@ -163,7 +155,6 @@ export const RoomParticipant = {
               participantId,
               isMuted: x.isMuted,
               type,
-              ...(type === 'camera' && { value: new MediaStream([]) }),
             },
           } as Compositor.Source.NewSource
 
