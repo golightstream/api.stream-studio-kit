@@ -11,7 +11,6 @@
  * @module React
  */
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { on } from '../core/events'
 import { SDK } from '../core/namespaces'
 import { Callback, ScenelessProject } from './index'
 import { watchDevices } from './webrtc'
@@ -142,8 +141,7 @@ export const StudioProvider = ({
   const [studio, setStudio] = useState<SDK.Studio>()
   const [webcamId, setWebcamId] = useState<string>(stored.webcamId)
   const [microphoneId, setMicrophoneId] = useState<string>(stored.microphoneId)
-  const previuosWebCamId = usePrevious(webcamId)
-  const previousMicrophoneId = usePrevious(microphoneId)
+
   const projectCommands = useMemo(
     () => (project ? ScenelessProject.commands(project) : null),
     [project],
@@ -157,7 +155,7 @@ export const StudioProvider = ({
   // Set webcam and microphone
   useEffect(() => {
     if (!room) return
-    if (webcamId !== previuosWebCamId) {
+    if (webcamId) {
       room
         .setCamera({
           deviceId: webcamId,
@@ -166,7 +164,7 @@ export const StudioProvider = ({
           console.warn(e)
         })
     }
-    if (microphoneId !== previousMicrophoneId) {
+    if (microphoneId) {
       room
         .setMicrophone({
           deviceId: microphoneId,
@@ -175,7 +173,7 @@ export const StudioProvider = ({
           console.warn(e)
         })
     }
-  }, [room, webcamId, microphoneId, previousMicrophoneId, previuosWebCamId])
+  }, [room, webcamId, microphoneId])
 
   return (
     <StudioContext.Provider
@@ -206,17 +204,5 @@ export const StudioProvider = ({
       {children}
     </StudioContext.Provider>
   )
-}
-
-const usePrevious = <T extends {}>(value: T) => {
-  // The ref object is a generic container whose current property is mutable ...
-  // ... and can hold any value, similar to an instance property on a class
-  const ref = useRef<T>()
-  // Store current value in ref
-  useEffect(() => {
-    ref.current = value
-  }, [value]) // Only re-run if value changes
-  // Return previous value (happens before update in useEffect above)
-  return ref.current
 }
 
