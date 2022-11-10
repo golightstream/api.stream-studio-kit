@@ -8,7 +8,7 @@ import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import Style from '../shared/shared.module.css'
 import { Chat } from '../shared/chat'
 import config from '../../config'
-import { Column, Row } from '../ui/layout/Box'
+import { Column, Row } from '../ui/Box'
 import { Renderer } from '../components'
 
 const { Room } = Helpers
@@ -161,7 +161,7 @@ export const GuestView = () => {
     <Column>
       <Top project={project} studio={studio} />
       <Row align="stretch">
-        <Renderer project={project} />
+        <Renderer scene={project.scene} />
         <Chat />
       </Row>
     </Column>

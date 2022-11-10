@@ -5,12 +5,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Components, Sources } from '../../../../'
 import { Participants } from '../shared/participant'
-import { ControlPanel, DeviceSelection } from '../shared/control-panel'
-import { DEFAULT_LAYOUT, getLayout, layouts } from '../layout-examples'
 import Style from '../shared/shared.module.css'
 import { Chat } from '../shared/chat'
-import { useRenderRef, useRoot } from '../shared/hooks'
-import { Column } from '../ui/layout/Box'
 
 export type ScenelessInterface = Components.Sceneless.Interface
 export type ScenelessProps = Components.Sceneless.Props

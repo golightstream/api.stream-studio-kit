@@ -155,7 +155,8 @@ type LocalDB = {
 }
 
 export type DBAdapter = {
-  createProject: (metadata?: unknown) => Promise<{ id: string }>
+  /** Create a project and return its ID */
+  createProject: (metadata?: unknown) => Promise<string> | string
   loadProject: (id: string) => Promise<SceneNode>
   db: (project: Project) => DB
 }
@@ -394,7 +395,7 @@ export const start = (settings: Settings): CompositorInstance => {
     getNodeParent: (id) => nodeIndex[parentIdIndex[id]],
     getNode: (id) => nodeIndex[id],
     createProject: async (projectSettings, metadata) => {
-      const { id } = await dbAdapter.createProject(metadata)
+      const id = await dbAdapter.createProject(metadata)
       return compositor.loadProject(id, projectSettings)
     },
     loadProject: (...args) => loadProject(...args),

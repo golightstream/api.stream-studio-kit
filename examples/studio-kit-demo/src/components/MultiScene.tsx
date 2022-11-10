@@ -4,7 +4,7 @@
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
 import { Components, Sources, SDK, Compositor } from '../../../../'
-import { Column, Flex, Row } from '../ui/layout/Box'
+import { Column, Flex, Row } from '../ui/Box'
 import { Component } from '.'
 import { ScenelessProps } from './Sceneless'
 

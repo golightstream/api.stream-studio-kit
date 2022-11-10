@@ -54,6 +54,7 @@ export type Settings = {
  *  server rendering the output stream._
  */
 export type AdvancedSettings = {
+  dbAdapter?: Compositor.DBAdapter
   sources?: Compositor.Source.SourceDeclaration[]
   layouts?: Compositor.Layout.LayoutDeclaration[]
   transforms?: Compositor.Transform.TransformDeclaration[]
@@ -102,7 +103,7 @@ export const init = async (
   const compositor = Compositor.start({
     // Ensure components up to date unless joining a project as a guest
     updateOutdatedComponents: !guestProject && useComponents,
-    dbAdapter: compositorAdapter,
+    dbAdapter: settings.dbAdapter || compositorAdapter,
     transformSettings: {
       defaultTransforms: {
         ...conf.defaults.transforms,

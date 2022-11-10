@@ -74,7 +74,7 @@ export const compositorAdapter: Compositor.DBAdapter = {
         }
 
         log.debug('Insert layer', layer)
-        
+
         // Save the layer to the database
         const result = await CoreContext.clients.LayoutApi().layer.createLayer({
           layoutId,
@@ -282,12 +282,15 @@ export const compositorAdapter: Compositor.DBAdapter = {
     }
   },
   createProject: (meta: { projectId: string; collectionId: string }) => {
-    return CoreContext.clients.LayoutApi().layout.createLayout({
-      layout: {
-        projectId: meta.projectId,
-        collectionId: meta.collectionId,
-      },
-    })
+    return CoreContext.clients
+      .LayoutApi()
+      .layout.createLayout({
+        layout: {
+          projectId: meta.projectId,
+          collectionId: meta.collectionId,
+        },
+      })
+      .then((x) => x.id)
   },
   loadProject: async (id) => {
     const { layers } = await CoreContext.clients.LayoutApi().layer.listLayers({

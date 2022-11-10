@@ -4,7 +4,6 @@
  * -------------------------------------------------------------------------------------------- */
 import { Compositor, SDK } from '../../../../'
 import { useRenderRef, useRoot } from '../shared/hooks'
-import { Column } from '../ui/layout/Box'
 import { MultiSceneComponent } from './MultiScene'
 import { ScenelessComponent } from './Sceneless'
 
@@ -24,9 +23,9 @@ export const Component = ({
   return <Component component={component} />
 }
 
-export const Renderer = ({ project }: { project: SDK.Project }) => {
-  const root = useRoot(project)
-  const renderContainer = useRenderRef(project)
+export const Renderer = ({ scene }: { scene: Compositor.Project }) => {
+  const root = useRoot(scene)
+  const renderContainer = useRenderRef(scene)
 
   if (!root) return null
 

@@ -30,6 +30,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         guest: resolve(__dirname, 'guest/index.html'),
+        compositor: resolve(__dirname, 'compositor/index.html'),
       },
     },
     minify: false,

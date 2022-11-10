@@ -21,7 +21,7 @@ import config from '../../config'
 import ReCAPTCHA from 'react-google-recaptcha'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
-import { Column, Flex, Row } from '../ui/layout/Box'
+import { Column, Flex, Row } from '../ui/Box'
 import { Component, Renderer } from '../components'
 import { useRoot } from '../shared/hooks'
 import { BackgroundSelect, BannerSelect, SourceList } from '../shared/sources'
@@ -31,8 +31,7 @@ const { useStudio } = Helpers.React
 const getUrl = () =>
   window.location.protocol +
   '//' +
-  window.location.host +
-  window.location.pathname
+  window.location.host + '/'
 
 // Determine whether this is running on API.stream
 const isLiveURL = () => {
@@ -45,7 +44,7 @@ const storage = {
   userName: localStorage.getItem('userName') || '',
 }
 
-const sources = {
+export const sources = {
   Image: [
     {
       src: getUrl() + 'bg.png',
@@ -64,14 +63,14 @@ const sources = {
       headerText: 'Header',
       bodyText: 'Some banner text',
       meta: {
-        title: 'Short'
-      }
+        title: 'Short',
+      },
     },
     {
       bodyText: 'This is a banner without a header. It has more text.',
       meta: {
-        title: 'Long'
-      }
+        title: 'Long',
+      },
     },
   ],
 }
@@ -338,7 +337,7 @@ export const HostView = () => {
   const [projectType, setProjectType] = useState<keyof typeof projects>(
     localStorage['projectType'],
   )
-  const root = useRoot<Components.Project.Interface>(project)
+  const root = useRoot<Components.Project.Interface>(project?.scene)
 
   // Store as a global for debugging in console
   window.SDK = useStudio()
@@ -425,7 +424,7 @@ export const HostView = () => {
               </Flex>
             </Column>
           </Column>
-          <Renderer project={project} />
+          <Renderer scene={project.scene} />
           <Chat />
         </Row>
         <Bottom />

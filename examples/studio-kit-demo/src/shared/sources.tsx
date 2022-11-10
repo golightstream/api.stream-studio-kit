@@ -11,7 +11,7 @@ import React, {
 } from 'react'
 import { Sources, Components, Compositor, Elements } from '../../../../'
 import { ScenelessInterface } from '../components/Sceneless'
-import { Column, Flex, Row } from '../ui/layout/Box'
+import { Column, Flex, Row } from '../ui/Box'
 import { AppContext } from './context'
 import { useSources } from './hooks'
 
@@ -63,6 +63,7 @@ export const BackgroundSelect = ({ component }: { component: Project }) => {
             const isActive = component.props.backgroundId === x.id
             return (
               <img
+                key={x.id}
                 src={x.props.src}
                 width={70}
                 height={40}
@@ -87,6 +88,7 @@ export const BackgroundSelect = ({ component }: { component: Project }) => {
             const isActive = component.props.backgroundId === x.id
             return (
               <video
+                key={x.id}
                 src={x.props.src}
                 width={70}
                 height={40}
@@ -117,6 +119,7 @@ export const BannerSelect = ({ component }: { component: Project }) => {
         const isActive = component.props.bannerId === x.id
         return (
           <Flex
+            key={x.id}
             align="center"
             justify="center"
             width={70}

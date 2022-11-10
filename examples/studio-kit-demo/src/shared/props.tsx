@@ -12,8 +12,6 @@ import {
   Elements,
 } from '../../../../types/src'
 import { ScenelessInterface } from '../components/Sceneless'
-import { Column, Flex } from '../ui/layout/Box'
-import { AppContext } from './context'
 import { useSources } from './hooks'
 
 type Participant = Sources.WebRTC.RoomParticipantSource
