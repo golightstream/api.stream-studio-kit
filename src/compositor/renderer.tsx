@@ -293,13 +293,17 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
 
 #compositor-root[data-dragging] {}
 
+.interactive-overlay {
+  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0);
+  transition: 120ms ease all;
+}
 [data-drag-target] {}
-[data-drag-target]:hover > .item-element > .interactive-overlay {
+[data-drag-target].hovered > .item-element > .interactive-overlay {
   box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.5);
   cursor: grab;
 }
 [data-drop-target] {}
-[data-drop-target]:hover {}
+[data-drop-target].hovered {}
 [data-drag-target][data-drag-target-active] > .item-element > .interactive-overlay {
   box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.2);
 }
@@ -481,10 +485,6 @@ const ElementTree = (props: {
     : null
 
   useEffect(() => {
-    const onDoubleClick = isDragTarget
-      ? () => onElementDoubleClick(node)
-      : () => {}
-
     if (transformRef.current && element) {
       transformRef.current.appendChild(element.root)
       Object.assign(transformRef.current.style, {
@@ -507,20 +507,31 @@ const ElementTree = (props: {
     const onDoubleClick = isDragTarget
       ? () => onElementDoubleClick(node)
       : () => {}
+    const onMouseover = (e: MouseEvent) => {
+      e.stopPropagation()
+      rootRef.current?.classList.toggle('hovered', true)
+    }
+    const onMouseleave = (e: MouseEvent) => {
+      e.stopPropagation()
+      rootRef.current?.classList.toggle('hovered', false)
+    }
 
     if (interactiveRef.current) {
       Object.assign(
         interactiveRef.current,
         transformDragHandlers ? transformDragHandlers(node) : {},
       )
-
       Object.assign(interactiveRef.current.style, {
         pointerEvents: isDragTarget ? 'all' : 'none',
       })
       interactiveRef.current.addEventListener('dblclick', onDoubleClick)
+      interactiveRef.current.addEventListener('mouseover', onMouseover)
+      interactiveRef.current.addEventListener('mouseleave', onMouseleave)
     }
     return () => {
       interactiveRef.current?.removeEventListener('dblclick', onDoubleClick)
+      interactiveRef.current?.removeEventListener('mouseover', onMouseover)
+      interactiveRef.current?.removeEventListener('mouseleave', onMouseleave)
     }
   }, [interactiveRef.current])
 
@@ -535,6 +546,10 @@ const ElementTree = (props: {
       key={node.id}
       data-id={node.id + '-x'}
       data-item
+      onMouseLeave={(e) => {
+        e.stopPropagation()
+        e.currentTarget.classList.toggle('hovered', false)
+      }}
       {...(isDragTarget && {
         'data-drag-target': true,
       })}
@@ -563,6 +578,11 @@ const ElementTree = (props: {
         <div
           className="interactive-overlay"
           ref={interactiveRef}
+          onDoubleClick={
+            // TODO:
+            () => {}
+            // isDragTarget ? () => onElementDoubleClick(node) : () => {}
+          }
           style={{
             height: '100%',
             width: '100%',
