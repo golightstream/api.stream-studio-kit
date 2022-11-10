@@ -43,7 +43,7 @@ export const RoomParticipant = {
     // TODO: Filter source.isActive to ensure we're getting the best match
     return sources.find((x) => isMatch(x.props, props.sourceProps))
   },
-  create({ onUpdate, onNewSource }, initialProps) {
+  create({ onUpdate, onNewSource, onRemove }, initialProps) {
     const root = document.createElement('div')
     // TODO: Transforms should not rely on external state
     const project = getProject(CoreContext.state.activeProjectId)
@@ -118,6 +118,12 @@ export const RoomParticipant = {
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
+        return () => {
+          if (ref?.current) {
+            ref.current.srcObject = null
+            ref.current = null
+          }
+        }
       }, [ref.current, source?.value, source?.props?.microphone])
 
       useEffect(() => {
@@ -137,7 +143,7 @@ export const RoomParticipant = {
             })
         }
       }, [props?.sink])
-      
+
       useLayoutEffect(() => {
         if (!ref.current) return
 
@@ -290,6 +296,11 @@ export const RoomParticipant = {
 
     onNewSource((_source) => {
       source = _source
+      render()
+    })
+
+    onRemove((_props) => {
+      props = _props
       render()
     })
 
