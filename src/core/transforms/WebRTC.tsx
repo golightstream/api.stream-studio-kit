@@ -8,7 +8,6 @@ import { isMatch } from 'lodash-es'
 import { useEffect, useRef } from 'react'
 import { CoreContext } from '../context'
 import { Compositor } from '../namespaces'
-import { getRoom } from '../webrtc/simple-room'
 import { RoomParticipantSource } from '../sources'
 import { getProject, getProjectRoom } from '../data'
 import { updateMediaStreamTracks } from '../../helpers/webrtc'
@@ -20,7 +19,8 @@ type Props = {
   sink: string
 }
 
-interface LBVideoElement extends HTMLVideoElement {
+// Extend HTMLVIdeoElement to support adding audiosink/speaker using setSinkId
+interface RoomParticipantVideoElement extends HTMLVideoElement {
   setSinkId(id: string): Promise<void>
 }
 
@@ -79,19 +79,22 @@ export const RoomParticipant = {
       props: Props
       source: RoomParticipantSource
     }) => {
-      const ref = useRef<LBVideoElement>()
+      const ref = useRef<RoomParticipantVideoElement>()
 
       const { volume = 1, isHidden = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
-
-      const isSelf = source?.id === room?.participantId
+      
+      /* It's checking if the participant is the local participant. */
+      const isSelf =
+        source?.id === room?.participantId ||
+        source?.props?.participantId === room?.participantId
 
       // Mute audio if explicitly isMuted by host,
       //  or the participant is our local participant
       const muteAudio = isSelf || props?.isMuted
 
       // Hide video if explicitly isHidden by host or
-      //  if the participant is sending no video
+      // if the participant is sending no video
       const hasVideo = !props?.isHidden && source?.props?.videoEnabled
 
       useEffect(() => {
@@ -102,9 +105,8 @@ export const RoomParticipant = {
           })
         })
 
-        /* It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
-         but the video element requires a MediaStream. */
-
+        /*  It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
+            but the video element requires a MediaStream. */
         if (source?.value instanceof MediaStreamTrack) {
           if (mediaSource) {
             updateMediaStreamTracks(mediaSource, {
@@ -131,23 +133,7 @@ export const RoomParticipant = {
         }
       }, [props])
 
-      useEffect(() => {
-        if (ref?.current && props?.sink) {
-          ref.current
-            .setSinkId(props?.sink)
-            .then(() => {
-              console.log(`Success, audio output device attached`)
-            })
-            .catch((error) => {
-              let errorMessage = error
-              if (error.name === 'SecurityError') {
-                errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`
-              }
-              console.error(errorMessage)
-              // Jump back to first output device in the list as it's the default.
-            })
-        }
-      }, [props?.sink])
+      // TODO: Add audioSink to the MediaProvider
 
       useLayoutEffect(() => {
         if (!ref.current) return
@@ -172,7 +158,7 @@ export const RoomParticipant = {
         resizeObserver?.observe(ref.current)
 
         return () => {
-          if(ref.current) {
+          if (ref.current) {
             resizeObserver?.unobserve(ref.current)
             ref.current.srcObject = null
           }

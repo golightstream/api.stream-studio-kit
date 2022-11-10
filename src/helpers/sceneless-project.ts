@@ -335,7 +335,7 @@ export interface Commands {
    */
   removeParticipantTrack(trackId: string, type?: ParticipantType): void
 
-  /* Attaching the microphone to the camera. */
+  /* Attach the speaker to the camera. */
   attachAudioSinkToCamera(
     cameraTrackId: string,
     audioSinkId: string,
@@ -1867,6 +1867,8 @@ export const commands = (_project: ScenelessProject) => {
     },
 
 
+    /* Attaching an audio sink to a camera track. */
+    // TODO: Use audioSinkId ato attach speaker to the MediaProvider (Call setSinkId on HTMLVideoElement)
     attachAudioSinkToCamera(cameraTrackId: string, audioSinkId:string) {
       const node = commands.getParticipantNode(cameraTrackId)
       if (!node) return
