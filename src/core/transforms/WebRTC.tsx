@@ -118,13 +118,16 @@ export const RoomParticipant = {
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
+      }, [ref.current, source?.value, source?.props?.microphone])
+
+      useEffect(() => {
         return () => {
           if (ref?.current) {
             ref.current.srcObject = null
             ref.current = null
           }
         }
-      }, [ref.current, source?.value, source?.props?.microphone])
+      }, [])
 
       useEffect(() => {
         if (ref?.current && props?.sink) {
@@ -149,17 +152,20 @@ export const RoomParticipant = {
 
         const calculate = () => {
           const rect = ref.current
-          setLabelSize(
-            getSize(rect.clientWidth, {
-              width: project.compositor.getRoot().props.size.x,
-              height: project.compositor.getRoot().props.size.y,
-            }),
-          )
+          if (rect) {
+            setLabelSize(
+              getSize(rect.clientWidth, {
+                width: project.compositor.getRoot().props.size.x,
+                height: project.compositor.getRoot().props.size.y,
+              }),
+            )
+          }
         }
 
         const resizeObserver = new ResizeObserver((entries) => {
           calculate()
         })
+        
         calculate()
         resizeObserver.observe(ref.current)
 
