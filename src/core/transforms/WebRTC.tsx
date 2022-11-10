@@ -81,10 +81,8 @@ export const RoomParticipant = {
     }) => {
       const ref = useRef<LBVideoElement>()
 
-
       const { volume = 1, isHidden = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
-
 
       const isSelf = source?.id === room?.participantId
 
@@ -108,10 +106,12 @@ export const RoomParticipant = {
          but the video element requires a MediaStream. */
 
         if (source?.value instanceof MediaStreamTrack) {
-          updateMediaStreamTracks(mediaSource, {
-            video: source?.value,
-            audio: source?.props?.microphone?.mediaStreamTrack,
-          })
+          if (mediaSource) {
+            updateMediaStreamTracks(mediaSource, {
+              video: source?.value,
+              audio: source?.props?.microphone?.mediaStreamTrack,
+            })
+          }
         } else {
           mediaSource = source?.value
         }
@@ -124,7 +124,8 @@ export const RoomParticipant = {
       }, [ref.current, source?.value, source?.props?.microphone])
 
       useEffect(() => {
-        if(!props && ref.current) {
+        if (!props && ref.current) {
+          mediaSource = null
           ref.current.srcObject = null
           ref.current = null
         }
@@ -166,13 +167,15 @@ export const RoomParticipant = {
         const resizeObserver = new ResizeObserver((entries) => {
           calculate()
         })
-        
+
         calculate()
-        resizeObserver.observe(ref.current)
+        resizeObserver?.observe(ref.current)
 
         return () => {
-          resizeObserver.unobserve(ref.current)
-          ref.current.srcObject = null
+          if(ref.current) {
+            resizeObserver?.unobserve(ref.current)
+            ref.current.srcObject = null
+          }
         }
       }, [ref.current, project])
 
