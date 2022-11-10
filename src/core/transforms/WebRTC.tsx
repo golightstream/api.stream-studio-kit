@@ -11,7 +11,9 @@ import { Compositor } from '../namespaces'
 import { getRoom } from '../webrtc/simple-room'
 import { RoomParticipantSource } from '../sources'
 import { getProject, getProjectRoom } from '../data'
-import { updateMediaStreamTracks } from '../../helpers/webrtc'
+import {
+  updateMediaStreamTracks,
+} from '../../helpers/webrtc'
 
 type Props = {
   volume: number
@@ -81,10 +83,8 @@ export const RoomParticipant = {
     }) => {
       const ref = useRef<LBVideoElement>()
 
-
       const { volume = 1, isHidden = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
-
 
       const isSelf = source?.id === room?.participantId
 
@@ -124,7 +124,8 @@ export const RoomParticipant = {
       }, [ref.current, source?.value, source?.props?.microphone])
 
       useEffect(() => {
-        if(!props && ref.current) {
+        if (!props && ref.current) {
+          mediaSource = null
           ref.current.srcObject = null
           ref.current = null
         }
@@ -166,7 +167,7 @@ export const RoomParticipant = {
         const resizeObserver = new ResizeObserver((entries) => {
           calculate()
         })
-        
+
         calculate()
         resizeObserver.observe(ref.current)
 
