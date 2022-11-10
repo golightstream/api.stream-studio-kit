@@ -172,8 +172,10 @@ export const RoomParticipant = {
         resizeObserver?.observe(ref.current)
 
         return () => {
-          resizeObserver?.unobserve(ref.current)
-          ref.current.srcObject = null
+          if(ref.current) {
+            resizeObserver?.unobserve(ref.current)
+            ref.current.srcObject = null
+          }
         }
       }, [ref.current, project])
 
