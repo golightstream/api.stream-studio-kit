@@ -11,9 +11,7 @@ import { Compositor } from '../namespaces'
 import { getRoom } from '../webrtc/simple-room'
 import { RoomParticipantSource } from '../sources'
 import { getProject, getProjectRoom } from '../data'
-import {
-  updateMediaStreamTracks,
-} from '../../helpers/webrtc'
+import { updateMediaStreamTracks } from '../../helpers/webrtc'
 
 type Props = {
   volume: number
@@ -108,10 +106,12 @@ export const RoomParticipant = {
          but the video element requires a MediaStream. */
 
         if (source?.value instanceof MediaStreamTrack) {
-          updateMediaStreamTracks(mediaSource, {
-            video: source?.value,
-            audio: source?.props?.microphone?.mediaStreamTrack,
-          })
+          if (mediaSource) {
+            updateMediaStreamTracks(mediaSource, {
+              video: source?.value,
+              audio: source?.props?.microphone?.mediaStreamTrack,
+            })
+          }
         } else {
           mediaSource = source?.value
         }
@@ -169,10 +169,10 @@ export const RoomParticipant = {
         })
 
         calculate()
-        resizeObserver.observe(ref.current)
+        resizeObserver?.observe(ref.current)
 
         return () => {
-          resizeObserver.unobserve(ref.current)
+          resizeObserver?.unobserve(ref.current)
           ref.current.srcObject = null
         }
       }, [ref.current, project])
