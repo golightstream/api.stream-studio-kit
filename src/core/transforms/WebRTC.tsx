@@ -20,6 +20,10 @@ type Props = {
   microphone: string
 }
 
+interface LBVideoElement extends HTMLVideoElement {
+  setSinkId(id: string): Promise<void>
+}
+
 export const RoomParticipant = {
   name: 'LS-Room-Participant',
   sourceType: 'RoomParticipant',
@@ -41,6 +45,8 @@ export const RoomParticipant = {
   },
   create({ onUpdate, onNewSource }, initialProps) {
     const root = document.createElement('div')
+    // TODO: Transforms should not rely on external state
+    const project = getProject(CoreContext.state.activeProjectId)
     const room = getProjectRoom(CoreContext.state.activeProjectId)
     Object.assign(root.style, {
       position: 'relative',
@@ -49,7 +55,7 @@ export const RoomParticipant = {
     let source: any
     let props = initialProps
     let mediaSource = new MediaStream([])
-    
+
     const getSize = (
       width: number,
       canvas: { width: number; height: number },
@@ -75,10 +81,8 @@ export const RoomParticipant = {
     }) => {
       const { volume = 1, isHidden = false } = props
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
-      const ref = useRef<HTMLVideoElement>()
-      // TODO: Transforms should not rely on external state
-      const project = getProject(CoreContext.state.activeProjectId)
-      const room = getRoom(CoreContext.state.activeProjectId)
+      const ref = useRef<LBVideoElement>()
+
       const isSelf = source?.id === room?.participantId
 
       // Mute audio if explicitly isMuted by host,
@@ -111,10 +115,24 @@ export const RoomParticipant = {
 
         if (mediaSource && mediaSource !== ref.current.srcObject) {
           ref.current.srcObject = mediaSource
+          ref.current
+            .setSinkId(
+              'abdf12bf240fb2d68db1b9e6e042a5ab69e094c0af9fb3475e7826d881fa646f',
+            )
+            .then(() => {
+              console.log(`Success, audio output device attached`)
+            })
+            .catch((error) => {
+              let errorMessage = error
+              if (error.name === 'SecurityError') {
+                errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`
+              }
+              console.error(errorMessage)
+              // Jump back to first output device in the list as it's the default.
+            })
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
-        
       }, [ref.current, source?.value, source?.props?.microphone])
 
       useLayoutEffect(() => {

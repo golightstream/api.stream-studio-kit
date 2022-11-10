@@ -65,7 +65,9 @@ export const RoomParticipant = {
                 )
                 updateSource(track.id, {
                   videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
-                  audioEnabled: false,
+                  audioEnabled: Boolean(
+                    microphoneTrack && !microphoneTrack.isMuted,
+                  ),
                   displayName:
                     participant?.meta[track.id]?.displayName ||
                     'External Track',
@@ -108,7 +110,7 @@ export const RoomParticipant = {
           updateMediaStreamTracks(srcObjectScreenshare, {
             video: screenshareTrack?.mediaStreamTrack,
           })
-
+          
           updateSource(x.id, {
             videoEnabled: Boolean(webcamTrack && !webcamTrack.isMuted),
             audioEnabled: Boolean(microphoneTrack && !microphoneTrack.isMuted),
