@@ -17,7 +17,7 @@ type Props = {
   volume: number
   isMuted: boolean
   isHidden: boolean
-  microphone: string
+  sink: string
 }
 
 interface LBVideoElement extends HTMLVideoElement {
@@ -115,10 +115,15 @@ export const RoomParticipant = {
 
         if (mediaSource && mediaSource !== ref.current.srcObject) {
           ref.current.srcObject = mediaSource
+        } else if (!source?.value) {
+          ref.current.srcObject = null
+        }
+      }, [ref.current, source?.value, source?.props?.microphone])
+
+      useEffect(() => {
+        if (ref?.current && props?.sink) {
           ref.current
-            .setSinkId(
-              'abdf12bf240fb2d68db1b9e6e042a5ab69e094c0af9fb3475e7826d881fa646f',
-            )
+            .setSinkId(props?.sink)
             .then(() => {
               console.log(`Success, audio output device attached`)
             })
@@ -130,11 +135,9 @@ export const RoomParticipant = {
               console.error(errorMessage)
               // Jump back to first output device in the list as it's the default.
             })
-        } else if (!source?.value) {
-          ref.current.srcObject = null
         }
-      }, [ref.current, source?.value, source?.props?.microphone])
-
+      }, [props?.sink])
+      
       useLayoutEffect(() => {
         if (!ref.current) return
 
