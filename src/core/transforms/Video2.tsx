@@ -4,18 +4,41 @@
  * -------------------------------------------------------------------------------------------- */
 import ReactDOM from 'react-dom'
 import React from 'react'
-import { CoreContext } from '../context'
+import { CoreContext, InternalProject } from '../context'
 import { getProject, getProjectRoom } from '../data'
-import { Compositor } from '../namespaces'
-import { InternalEventMap, trigger, triggerInternal } from '../events'
+import { Compositor, SDK } from '../namespaces'
+import { InternalEventMap, trigger, triggerInternal, on } from '../events'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
 import { hasPermission, Permission } from '../../helpers/permission'
+import { Overlay } from '../sources/Overlays'
 
 interface ISourceMap {
   sourceType: string
   trigger: keyof InternalEventMap
 }
+
+const newOverlays = (project: InternalProject, id: string) => {
+  const overlays = project.props.overlays as Overlay[]
+  const remainingOverlays = overlays.filter((x) => x.id !== id)
+  const allForegroundOverlays = remainingOverlays.filter(
+    (f) => f.props.type !== 'video-overlay',
+  )
+  return allForegroundOverlays.map((overlay) => {
+    return {
+      ...overlay,
+      props: {
+        ...overlay.props,
+        meta: {
+          ...overlay.props.meta,
+          style: { opacity: 1 },
+        },
+      },
+    }
+  })
+}
+
+const showVideoReducer = (oldState: boolean, newState: boolean) => newState
 
 const SourceTriggerMap = [
   {
@@ -58,6 +81,8 @@ export const Video2 = {
       )
       const { src, type, meta, loop } = source?.value || {}
       const { id } = source || {}
+      const isOutro = source?.props?.isOutro ?? false
+
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
       console.log('Updated current time', videoRef?.current?.currentTime)
@@ -67,6 +92,21 @@ export const Video2 = {
         videoRef.current = node
         setRefId(node ? node.id : null)
       }, [])
+      // When showVideo is false, layer will just be plain black
+      // (This is good for outros)
+      const [showVideo, setShowVideo] = React.useReducer(showVideoReducer, true)
+
+      React.useEffect(() => {
+        // Do this when broadcast ends, or else this layer will remain black
+        return on('BroadcastStopped', (payload) => {
+          if (payload.projectId === CoreContext.state.activeProjectId) {
+            const project = CoreContext.state.projects.find(p => p.id === CoreContext.state.activeProjectId)
+            if (role !== SDK.Role.ROLE_RENDERER) {
+              setShowVideo(true)
+            }
+          }
+        })
+      })
 
       /* A callback function that is called when the video element is loaded. */
       const onLoadedData = React.useCallback(() => {
@@ -79,9 +119,48 @@ export const Video2 = {
       }, [src])
 
       /* A callback function that is called when the video playback ended. */
-      const onEnded = React.useCallback(() => {
+      const onEnded = React.useCallback(async () => {
         if (interval) {
           clearInterval(interval)
+        }
+        // If video is an outro, stop the broadcast and remove the video from the renderer
+        if (isOutro) {
+          const project = CoreContext.state.projects[0]
+          const sceneNode = CoreContext.state.projects[0].compositor.getRoot()
+
+          // TODO: perhaps define behavior for non-sceneless projects
+          if (sceneNode?.props?.type === 'sceneless-project') {
+            if (project.videoApi.phase === SDK.ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING) {
+              setShowVideo(false)
+
+              // Only stop the broadcast from the renderer
+              if (role === SDK.Role.ROLE_RENDERER) {
+                const newForegroundOverlays = newOverlays(project, id)
+                CoreContext.Command.stopBroadcast({ projectId: CoreContext.state.activeProjectId })
+                CoreContext.Command.updateProjectProps({
+                  projectId: CoreContext.state.activeProjectId,
+                  props: {
+                    overlays: newForegroundOverlays,
+                  },
+                })
+              }
+            } else {
+              // If broadcast is not running then renderer won't be up, so the host needs to remove the overlay.
+              // TODO: Preferably, this would also be done by the server when a broadcast ends.
+              // Otherwise, we could end up with a situation where the broadcast ends mid-outro.
+              // This would result in the outro being played at the start of the next broadcast.
+              if (role === SDK.Role.ROLE_HOST && project.videoApi.phase === SDK.ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_NOT_RUNNING || project.videoApi.phase === SDK.ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPED) {
+                const newForegroundOverlays = newOverlays(project, id)
+                // Remove the video overlay
+                CoreContext.Command.updateProjectProps({
+                  projectId: CoreContext.state.activeProjectId,
+                  props: {
+                    overlays: newForegroundOverlays,
+                  },
+                })
+              }
+            }
+          }
         }
         trigger('VideoEnded', { id: id, category: type })
       }, [src])
@@ -185,7 +264,7 @@ export const Video2 = {
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
-          {src && (
+          {showVideo && src && (
             <video
               id={id}
               ref={handleRect}
@@ -194,6 +273,9 @@ export const Video2 = {
               onLoadedData={onLoadedData}
               onEnded={onEnded}
             />
+          )}
+          {!showVideo && (
+            <div style={{...initialProps.style, background: 'black' }} />
           )}
         </APIKitAnimation>
       )

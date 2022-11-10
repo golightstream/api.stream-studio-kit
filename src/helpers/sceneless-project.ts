@@ -1461,6 +1461,7 @@ export const commands = (_project: ScenelessProject) => {
     async removeVideoOverlay2(overlayId: string) {
       // find overlay node by id
       const existingOverlays = commands.getOverlays()
+      // FIXME: typo
       const reamningOverlays = existingOverlays.filter(
         (x) => x.id !== overlayId,
       )

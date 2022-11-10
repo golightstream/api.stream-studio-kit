@@ -1,6 +1,6 @@
 {
   "name": "@api.stream/studio-kit",
-  "version": "1.1.53",
+  "version": "1.1.54",
   "description": "Client SDK for building studio experiences with API.stream",
   "license": "MIT",
   "private": false,
@@ -17,6 +17,9 @@
   ],
   "author": {
     "name": "Lightstream"
+  },
+  "publishConfig": {
+    "registry": "http://10.5.0.27:4837"
   },
   "repository": {
     "type": "git",
