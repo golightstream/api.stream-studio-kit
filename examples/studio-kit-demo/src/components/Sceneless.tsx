@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
-import { Components, Sources } from '../../../../'
+import { Components, Sources } from '@api.stream/studio-kit'
 import { Participants } from '../shared/participant'
 import Style from '../shared/shared.module.css'
 import { Chat } from '../shared/chat'

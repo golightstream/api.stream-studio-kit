@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { useEffect, useState } from 'react'
-import { Helpers, SDK } from '../../../../'
+import { Helpers, SDK } from '@api.stream/studio-kit'
 import Style from '../shared/shared.module.css'
 
 const { useStudio, useDevices } = Helpers.React

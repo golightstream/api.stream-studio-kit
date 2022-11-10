@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
-import { Components, Sources, SDK, Compositor } from '../../../../'
+import { Components, Sources, SDK, Compositor } from '@api.stream/studio-kit'
 import { Column, Flex, Row } from '../ui/Box'
 import { Component } from '.'
 import { ScenelessProps } from './Sceneless'

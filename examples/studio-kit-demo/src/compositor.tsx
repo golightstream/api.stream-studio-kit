@@ -4,7 +4,7 @@
  * -------------------------------------------------------------------------------------------- */
 import React, { useCallback, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
-import { Compositor, Transforms, Layouts, Sources, Components } from '../../../'
+import { Compositor, Transforms, Layouts, Sources, Components } from '@api.stream/studio-kit'
 import logoUrl from '../logo.png'
 import './index.css'
 import '../Font.ttf'

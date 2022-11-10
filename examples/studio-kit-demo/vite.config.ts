@@ -20,6 +20,7 @@ export default defineConfig({
   resolve: {
     alias: {
       src: resolve(__dirname, 'src'),
+      '@api.stream/studio-kit': resolve(__dirname, '../../src/index'),
     },
   },
   server: {

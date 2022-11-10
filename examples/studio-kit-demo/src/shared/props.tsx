@@ -10,7 +10,7 @@ import {
   Components,
   Compositor,
   Elements,
-} from '../../../../types/src'
+} from '@api.stream/studio-kit'
 import { ScenelessInterface } from '../components/Sceneless'
 import { useSources } from './hooks'
 

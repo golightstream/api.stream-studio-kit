@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { SDK, Compositor } from '../../../../'
+import { SDK, Compositor } from '@api.stream/studio-kit'
 
 type NodeInterface = Compositor.Component.NodeInterface
 type Source = Compositor.Source.Source

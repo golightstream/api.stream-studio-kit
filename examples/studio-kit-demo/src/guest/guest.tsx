@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { useContext, useEffect, useRef, useState } from 'react'
-import { init, Helpers, SDK } from '../../../../'
+import { init, Helpers, SDK } from '@api.stream/studio-kit'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import Style from '../shared/shared.module.css'
 import { Chat } from '../shared/chat'

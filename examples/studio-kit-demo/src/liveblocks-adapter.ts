@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { Compositor, SDK } from '../../../'
+import { Compositor, SDK } from '@api.stream/studio-kit'
 import {
   createClient,
   LiveList,

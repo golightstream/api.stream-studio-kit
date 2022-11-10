@@ -11,7 +11,7 @@ import {
   Sources,
   Components,
   Compositor,
-} from '../../../../'
+} from '@api.stream/studio-kit'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from '../layout-examples'
 import { Chat } from '../shared/chat'

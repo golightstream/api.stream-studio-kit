@@ -9,7 +9,7 @@ import {
   Sources,
   SDK,
   Compositor,
-} from '../../../../'
+} from '@api.stream/studio-kit'
 import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { AppContext } from './context'
 import Style from './shared.module.css'

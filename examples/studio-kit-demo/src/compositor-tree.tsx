@@ -4,7 +4,13 @@
  * -------------------------------------------------------------------------------------------- */
 import React, { useCallback, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
-import { Compositor, Transforms, Layouts, Sources, Components } from '../../../'
+import {
+  Compositor,
+  Transforms,
+  Layouts,
+  Sources,
+  Components,
+} from '@api.stream/studio-kit'
 import logoUrl from '../logo.png'
 import './index.css'
 import '../Font.ttf'
@@ -89,7 +95,7 @@ const tree = {
               stretch: false,
             },
             layoutProps: {
-              cover: false
+              cover: false,
             },
           },
           componentChildren: [
@@ -195,7 +201,7 @@ const tree = {
               id: 'a',
               props: {
                 element: 'LS-Image',
-                sourceId: '2'
+                sourceId: '2',
               },
               children: [],
             },
@@ -222,7 +228,7 @@ const tree = {
                     id: 'a1',
                     props: {
                       element: 'LS-Image',
-                      sourceId: '2'
+                      sourceId: '2',
                     },
                     children: [],
                   },

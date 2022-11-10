@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { Sources, Components, Compositor, Elements } from '../../../../'
+import { Sources, Components, Compositor, Elements } from '@api.stream/studio-kit'
 import { ScenelessInterface } from '../components/Sceneless'
 import { Column, Flex, Row } from '../ui/Box'
 import { AppContext } from './context'
