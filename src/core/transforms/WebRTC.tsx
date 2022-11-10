@@ -79,19 +79,22 @@ export const RoomParticipant = {
       props: Props
       source: RoomParticipantSource
     }) => {
-      const { volume = 1, isHidden = false } = props
-      const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
       const ref = useRef<LBVideoElement>()
+
+
+      const { volume = 1, isHidden = false } = props || {}
+      const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
+
 
       const isSelf = source?.id === room?.participantId
 
       // Mute audio if explicitly isMuted by host,
       //  or the participant is our local participant
-      const muteAudio = isSelf || props.isMuted
+      const muteAudio = isSelf || props?.isMuted
 
       // Hide video if explicitly isHidden by host or
       //  if the participant is sending no video
-      const hasVideo = !props.isHidden && source?.props.videoEnabled
+      const hasVideo = !props?.isHidden && source?.props?.videoEnabled
 
       useEffect(() => {
         if (!ref.current) return
@@ -121,13 +124,11 @@ export const RoomParticipant = {
       }, [ref.current, source?.value, source?.props?.microphone])
 
       useEffect(() => {
-        return () => {
-          if (ref?.current) {
-            ref.current.srcObject = null
-            ref.current = null
-          }
+        if(!props && ref.current) {
+          ref.current.srcObject = null
+          ref.current = null
         }
-      }, [])
+      }, [props])
 
       useEffect(() => {
         if (ref?.current && props?.sink) {
