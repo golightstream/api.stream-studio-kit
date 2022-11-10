@@ -5,8 +5,16 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { log, InternalProject } from '../core/context'
-import { swapItems } from '../logic'
-import { Component, ComponentNode, Disposable, LayoutUpdates, Project, SceneNode, VirtualNode } from './compositor'
+import { forEachDown, swapItems } from '../logic'
+import {
+  Component,
+  ComponentNode,
+  Disposable,
+  LayoutUpdates,
+  Project,
+  SceneNode,
+  VirtualNode,
+} from './compositor'
 
 const PADDING = 0
 
@@ -120,6 +128,14 @@ export const renderProject = (
   const render = () => {
     log.debug('Renderer: Rendering tree')
     const tree = project.renderVirtualTree()
+    childIdIndex = {}
+    parentIdIndex = {}
+    forEachDown(tree, (node, parent) => {
+      if (!parent) return
+      childIdIndex[parent?.id] = childIdIndex[parent?.id] || []
+      childIdIndex[parent?.id].push(node.interactionId || node.id)
+      parentIdIndex[node.interactionId] = parent?.id
+    })
     ReactDOM.render(
       <RendererProvider
         project={project}
@@ -278,22 +294,22 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
 #compositor-root[data-dragging] {}
 
 [data-drag-target] {}
-[data-drag-target]:hover > .interactive-overlay {
+[data-drag-target]:hover > .item-element > .interactive-overlay {
   box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.5);
   cursor: grab;
 }
 [data-drop-target] {}
 [data-drop-target]:hover {}
-[data-drag-target][data-drag-target-active] > .interactive-overlay {
+[data-drag-target][data-drag-target-active] > .item-element > .interactive-overlay {
   box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.2);
 }
 [data-drag-target][data-drag-target-active] > .item-element {
   opacity: 0.8;
 }
-[data-layout-drop-target-active] > .interactive-overlay {
+[data-layout-drop-target-active] > .item-element > .interactive-overlay {
   box-shadow: 0 0 0 3px inset yellow;
 }
-[data-transform-drop-target-active] > .interactive-overlay {
+[data-transform-drop-target-active] > .item-element > .interactive-overlay {
   box-shadow: 0 0 0 3px inset white;
 }
 `
@@ -315,18 +331,9 @@ const onDrop =
 
     if (dropNodeId === dragNodeId) return
 
-    // Drop parent may be undefined
-    const [dragNode, dropNode, dragParent, dropParent] = await Promise.all([
-      project.get(dragNodeId),
-      project.get(dropNodeId),
-      project.getParent(dragNodeId),
-      project.getParent(dropNodeId),
-    ])
-
     if (dropType === 'layout') {
       // If the drop node is the current parent, do nothing
-      if (dragParent.id === dropNodeId) return
-
+      // if (dragParent.id === dropNodeId) return
       // If the drop node is a layout, then move node only
       // TODO: Wire up - Move node to a different parent
       // return methods.swap({
@@ -347,9 +354,12 @@ const onDrop =
     }
 
     // Swap the two nodes if they have the same parent
-    const childIds = dragParent.children.map((x) => x.id)
-    return methods.reorder(swapItems(dragNode.id, dropNode.id, childIds))
+    const childIds = childIdIndex[parentIdIndex[dragNodeId]]
+    return methods.reorder(swapItems(dragNodeId, dropNodeId, childIds))
   }
+
+let childIdIndex = {} as { [id: string]: string[] }
+let parentIdIndex = {} as { [id: string]: string }
 
 let foundDropTarget = false
 const ElementTree = (props: {
@@ -379,7 +389,7 @@ const ElementTree = (props: {
           return _onDrop(
             {
               dropType: 'layout',
-              dropNodeId: node.id,
+              dropNodeId: node.interactionId,
             },
             e,
           )
@@ -414,7 +424,7 @@ const ElementTree = (props: {
             return _onDrop(
               {
                 dropType: 'transform',
-                dropNodeId: node.id,
+                dropNodeId: node.interactionId,
               },
               // @ts-ignore TODO: Convert all to native drag events
               e,
@@ -423,9 +433,9 @@ const ElementTree = (props: {
           ondragstart: (e) => {
             isDragging.current = true
             elements.renderEl.toggleAttribute('data-dragging', true)
-            log.debug('Renderer: Dragging', node.id)
+            log.debug('Renderer: Dragging', node.interactionId)
             foundDropTarget = false
-            e.dataTransfer.setData('text/plain', node.id)
+            e.dataTransfer.setData('text/plain', node.interactionId)
             e.dataTransfer.dropEffect = 'move'
             e.dataTransfer.setDragImage(dragImage, 10, 10)
             rootRef.current?.toggleAttribute('data-drag-target-active', true)
@@ -436,7 +446,7 @@ const ElementTree = (props: {
             isDragging.current = false
             if (!foundDropTarget) {
               log.info('Renderer: No drop target - deleting node', node)
-              methods.remove(node.id)
+              methods.remove(node.interactionId)
             }
             elements.renderEl.toggleAttribute('data-dragging', true)
             log.debug('Renderer: DragEnd', e)
@@ -522,6 +532,7 @@ const ElementTree = (props: {
   return (
     <div
       ref={rootRef}
+      key={node.id}
       data-id={node.id + '-x'}
       data-item
       {...(isDragTarget && {
@@ -539,16 +550,6 @@ const ElementTree = (props: {
       }}
     >
       <div
-        className="interactive-overlay"
-        ref={interactiveRef}
-        style={{
-          height: '100%',
-          width: '100%',
-          position: 'absolute',
-          zIndex: 2,
-        }}
-      ></div>
-      <div
         className="item-element"
         style={{
           display: 'flex',
@@ -559,11 +560,25 @@ const ElementTree = (props: {
         }}
       >
         <div ref={transformRef}></div>
+        <div
+          className="interactive-overlay"
+          ref={interactiveRef}
+          style={{
+            height: '100%',
+            width: '100%',
+            position: 'absolute',
+            zIndex: 2,
+          }}
+        ></div>
         <ErrorBoundary>
           <ls-layout
             data-id={node.id + '-x'}
             props={JSON.stringify(layoutProps)}
             layout={layout}
+            style={{
+              zIndex: 3,
+              pointerEvents: 'none',
+            }}
           >
             {node.children.map((x) => (
               <ElementTree

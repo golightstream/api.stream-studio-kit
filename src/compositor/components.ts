@@ -327,10 +327,7 @@ export const init = (
       render: component
         ? component.render
         : () => {
-            return {
-              ...node,
-              children: node.children.map((x) => renderVirtualNode(x, node.id)),
-            }
+            return node
           },
       update: (props) => project.update(node.id, props),
       sources: sourceManager.wrap(node),
@@ -439,7 +436,8 @@ export const init = (
     compositor.nodeIndex[node.id] = (node as NodeInterface).toNode
       ? (node as NodeInterface).toNode()
       : node
-    compositor.parentIdIndex[node.id] = parentId
+    compositor.parentIdIndex[node.id] =
+      compositor.parentIdIndex[node.id] || parentId
     compositor.projectIdIndex[node.id] =
       compositor.projectIdIndex[node.id] || compositor.projectIdIndex[parentId]
 
@@ -477,34 +475,37 @@ export const init = (
       )
     }
 
-    return nodeInterface.render(nodeInterface, {
-      id: keyToId,
-      renderChildren: (props, map, settings = { controls: false }) => {
-        const containerNode = renderNode(
-          {
-            ...props,
-            key: props.key || '__children',
-          },
-          nodeInterface.children,
-        )
-        return {
-          ...containerNode,
-          render: settings.controls
-            ? {
-                methods: {
-                  remove: (id: string) => {
-                    return nodeInterface.removeChild(id)
+    return {
+      ...nodeInterface.render(nodeInterface, {
+        id: keyToId,
+        renderChildren: (props, map, settings = { controls: false }) => {
+          const containerNode = renderNode(
+            {
+              ...props,
+              key: props.key || '__children',
+            },
+            nodeInterface.children.map((x) => renderVirtualNode(x, node.id)),
+          )
+          return {
+            ...containerNode,
+            render: settings.controls
+              ? {
+                  methods: {
+                    remove: (id: string) => {
+                      return nodeInterface.removeChild(id)
+                    },
+                    reorder: (ids: string[]) => {
+                      return nodeInterface.reorderChildren(ids)
+                    },
                   },
-                  reorder: (ids: string[]) => {
-                    return nodeInterface.reorderChildren(ids)
-                  },
-                },
-              }
-            : {},
-        }
-      },
-      renderNode,
-    })
+                }
+              : {},
+          }
+        },
+        renderNode,
+      }),
+      interactionId: node.id,
+    }
   }
 
   const useNodeInterface = (

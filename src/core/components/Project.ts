@@ -53,8 +53,8 @@ const Project = {
         ],
       ),
       renderChildren({
-        layout: 'Grid',
-        layoutProps: { cover: true },
+        layout: 'Presentation',
+        layoutProps: { cover: false, barWidth: 0.7 },
       }),
       banner &&
         renderNode({

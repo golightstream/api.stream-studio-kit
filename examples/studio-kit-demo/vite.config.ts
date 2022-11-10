@@ -31,6 +31,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         guest: resolve(__dirname, 'guest/index.html'),
         compositor: resolve(__dirname, 'compositor/index.html'),
+        compositorTree: resolve(__dirname, 'compositor/tree.html'),
       },
     },
     minify: false,

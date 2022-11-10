@@ -135,9 +135,9 @@ export type DB = {
     props: DataNode['props'],
     parentId?: NodeId,
     index?: number,
-  ) => Promise<NodeId>
-  update: (id: NodeId, props: DataNode['props']) => Promise<void>
-  remove: (id: NodeId) => Promise<void>
+  ) => Promise<NodeId> | NodeId
+  update: (id: NodeId, props: DataNode['props']) => Promise<void> | void
+  remove: (id: NodeId) => Promise<void> | void
 }
 
 type LocalDB = {
@@ -162,7 +162,7 @@ export type DBAdapter = {
 }
 
 export type Settings = {
-  dbAdapter: DBAdapter
+  dbAdapter?: DBAdapter
   transformSettings?: TransformSettings
   sourceSettings?: SourceSettings
   componentSettings?: ComponentSettings
@@ -207,6 +207,11 @@ export type CompositorBase = {
   createProject: (
     settings: ProjectSettings,
     metadata?: unknown,
+  ) => Promise<Project>
+  loadTree: (
+    root: SceneNode,
+    settings?: ProjectSettings,
+    id?: string,
   ) => Promise<Project>
   loadProject: (id: string, settings?: ProjectSettings) => Promise<Project>
   getProject: (id: string) => Project
@@ -399,6 +404,7 @@ export const start = (settings: Settings): CompositorInstance => {
       return compositor.loadProject(id, projectSettings)
     },
     loadProject: (...args) => loadProject(...args),
+    loadTree: (...args) => loadTree(...args),
     lastRenderIds,
     lastRenderRemovedIds,
   } as CompositorBase
@@ -430,20 +436,37 @@ export const start = (settings: Settings): CompositorInstance => {
   ) => {
     const { dbAdapter } = compositor.settings
     let root = await dbAdapter.loadProject(id)
-    let { size, canEdit = true } = projectSettings
-
     const existingProject = compositor.getProject(id)
-    projectSettings.size = size ||
+
+    projectSettings.size = projectSettings.size ||
       existingProject?.settings.size ||
       root?.props.size || { x: 1280, y: 720 }
 
     if (existingProject) {
       existingProject.settings = {
+        canEdit: true,
         ...existingProject.settings,
         ...projectSettings,
       }
       return existingProject
     }
+
+    return loadTree(root, projectSettings, id)
+  }
+
+  /** Project init */
+  const loadTree = async (
+    root: SceneNode,
+    projectSettings: ProjectSettings = {},
+    id?: string,
+  ) => {
+    let { canEdit = true } = projectSettings
+    id = id || root.id
+
+    projectSettings.size = projectSettings.size ||
+      root?.props.size || { x: 1280, y: 720 }
+
+    projectSettings.canEdit = projectSettings.canEdit || canEdit
 
     if (compositor.settings.updateOutdatedComponents) {
       // Note: This is a legacy validation. This is necessary to ensure
@@ -788,9 +811,15 @@ export const start = (settings: Settings): CompositorInstance => {
       },
     })
 
-    // TODO: project-scoped {get(), getParent()} should use a snapshot of
-    //  nodeIndex at the time of a DB mutation, prior to any effects being run
-    const projectDb = projectDbMap[id] || dbAdapter.db(project as Project)
+    const projectDb =
+      projectDbMap[id] ||
+      (dbAdapter
+        ? dbAdapter.db(project as Project)
+        : ({
+            insert: () => Logic.generateId(),
+            update: () => {},
+            remove: () => {},
+          } as DB))
     projectDbMap[id] = projectDb
     projectIndex[id] = project as Project
 
