@@ -20,7 +20,7 @@ type Props = {
   sink: string
 }
 
-interface LBVideoElement extends HTMLVideoElement {
+interface RoomParticipantVideoElement extends HTMLVideoElement {
   setSinkId(id: string): Promise<void>
 }
 
@@ -79,12 +79,14 @@ export const RoomParticipant = {
       props: Props
       source: RoomParticipantSource
     }) => {
-      const ref = useRef<LBVideoElement>()
+      const ref = useRef<RoomParticipantVideoElement>()
 
       const { volume = 1, isHidden = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
 
-      const isSelf = source?.id === room?.participantId
+      const isSelf =
+        source?.id === room?.participantId ||
+        source?.props?.participantId === room?.participantId
 
       // Mute audio if explicitly isMuted by host,
       //  or the participant is our local participant
@@ -131,23 +133,23 @@ export const RoomParticipant = {
         }
       }, [props])
 
-      useEffect(() => {
-        if (ref?.current && props?.sink) {
-          ref.current
-            .setSinkId(props?.sink)
-            .then(() => {
-              console.log(`Success, audio output device attached`)
-            })
-            .catch((error) => {
-              let errorMessage = error
-              if (error.name === 'SecurityError') {
-                errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`
-              }
-              console.error(errorMessage)
-              // Jump back to first output device in the list as it's the default.
-            })
-        }
-      }, [props?.sink])
+      // useEffect(() => {
+      //   if (ref?.current && props?.sink) {
+      //     ref.current
+      //       .setSinkId(props?.sink)
+      //       .then(() => {
+      //         console.log(`Success, audio output device attached`)
+      //       })
+      //       .catch((error) => {
+      //         let errorMessage = error
+      //         if (error.name === 'SecurityError') {
+      //           errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`
+      //         }
+      //         console.error(errorMessage)
+      //         // Jump back to first output device in the list as it's the default.
+      //       })
+      //   }
+      // }, [props?.sink])
 
       useLayoutEffect(() => {
         if (!ref.current) return
@@ -172,7 +174,7 @@ export const RoomParticipant = {
         resizeObserver?.observe(ref.current)
 
         return () => {
-          if(ref.current) {
+          if (ref.current) {
             resizeObserver?.unobserve(ref.current)
             ref.current.srcObject = null
           }

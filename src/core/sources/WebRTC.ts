@@ -28,6 +28,10 @@ export type RoomParticipantSource = {
 
     external: boolean
 
+    participantId: string
+
+    trackId: string
+    
     microphone?: SDK.Track
   }
 }
