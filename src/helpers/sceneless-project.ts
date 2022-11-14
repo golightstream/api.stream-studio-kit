@@ -335,11 +335,6 @@ export interface Commands {
    */
   removeParticipantTrack(trackId: string, type?: ParticipantType): void
 
-  /* Attach the speaker to the camera. */
-  attachAudioSinkToCamera(
-    cameraTrackId: string,
-    audioSinkId: string,
-  ): void
   /**
    * Add a participant to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
@@ -1866,19 +1861,6 @@ export const commands = (_project: ScenelessProject) => {
         })
     },
 
-
-    /* Attaching an audio sink to a camera track. */
-    // TODO: Use audioSinkId ato attach speaker to the MediaProvider (Call setSinkId on HTMLVideoElement)
-    attachAudioSinkToCamera(cameraTrackId: string, audioSinkId:string) {
-      const node = commands.getParticipantNode(cameraTrackId)
-      if (!node) return
-      CoreContext.Command.updateNode({
-        nodeId: node.id,
-        props: {
-          sink: audioSinkId,
-        },
-      })
-    },
 
     async addParticipant(
       participantId: string,
