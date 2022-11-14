@@ -18,7 +18,7 @@ import {
 } from './compositor'
 import { Get } from 'type-fest'
 import { SourceManager } from './sources'
-import { RenderMethods } from './renderer'
+import { RenderMethods } from './html/html-renderer'
 import { Props } from '../core/types'
 
 export type Filter = (node: SceneNode) => SceneNode

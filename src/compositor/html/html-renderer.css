@@ -1,0 +1,88 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial';
+  user-select: none;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.NameBanner {
+  top: 100%;
+  transform: translateY(-100%);
+  left: 0;
+  height: 30px;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.5) 50%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  padding: 0px 0px 0px 10px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+  line-height: 30px;
+  width: 100%;
+  font-size: 28px;
+  position: absolute;
+}
+
+ls-layout[layout='Presentation'][props*='\\'cover\\'\\:true']
+  > :first-child
+  .NameBanner {
+  top: 0% !important;
+  transform: translateY(0%) !important;
+}
+
+[layout='Layered'] > [data-item] {
+  transform: scale(1.003) !important;
+}
+[layout='Layered'] > [data-item]:nth-child(2) {
+  transform: scale(1.0015) !important;
+}
+[layout='Layered'] > [data-item]:nth-child(1) {
+  transform: scale(1) !important;
+}
+
+.logo {
+  position: absolute !important;
+}
+
+#compositor-root[data-dragging] {
+}
+
+.interactive-overlay {
+  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0);
+  transition: 120ms ease all;
+}
+[data-drag-target] {
+}
+[data-drag-target].hovered > .item-element > .interactive-overlay {
+  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.5);
+  cursor: grab;
+}
+[data-drop-target] {
+}
+[data-drop-target].hovered {
+}
+[data-drag-target][data-drag-target-active]
+  > .item-element
+  > .interactive-overlay {
+  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.2);
+}
+[data-drag-target][data-drag-target-active] > .item-element {
+  opacity: 0.8;
+}
+[data-layout-drop-target-active] > .item-element > .interactive-overlay {
+  background: rgba(255, 255, 0, 0.15);
+}
+[data-transform-drop-target-active] > .item-element > .interactive-overlay {
+  box-shadow: 0 0 0 3px inset white;
+}
+[data-drop-candidate] {
+  box-shadow: 0 0 0 2px inset rgba(255, 255, 0, 0.35);
+}

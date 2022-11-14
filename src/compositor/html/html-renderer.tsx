@@ -4,18 +4,10 @@
  * -------------------------------------------------------------------------------------------- */
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
-import { log, InternalProject } from '../core/context'
-import { forEachDown, swapItems } from '../logic'
-import {
-  Component,
-  ComponentNode,
-  Disposable,
-  LayoutUpdates,
-  Project,
-  SceneNode,
-  TransformNode,
-  VirtualNode,
-} from './compositor'
+import { log } from '../../core/context'
+import { forEachDown, swapItems } from '../../logic'
+import { Disposable, Project, TransformNode, VirtualNode } from '../compositor'
+import baseStyle from './html-renderer.css'
 
 const PADDING = 0
 
@@ -26,7 +18,6 @@ export type RenderMethods = {
   move: (id: string, parentId: string) => Promise<void>
 }
 
-// TODO:
 export type LayoutStrategy = {
   methods: RenderMethods
 }
@@ -52,7 +43,7 @@ export const renderProject = (
 
   // Base styles
   const baseStyleEl = document.createElement('style')
-  baseStyleEl.textContent = getStyle()
+  baseStyleEl.textContent = baseStyle
 
   // Root El
   const rootEl = document.createElement('div')
@@ -251,82 +242,6 @@ const RendererProvider = ({ children, ...props }: ContextProps) => {
     </RendererContext.Provider>
   )
 }
-
-const getStyle = () => `
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Arial';
-  user-select: none;
-}
-
-video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.NameBanner {
-  top: 100%;
-  transform: translateY(-100%);
-  left: 0;
-  height: 30px;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
-  padding: 0px 0px 0px 10px;
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: bold;
-  line-height: 30px;
-  width: 100%;
-  font-size: 28px;
-  position: absolute;
-}
-
-ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .NameBanner {
-  top: 0% !important;
-  transform: translateY(0%) !important;
-}
-
-[layout="Layered"] > [data-item] {
-  transform: scale(1.003) !important;
-}
-[layout="Layered"] > [data-item]:nth-child(2) {
-  transform: scale(1.0015) !important;
-}
-[layout="Layered"] > [data-item]:nth-child(1) {
-  transform: scale(1) !important;
-}
-
-.logo {
-  position: absolute !important;
-}
-
-#compositor-root[data-dragging] {}
-
-.interactive-overlay {
-  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0);
-  transition: 120ms ease all;
-}
-[data-drag-target] {}
-[data-drag-target].hovered > .item-element > .interactive-overlay {
-  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.5);
-  cursor: grab;
-}
-[data-drop-target] {}
-[data-drop-target].hovered {}
-[data-drag-target][data-drag-target-active] > .item-element > .interactive-overlay {
-  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.2);
-}
-[data-drag-target][data-drag-target-active] > .item-element {
-  opacity: 0.8;
-}
-[data-layout-drop-target-active] > .item-element > .interactive-overlay {
-  box-shadow: 0 0 0 3px inset yellow;
-}
-[data-transform-drop-target-active] > .item-element > .interactive-overlay {
-  box-shadow: 0 0 0 3px inset white;
-}
-`
 
 const onDrop =
   (methods: RenderMethods, project: Project) =>
@@ -538,6 +453,16 @@ const ElementTree = (props: {
     ...(node.props.layoutProps ?? {}),
   }
 
+  const isDropCandidate =
+    !element &&
+    draggingNodeId &&
+    isDropTarget &&
+    parentIdIndex[draggingNodeId] !== node.id
+
+  if (node.id === 'jhlmhfj1knc00-sceneless-children') {
+    console.log({isDropCandidate})
+  }
+
   return (
     <div
       ref={rootRef}
@@ -554,6 +479,9 @@ const ElementTree = (props: {
       })}
       {...(isDropTarget && {
         'data-drop-target': true,
+      })}
+      {...(isDropCandidate && {
+        'data-drop-candidate': true,
       })}
       {...layoutDragHandlers}
       style={{
@@ -588,9 +516,7 @@ const ElementTree = (props: {
             position: 'absolute',
             zIndex: 2,
             pointerEvents:
-              draggingNodeId === node.id ||
-              isDragTarget ||
-              (draggingNodeId && isDropTarget)
+              draggingNodeId === node.id || isDragTarget || isDropCandidate
                 ? 'all'
                 : 'none',
           }}

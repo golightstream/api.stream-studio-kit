@@ -6,7 +6,7 @@ import * as HtmlTransforms from './html/html-transforms'
 import * as HtmlLayouts from './html/html-layouts'
 import * as Sources from './sources'
 import * as Components from './components'
-import * as Renderer from './renderer'
+import * as Renderer from './html/html-renderer'
 import * as Logic from '../logic'
 import { log } from '../core/context'
 import {
