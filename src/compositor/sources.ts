@@ -249,7 +249,8 @@ export const init = (
       props: source.props,
     })
 
-    const getNodeSources = (type: string) => node.props.sources?.[type] || []
+    const getNodeSources = <S extends Source = Source>(type: string) =>
+      (node.props.sources?.[type] || []) as S[]
 
     const updateNodeSources = (type: string, sources: NodeSource[]) => {
       project.update(node.id, {
@@ -259,6 +260,19 @@ export const init = (
           [type]: sources.map(toNodeSource),
         },
       })
+    }
+
+    const reduceAncestorSources = <S extends Source = Source>(
+      node: SceneNode,
+      type: string,
+      sources: S[] = [],
+    ): S[] => {
+      sources = [...sources, ...((node.props.sources?.[type] || []) as S[])]
+      const parent = compositor.getNodeParent(node.id)
+      if (parent) {
+        return reduceAncestorSources(parent, type, sources)
+      }
+      return sources
     }
 
     const nodeSourceMethods = {
@@ -282,11 +296,11 @@ export const init = (
         type: string,
         cb: (sources: S[]) => void,
       ): Disposable => {
-        cb((nodeSourceTypeIndex[type] as S[]) || [])
+        cb(sourceTypeIndex[type] as S[])
         return compositor.on('AvailableSourcesChanged', (payload) => {
           if (payload.type !== type) return
           if (payload.nodeId !== node.id) return
-          cb(payload.sources as S[])
+          cb(sourceTypeIndex[type] as S[])
         })
       },
       add: async (type: string, source: NodeSource) => {
@@ -346,12 +360,6 @@ export const init = (
               handleSourceChanged(existing)
             }
           })
-        })
-
-        console.log('SOURCE - NodeID: ' + node.id, {
-          added: difference.added.map((x) => x.id),
-          removed: difference.removed.map((x) => x.id),
-          specified: newSources.map((x) => x.id),
         })
 
         // Remove sources from index

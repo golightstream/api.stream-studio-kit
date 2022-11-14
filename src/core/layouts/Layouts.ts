@@ -11,10 +11,10 @@ type LayoutDeclaration = Compositor.Layout.LayoutDeclaration
 
 export const Free = {
   name: 'Free',
-  layout: ({ props, children, size }: LayoutArgs) => {
+  layout: ({ props, children, size: containerSize }: LayoutArgs) => {
     return children.reduce((acc, x) => {
       const {
-        size = { x: '100%', y: '100%' },
+        size = containerSize,
         position = { x: 0, y: 0 },
         opacity = 1,
       } = x.props
@@ -164,15 +164,16 @@ export const Row = {
             (x, i) =>
               html.node`<div data-node-id=${x.id} .data=${{
                 entryTransition: {
-                  delay: 400 + i * 100,
-                  offset: { x: 0, y: '100%' },
+                  delay: `${400 + i * 100}ms`,
+                  offset: { x: '0px', y: '100%' },
                   scale: { x: 0.8, y: 0.8 },
                   opacity: 0,
                 },
                 exitTransition: {
-                  offset: { x: 0, y: 1000 },
+                  offset: { x: 0, y: `500px` },
                   scale: { x: 0.8, y: 0.8 },
                   opacity: 0,
+                  duration: '300ms',
                 },
                 borderRadius: cover ? 0 : 5,
               }} style=${{

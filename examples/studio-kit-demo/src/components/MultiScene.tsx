@@ -7,26 +7,21 @@ import { Components, Sources, SDK, Compositor } from '@api.stream/studio-kit'
 import { Column, Flex, Row } from '../ui/Box'
 import { Component } from '.'
 import { ScenelessProps } from './Sceneless'
+import { SourceList } from '../shared/sources'
 
 export type MultiSceneInterface = Components.MultiScene.Interface
 
-export const MultiSceneComponent = ({
+export const SceneList = ({
   component,
 }: {
   component: MultiSceneInterface
 }) => {
-  const [images, setImages] = useState<Sources.Image.ImageSource[]>([])
-  const [videos, setVideos] = useState<Sources.Video.VideoSource[]>([])
-
-  const activeScene = component.getChild(
-    'scenes',
-    component.props.activeSceneId,
-  )
+  const activeScene = component.getChild(component.props.activeSceneId)
 
   return (
     <Column>
       <Row>
-        {component.children.scenes.map((x) => (
+        {component.children.map((x) => (
           <Flex
             key={x.id}
             width={50}
@@ -43,15 +38,7 @@ export const MultiSceneComponent = ({
             }}
           />
         ))}
-        <button
-          onClick={(e) =>
-            component.addChildComponent<ScenelessProps>(
-              'scenes',
-              'Sceneless',
-              {},
-            )
-          }
-        >
+        <button onClick={(e) => component.addChildComponent('Sceneless', {})}>
           Add scene
         </button>
       </Row>
@@ -63,6 +50,18 @@ export const MultiSceneComponent = ({
           </Column>
         )}
       </Row>
+    </Column>
+  )
+}
+
+export const MultiSceneComponent = ({
+  component,
+}: {
+  component: MultiSceneInterface
+}) => {
+  return (
+    <Column>
+      <SceneList component={component} />
     </Column>
   )
 }

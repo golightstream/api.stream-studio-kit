@@ -31,7 +31,6 @@ import deepEqual from 'fast-deep-equal'
 
 export { deepEqual }
 
-
 // Note: Not reliable for matters of security
 export const generateId = () => (Math.random() * 1e20).toString(36)
 
@@ -40,11 +39,12 @@ export const insertAt = <T>(
   ins: T | T[],
   arr: T[],
   replace = false,
-) => [
-  ...arr.slice(0, index),
-  ...[ins].flat(),
-  ...arr.slice(replace ? index + 1 : index),
-] as T[]
+) =>
+  [
+    ...arr.slice(0, index),
+    ...[ins].flat(),
+    ...arr.slice(replace ? index + 1 : index),
+  ] as T[]
 
 export const replaceItem = <T>(
   match: T | ((item: T) => Boolean),
@@ -111,42 +111,43 @@ export const toSceneTree = (
   }
 }
 
+type GraphNode = { [prop: string]: any; children: GraphNode[] }
+
 // Move down the scene graph, executing side effects each child
-export const forEachDown = (
-  node: Compositor.SceneNode,
-  fn: (next: Compositor.SceneNode, parent?: Compositor.SceneNode) => void,
+export const forEachDown = <T extends GraphNode = GraphNode>(
+  node: T,
+  fn: (next: T, parent?: T) => void,
 ): void => {
   if (!node) return
   fn(node)
   const children = node.children || []
   children.forEach((x) =>
     forEachDown(x, (next, parent) => {
-      fn(next, parent || node)
+      fn(next as T, (parent || node) as T)
     }),
   )
 }
 
-type GraphNode = { children?: GraphNode[] }
-
 // Move down the scene graph, updating each child
 export const mapDown = <T extends GraphNode, U extends GraphNode>(
   node: T,
-  fn: (next: T) => U,
+  fn: (next: T, parent: T) => Omit<GraphNode, 'children'>,
+  parent?: T
 ): U => {
-  const result = fn(node)
+  const result = fn(node, parent)
   return {
     ...result,
     children: (result?.children || node?.children || []).map((x) =>
-      mapDown(x, fn),
+      mapDown(x, fn, node),
     ),
-  }
+  } as U
 }
 
 // Move down the scene graph, updating each child
 export const mapDownAsync = async (
-  node: Compositor.SceneNode,
-  fn: (next: Compositor.SceneNode) => Promise<Compositor.SceneNode>,
-): Promise<Compositor.SceneNode> => {
+  node: GraphNode,
+  fn: (next: GraphNode) => Promise<GraphNode>,
+): Promise<GraphNode> => {
   const children = node?.children ?? []
   return {
     ...(await fn(node)),
@@ -205,4 +206,3 @@ export const asDuration = (x: string | number | null) => {
 
 /** Convert a Map to an array of its values */
 export const values = <T>(map: Map<any, T>) => Array.from(map.values())
-

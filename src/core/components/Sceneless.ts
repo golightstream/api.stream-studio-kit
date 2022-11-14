@@ -2,6 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
+import { background } from 'csx'
 import { SceneNode } from '../../compositor'
 import { Component, NodeInterface } from '../../compositor/components'
 import { Elements } from '../namespaces'
@@ -17,7 +18,7 @@ const children = {
 const Sceneless = {
   name: 'Sceneless',
   version: '1',
-  sources: ['Image', 'Video', 'RoomParticipant'],
+  sources: [],
   children,
   commands,
   create(props) {
@@ -31,7 +32,8 @@ const Sceneless = {
   },
   render(context, { id, renderNode, renderChildren }) {
     const { sources, props, children } = context
-    const { layout = 'Grid', layoutProps = {} } = props
+    const { layout = 'Grid', layoutProps = {}, backgroundId } = props
+    let background = sources.get(backgroundId)
 
     return renderNode(
       {
@@ -39,6 +41,27 @@ const Sceneless = {
         layout: 'Layered',
       },
       [
+        renderNode(
+          {
+            key: 'background',
+            layout: 'Free',
+          },
+          [
+            background &&
+              (background.type === 'Image'
+                ? renderNode({
+                    key: 'bg-' + background.id,
+                    element: 'LS-Image',
+                    sourceId: background.id,
+                  })
+                : renderNode({
+                    key: 'bg-' + background.id,
+                    element: 'LS-Video',
+                    sourceId: background.id,
+                    loop: true,
+                  })),
+          ],
+        ),
         renderChildren(
           {
             key: 'sceneless-children',
@@ -79,11 +102,7 @@ type LayoutName = string
 export type Props = {
   layout: LayoutName
   layoutProps: LayoutProps
-  background: {
-    id: string
-    type: 'Image' | 'Video'
-    stretch?: boolean
-  }
+  backgroundId?: string
 }
 
 type ParticipantInterface = NodeInterface<Elements.WebRTC.Props>

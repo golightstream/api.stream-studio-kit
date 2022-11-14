@@ -4,9 +4,9 @@
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
 import { Components, Sources } from '@api.stream/studio-kit'
-import { Participants } from '../shared/participant'
-import Style from '../shared/shared.module.css'
-import { Chat } from '../shared/chat'
+import { Column, Flex } from '../ui/Box'
+import { BackgroundSelect, BannerSelect, SourceList } from '../shared/sources'
+import { Layout } from '../shared/props'
 
 export type ScenelessInterface = Components.Sceneless.Interface
 export type ScenelessProps = Components.Sceneless.Props
@@ -38,141 +38,21 @@ export const ScenelessComponent = ({
 }: {
   component: ScenelessInterface
 }) => {
-  const { execute, sources } = component
-  const renderContainer = useRef()
-
-  // Get custom layout name from metadata we store
-  const layout = component.props.layout
-  // const background = projectCommands.getBackgroundMedia()
-  // const overlay = projectCommands.getImageOverlay()
-
-  // Sources
-  const [images, setImages] = useState<Sources.Image.ImageSource[]>([])
-  const [videos, setVideos] = useState<Sources.Video.VideoSource[]>([])
-  const background = execute.getBackground()
-
-  useEffect(() => {
-    sources.useAll('Image', setImages)
-    sources.useAll('Video', setVideos)
-  }, [sources])
-
   return (
-    <div className={Style.column}>
-      <div className={Style.column} style={{ width: 316, display: 'flex' }}>
-        <div
-          style={{
-            display: 'flex',
-            marginLeft: '20%',
-            marginTop: '-2%',
-            position: 'absolute',
-          }}
-        >
-          <div>
-            <span>
-              Overlays
-              <ul style={{ listStyle: 'none' }}>
-                {overlays.map((overlay) => (
-                  <li
-                    key={overlay.id}
-                    style={{
-                      border: `1px solid ${
-                        background?.id === overlay.id ? 'white' : 'black'
-                      }`,
-                    }}
-                    onClick={() => {}}
-                  >
-                    <img width="40px" height="50px" src={overlay.url} />
-                  </li>
-                ))}
-              </ul>
-            </span>
-          </div>
-          <div>
-            <span>
-              Video clips
-              <ul style={{ listStyle: 'none' }}>
-                {videos.map((overlay) => (
-                  <li
-                    key={overlay.id}
-                    style={{
-                      border: `1px solid ${
-                        background?.id === overlay.id ? 'white' : 'black'
-                      }`,
-                    }}
-                    onClick={() => {
-                      execute.setBackground({ type: 'Video', id: overlay.id })
-                    }}
-                  >
-                    <video width="40px" height="50px" src={overlay.props.src} />
-                  </li>
-                ))}
-              </ul>
-            </span>
-          </div>
-          <div>
-            <span>
-              Images
-              <ul style={{ listStyle: 'none' }}>
-                {images.map((overlay) => (
-                  <li
-                    key={overlay.id}
-                    onClick={() => {
-                      execute.setBackground({ type: 'Image', id: overlay.id })
-                    }}
-                  >
-                    <img width="40px" height="50px" src={overlay.props.src} />
-                  </li>
-                ))}
-              </ul>
-            </span>
-          </div>
-          <div>
-            <span>
-              Logos
-              <ul style={{ listStyle: 'none' }}>
-                {logos.map((logo) => (
-                  <li
-                    key={logo.id}
-                    onClick={() => {
-                      if (selectedImage !== logo.id) {
-                        setSelectedImage(logo.id)
-                        // projectCommands.addLogo(logo.id, {
-                        //   src: logo.url,
-                        // })
-                      } else {
-                        // projectCommands.removeLogo(selectedImage)
-                        setSelectedImage(null)
-                      }
-                    }}
-                  >
-                    <img width="40px" height="50px" src={logo.url} />
-                  </li>
-                ))}
-              </ul>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div
-        className={Style.row}
-        style={{
-          marginTop: 14,
-          marginBottom: 8,
-          background: '#242533',
-          padding: 10,
-        }}
-      >
-        <Participants component={component} />
-        <div
-          className={Style.column}
-          style={{ marginLeft: 14, marginBottom: 14 }}
-        >
-          <div ref={renderContainer} style={{ width: 840, height: 500 }}></div>
-        </div>
-        <div style={{ marginLeft: 14 }}>
-          <Chat />
-        </div>
-      </div>
-    </div>
+    <Column>
+      <SourceList component={component} sourceType="RoomParticipant" />
+      <Column>
+        <label>Layout</label>
+        <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>
+          <Layout component={component} />
+        </Flex>
+      </Column>
+      <Column>
+        <label>Background</label>
+        <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>
+          <BackgroundSelect component={component} />
+        </Flex>
+      </Column>
+    </Column>
   )
 }

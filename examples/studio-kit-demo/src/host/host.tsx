@@ -29,9 +29,7 @@ import { BackgroundSelect, BannerSelect, SourceList } from '../shared/sources'
 const { useStudio } = Helpers.React
 
 const getUrl = () =>
-  window.location.protocol +
-  '//' +
-  window.location.host + '/'
+  window.location.protocol + '//' + window.location.host + '/'
 
 // Determine whether this is running on API.stream
 const isLiveURL = () => {
@@ -407,16 +405,7 @@ export const HostView = () => {
         <Top studio={studio} project={project} />
         <Row align="stretch">
           <Column gap={10} marginTop={10}>
-            <SourceList
-              component={root.children[0] as Compositor.Component.NodeInterface}
-              sourceType="RoomParticipant"
-            />
-            <Column>
-              <label>Background</label>
-              <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>
-                <BackgroundSelect component={root} />
-              </Flex>
-            </Column>
+            <Component component={root.children[0]} />
             <Column>
               <label>Banner</label>
               <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>

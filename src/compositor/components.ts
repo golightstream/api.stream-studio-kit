@@ -49,6 +49,7 @@ type ChildMethods = {
     sourceId?: string,
     index?: number,
   ) => Promise<void>
+  insertChild: (node: SceneNode, index?: number) => Promise<void>
   removeChild: (id: string) => Promise<void>
   updateChild: <Props extends {} = AnyProps>(
     id: string,
@@ -301,9 +302,13 @@ export const init = (
 
     const component = getComponent(node.props.type)
 
-    const addChild = (childNode: SceneNode, index: number) => {
+    const insertChild = (childNode: SceneNode, index?: number) => {
       const previous = node.props.componentChildren || []
-      const current = insertAt(index || previous.length, childNode, previous)
+      const current = insertAt(
+        typeof index === 'number' ? index : previous.length,
+        childNode,
+        previous,
+      )
       return project.update(node.id, {
         ...node.props,
         componentChildren: current,
@@ -343,9 +348,10 @@ export const init = (
         const nodeInterface = getNodeInterface<I>(node.id)
         return nodeInterface.children.find((x) => x.id === id)
       },
+      insertChild,
       addChildComponent: (type, props, index) => {
         const node = createComponent(type, props)
-        return addChild(node, index)
+        return insertChild(node, index)
       },
       addChildElement: (type, props, sourceId, index) => {
         const node = {
@@ -357,7 +363,7 @@ export const init = (
           },
           children: [],
         } as TransformNode
-        return addChild(node, index)
+        return insertChild(node, index)
       },
       removeChild: (id) => {
         const previous = node.props.componentChildren || []
@@ -428,6 +434,9 @@ export const init = (
 
   const getComponent = (type: string) => components[type]
 
+  // A map of render nodes to their SceneNode
+  const renderSceneNodeIdIndex = {} as { [id: string]: string }
+
   const renderVirtualNode = (
     node: SceneNode | NodeInterface,
     parentId?: string,
@@ -465,6 +474,8 @@ export const init = (
       if (!props.key) console.warn('Every child should have a `key`')
       const id = keyToId(props.key || 'child')
 
+      renderSceneNodeIdIndex[id] = node.id
+
       return renderVirtualNode(
         {
           id,
@@ -475,16 +486,26 @@ export const init = (
       )
     }
 
+    const getNodeIdForVirtual = (id: string) => {
+      return renderSceneNodeIdIndex[id] || id
+    }
+
     return {
       ...nodeInterface.render(nodeInterface, {
         id: keyToId,
-        renderChildren: (props, map, settings = { controls: false }) => {
+        renderChildren: (
+          props,
+          map = (x) => x,
+          settings = { controls: false },
+        ) => {
           const containerNode = renderNode(
             {
               ...props,
               key: props.key || '__children',
             },
-            nodeInterface.children.map((x) => renderVirtualNode(x, node.id)),
+            map(nodeInterface.children).map((x) =>
+              renderVirtualNode(x, node.id),
+            ),
           )
           return {
             ...containerNode,
@@ -493,6 +514,48 @@ export const init = (
                   methods: {
                     remove: (id: string) => {
                       return nodeInterface.removeChild(id)
+                    },
+                    move: (id: string, parentId: string) => {
+                      const currentParentId = getNodeIdForVirtual(
+                        compositor.parentIdIndex[id],
+                      )
+                      const newParentId = getNodeIdForVirtual(parentId)
+
+                      // If the drop node is the current parent, do nothing
+                      if (newParentId === currentParentId) return
+
+                      return Promise.all([
+                        getNodeInterface(currentParentId).removeChild(id),
+                        getNodeInterface(newParentId).insertChild(
+                          compositor.getNode(id),
+                        ),
+                      ])
+                    },
+                    swap: (idA: string, idB: string) => {
+                      const currentParentIdA = getNodeIdForVirtual(
+                        compositor.parentIdIndex[idA],
+                      )
+                      const currentParentIdB = getNodeIdForVirtual(
+                        compositor.parentIdIndex[idB],
+                      )
+
+                      const parentA = getNodeInterface(currentParentIdA)
+                      const parentB = getNodeInterface(currentParentIdB)
+
+                      const indexA = parentA.children.findIndex(
+                        (x) => x.id === idA,
+                      )
+                      const indexB = parentB.children.findIndex(
+                        (x) => x.id === idB,
+                      )
+
+                      // Swap the nodes between parents
+                      return Promise.all([
+                        parentA.removeChild(idA),
+                        parentB.removeChild(idB),
+                        parentA.insertChild(compositor.getNode(idB), indexA),
+                        parentB.insertChild(compositor.getNode(idA), indexB),
+                      ])
                     },
                     reorder: (ids: string[]) => {
                       return nodeInterface.reorderChildren(ids)

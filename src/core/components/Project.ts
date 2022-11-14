@@ -28,33 +28,11 @@ const Project = {
   render(context, { id, renderNode, renderChildren }) {
     const { props, sources } = context
     let banner = sources.get(props.bannerId)
-    let background = sources.get(props.backgroundId)
 
     return renderNode({ key: 'project-root', layout: 'Layered' }, [
-      renderNode(
-        {
-          key: 'background',
-          layout: 'Free',
-        },
-        [
-          background &&
-            (background.type === 'Image'
-              ? renderNode({
-                  key: 'bg-' + background.id,
-                  element: 'LS-Image',
-                  sourceId: background.id,
-                })
-              : renderNode({
-                  key: 'bg-' + background.id,
-                  element: 'LS-Video',
-                  sourceId: background.id,
-                  loop: true,
-                })),
-        ],
-      ),
       renderChildren({
-        layout: 'Presentation',
-        layoutProps: { cover: false, barWidth: 0.7 },
+        layout: 'Grid',
+        layoutProps: { cover: true },
       }),
       banner &&
         renderNode({
@@ -72,7 +50,6 @@ const Project = {
  */
 
 export type Props = {
-  backgroundId?: string
   bannerId?: string
 }
 

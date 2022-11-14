@@ -21,10 +21,8 @@ const PADDING = 0
 export type RenderMethods = {
   remove: (id: string) => Promise<void>
   reorder: (ids: string[]) => Promise<void>
-  // TODO: Handle batch updates when two parents are affected by a single operation
-  swap: () => Promise<void>
-  move: () => Promise<void>
-  // add: (node: SceneNode) => Promise<void>
+  swap: (idA: string, idB: string) => Promise<void>
+  move: (id: string, parentId: string) => Promise<void>
 }
 
 // TODO:
@@ -210,6 +208,8 @@ const dragImageSvg = `
   </svg>`
 
 type RendererContext = {
+  isDragging: boolean
+  setIsDragging: (dragging: boolean) => void
   project: Project
   elements: {
     containerEl: HTMLElement
@@ -219,6 +219,8 @@ type RendererContext = {
 }
 
 export const RendererContext = React.createContext<RendererContext>({
+  isDragging: false,
+  setIsDragging: () => {},
   project: null,
   elements: {
     containerEl: null,
@@ -227,16 +229,22 @@ export const RendererContext = React.createContext<RendererContext>({
   },
 })
 
-type ContextProps = RendererContext & {
+type ContextProps = Partial<RendererContext> & {
   children: React.ReactChild
 }
 
 const RendererProvider = ({ children, ...props }: ContextProps) => {
+  const [isDragging, setIsDragging] = useState(false)
+
   return (
     <RendererContext.Provider
-      value={{
-        ...props,
-      }}
+      value={
+        {
+          ...props,
+          isDragging,
+          setIsDragging,
+        } as RendererContext
+      }
     >
       {children}
     </RendererContext.Provider>
@@ -249,6 +257,7 @@ const getStyle = () => `
   padding: 0;
   box-sizing: border-box;
   font-family: 'Arial';
+  user-select: none;
 }
 
 video {
@@ -335,26 +344,15 @@ const onDrop =
 
     if (dropNodeId === dragNodeId) return
 
-    if (dropType === 'layout') {
-      // If the drop node is the current parent, do nothing
-      // if (dragParent.id === dropNodeId) return
-      // If the drop node is a layout, then move node only
-      // TODO: Wire up - Move node to a different parent
-      // return methods.swap({
-      //   projectId: project.id,
-      //   nodeId: dragNode.id,
-      //   parentId: dropNode.id,
-      // })
-    } else {
+    if (
+      dropType === 'layout' &&
+      parentIdIndex[dragNodeId] !== parentIdIndex[dropNodeId]
+    ) {
+      // If the drop node is a layout, then move node
+      return methods.move(dragNodeId, dropNodeId)
+    } else if (parentIdIndex[dragNodeId] !== parentIdIndex[dropNodeId]) {
       // If the drop node is a transform, then swap
-      // TODO: Wire up - Swap nodes with separate parents
-      // if (dragParent.id !== dropParent?.id) {
-      //   return methods.swap({
-      //     projectId: project.id,
-      //     nodeAId: dragNode.id,
-      //     nodeBId: dropNode.id,
-      //   })
-      // }
+      return methods.swap(dragNodeId, dropNodeId)
     }
 
     // Swap the two nodes if they have the same parent
@@ -370,11 +368,12 @@ const ElementTree = (props: {
   node: VirtualNode
   transformDragHandlers?: (node: SceneNode) => any
 }) => {
-  const isDragging = useRef(false)
+  const isDraggingNode = useRef(false)
   const interactiveRef = useRef<HTMLDivElement>()
   const transformRef = useRef<HTMLDivElement>()
   const rootRef = useRef<HTMLDivElement>()
-  const { project, elements } = useContext(RendererContext)
+  const { project, elements, isDragging, setIsDragging } =
+    useContext(RendererContext)
   const { node, transformDragHandlers } = props
 
   const element = project.getElement(node)
@@ -383,7 +382,8 @@ const ElementTree = (props: {
   const _onDrop = useMemo(() => onDrop(methods, project), [])
 
   // TODO: Improve this check
-  const isDragTarget = Boolean(transformDragHandlers)
+  const isDragTarget =
+    Boolean(transformDragHandlers) && (node.props.type || node.props.element)
   const isDropTarget = Boolean(methods)
 
   let layoutDragHandlers = isDropTarget
@@ -435,7 +435,7 @@ const ElementTree = (props: {
             )
           },
           ondragstart: (e) => {
-            isDragging.current = true
+            isDraggingNode.current = true
             elements.renderEl.toggleAttribute('data-dragging', true)
             log.debug('Renderer: Dragging', node.interactionId)
             foundDropTarget = false
@@ -443,11 +443,10 @@ const ElementTree = (props: {
             e.dataTransfer.dropEffect = 'move'
             e.dataTransfer.setDragImage(dragImage, 10, 10)
             rootRef.current?.toggleAttribute('data-drag-target-active', true)
-            // @ts-ignore
-            window.__dragging = true
+            setIsDragging(true)
           },
           ondragend: (e) => {
-            isDragging.current = false
+            isDraggingNode.current = false
             if (!foundDropTarget) {
               log.info('Renderer: No drop target - deleting node', node)
               methods.remove(node.interactionId)
@@ -461,13 +460,12 @@ const ElementTree = (props: {
               x.toggleAttribute('data-layout-drop-target-active', false)
               x.toggleAttribute('data-transform-drop-target-active', false)
             })
-            // @ts-ignore
-            window.__dragging = false
+            setIsDragging(false)
           },
           ondragover: (e) => {
             e.preventDefault()
             e.stopPropagation()
-            if (isDragging.current) return
+            if (isDraggingNode.current) return
             rootRef.current?.toggleAttribute(
               'data-transform-drop-target-active',
               true,
@@ -498,7 +496,6 @@ const ElementTree = (props: {
         width: '100%',
         height: '100%',
         position: 'relative',
-        ...(node.props.style || {}),
       })
     }
   }, [transformRef.current, element])
@@ -546,6 +543,7 @@ const ElementTree = (props: {
       key={node.id}
       data-id={node.id + '-x'}
       data-item
+      data-type={node.props.type || node.props.element}
       onMouseLeave={(e) => {
         e.stopPropagation()
         e.currentTarget.classList.toggle('hovered', false)
@@ -559,8 +557,8 @@ const ElementTree = (props: {
       {...layoutDragHandlers}
       style={{
         position: 'relative',
-        width: node.props.size?.x || '100%',
-        height: node.props.size?.y || '100%',
+        width: '100%',
+        height: '100%',
         pointerEvents: 'none',
       }}
     >
@@ -588,6 +586,7 @@ const ElementTree = (props: {
             width: '100%',
             position: 'absolute',
             zIndex: 2,
+            pointerEvents: isDragging && isDropTarget ? 'all' : 'none',
           }}
         ></div>
         <ErrorBoundary>

@@ -8,23 +8,19 @@ import * as CSS from 'csstype'
 // TODO: Make this generic to HTML/Canvas when canvas compositing is supported
 type LayoutProps = Partial<DataNode['props']>
 
-// A string representation of percent/px (e.g. 100px/10%), or a number (px)
-type Size = { x: string | number; y: string | number }
-// A string representation of percent/px (e.g. 100px/10%), or a number (px)
-type Position = { x: string | number; y: string | number }
-// Any valid CSS duration unit (ms/s, etc)
-type Duration = string | number
-
 type Transition = {
-  delay?: Duration
-  offset?: Position
+  /** ms or s */
+  delay?: string
+  /** ms or s */
+  duration?: string
+  offset?: { x: string | number; y: string | number }
   scale?: { x?: number; y?: number }
   opacity?: number
   timingFn?: CSS.StandardProperties['transitionTimingFunction'] | 'exit'
 }
 
 export type LayoutChild = HTMLElement & {
-  data: ChildPosition
+  data: ChildRenderPosition
 }
 
 export type LayoutArgs = {
@@ -33,23 +29,32 @@ export type LayoutArgs = {
   size: { x: number; y: number }
 }
 
-export type ChildPosition = {
-  position: Position
-  size: Size
+export type ChildLayoutPosition = {
+  position?: { x: string | number; y: string | number }
+  size?: { x: string | number; y: string | number }
+  opacity?: number
+  borderRadius?: number
+  zIndex?: number
+  entryTransition?: Transition
+  exitTransition?: Transition
+}
+
+export type ChildRenderPosition = {
+  /** The X/Y offset of the element's parent compared to the root node */
+  globalOffset: { x: number; y: number }
+  position: { x: number; y: number }
+  size: { x: number; y: number }
   opacity: number
   borderRadius: number
   zIndex: number
   entryTransition: Transition
   exitTransition: Transition
-  // The child node's current offset from the topmost Layer
-  rootOffset?: { x: number; y: number }
+}
+export type ChildRenderPositionIndex = {
+  [nodeId: string]: ChildRenderPosition
 }
 
-export type ChildPositionIndex = {
-  [nodeId: string]: ChildPosition
-}
-
-export type LayoutResult = ChildPositionIndex | HTMLElement
+export type LayoutResult = ChildRenderPositionIndex | HTMLElement
 
 export type LayoutDefinition = ({
   props,

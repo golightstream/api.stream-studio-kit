@@ -50,7 +50,7 @@ export function SourceList<SourceProps>({
   )
 }
 
-export const BackgroundSelect = ({ component }: { component: Project }) => {
+export const BackgroundSelect = ({ component }: { component: NodeInterface }) => {
   const images = useSources<Image>(component, 'Image')
   const videos = useSources<Video>(component, 'Video')
 
@@ -110,7 +110,7 @@ export const BackgroundSelect = ({ component }: { component: Project }) => {
   )
 }
 
-export const BannerSelect = ({ component }: { component: Project }) => {
+export const BannerSelect = ({ component }: { component: NodeInterface }) => {
   const banners = useSources<Banner>(component, 'Banner')
 
   return (
