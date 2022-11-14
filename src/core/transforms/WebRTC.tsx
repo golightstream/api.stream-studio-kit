@@ -19,11 +19,6 @@ type Props = {
   sink: string
 }
 
-// Extend HTMLVIdeoElement to support adding audiosink/speaker using setSinkId
-interface RoomParticipantVideoElement extends HTMLVideoElement {
-  setSinkId(id: string): Promise<void>
-}
-
 export const RoomParticipant = {
   name: 'LS-Room-Participant',
   sourceType: 'RoomParticipant',
@@ -79,7 +74,7 @@ export const RoomParticipant = {
       props: Props
       source: RoomParticipantSource
     }) => {
-      const ref = useRef<RoomParticipantVideoElement>()
+      const ref = useRef<HTMLVideoElement>()
 
       const { volume = 1, isHidden = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
@@ -133,7 +128,6 @@ export const RoomParticipant = {
         }
       }, [props])
 
-      // TODO: Add audioSink to the MediaProvider
 
       useLayoutEffect(() => {
         if (!ref.current) return
