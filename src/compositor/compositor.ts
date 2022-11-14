@@ -128,6 +128,7 @@ export type VirtualNode<Props extends {} = AnyProps> = SceneNode<Props> & {
   props: SceneNode<Props>['props'] & {
     key?: string
   }
+  interactionId: string
 }
 
 export type DB = {

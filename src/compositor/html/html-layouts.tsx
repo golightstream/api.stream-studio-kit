@@ -361,6 +361,7 @@ export class Layout extends HTMLElement {
 
           // Set shared styles and reset transform
           Object.assign(childEl.style, {
+            willChange: TRANSITION_FIELDS,
             position: 'absolute',
             transformOrigin: '50% 50%',
             transitionDuration: '0ms',

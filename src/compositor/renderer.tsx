@@ -13,6 +13,7 @@ import {
   LayoutUpdates,
   Project,
   SceneNode,
+  TransformNode,
   VirtualNode,
 } from './compositor'
 
@@ -125,7 +126,7 @@ export const renderProject = (
 
   const render = () => {
     log.debug('Renderer: Rendering tree')
-    const tree = project.renderVirtualTree()
+    const tree = project.renderVirtualTree() as VirtualNode
     childIdIndex = {}
     parentIdIndex = {}
     forEachDown(tree, (node, parent) => {
@@ -208,8 +209,8 @@ const dragImageSvg = `
   </svg>`
 
 type RendererContext = {
-  isDragging: boolean
-  setIsDragging: (dragging: boolean) => void
+  draggingNodeId: string
+  setDraggingNodeId: (nodeId: string) => void
   project: Project
   elements: {
     containerEl: HTMLElement
@@ -219,8 +220,8 @@ type RendererContext = {
 }
 
 export const RendererContext = React.createContext<RendererContext>({
-  isDragging: false,
-  setIsDragging: () => {},
+  draggingNodeId: null,
+  setDraggingNodeId: () => {},
   project: null,
   elements: {
     containerEl: null,
@@ -234,15 +235,15 @@ type ContextProps = Partial<RendererContext> & {
 }
 
 const RendererProvider = ({ children, ...props }: ContextProps) => {
-  const [isDragging, setIsDragging] = useState(false)
+  const [draggingNodeId, setDraggingNodeId] = useState(null)
 
   return (
     <RendererContext.Provider
       value={
         {
           ...props,
-          isDragging,
-          setIsDragging,
+          draggingNodeId,
+          setDraggingNodeId,
         } as RendererContext
       }
     >
@@ -366,24 +367,27 @@ let parentIdIndex = {} as { [id: string]: string }
 let foundDropTarget = false
 const ElementTree = (props: {
   node: VirtualNode
-  transformDragHandlers?: (node: SceneNode) => any
+  transformDragHandlers?: (
+    node: VirtualNode,
+    rootRef: React.MutableRefObject<HTMLElement>,
+  ) => any
 }) => {
-  const isDraggingNode = useRef(false)
   const interactiveRef = useRef<HTMLDivElement>()
   const transformRef = useRef<HTMLDivElement>()
   const rootRef = useRef<HTMLDivElement>()
-  const { project, elements, isDragging, setIsDragging } =
+  const { project, elements, draggingNodeId, setDraggingNodeId } =
     useContext(RendererContext)
   const { node, transformDragHandlers } = props
+
+  const draggingNodeRef = useRef<string>()
+  draggingNodeRef.current = draggingNodeId
 
   const element = project.getElement(node)
   const layout = node.props.layout || 'Row'
   const methods = project.settings.canEdit ? node.render?.methods : null
   const _onDrop = useMemo(() => onDrop(methods, project), [])
 
-  // TODO: Improve this check
-  const isDragTarget =
-    Boolean(transformDragHandlers) && (node.props.type || node.props.element)
+  const isDragTarget = Boolean(transformDragHandlers) && element
   const isDropTarget = Boolean(methods)
 
   let layoutDragHandlers = isDropTarget
@@ -418,7 +422,7 @@ const ElementTree = (props: {
     : {}
 
   let childTransformDragHandlers = isDropTarget
-    ? (node: SceneNode) =>
+    ? (node: VirtualNode, rootRef: React.MutableRefObject<HTMLElement>) =>
         ({
           draggable: true,
           // If a target is draggable, it will also be treated as
@@ -435,7 +439,6 @@ const ElementTree = (props: {
             )
           },
           ondragstart: (e) => {
-            isDraggingNode.current = true
             elements.renderEl.toggleAttribute('data-dragging', true)
             log.debug('Renderer: Dragging', node.interactionId)
             foundDropTarget = false
@@ -443,10 +446,9 @@ const ElementTree = (props: {
             e.dataTransfer.dropEffect = 'move'
             e.dataTransfer.setDragImage(dragImage, 10, 10)
             rootRef.current?.toggleAttribute('data-drag-target-active', true)
-            setIsDragging(true)
+            setDraggingNodeId(node.interactionId)
           },
           ondragend: (e) => {
-            isDraggingNode.current = false
             if (!foundDropTarget) {
               log.info('Renderer: No drop target - deleting node', node)
               methods.remove(node.interactionId)
@@ -460,12 +462,11 @@ const ElementTree = (props: {
               x.toggleAttribute('data-layout-drop-target-active', false)
               x.toggleAttribute('data-transform-drop-target-active', false)
             })
-            setIsDragging(false)
+            setDraggingNodeId(null)
           },
           ondragover: (e) => {
             e.preventDefault()
             e.stopPropagation()
-            if (isDraggingNode.current) return
             rootRef.current?.toggleAttribute(
               'data-transform-drop-target-active',
               true,
@@ -492,7 +493,7 @@ const ElementTree = (props: {
         overflow: 'hidden',
       })
       Object.assign(element.root.style, {
-        pointerEvents: isDragTarget ? 'all' : 'none',
+        // pointerEvents: isDragTarget ? 'all' : 'none',
         width: '100%',
         height: '100%',
         position: 'relative',
@@ -516,7 +517,7 @@ const ElementTree = (props: {
     if (interactiveRef.current) {
       Object.assign(
         interactiveRef.current,
-        transformDragHandlers ? transformDragHandlers(node) : {},
+        transformDragHandlers ? transformDragHandlers(node, rootRef) : {},
       )
       Object.assign(interactiveRef.current.style, {
         pointerEvents: isDragTarget ? 'all' : 'none',
@@ -543,7 +544,7 @@ const ElementTree = (props: {
       key={node.id}
       data-id={node.id + '-x'}
       data-item
-      data-type={node.props.type || node.props.element}
+      data-type={node.props.type || (node as TransformNode).props.element}
       onMouseLeave={(e) => {
         e.stopPropagation()
         e.currentTarget.classList.toggle('hovered', false)
@@ -586,7 +587,12 @@ const ElementTree = (props: {
             width: '100%',
             position: 'absolute',
             zIndex: 2,
-            pointerEvents: isDragging && isDropTarget ? 'all' : 'none',
+            pointerEvents:
+              draggingNodeId === node.id ||
+              isDragTarget ||
+              (draggingNodeId && isDropTarget)
+                ? 'all'
+                : 'none',
           }}
         ></div>
         <ErrorBoundary>
@@ -599,7 +605,7 @@ const ElementTree = (props: {
               pointerEvents: 'none',
             }}
           >
-            {node.children.map((x) => (
+            {node.children.map((x: VirtualNode) => (
               <ElementTree
                 key={x.id}
                 node={x}
