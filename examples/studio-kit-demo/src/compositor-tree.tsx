@@ -364,12 +364,6 @@ const CompositorView = () => {
     <Flex>
       <Column>
         <Renderer scene={project} />
-        <Column>
-          <label>Banner</label>
-          <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>
-            <BannerSelect component={root} />
-          </Flex>
-        </Column>
       </Column>
     </Flex>
   )

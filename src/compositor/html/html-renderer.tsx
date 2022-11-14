@@ -118,6 +118,7 @@ export const renderProject = (
   const render = () => {
     log.debug('Renderer: Rendering tree')
     const tree = project.renderVirtualTree() as VirtualNode
+    rootId = tree.id
     childIdIndex = {}
     parentIdIndex = {}
     forEachDown(tree, (node, parent) => {
@@ -202,6 +203,7 @@ const dragImageSvg = `
 type RendererContext = {
   draggingNodeId: string
   setDraggingNodeId: (nodeId: string) => void
+  ctrlPressed: boolean
   project: Project
   elements: {
     containerEl: HTMLElement
@@ -213,6 +215,7 @@ type RendererContext = {
 export const RendererContext = React.createContext<RendererContext>({
   draggingNodeId: null,
   setDraggingNodeId: () => {},
+  ctrlPressed: false,
   project: null,
   elements: {
     containerEl: null,
@@ -227,6 +230,20 @@ type ContextProps = Partial<RendererContext> & {
 
 const RendererProvider = ({ children, ...props }: ContextProps) => {
   const [draggingNodeId, setDraggingNodeId] = useState(null)
+  const [ctrlPressed, setCtrlPressed] = useState(false)
+
+  useEffect(() => {
+    const handleKeysChanged = (e: KeyboardEvent) => {
+      if (e.ctrlKey === ctrlPressed) return
+      setCtrlPressed(e.ctrlKey)
+    }
+    document.addEventListener('keydown', handleKeysChanged)
+    document.addEventListener('keyup', handleKeysChanged)
+    return () => {
+      document.removeEventListener('keydown', handleKeysChanged)
+      document.removeEventListener('keyup', handleKeysChanged)
+    }
+  }, [ctrlPressed])
 
   return (
     <RendererContext.Provider
@@ -235,6 +252,7 @@ const RendererProvider = ({ children, ...props }: ContextProps) => {
           ...props,
           draggingNodeId,
           setDraggingNodeId,
+          ctrlPressed,
         } as RendererContext
       }
     >
@@ -278,6 +296,7 @@ const onDrop =
 
 let childIdIndex = {} as { [id: string]: string[] }
 let parentIdIndex = {} as { [id: string]: string }
+let rootId: string
 
 let foundDropTarget = false
 const ElementTree = (props: {
@@ -290,7 +309,7 @@ const ElementTree = (props: {
   const interactiveRef = useRef<HTMLDivElement>()
   const transformRef = useRef<HTMLDivElement>()
   const rootRef = useRef<HTMLDivElement>()
-  const { project, elements, draggingNodeId, setDraggingNodeId } =
+  const { project, elements, draggingNodeId, setDraggingNodeId, ctrlPressed } =
     useContext(RendererContext)
   const { node, transformDragHandlers } = props
 
@@ -302,7 +321,10 @@ const ElementTree = (props: {
   const methods = project.settings.canEdit ? node.render?.methods : null
   const _onDrop = useMemo(() => onDrop(methods, project), [])
 
-  const isDragTarget = Boolean(transformDragHandlers) && element
+  const isDragTarget =
+    // TODO: ctrlPressed should allow for dragging nodes containing other elements,
+    //  but it immediately triggers a dragEnd for unknown reasons
+    Boolean(transformDragHandlers) && (/* ctrlPressed ||  */element)
   const isDropTarget = Boolean(methods)
 
   let layoutDragHandlers = isDropTarget
@@ -408,7 +430,6 @@ const ElementTree = (props: {
         overflow: 'hidden',
       })
       Object.assign(element.root.style, {
-        // pointerEvents: isDragTarget ? 'all' : 'none',
         width: '100%',
         height: '100%',
         position: 'relative',
@@ -430,12 +451,21 @@ const ElementTree = (props: {
     }
 
     if (interactiveRef.current) {
-      Object.assign(
-        interactiveRef.current,
-        transformDragHandlers ? transformDragHandlers(node, rootRef) : {},
-      )
-      Object.assign(interactiveRef.current.style, {
-        pointerEvents: isDragTarget ? 'all' : 'none',
+      Object.assign(interactiveRef.current, {
+        ...(rootId === node.id
+          ? ({
+              ondrop: (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                foundDropTarget = true
+              },
+              ondragover: (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+              },
+            } as Partial<HTMLElement>)
+          : {}),
+        ...(transformDragHandlers ? transformDragHandlers(node, rootRef) : {}),
       })
       interactiveRef.current.addEventListener('dblclick', onDoubleClick)
       interactiveRef.current.addEventListener('mouseover', onMouseover)
@@ -457,11 +487,7 @@ const ElementTree = (props: {
     !element &&
     draggingNodeId &&
     isDropTarget &&
-    parentIdIndex[draggingNodeId] !== node.id
-
-  if (node.id === 'jhlmhfj1knc00-sceneless-children') {
-    console.log({isDropCandidate})
-  }
+    parentIdIndex[draggingNodeId] !== node.interactionId
 
   return (
     <div
@@ -516,7 +542,10 @@ const ElementTree = (props: {
             position: 'absolute',
             zIndex: 2,
             pointerEvents:
-              draggingNodeId === node.id || isDragTarget || isDropCandidate
+              draggingNodeId === node.interactionId ||
+              isDragTarget ||
+              isDropCandidate ||
+              rootId === node.id
                 ? 'all'
                 : 'none',
           }}

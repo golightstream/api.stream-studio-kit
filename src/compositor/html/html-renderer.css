@@ -84,5 +84,5 @@ ls-layout[layout='Presentation'][props*='\\'cover\\'\\:true']
   box-shadow: 0 0 0 3px inset white;
 }
 [data-drop-candidate] {
-  box-shadow: 0 0 0 2px inset rgba(255, 255, 0, 0.35);
+  box-shadow: 0 0 0 2px inset rgba(255, 255, 0, 0.4);
 }
