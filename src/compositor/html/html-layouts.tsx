@@ -40,9 +40,18 @@ import {
   LayoutChild,
   LayoutMap,
   LayoutRegister,
+  Transition,
 } from '../layouts'
 
-const TRANSITION_DURATION = '5000ms'
+const TRANSITION_DURATION = '300ms'
+const DEFAULT_TRANSITION = {
+  delay: '0ms',
+  duration: TRANSITION_DURATION,
+  offset: { x: '0px', y: '0px' },
+  scale: { x: 0.7, y: 0.7 },
+  opacity: 0,
+  timingFn: 'ease',
+} as Transition
 
 type LayoutTree = { id: string; layout: Layout; children: LayoutTree[] }
 
@@ -191,9 +200,11 @@ export class Layout extends HTMLElement {
   parentEl: HTMLElement
   /** The closest parent Layout */
   parentLayout: Layout
-
+  /** The layout type used for this Layout last frame (e.g. "Grid") */
+  previousLayoutType: string
   nodes: SceneNode[]
   mutationObserver: MutationObserver
+  isFirst: boolean = true
   isUpdating: boolean = false
   connected: boolean = false
   cid: number
@@ -306,11 +317,7 @@ export class Layout extends HTMLElement {
 
   adoptedCallback() {}
 
-  updatePositions(
-    layoutSize: { x: number; y: number },
-    treeId?: string,
-    withEntry?: boolean,
-  ) {
+  updatePositions(layoutSize: { x: number; y: number }, treeId?: string) {
     if (this.isUpdating) return
     this.isUpdating = true
 
@@ -320,9 +327,19 @@ export class Layout extends HTMLElement {
     const disposables = (previousFrameDisposables[treeId][this.id] =
       [] as Disposable[])
 
+    const props = this.getProps()
+    const layoutType = props.layout
+    const withEntry =
+      (this.previousLayoutType !== layoutType && props.withEntry) ||
+      layoutIndex[treeId].layout.isFirst
+    this.previousLayoutType = this.getProps().layout
+
+    Object.assign(this.style, {
+      overflow: this.id === treeId ? 'hidden' : props.overflow || 'visible',
+    })
+
     treeId = treeId || treeRootIndex[this.id].id
     let positions = latestChildPositions[treeId][this.id]
-    const slot = getSlotPosition(treeId, this.id)
 
     Promise.all(
       Object.entries(positions).map(async ([id, childPosition]) => {
@@ -341,25 +358,17 @@ export class Layout extends HTMLElement {
           zIndex = 1,
           opacity = 1,
           borderRadius = 0,
-          entryTransition = {},
-          exitTransition = {},
+          entryTransition,
+          insertionTransition,
           globalOffset,
         } = data
-
-        if (withEntry) {
-          // Get the child's
-        }
 
         if (childEl) {
           if (childEl.removed) return
 
-          // @ts-ignore // TODO:
-          // const scale = window.__scale
-          const scale = 1
-
           const scaledParentSize = {
-            x: layoutSize.x / scale,
-            y: layoutSize.y / scale,
+            x: layoutSize.x,
+            y: layoutSize.y,
           }
 
           const childRight = scaledParentSize.x - position.x - size.x
@@ -375,18 +384,29 @@ export class Layout extends HTMLElement {
             transform: `translate3d(0, 0, 0) scaleX(1) scaleY(1)`,
             visibility: 'visible',
             boxSizing: 'border-box',
-            // overflow: 'hidden',
             borderRadius: borderRadius + 'px',
             width: 'auto',
             height: 'auto',
           } as CSS.StandardProperties)
 
-          let delay = '0ms'
-          const duration = childEl.newlyAdded
-            ? entryTransition.duration || TRANSITION_DURATION
-            : TRANSITION_DURATION
+          let transition = DEFAULT_TRANSITION
 
-          if (childEl.newlyAdded) {
+          if (withEntry && entryTransition) {
+            transition = { ...transition, ...entryTransition }
+            // Run the entry animation by moving the node to its entry position
+            Object.assign(childEl.style, {
+              transitionProperty: TRANSITION_FIELDS,
+              transitionDuration: '0ms',
+              transitionDelay: '0ms',
+              transitionTimingFunction: transition.timingFn,
+              transform: `translate3d(${transition.offset?.x}, ${transition.offset.y}, 0) scaleX(${transition.scale?.x}) scaleY(${transition.scale.y})`,
+              opacity: transition.opacity,
+              left: position.x + 'px' || 0,
+              top: position.y + 'px' || 0,
+              right: childRight + 'px' || 0,
+              bottom: childBottom + 'px' || 0,
+            })
+          } else if (childEl.newlyAdded) {
             const previousPosition =
               previousChildPositions[treeId][childEl.previousLayoutId]?.[
                 childEl.id
@@ -422,26 +442,31 @@ export class Layout extends HTMLElement {
                 bottom: bottom + 'px',
               })
             } else {
+              transition = insertionTransition
               // Run the entry animation by moving the node to its entry position
               Object.assign(childEl.style, {
                 transitionProperty: TRANSITION_FIELDS,
                 transitionDuration: '0ms',
-                transitionTimingFunction: entryTransition.timingFn ?? 'ease',
-                transform: `translate3d(${entryTransition.offset?.x ?? 0}, ${
-                  entryTransition.offset?.y ?? 0
-                }, 0) scaleX(${entryTransition.scale?.x ?? 1}) scaleY(${
-                  entryTransition.scale?.y ?? 1
-                })`,
-                opacity: entryTransition.opacity ?? 0,
-                left: position.x || 0,
-                right: childRight || 0,
-                top: position.y || 0,
-                bottom: childBottom || 0,
+                transitionDelay: '0ms',
+                transitionTimingFunction: insertionTransition.timingFn,
+                transform: `translate3d(${insertionTransition.offset?.x}, ${insertionTransition.offset.y}, 0) scaleX(${insertionTransition.scale.x}) scaleY(${insertionTransition.scale.y})`,
+                opacity: insertionTransition.opacity,
+                left: position.x + 'px' || 0,
+                top: position.y + 'px' || 0,
+                right: childRight + 'px' || 0,
+                bottom: childBottom + 'px' || 0,
               })
-              delay = entryTransition.delay || '0ms'
             }
-            childEl.newlyAdded = false
+          } else {
+            // TODO: Extract these to a helper applyTransition()
+            Object.assign(childEl.style, {
+              transitionProperty: TRANSITION_FIELDS,
+              transitionDuration: DEFAULT_TRANSITION.duration,
+              transitionTimingFunction: DEFAULT_TRANSITION.timingFn,
+              opacity: DEFAULT_TRANSITION.opacity,
+            })
           }
+          childEl.newlyAdded = false
 
           const onTransitionStart = () => {
             // Move layer up when transitioning to ensure
@@ -455,12 +480,12 @@ export class Layout extends HTMLElement {
             childEl.removeEventListener('transitionstart', onTransitionStart),
           )
 
-          // Set final styles
+          // Set final styles along with the actual transition timing
           await new Promise((resolve) => window.setTimeout(resolve)) // Defer for layout
           Object.assign(childEl.style, {
             transitionProperty: TRANSITION_FIELDS,
-            transitionDuration: duration,
-            transitionDelay: delay,
+            transitionDuration: transition.duration,
+            transitionDelay: transition.delay,
             transform: `translate3d(0, 0, 0) scaleX(1) scaleY(1)`,
             opacity,
             left: position.x + 'px' || 0,
@@ -469,7 +494,7 @@ export class Layout extends HTMLElement {
             bottom: childBottom + 'px' || 0,
             zIndex,
           })
-          
+
           const onTransitionEnd = () => {
             childEl.style.zIndex = String(zIndex)
             childEl.removeEventListener('transitionend', onTransitionEnd)
@@ -485,10 +510,9 @@ export class Layout extends HTMLElement {
     })
 
     layoutIndex[this.id].children.forEach((x) => {
-      // TODO:
-      const withChildEntry = withEntry && !Boolean(slot.entryTransition)
-      x.layout.updatePositions(positions[x.id].size, treeId, withChildEntry)
+      x.layout.updatePositions(positions[x.id].size, treeId)
     })
+    this.isFirst = false
   }
 
   initializeChild(childEl: ChildEl) {
@@ -522,40 +546,6 @@ export class Layout extends HTMLElement {
       })
     }
 
-    const data = {
-      globalOffset: { x: 0, y: 0 },
-      entryTransition: {
-        delay: '0ms',
-        opacity: 0,
-        scale: {
-          x: 1,
-          y: 1,
-        },
-        offset: {
-          x: 0,
-          y: 0,
-        },
-      },
-      exitTransition: {
-        delay: '0ms',
-        opacity: 0,
-        scale: {
-          x: 1,
-          y: 1,
-        },
-        offset: {
-          x: 0,
-          y: 0,
-        },
-      },
-      position: { x: 0, y: 0 },
-      size: { x: 0, y: 0 },
-      opacity: 0,
-      borderRadius: 0,
-      zIndex: 1,
-    } as ChildRenderPosition
-
-    childEl.data = data
     childEl.parentLayout = childEl.parentElement as Layout
     childEl.nextSiblingEl = childEl.nextSibling as ChildEl
     childEl.previousSiblingEl = childEl.previousSibling as ChildEl
@@ -572,21 +562,21 @@ export class Layout extends HTMLElement {
     childEl.runRemove = async () => {
       childEl.removed = true
       await new Promise((resolve) => window.setTimeout(resolve)) // Defer for layout
-      const { entryTransition = {}, exitTransition = {} } = childEl.data
+      const { entryTransition = {}, removalTransition = {} } = childEl.data
 
       // Run the exit animation by moving the node to its exit position
       Object.assign(childEl.style, {
         zIndex: -1,
         transitionDelay: '0ms',
-        transitionDuration: exitTransition.duration || TRANSITION_DURATION,
+        transitionDuration: removalTransition.duration || TRANSITION_DURATION,
         transitionProperty: TRANSITION_FIELDS,
-        transitionTimingFunction: exitTransition.timingFn ?? 'ease',
-        transform: `translate3d(${exitTransition.offset?.x ?? 0}, ${
-          exitTransition.offset?.y ?? 0
-        }, 0) scaleX(${exitTransition.scale?.x ?? 1}) scaleY(${
-          exitTransition.scale?.y ?? 1
+        transitionTimingFunction: removalTransition.timingFn ?? 'ease',
+        transform: `translate3d(${removalTransition.offset?.x ?? 0}, ${
+          removalTransition.offset?.y ?? 0
+        }, 0) scaleX(${removalTransition.scale?.x ?? 1}) scaleY(${
+          removalTransition.scale?.y ?? 1
         })`,
-        opacity: exitTransition.opacity ?? 0,
+        opacity: removalTransition.opacity ?? 0,
       })
 
       childEl.removed = true
@@ -603,7 +593,7 @@ export class Layout extends HTMLElement {
         // TODO: Gracefully convert string transition durations to Number(ms)
         const timeout = window.setTimeout(
           onFinished,
-          parseInt(String(exitTransition.duration || TRANSITION_DURATION)) +
+          parseInt(String(removalTransition.duration || TRANSITION_DURATION)) +
             600,
         )
         childEl.addEventListener('transitionend', onFinished, {
@@ -612,6 +602,10 @@ export class Layout extends HTMLElement {
       })
       return childEl.transition
     }
+  }
+
+  getProps() {
+    return JSON.parse(this.getAttribute('props') || '{}')
   }
 
   getChildPositions(
@@ -642,7 +636,7 @@ export class Layout extends HTMLElement {
       })
 
     const { globalOffset = { x: 0, y: 0 } } = settings
-    const props = JSON.parse(this.getAttribute('props') || '{}')
+    const props = this.getProps()
     const layoutArgs = {
       id: this.id,
       props: props,
@@ -672,10 +666,19 @@ export class Layout extends HTMLElement {
               },
               opacity: 1,
               zIndex: 1,
-              entryTransition: {},
-              exitTransition: {},
               borderRadius: 0,
               ...value,
+              insertionTransition: {
+                ...DEFAULT_TRANSITION,
+                ...(value.insertionTransition || {}),
+              },
+              removalTransition: {
+                ...DEFAULT_TRANSITION,
+                opacity: 0,
+                ...(value.removalTransition || {}),
+              },
+              entryTransition: value.entryTransition,
+              exitTransition: value.exitTransition,
             } as ChildRenderPosition,
           ]
         }),
@@ -728,9 +731,18 @@ export class Layout extends HTMLElement {
           y: rect.height,
         },
         opacity,
-        zIndex: el.data?.zIndex,
-        entryTransition: el.data?.entryTransition ?? {},
-        exitTransition: el.data?.exitTransition ?? {},
+        zIndex: el.data?.zIndex ?? 1,
+        entryTransition: el.data?.entryTransition,
+        exitTransition: el.data?.exitTransition,
+        insertionTransition: {
+          ...DEFAULT_TRANSITION,
+          ...(el.data?.insertionTransition ?? {}),
+        },
+        removalTransition: {
+          ...DEFAULT_TRANSITION,
+          opacity: 0,
+          ...(el.data?.removalTransition ?? {}),
+        },
         borderRadius: el.data?.borderRadius ?? 0,
       } as ChildRenderPosition
 

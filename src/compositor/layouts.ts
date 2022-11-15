@@ -8,7 +8,7 @@ import * as CSS from 'csstype'
 // TODO: Make this generic to HTML/Canvas when canvas compositing is supported
 type LayoutProps = Partial<DataNode['props']>
 
-type Transition = {
+export type Transition = {
   /** ms or s */
   delay?: string
   /** ms or s */
@@ -35,6 +35,8 @@ export type ChildLayoutPosition = {
   opacity?: number
   borderRadius?: number
   zIndex?: number
+  insertionTransition?: Transition
+  removalTransition?: Transition
   entryTransition?: Transition
   exitTransition?: Transition
 }
@@ -47,8 +49,10 @@ export type ChildRenderPosition = {
   opacity: number
   borderRadius: number
   zIndex: number
-  entryTransition: Transition
-  exitTransition: Transition
+  insertionTransition: Transition
+  removalTransition: Transition
+  entryTransition?: Transition
+  exitTransition?: Transition
 }
 export type ChildRenderPositionIndex = {
   [nodeId: string]: ChildRenderPosition

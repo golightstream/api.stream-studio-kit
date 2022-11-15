@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom'
 import { log } from '../../core/context'
 import { forEachDown, swapItems } from '../../logic'
 import { Disposable, Project, TransformNode, VirtualNode } from '../compositor'
-import baseStyle from './html-renderer.css'
+import baseStyle from './html-renderer.css?inline'
 
 const PADDING = 0
 

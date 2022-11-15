@@ -76,6 +76,8 @@ type BaseNode = {
     sources?: { [type: string]: Sources.NodeSource[] }
     layout?: string
     layoutProps?: {
+      withEntry?: boolean
+      overflow?: 'visible' | 'hidden'
       [prop: string]: any
     }
 

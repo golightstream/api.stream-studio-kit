@@ -44,7 +44,7 @@ const Sceneless = {
         renderNode(
           {
             key: 'background',
-            layout: 'Free',
+            layout: 'Layered',
           },
           [
             background &&

@@ -88,7 +88,7 @@ export const Column = {
           html.node`<div data-node-id=${x.id} .data=${{
             entryTransition: {
               delay: 400 + i * 100,
-              offset: { x: 0, y: '100%' },
+              offset: { x: '100%', y: 0 },
               scale: { x: 0.8, y: 0.8 },
               opacity: 0,
             },
