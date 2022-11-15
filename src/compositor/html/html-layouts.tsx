@@ -25,7 +25,7 @@
  * their positions, foregoing the offscreen render altogether.
  */
 import * as CSS from 'csstype'
-import { DataNode, SceneNode } from '../index'
+import { DataNode, Disposable, SceneNode } from '../index'
 import {
   asArray,
   asDuration,
@@ -42,7 +42,7 @@ import {
   LayoutRegister,
 } from '../layouts'
 
-const TRANSITION_DURATION = '300ms'
+const TRANSITION_DURATION = '5000ms'
 
 type LayoutTree = { id: string; layout: Layout; children: LayoutTree[] }
 
@@ -79,10 +79,14 @@ const getParent = (id: string): LayoutTree => {
 
 let _cid = 1
 const ignoredAttributes = ['style', 'id', 'className']
+const previousFrameDisposables = {} as {
+  [treeId: string]: { [layoutId: string]: Disposable[] }
+}
 
 type Op =
   | [type: 'sizeChanged', layoutId: string]
   | [type: 'attributesChanged', layoutId: string]
+  | [type: 'layoutTransitionsFinished', layoutId: string]
   | [type: 'childInserted', layoutId: string, childId: string]
   | [type: 'childRemoved', layoutId: string, childId: string]
   | [type: 'childRemoveFinished', layoutId: string, childId: string]
@@ -103,6 +107,7 @@ const tick = () => {
   const removed = new Set<string>()
   const removeFinished = new Set<string>()
 
+  // TODO: Remove if these Sets are no longer required
   Object.entries(tickOps).forEach(([layoutId, ops]) => {
     ops.forEach(([type, layoutId, childId]) => {
       switch (type) {
@@ -158,15 +163,11 @@ const tick = () => {
       }
     })
 
-    // @ts-ignore
-    const scale = window.__scale
-
     const needsUpdate = new Set<LayoutTree>()
     Object.entries(tickOps).forEach(([layoutId, ops]) => {
       const layoutEl = treeRootIndex[layoutId]
       needsUpdate.add(layoutEl)
     })
-    console.log('Ops for frame:', { tickOps, needsUpdate })
     needsUpdate.forEach((x) => {
       x.layout.render()
     })
@@ -193,7 +194,6 @@ export class Layout extends HTMLElement {
 
   nodes: SceneNode[]
   mutationObserver: MutationObserver
-  isFirst: boolean = true
   isUpdating: boolean = false
   connected: boolean = false
   cid: number
@@ -313,6 +313,12 @@ export class Layout extends HTMLElement {
   ) {
     if (this.isUpdating) return
     this.isUpdating = true
+
+    // Clean up previous render (transition listeners, etc.)
+    const previousDisposables = previousFrameDisposables[treeId][this.id] || []
+    previousDisposables.forEach((x) => x())
+    const disposables = (previousFrameDisposables[treeId][this.id] =
+      [] as Disposable[])
 
     treeId = treeId || treeRootIndex[this.id].id
     let positions = latestChildPositions[treeId][this.id]
@@ -437,13 +443,17 @@ export class Layout extends HTMLElement {
             childEl.newlyAdded = false
           }
 
-          childEl.addEventListener('transitionstart', () => {
+          const onTransitionStart = () => {
             // Move layer up when transitioning to ensure
             //  it moves over the top of static layers
             if (!childEl.removed) {
               childEl.style.zIndex = String(zIndex + 1)
             }
-          })
+          }
+          childEl.addEventListener('transitionstart', onTransitionStart)
+          disposables.push(() =>
+            childEl.removeEventListener('transitionstart', onTransitionStart),
+          )
 
           // Set final styles
           await new Promise((resolve) => window.setTimeout(resolve)) // Defer for layout
@@ -459,16 +469,20 @@ export class Layout extends HTMLElement {
             bottom: childBottom + 'px' || 0,
             zIndex,
           })
-
-          childEl.addEventListener('transitionend', () => {
+          
+          const onTransitionEnd = () => {
             childEl.style.zIndex = String(zIndex)
-          })
+            childEl.removeEventListener('transitionend', onTransitionEnd)
+          }
+          childEl.addEventListener('transitionend', onTransitionEnd)
+          disposables.push(() =>
+            childEl.removeEventListener('transitionend', onTransitionEnd),
+          )
         }
       }),
     ).then(() => {
       this.isUpdating = false
     })
-    this.isFirst = false
 
     layoutIndex[this.id].children.forEach((x) => {
       // TODO:
@@ -764,6 +778,7 @@ export class Layout extends HTMLElement {
 
   render(size?: { x: number; y: number }) {
     size = size || { x: 1280, y: 720 }
+    previousFrameDisposables[this.id] = previousFrameDisposables[this.id] || {}
     this.indexTreeOfPositions(size)
     this.updatePositions(size, this.id)
   }

@@ -324,13 +324,17 @@ const ElementTree = (props: {
   const isDragTarget =
     // TODO: ctrlPressed should allow for dragging nodes containing other elements,
     //  but it immediately triggers a dragEnd for unknown reasons
-    Boolean(transformDragHandlers) && (/* ctrlPressed ||  */element)
+    Boolean(transformDragHandlers) && /* ctrlPressed ||  */ element
   const isDropTarget = Boolean(methods)
 
   let layoutDragHandlers = isDropTarget
     ? ({
         onDrop: (e: React.DragEvent) => {
           foundDropTarget = true
+          rootRef.current?.toggleAttribute(
+            'data-layout-drop-target-active',
+            false,
+          )
           return _onDrop(
             {
               dropType: 'layout',
@@ -366,6 +370,10 @@ const ElementTree = (props: {
           //  a drop target (swap element positions)
           ondrop: (e) => {
             foundDropTarget = true
+            rootRef.current?.toggleAttribute(
+              'data-transform-drop-target-active',
+              false,
+            )
             return _onDrop(
               {
                 dropType: 'transform',
@@ -492,9 +500,6 @@ const ElementTree = (props: {
   return (
     <div
       ref={rootRef}
-      key={node.id}
-      data-id={node.id + '-x'}
-      data-item
       data-type={node.props.type || (node as TransformNode).props.element}
       onMouseLeave={(e) => {
         e.stopPropagation()
@@ -561,11 +566,13 @@ const ElementTree = (props: {
             }}
           >
             {node.children.map((x: VirtualNode) => (
-              <ElementTree
-                key={x.id}
-                node={x}
-                transformDragHandlers={childTransformDragHandlers}
-              />
+              <div key={x.id} data-id={x.id + '-x'} data-item>
+                <ElementTree
+                  key={x.id}
+                  node={x}
+                  transformDragHandlers={childTransformDragHandlers}
+                />
+              </div>
             ))}
           </ls-layout>
         </ErrorBoundary>
