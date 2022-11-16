@@ -114,6 +114,7 @@ const tick = () => {
   }
   const inserted = new Set<string>()
   const removed = new Set<string>()
+  const moved = new Set<string>()
   const removeFinished = new Set<string>()
 
   // TODO: Remove if these Sets are no longer required
@@ -134,6 +135,7 @@ const tick = () => {
           } else {
             removed.add(childId)
           }
+          moved.add(childId)
           break
         }
         case 'childRemoveFinished': {
@@ -227,21 +229,14 @@ export class Layout extends HTMLElement {
 
   connectedCallback() {
     // TODO: Validate (disconnect element if invalid)
-
-    if (this.connected) return
-    this.connected = true
-
+    
     // Assign helper variables
     this.id = this.id || this.dataset.id
     this.parentEl = this.parentElement
     this.parentLayout = findElementUp(this, (el) => el instanceof Layout)
 
-    this.log('Layout connected', { parent: this.parentLayout })
-
-    Array.from(this.children).forEach((x) => this.initializeChild(x as ChildEl))
-
     // Update indexes
-    const tree = {
+    const tree = layoutIndex[this.id] || {
       id: this.id,
       layout: this,
       children: [],
@@ -258,6 +253,14 @@ export class Layout extends HTMLElement {
     } else {
       treeRootIndex[this.id] = layoutIndex[this.id]
     }
+
+    // Do nothing more if previously connected
+    if (this.connected) return
+    this.connected = true
+
+    this.log('Layout connected', { parent: this.parentLayout })
+
+    Array.from(this.children).forEach((x) => this.initializeChild(x as ChildEl))
 
     Object.assign(this.style, {
       width: '100%',
@@ -547,7 +550,19 @@ export class Layout extends HTMLElement {
         attributes: true,
       })
     }
+    
+    // Reconnect previous siblings if this node already exists in memory
+    const previous = childIndex[childEl.id]
+    if (previous) {
+      if (previous.previousSiblingEl) {
+        previous.previousSiblingEl.nextSiblingEl = previous.nextSiblingEl
+      }
+      if (previous.nextSiblingEl) {
+        previous.nextSiblingEl.previousSiblingEl = previous.previousSiblingEl
+      }
+    }
 
+    // Update the new sibling references
     childEl.parentLayout = childEl.parentElement as Layout
     childEl.nextSiblingEl = childEl.nextSibling as ChildEl
     childEl.previousSiblingEl = childEl.previousSibling as ChildEl
