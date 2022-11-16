@@ -92,11 +92,6 @@ export const Column = {
               scale: { x: 0.8, y: 0.8 },
               opacity: 0,
             },
-            exitTransition: {
-              offset: { x: 0, y: 1000 },
-              scale: { x: 0.8, y: 0.8 },
-              opacity: 0,
-            },
             borderRadius: cover ? 0 : 5,
           }} style=${{
             display: 'flex',
@@ -168,12 +163,6 @@ export const Row = {
                   offset: { x: '0px', y: '100%' },
                   scale: { x: 0.8, y: 0.8 },
                   opacity: 0,
-                },
-                exitTransition: {
-                  offset: { x: 0, y: `500px` },
-                  scale: { x: 0.8, y: 0.8 },
-                  opacity: 0,
-                  duration: '300ms',
                 },
                 borderRadius: cover ? 0 : 5,
               }} style=${{
@@ -365,11 +354,6 @@ export const Presentation = {
               delay: 0,
               offset: { x: 0, y: 1000 },
               scale: { x: 0.5, y: 0.5 },
-              opacity: 0,
-            },
-            exitTransition: {
-              offset: { x: 0, y: 1000 },
-              scale: { x: 2, y: 2 },
               opacity: 0,
             },
           }} style=${{

@@ -18,7 +18,7 @@ import {
 } from './compositor'
 import { Get } from 'type-fest'
 import { SourceManager } from './sources'
-import { RenderMethods } from './html/html-renderer'
+import { RenderMethods } from './compositor'
 import { Props } from '../core/types'
 
 export type Filter = (node: SceneNode) => SceneNode
@@ -68,11 +68,13 @@ export type NodeInterface<
   project: Project
   kind: 'Base' | 'Element' | 'Component'
   type: string
+  nodeProps: SceneNode['props']
   props: Props
   // Listen to changes to props of the node
   onChange: (cb: (newProps: Props) => void) => Disposable
   // Update the the node props
   update: (props: Partial<Props>) => void
+  updateNode: (props: Partial<Props>) => void
   sources: SourceInterface
   execute: CommandsInterface<Commands> & {
     [name: string]: (...args: unknown[]) => any
@@ -99,7 +101,6 @@ export type ComponentCommands<Props = {}> = {
 type RenderHelpers = {
   id: (id: string) => string
   renderChildren: (
-    props: SceneNode['props'] & { key?: string },
     map?: (children: NodeInterface[]) => NodeInterface[],
     settings?: { controls: boolean },
   ) => SceneNode
@@ -281,6 +282,7 @@ export const init = (
 
     if (existing) {
       Object.assign(existing, {
+        nodeProps: node.props,
         props:
           existing.kind === 'Component'
             ? node.props.componentProps
@@ -329,11 +331,14 @@ export const init = (
         kind === 'Component'
           ? (node as ComponentNode).props.componentProps || {}
           : (node as TransformNode).props,
+      nodeProps: node.props,
       render: component
         ? component.render
         : () => {
             return node
           },
+      updateNode: (props) => project.update(node.id, props),
+      // TODO: Should update componentProps even for ElementNode
       update: (props) => project.update(node.id, props),
       sources: sourceManager.wrap(node),
       execute: {},
@@ -435,7 +440,10 @@ export const init = (
   const getComponent = (type: string) => components[type]
 
   // A map of render nodes to their SceneNode
-  const renderSceneNodeIdIndex = {} as { [id: string]: string }
+  const virtualSceneNodeIdIndex = {} as { [id: string]: string }
+
+  // @ts-ignore Debug helper
+  window.virtualSceneNodeIdIndex = virtualSceneNodeIdIndex
 
   const renderVirtualNode = (
     node: SceneNode | NodeInterface,
@@ -449,6 +457,10 @@ export const init = (
       compositor.parentIdIndex[node.id] || parentId
     compositor.projectIdIndex[node.id] =
       compositor.projectIdIndex[node.id] || compositor.projectIdIndex[parentId]
+
+    if (!virtualSceneNodeIdIndex[node.id]) {
+      virtualSceneNodeIdIndex[node.id] = node.id
+    }
 
     let transformManager = getCompositorInstance().transforms
     const element = transformManager.getElement(node)
@@ -474,7 +486,7 @@ export const init = (
       if (!props.key) console.warn('Every child should have a `key`')
       const id = keyToId(props.key || 'child')
 
-      renderSceneNodeIdIndex[id] = node.id
+      virtualSceneNodeIdIndex[id] = node.id
 
       return renderVirtualNode(
         {
@@ -486,57 +498,66 @@ export const init = (
       )
     }
 
+    // Get the stored SceneNode corresponding to the virtual node
     const getNodeIdForVirtual = (id: string) => {
-      return renderSceneNodeIdIndex[id] || id
+      return virtualSceneNodeIdIndex[id] || id
     }
 
     return {
       ...nodeInterface.render(nodeInterface, {
         id: keyToId,
-        renderChildren: (
-          props,
-          map = (x) => x,
-          settings = { controls: false },
-        ) => {
+        renderChildren: (map = (x) => x, settings = { controls: false }) => {
           const containerNode = renderNode(
             {
-              ...props,
-              key: props.key || '__children',
+              layout: nodeInterface.nodeProps.layout,
+              layoutProps: nodeInterface.nodeProps.layoutProps || {},
+              key: '__children',
             },
-            map(nodeInterface.children).map((x) =>
-              renderVirtualNode(x, node.id),
-            ),
+            map(nodeInterface.children).map((x) => {
+              return renderVirtualNode(x, node.id)
+            }),
           )
           return {
             ...containerNode,
             render: settings.controls
               ? {
                   methods: {
-                    remove: (id: string) => {
-                      return nodeInterface.removeChild(id)
+                    showcase: async (id: string) => {
+                      await nodeInterface.updateNode({
+                        layoutProps: {
+                          ...node.props.layoutProps,
+                          showcase: id,
+                        },
+                      })
+                      return
                     },
-                    move: (id: string, parentId: string) => {
+                    remove: async (id: string) => {
+                      await nodeInterface.removeChild(id)
+                      return
+                    },
+                    move: async (id: string, parentId: string) => {
                       const currentParentId = getNodeIdForVirtual(
-                        compositor.parentIdIndex[id],
+                        compositor.parentIdIndex[getNodeIdForVirtual(id)],
                       )
                       const newParentId = getNodeIdForVirtual(parentId)
 
                       // If the drop node is the current parent, do nothing
                       if (newParentId === currentParentId) return
 
-                      return Promise.all([
+                      await Promise.all([
                         getNodeInterface(currentParentId).removeChild(id),
                         getNodeInterface(newParentId).insertChild(
                           compositor.getNode(id),
                         ),
                       ])
+                      return
                     },
-                    swap: (idA: string, idB: string) => {
+                    swap: async (idA: string, idB: string) => {
                       const currentParentIdA = getNodeIdForVirtual(
-                        compositor.parentIdIndex[idA],
+                        compositor.parentIdIndex[getNodeIdForVirtual(idA)],
                       )
                       const currentParentIdB = getNodeIdForVirtual(
-                        compositor.parentIdIndex[idB],
+                        compositor.parentIdIndex[getNodeIdForVirtual(idB)],
                       )
 
                       const parentA = getNodeInterface(currentParentIdA)
@@ -550,23 +571,26 @@ export const init = (
                       )
 
                       // Swap the nodes between parents
-                      return Promise.all([
+                      await Promise.all([
                         parentA.removeChild(idA),
                         parentB.removeChild(idB),
                         parentA.insertChild(compositor.getNode(idB), indexA),
                         parentB.insertChild(compositor.getNode(idA), indexB),
                       ])
+                      return
                     },
-                    reorder: (ids: string[]) => {
-                      return nodeInterface.reorderChildren(ids)
+                    reorder: async (ids: string[]) => {
+                      await nodeInterface.reorderChildren(ids)
+                      return
                     },
-                  },
+                  } as RenderMethods,
                 }
               : {},
           }
         },
         renderNode,
       }),
+      sceneNodeId: virtualSceneNodeIdIndex[node.id],
       interactionId: node.id,
     }
   }

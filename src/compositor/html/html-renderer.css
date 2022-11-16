@@ -67,8 +67,6 @@ ls-layout[layout='Presentation'][props*='\\'cover\\'\\:true']
 }
 [data-drop-target] {
 }
-[data-drop-target].hovered {
-}
 [data-drag-target][data-drag-target-active]
   > .item-element
   > .interactive-overlay {

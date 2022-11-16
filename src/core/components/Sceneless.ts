@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { background } from 'csx'
-import { SceneNode } from '../../compositor'
+import { ElementNode, SceneNode } from '../../compositor'
 import { Component, NodeInterface } from '../../compositor/components'
 import { Elements } from '../namespaces'
 
@@ -23,7 +23,6 @@ const Sceneless = {
   commands,
   create(props) {
     return {
-      layout: 'Grid',
       background: {
         stretch: false,
       },
@@ -32,7 +31,7 @@ const Sceneless = {
   },
   render(context, { id, renderNode, renderChildren }) {
     const { sources, props, children } = context
-    const { layout = 'Grid', layoutProps = {}, backgroundId } = props
+    const { backgroundId } = props
     let background = sources.get(backgroundId)
 
     return renderNode(
@@ -63,11 +62,6 @@ const Sceneless = {
           ],
         ),
         renderChildren(
-          {
-            key: 'sceneless-children',
-            layout,
-            layoutProps,
-          },
           (x) => x,
           { controls: true },
         ),
@@ -97,15 +91,13 @@ export type LayoutProps = {
   reverse?: boolean
 }
 
-type LayoutName = string
-
 export type Props = {
-  layout: LayoutName
-  layoutProps: LayoutProps
   backgroundId?: string
 }
 
-type ParticipantInterface = NodeInterface<Elements.WebRTC.Props>
+type ParticipantInterface = NodeInterface<
+  ElementNode<Elements.WebRTC.Props>['props']
+>
 
 export type Interface = NodeInterface<
   Props,

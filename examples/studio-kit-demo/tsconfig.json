@@ -11,7 +11,9 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "paths": {},
+    "paths": {
+      "@api.stream/studio-kit": ["../../src/index"]
+    },
     "module": "esnext",
     "moduleResolution": "node",
     "noErrorTruncation": true,

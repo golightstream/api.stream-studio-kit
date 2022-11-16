@@ -76,6 +76,7 @@ type BaseNode = {
     sources?: { [type: string]: Sources.NodeSource[] }
     layout?: string
     layoutProps?: {
+      showcase?: string
       withEntry?: boolean
       overflow?: 'visible' | 'hidden'
       [prop: string]: any
@@ -114,6 +115,8 @@ export type TransformNode<Props extends {} = AnyProps> = BaseNode & {
     sourceType?: string
   }
 }
+// Alias
+export type ElementNode<Props extends {} = AnyProps> = TransformNode<Props>
 
 // The crucial difference between SceneNode vs DataNode is that SceneNode has
 //  fully-populated children[] rather than childIds[]
@@ -125,12 +128,13 @@ export type SceneNode<Props extends {} = AnyProps> = {
 export type VirtualNode<Props extends {} = AnyProps> = SceneNode<Props> & {
   // Applies to a node during render (virtual nodes only)
   render?: {
-    methods: Renderer.RenderMethods
+    methods: RenderMethods
   }
   props: SceneNode<Props>['props'] & {
     key?: string
   }
   interactionId: string
+  sceneNodeId: string
 }
 
 export type DB = {
@@ -234,8 +238,17 @@ export interface CompositorInstance extends CompositorBase {
   layouts: HtmlLayouts.LayoutManager
 }
 
-type RenderSettings = {
+export type RenderMethods = {
+  showcase: (id: string | null) => void | Promise<void>
+  remove: (id: string) => void | Promise<void>
+  reorder: (ids: string[]) => void | Promise<void>
+  swap: (idA: string, idB: string) => void | Promise<void>
+  move: (id: string, parentId: string) => void | Promise<void>
+}
+
+export type RenderSettings = {
   containerEl: HTMLElement
+  doubleClickShowcase?: boolean
 }
 
 export type LayoutUpdates = {
@@ -660,8 +673,8 @@ export const start = (settings: Settings): CompositorInstance => {
         return nodeIndex[parentComponentIdIndex[id]]
       },
       getElement: (node) => transformManager.getElement(node),
-      render({ containerEl }) {
-        return Renderer.renderProject(project as Project, containerEl)
+      render(settings) {
+        return Renderer.renderProject(project as Project, settings)
       },
       renderVirtualTree() {
         compositor.lastRenderRemovedIds = compositor.lastRenderIds
@@ -756,52 +769,6 @@ export const start = (settings: Settings): CompositorInstance => {
 
         // @ts-ignore
         return projectDb.batch([['update', parent]])
-      },
-      move: async (id, newParentId, index = 0) => {
-        if (!canEdit) return
-        const node = nodeIndex[id]
-        const prevParent = nodeIndex[parentIdIndex[id]]
-        const newParent = nodeIndex[newParentId]
-
-        prevParent.children = pull(prevParent.children, node)
-        newParent.children = insertAt(index, node, newParent.children)
-
-        // @ts-ignore
-        projectDb.batch([
-          ['update', newParent],
-          ['update', prevParent],
-        ])
-        parentIdIndex[id] = newParentId
-        return
-      },
-      swap: async (idA, idB) => {
-        if (!canEdit) return
-        const nodeA = nodeIndex[idA]
-        const nodeB = nodeIndex[idB]
-        const parentA = nodeIndex[parentIdIndex[idA]]
-        const parentB = nodeIndex[parentIdIndex[idB]]
-
-        parentA.children = replaceItem(
-          (node) => node.id === idA,
-          nodeB,
-          parentA.children,
-        )
-
-        parentB.children = replaceItem(
-          (node) => node.id === idB,
-          nodeA,
-          parentB.children,
-        )
-
-        parentIdIndex[idA] = parentB.id
-        parentIdIndex[idB] = parentA.id
-
-        // @ts-ignore
-        projectDb.batch([
-          ['update', parentA],
-          ['update', parentB],
-        ])
-        return
       },
       indexNode,
     } as Partial<Project>

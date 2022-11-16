@@ -9,7 +9,12 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { Sources, Components, Compositor, Elements } from '@api.stream/studio-kit'
+import {
+  Sources,
+  Components,
+  Compositor,
+  Elements,
+} from '@api.stream/studio-kit'
 import { ScenelessInterface } from '../components/Sceneless'
 import { Column, Flex, Row } from '../ui/Box'
 import { AppContext } from './context'
@@ -50,7 +55,11 @@ export function SourceList<SourceProps>({
   )
 }
 
-export const BackgroundSelect = ({ component }: { component: NodeInterface }) => {
+export const BackgroundSelect = ({
+  component,
+}: {
+  component: NodeInterface
+}) => {
   const images = useSources<Image>(component, 'Image')
   const videos = useSources<Video>(component, 'Video')
 
@@ -146,11 +155,9 @@ export const BannerSelect = ({ component }: { component: NodeInterface }) => {
 const RoomParticipant = ({
   participant,
   component,
-}: // childTarget,
-{
+}: {
   participant: Participant
   component: ScenelessInterface // TODO: Abstract as NodeInterface
-  // childTarget: string
 }) => {
   const { isHost } = useContext(AppContext)
   const ref = useRef<HTMLVideoElement>()

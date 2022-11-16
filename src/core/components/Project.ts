@@ -30,10 +30,7 @@ const Project = {
     let banner = sources.get(props.bannerId)
 
     return renderNode({ key: 'project-root', layout: 'Layered' }, [
-      renderChildren({
-        layout: 'Grid',
-        layoutProps: { cover: true },
-      }),
+      renderChildren(),
       banner &&
         renderNode({
           key: 'banner',

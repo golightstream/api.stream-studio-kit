@@ -6,17 +6,17 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { log } from '../../core/context'
 import { forEachDown, swapItems } from '../../logic'
-import { Disposable, Project, TransformNode, VirtualNode } from '../compositor'
+import {
+  Disposable,
+  Project,
+  RenderMethods,
+  RenderSettings,
+  TransformNode,
+  VirtualNode,
+} from '../compositor'
 import baseStyle from './html-renderer.css?inline'
 
 const PADDING = 0
-
-export type RenderMethods = {
-  remove: (id: string) => Promise<void>
-  reorder: (ids: string[]) => Promise<void>
-  swap: (idA: string, idB: string) => Promise<void>
-  move: (id: string, parentId: string) => Promise<void>
-}
 
 export type LayoutStrategy = {
   methods: RenderMethods
@@ -28,8 +28,9 @@ const projects = {} as {
 
 export const renderProject = (
   project: Project,
-  containerEl: HTMLElement,
+  settings: RenderSettings,
 ): Disposable => {
+  const { containerEl } = settings
   if (!projects[project.id]) projects[project.id] = new Map()
   if (projects[project.id].get(containerEl)) {
     return projects[project.id].get(containerEl)
@@ -130,6 +131,7 @@ export const renderProject = (
     ReactDOM.render(
       <RendererProvider
         project={project}
+        settings={settings}
         elements={{
           containerEl,
           rootEl,
@@ -205,6 +207,7 @@ type RendererContext = {
   setDraggingNodeId: (nodeId: string) => void
   ctrlPressed: boolean
   project: Project
+  settings: Partial<RenderSettings>
   elements: {
     containerEl: HTMLElement
     rootEl: HTMLElement
@@ -217,6 +220,7 @@ export const RendererContext = React.createContext<RendererContext>({
   setDraggingNodeId: () => {},
   ctrlPressed: false,
   project: null,
+  settings: {},
   elements: {
     containerEl: null,
     rootEl: null,
@@ -305,13 +309,21 @@ const ElementTree = (props: {
     node: VirtualNode,
     rootRef: React.MutableRefObject<HTMLElement>,
   ) => any
+  onDoubleClick?: () => void
 }) => {
   const interactiveRef = useRef<HTMLDivElement>()
   const transformRef = useRef<HTMLDivElement>()
   const rootRef = useRef<HTMLDivElement>()
-  const { project, elements, draggingNodeId, setDraggingNodeId, ctrlPressed } =
-    useContext(RendererContext)
-  const { node, transformDragHandlers } = props
+  const {
+    project,
+    elements,
+    draggingNodeId,
+    setDraggingNodeId,
+    ctrlPressed,
+    settings,
+  } = useContext(RendererContext)
+  const { doubleClickShowcase = true } = settings
+  const { node, transformDragHandlers, onDoubleClick = () => {} } = props
 
   const draggingNodeRef = useRef<string>()
   draggingNodeRef.current = draggingNodeId
@@ -446,9 +458,6 @@ const ElementTree = (props: {
   }, [transformRef.current, element])
 
   useEffect(() => {
-    const onDoubleClick = isDragTarget
-      ? () => onElementDoubleClick(node)
-      : () => {}
     const onMouseover = (e: MouseEvent) => {
       e.stopPropagation()
       rootRef.current?.classList.toggle('hovered', true)
@@ -536,11 +545,14 @@ const ElementTree = (props: {
         <div
           className="interactive-overlay"
           ref={interactiveRef}
-          onDoubleClick={
-            // TODO:
-            () => {}
-            // isDragTarget ? () => onElementDoubleClick(node) : () => {}
-          }
+          onDoubleClick={() => {
+            project.component(node.id).update({
+              layoutProps: {
+                ...node.props.layoutProps,
+                showcase: node.id,
+              },
+            })
+          }}
           style={{
             height: '100%',
             width: '100%',
@@ -571,6 +583,17 @@ const ElementTree = (props: {
                   key={x.id}
                   node={x}
                   transformDragHandlers={childTransformDragHandlers}
+                  onDoubleClick={
+                    doubleClickShowcase && methods?.showcase
+                      ? () => {
+                          const isShowcase =
+                            x.id ===
+                            project.get(node.sceneNodeId).props.layoutProps
+                              ?.showcase
+                          methods.showcase(isShowcase ? null : x.id)
+                        }
+                      : () => {}
+                  }
                 />
               </div>
             ))}

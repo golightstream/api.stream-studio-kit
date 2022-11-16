@@ -78,26 +78,26 @@ const onDrop = async (
     project.compositor.getParent(dropNodeId),
   ])
 
-  if (dropType === 'layout') {
-    // If the drop node is the current parent, do nothing
-    if (dragParent.id === dropNodeId) return
+  // if (dropType === 'layout') {
+  //   // If the drop node is the current parent, do nothing
+  //   if (dragParent.id === dropNodeId) return
 
-    // If the drop node is a layout, then move node only
-    return CoreContext.Command.moveNode({
-      projectId: project.id,
-      nodeId: dragNode.id,
-      parentId: dropNode.id,
-    })
-  } else {
-    // If the drop node is a transform, then swap
-    if (dragParent.id !== dropParent?.id) {
-      return CoreContext.Command.swapNodes({
-        projectId: project.id,
-        nodeAId: dragNode.id,
-        nodeBId: dropNode.id,
-      })
-    }
-  }
+  //   // If the drop node is a layout, then move node only
+  //   return CoreContext.Command.moveNode({
+  //     projectId: project.id,
+  //     nodeId: dragNode.id,
+  //     parentId: dropNode.id,
+  //   })
+  // } else {
+  //   // If the drop node is a transform, then swap
+  //   if (dragParent.id !== dropParent?.id) {
+  //     return CoreContext.Command.swapNodes({
+  //       projectId: project.id,
+  //       nodeAId: dragNode.id,
+  //       nodeBId: dropNode.id,
+  //     })
+  //   }
+  // }
 
   // Swap the two nodes if they have the same parent
   const childIds = dragParent.children.map((x: Compositor.SceneNode) => x.id)

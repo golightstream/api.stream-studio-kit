@@ -468,7 +468,8 @@ export class Layout extends HTMLElement {
           }
           childEl.newlyAdded = false
 
-          const onTransitionStart = () => {
+          const onTransitionStart = (e: Event) => {
+            if (e.target !== childEl) return
             // Move layer up when transitioning to ensure
             //  it moves over the top of static layers
             if (!childEl.removed) {
@@ -495,7 +496,8 @@ export class Layout extends HTMLElement {
             zIndex,
           })
 
-          const onTransitionEnd = () => {
+          const onTransitionEnd = (e: Event) => {
+            if (e.target !== childEl) return
             childEl.style.zIndex = String(zIndex)
             childEl.removeEventListener('transitionend', onTransitionEnd)
           }
@@ -562,7 +564,7 @@ export class Layout extends HTMLElement {
     childEl.runRemove = async () => {
       childEl.removed = true
       await new Promise((resolve) => window.setTimeout(resolve)) // Defer for layout
-      const { entryTransition = {}, removalTransition = {} } = childEl.data
+      const { removalTransition = {} } = childEl.data
 
       // Run the exit animation by moving the node to its exit position
       Object.assign(childEl.style, {

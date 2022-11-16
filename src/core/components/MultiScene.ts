@@ -37,10 +37,6 @@ const MultiScene = {
     const { props } = context
 
     return renderChildren(
-      {
-        layout: 'Grid',
-        layoutProps: { cover: true },
-      },
       (children) =>
         children.filter((x) => x.id === props.activeSceneId),
     )

@@ -539,60 +539,6 @@ export const setNodeLayout = async (payload: {
 }
 
 /**
- * Move a node to a different parent node.
- *
- * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
- * prevent the need for node manipulations._
- *
- * @deprecated
- * @internal _Use with caution_
- * @category Node
- */
-export const moveNode = async (payload: {
-  projectId?: string
-  nodeId: string
-  parentId: string
-  index?: number
-}) => {
-  const { nodeId, parentId, projectId = state.activeProjectId, index } = payload
-  const project = getProject(projectId)
-
-  // Update state
-  project.compositor.move(nodeId, parentId, index)
-  // TODO: Determine if this is necessary (likely need only the events from Event API)
-  triggerInternal('NodeChanged', { projectId, nodeId })
-}
-
-/**
- * Swap the positions of two nodes, changing parents if necessary.
- *
- * ----
- * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
- * prevent the need for node manipulations._
- *
- * @deprecated
- * @internal _Use with caution_
- * @category Node
- */
-export const swapNodes = async (payload: {
-  projectId?: string
-  nodeAId: string
-  nodeBId: string
-}) => {
-  const { nodeAId, nodeBId, projectId = state.activeProjectId } = payload
-  const project = getProject(projectId)
-
-  const parentAId = project.compositor.getParent(nodeAId)?.id
-  const parentBId = project.compositor.getParent(nodeBId)?.id
-
-  // Update state
-  project.compositor.swap(nodeAId, nodeBId)
-  triggerInternal('NodeChanged', { projectId, nodeId: parentAId })
-  triggerInternal('NodeChanged', { projectId, nodeId: parentBId })
-}
-
-/**
  * Change the order of a node's children.
  *
  * ----

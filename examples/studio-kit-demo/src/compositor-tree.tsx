@@ -84,6 +84,7 @@ const tree = {
         id: 'jhlmhfj1knc00',
         props: {
           type: 'Sceneless',
+          layout: 'Grid',
           sources: {
             Image: [],
             Video: [],
@@ -182,6 +183,7 @@ const tree = {
         id: 'A',
         props: {
           type: 'Sceneless',
+          layout: 'Grid',
           sources: {
             Image: [],
             Video: [],
