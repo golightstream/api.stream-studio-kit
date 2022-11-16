@@ -14,7 +14,7 @@ import {
   TransformRegister,
   TransformSettings,
 } from './transforms'
-import { LayoutRegister } from './layouts'
+import { LayoutRegister, Transition } from './layouts'
 import { SourceManager, SourceRegister, SourceSettings } from './sources'
 import {
   ComponentRegister,
@@ -70,17 +70,21 @@ export type AnyProps = {
   [prop: string]: any
 }
 
+export type LayoutProps = {
+  insertionTransition?: Transition
+  removalTransition?: Transition
+  showcase?: string
+  withEntry?: boolean
+  overflow?: 'visible' | 'hidden'
+  [prop: string]: any
+}
+
 type BaseNode = {
   id: NodeId
   props: {
     sources?: { [type: string]: Sources.NodeSource[] }
     layout?: string
-    layoutProps?: {
-      showcase?: string
-      withEntry?: boolean
-      overflow?: 'visible' | 'hidden'
-      [prop: string]: any
-    }
+    layoutProps?: LayoutProps
 
     // IMPLEMENT: Generic properties shared by all nodes:
     muted?: boolean

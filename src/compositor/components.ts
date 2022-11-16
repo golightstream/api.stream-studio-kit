@@ -513,7 +513,16 @@ export const init = (
           const containerNode = renderNode(
             {
               layout: nodeInterface.nodeProps.layout,
-              layoutProps: nodeInterface.nodeProps.layoutProps || {},
+              layoutProps: nodeInterface.nodeProps.layoutProps || {
+                removalTransition: {
+                  duration: '1000ms',
+                  scale: { x: 0.5, y: 0.5 }
+                },
+                insertionTransition: {
+                  duration: '1000ms',
+                  scale: { x: 1, y: 1 }
+                },
+              },
               key: '__children',
             },
             map(nodeInterface.children).map((x) => {

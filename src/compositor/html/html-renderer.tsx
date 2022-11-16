@@ -468,6 +468,14 @@ const ElementTree = (props: {
     }
 
     if (interactiveRef.current) {
+      // @ts-ignore Debug-helper
+      interactiveRef.current.vnode = node
+      // @ts-ignore
+      interactiveRef.current.node = project.get(
+        // @ts-ignore Debug-helper
+        virtualSceneNodeIdIndex[node.id],
+      )
+
       Object.assign(interactiveRef.current, {
         ...(rootId === node.id
           ? ({
@@ -509,7 +517,6 @@ const ElementTree = (props: {
   return (
     <div
       ref={rootRef}
-      data-type={node.props.type || (node as TransformNode).props.element}
       onMouseLeave={(e) => {
         e.stopPropagation()
         e.currentTarget.classList.toggle('hovered', false)
@@ -578,7 +585,14 @@ const ElementTree = (props: {
             }}
           >
             {node.children.map((x: VirtualNode) => (
-              <div key={x.id} data-id={x.id + '-x'} data-item>
+              <div
+                key={x.id}
+                data-id={x.id + '-x'}
+                data-item
+                data-type={
+                  node.props.type || (node as TransformNode).props.element
+                }
+              >
                 <ElementTree
                   key={x.id}
                   node={x}

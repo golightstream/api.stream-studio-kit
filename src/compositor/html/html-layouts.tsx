@@ -25,7 +25,7 @@
  * their positions, foregoing the offscreen render altogether.
  */
 import * as CSS from 'csstype'
-import { DataNode, Disposable, SceneNode } from '../index'
+import { DataNode, Disposable, LayoutProps, SceneNode } from '../index'
 import {
   asArray,
   asDuration,
@@ -229,18 +229,20 @@ export class Layout extends HTMLElement {
 
   connectedCallback() {
     // TODO: Validate (disconnect element if invalid)
-    
+
     // Assign helper variables
     this.id = this.id || this.dataset.id
     this.parentEl = this.parentElement
     this.parentLayout = findElementUp(this, (el) => el instanceof Layout)
 
     // Update indexes
-    const tree = layoutIndex[this.id] || {
-      id: this.id,
-      layout: this,
-      children: [],
-    } as LayoutTree
+    const tree =
+      layoutIndex[this.id] ||
+      ({
+        id: this.id,
+        layout: this,
+        children: [],
+      } as LayoutTree)
     layoutIndex[this.id] = tree
 
     if (this.parentLayout) {
@@ -362,9 +364,15 @@ export class Layout extends HTMLElement {
           opacity = 1,
           borderRadius = 0,
           entryTransition,
-          insertionTransition,
           globalOffset,
         } = data
+
+        const insertionTransition = props.insertionTransition
+          ? {
+              ...DEFAULT_TRANSITION,
+              ...props.insertionTransition,
+            }
+          : data.insertionTransition
 
         if (childEl) {
           if (childEl.removed) return
@@ -550,7 +558,7 @@ export class Layout extends HTMLElement {
         attributes: true,
       })
     }
-    
+
     // Reconnect previous siblings if this node already exists in memory
     const previous = childIndex[childEl.id]
     if (previous) {
@@ -579,7 +587,11 @@ export class Layout extends HTMLElement {
     childEl.runRemove = async () => {
       childEl.removed = true
       await new Promise((resolve) => window.setTimeout(resolve)) // Defer for layout
-      const { removalTransition = {} } = childEl.data
+      const removalTransition =
+        {
+          ...DEFAULT_TRANSITION,
+          ...this.getProps().removalTransition,
+        } || childEl.data.removalTransition
 
       // Run the exit animation by moving the node to its exit position
       Object.assign(childEl.style, {
@@ -622,7 +634,7 @@ export class Layout extends HTMLElement {
   }
 
   getProps() {
-    return JSON.parse(this.getAttribute('props') || '{}')
+    return JSON.parse(this.getAttribute('props') || '{}') as LayoutProps
   }
 
   getChildPositions(
