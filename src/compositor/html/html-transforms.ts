@@ -3,10 +3,10 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { asArray, isMatch } from '../../logic'
-import type {
+import {
   CompositorBase,
   Disposable,
-  SceneNode,
+  getCompositorInstance,
   TransformNode,
 } from '../compositor'
 import { Source, SourceManager } from '../sources'
@@ -76,7 +76,9 @@ export const init = (
     // Update all existing node Elements currently using this exact source
     elements.forEach((element) => {
       // Pass update to the existing element
-      const node = compositor.getNode(element.nodeId)
+      const node = getCompositorInstance().components.getVirtualNode(
+        element.nodeId,
+      ) as TransformNode
       element._onUpdateHandlers.forEach((x) => x(node.props || {}))
     })
   })
@@ -115,7 +117,9 @@ export const init = (
     if (!element) return
     const transform = getTransformByName(element.transformName)
 
-    const node = compositor.getNode<TransformNode>(nodeId)
+    const node = getCompositorInstance().components.getVirtualNode(
+      nodeId,
+    ) as TransformNode
     const elementSourceType = element.proxySource
       ? element.proxySource
       : element.sourceType
@@ -130,7 +134,7 @@ export const init = (
         ? transform.useSource(sources, node.props)
         : getFirstMatchingSource(node, sources)
     }
-    
+
     const previousValue = element.sourceValue
     const newValue = source?.value
 
@@ -235,7 +239,9 @@ export const init = (
       // Dispose when node is removed
       compositor.on('NodeRemoved', ({ nodeId }) => {
         if (nodeId === node.id) {
-          const node = compositor.getNode<TransformNode>(nodeId)
+          const node = getCompositorInstance().components.getVirtualNode(
+            nodeId,
+          ) as TransformNode
           const sourceType = getNodeSourceType(node)
 
           listeners.forEach((x) => x?.())

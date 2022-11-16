@@ -274,6 +274,8 @@ export const init = (
   ): I => {
     let existing = nodeInterfaceIndex[nodeId] as I
     const node = compositor.getNode(nodeId)
+    if (!node) return null
+
     const getInterfaceChildren = () => {
       return (node.props.componentChildren || node.children).map((x) => {
         return getNodeInterface(x.id)
@@ -439,7 +441,19 @@ export const init = (
 
   const getComponent = (type: string) => components[type]
 
-  // A map of render nodes to their SceneNode
+  // Get the stored SceneNode corresponding to the virtual node
+  const getNodeIdForVirtual = (id: string) => {
+    return virtualSceneNodeIdIndex[id] || id
+  }
+
+  const getVirtualNode = (id: string) => {
+    return virtualNodeIndex[id]
+  }
+
+  // An index of virtual render nodes
+  const virtualNodeIndex = {} as { [id: string]: VirtualNode }
+
+  // A map of virtual render nodes to their SceneNode
   const virtualSceneNodeIdIndex = {} as { [id: string]: string }
 
   // @ts-ignore Debug helper
@@ -449,21 +463,11 @@ export const init = (
     node: SceneNode | NodeInterface,
     parentId?: string,
   ): VirtualNode => {
-    // Ensure index in case it's a virtual node
-    compositor.nodeIndex[node.id] = (node as NodeInterface).toNode
-      ? (node as NodeInterface).toNode()
-      : node
-    compositor.parentIdIndex[node.id] =
-      compositor.parentIdIndex[node.id] || parentId
-    compositor.projectIdIndex[node.id] =
-      compositor.projectIdIndex[node.id] || compositor.projectIdIndex[parentId]
-
     if (!virtualSceneNodeIdIndex[node.id]) {
       virtualSceneNodeIdIndex[node.id] = node.id
     }
 
     let transformManager = getCompositorInstance().transforms
-    const element = transformManager.getElement(node)
 
     compositor.lastRenderIds.add(node.id)
     compositor.lastRenderRemovedIds.delete(node.id)
@@ -473,13 +477,17 @@ export const init = (
     // const filters = [] as Components.Filter[]
     // const result = runFilters(node, filters)
 
-    // Ensure node has the proper source based on its props
-    transformManager.updateSourceForNode(node.id)
-
-    // Pass update to the existing element
-    element?._onUpdateHandlers.forEach((x) => x(node.props || {}))
-
     const nodeInterface = getNodeInterface(node.id)
+
+    if (!nodeInterface) {
+      virtualNodeIndex[node.id] = node as VirtualNode
+      // Pass update to the existing element
+      const element = transformManager.getElement(node)
+      element?._onUpdateHandlers.forEach((x) => x(node.props || {}))
+      // Ensure node has the proper source based on its props
+      transformManager.updateSourceForNode(node.id)
+      return node as VirtualNode
+    }
 
     const keyToId = (id: string) => `${node.id}-${id}`
     const renderNode: RenderHelpers['renderNode'] = (props, children = []) => {
@@ -498,12 +506,7 @@ export const init = (
       )
     }
 
-    // Get the stored SceneNode corresponding to the virtual node
-    const getNodeIdForVirtual = (id: string) => {
-      return virtualSceneNodeIdIndex[id] || id
-    }
-
-    return {
+    const virtualNode = {
       ...nodeInterface.render(nodeInterface, {
         id: keyToId,
         renderChildren: (map = (x) => x, settings = { controls: false }) => {
@@ -593,6 +596,14 @@ export const init = (
       sceneNodeId: virtualSceneNodeIdIndex[node.id],
       interactionId: node.id,
     }
+    virtualNodeIndex[node.id] = virtualNode
+    // Pass update to the existing element
+    const element = transformManager.getElement(node)
+    element?._onUpdateHandlers.forEach((x) => x(node.props || {}))
+
+    // Ensure node has the proper source based on its props
+    transformManager.updateSourceForNode(node.id)
+    return virtualNode
   }
 
   const useNodeInterface = (
@@ -617,6 +628,7 @@ export const init = (
     getNodeInterface,
     registerComponent,
     renderVirtualNode,
+    getVirtualNode,
     createTempComponent: _createComponent(),
   }
   return componentManager
