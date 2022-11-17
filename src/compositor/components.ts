@@ -486,7 +486,11 @@ export const init = (
       element?._onUpdateHandlers.forEach((x) => x(node.props || {}))
       // Ensure node has the proper source based on its props
       transformManager.updateSourceForNode(node.id)
-      return node as VirtualNode
+      return {
+        ...node,
+        sceneNodeId: virtualSceneNodeIdIndex[node.id],
+        interactionId: node.id,
+      } as VirtualNode
     }
 
     const keyToId = (id: string) => `${node.id}-${id}`
