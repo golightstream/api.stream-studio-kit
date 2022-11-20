@@ -614,10 +614,7 @@ export const init = (
   // @ts-ignore Debug helper
   window.virtualSceneNodeIdIndex = virtualSceneNodeIdIndex
 
-  const renderVirtualNode = (
-    node: SceneNode | NodeInterface,
-    parentId?: string,
-  ): VirtualNode => {
+  const renderVirtualNode = (node: SceneNode | NodeInterface): VirtualNode => {
     if (!virtualSceneNodeIdIndex[node.id]) {
       virtualSceneNodeIdIndex[node.id] = node.id
     }
@@ -697,6 +694,11 @@ export const init = (
       sceneNodeId: virtualSceneNodeIdIndex[node.id],
       interactionId: node.id,
     } as VirtualNode
+
+    virtualNode.props.position = node.props.position
+    virtualNode.props.size = node.props.size
+    virtualNode.props.hidden = node.props.hidden
+    virtualNode.props.opacity = node.props.opacity
 
     // If the node is a component root its layout props are applied to the child container
     if (nodeInterface.kind === 'Element') {

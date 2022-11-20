@@ -553,7 +553,7 @@ export class Layout extends HTMLElement {
       childEl.mutationObserver = new MutationObserver((mutations) => {
         mutations.forEach((x) => {
           if (x.type === 'attributes') {
-            if (!['props'].includes(x.attributeName)) return
+            if (!['data-size', 'data-position'].includes(x.attributeName)) return
             queueOp(['childAttributesChanged', this.id, childEl.id])
           }
         })
@@ -661,10 +661,12 @@ export class Layout extends HTMLElement {
         // - At the very least, child positional/size props should be passed
         //   in automatically in case the layout depends on it (e.g. Free layout).
 
-        // const props = x.props || {}
         return {
           id: x.id,
-          props: {},
+          props: {
+            position: JSON.parse(x.getAttribute('data-position')),
+            size: JSON.parse(x.getAttribute('data-size')),
+          },
           children: [],
         }
       })

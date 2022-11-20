@@ -596,6 +596,8 @@ const ElementTree = (props: {
                 data-type={
                   node.props.type || (node as TransformNode).props.element
                 }
+                data-size={JSON.stringify(x.props.size || {})}
+                data-position={JSON.stringify(x.props.position || {})}
               >
                 <ElementTree
                   key={x.id}
