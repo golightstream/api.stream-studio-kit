@@ -200,6 +200,8 @@ const queueOp = (op: Op) => {
 export class Layout extends HTMLElement {
   /** The element containing this Layout. Same as `parentElement`, except it maintains reference after node removal */
   parentEl: HTMLElement
+  /** The closest parent element that belongs to a layout and contains this layout */
+  slotEl?: ChildEl
   /** The closest parent Layout */
   parentLayout: Layout
   /** The layout type used for this Layout last frame (e.g. "Grid") */
@@ -233,6 +235,7 @@ export class Layout extends HTMLElement {
     // Assign helper variables
     this.id = this.id || this.dataset.id
     this.parentEl = this.parentElement
+    this.slotEl = findElementUp(this, (el) => Boolean(childIndex[el.id]))
     this.parentLayout = findElementUp(this, (el) => el instanceof Layout)
 
     // Update indexes
@@ -523,6 +526,8 @@ export class Layout extends HTMLElement {
     })
 
     layoutIndex[this.id].children.forEach((x) => {
+      // Ignore if slot containing element has been removed
+      if (x.layout.slotEl?.removed) return
       x.layout.updatePositions(positions[x.id].size, treeId)
     })
     this.isFirst = false

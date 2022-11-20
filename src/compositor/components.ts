@@ -75,11 +75,13 @@ export type NodeInterface<
   // Update the the node props
   update: (props: Partial<Props>) => void
   updateNode: (props: Partial<Props>) => void
+  remove: () => void
   sources: SourceInterface
   execute: CommandsInterface<Commands> & {
     [name: string]: (...args: unknown[]) => any
   }
   render: Component['render']
+  getParent: () => NodeInterface
   children: ChildInterface[]
   toNode: () => SceneNode
 } & ChildMethods
@@ -282,6 +284,10 @@ export const init = (
       })
     }
 
+    const getParent = () => {
+      return getNodeInterface(compositor.parentIdIndex[node.id])
+    }
+
     if (existing) {
       Object.assign(existing, {
         nodeProps: node.props,
@@ -342,6 +348,7 @@ export const init = (
       updateNode: (props) => project.update(node.id, props),
       // TODO: Should update componentProps even for ElementNode
       update: (props) => project.update(node.id, props),
+      remove: () => getParent().removeChild(node.id),
       sources: sourceManager.wrap(node),
       execute: {},
       children: shallow ? [] : getInterfaceChildren(),
@@ -355,6 +362,7 @@ export const init = (
         const nodeInterface = getNodeInterface<I>(node.id)
         return nodeInterface.children.find((x) => x.id === id)
       },
+      getParent,
       insertChild,
       addChildComponent: (type, props, index) => {
         const node = createComponent(type, props)
@@ -520,11 +528,11 @@ export const init = (
               layoutProps: nodeInterface.nodeProps.layoutProps || {
                 removalTransition: {
                   duration: '1000ms',
-                  scale: { x: 0.5, y: 0.5 }
+                  scale: { x: 0.5, y: 0.5 },
                 },
                 insertionTransition: {
                   duration: '1000ms',
-                  scale: { x: 1, y: 1 }
+                  scale: { x: 1, y: 1 },
                 },
               },
               key: '__children',
