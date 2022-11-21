@@ -117,8 +117,8 @@ export const renderProject = (
   ]
 
   const render = () => {
-    log.debug('Renderer: Rendering tree')
     const tree = project.renderVirtualTree() as VirtualNode
+    log.debug('Renderer: Rendering tree', { tree })
     rootId = tree.id
     childIdIndex = {}
     parentIdIndex = {}

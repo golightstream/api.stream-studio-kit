@@ -38,14 +38,14 @@ type ChildMethods = {
   getChild: <I extends NodeInterface = NodeInterface>(childId: string) => I
   addChildComponent: <I extends NodeInterface = NodeInterface>(
     type: string,
-    props: Partial<I['props']>,
+    props?: Partial<I['props']>,
     index?: number,
   ) => Promise<void>
   addChildElement: <
     ElementProps extends Partial<TransformNode['props']> = AnyProps,
   >(
     type: string,
-    props: Partial<ElementProps>,
+    props?: Partial<ElementProps>,
     sourceId?: string,
     index?: number,
   ) => Promise<void>
@@ -64,6 +64,9 @@ export type NodeInterface<
   ChildInterface extends NodeInterface = NodeInterface<AnyProps, {}, any>,
 > = {
   id: string
+  isRoot: boolean
+  // The universal compositor instance
+  compositor: CompositorInstance
   // The project the node belongs to
   project: Project
   kind: 'Base' | 'Element' | 'Component'
@@ -329,6 +332,8 @@ export const init = (
 
     const result = {
       id: node.id,
+      isRoot: !Boolean(compositor.parentIdIndex[node.id]),
+      compositor: getCompositorInstance(),
       project,
       kind,
       type:
@@ -343,12 +348,20 @@ export const init = (
       render: component
         ? component.render
         : () => {
-            return node
+            return {
+              ...node,
+              children: [
+                ...(node.children || []),
+                ...(node.props.componentChildren || []),
+              ].map((x) => {
+                return renderVirtualNode(x, node.id)
+              }),
+            }
           },
       updateNode: (props) => project.update(node.id, props),
       // TODO: Should update componentProps even for ElementNode
       update: (props) => project.update(node.id, props),
-      remove: () => getParent().removeChild(node.id),
+      remove: () => getParent()?.removeChild(node.id),
       sources: sourceManager.wrap(node),
       execute: {},
       children: shallow ? [] : getInterfaceChildren(),
@@ -364,11 +377,11 @@ export const init = (
       },
       getParent,
       insertChild,
-      addChildComponent: (type, props, index) => {
+      addChildComponent: (type, props = {}, index) => {
         const node = createComponent(type, props)
         return insertChild(node, index)
       },
-      addChildElement: (type, props, sourceId, index) => {
+      addChildElement: (type, props = {}, sourceId, index) => {
         const node = {
           id: generateId(),
           props: {

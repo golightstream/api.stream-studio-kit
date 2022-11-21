@@ -937,6 +937,7 @@ export const registerLayout: LayoutRegister = (declaration) => {
 
 export const layoutManager = {
   registerLayout,
+  layouts: htmlLayouts,
   Layout,
 }
 

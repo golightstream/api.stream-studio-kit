@@ -4,28 +4,27 @@
  * -------------------------------------------------------------------------------------------- */
 import React from 'react'
 import { Compositor } from '@api.stream/studio-kit'
-import { Column } from '../ui/Box'
-import { getLayout, layouts } from '../layout-examples'
 
 export const Layout = ({
   component,
 }: {
   component: Compositor.Component.NodeInterface
 }) => {
-  const layout = component.props.layout
+  const layout = component.nodeProps.layout
+  const layouts = component.compositor.layouts.layouts
 
   return (
     <select
       defaultValue={layout}
       onChange={(e) => {
-        const { layout, props } = getLayout(e.target.value)
-        component.update({
-          layout,
+        const { name, props } = layouts[e.target.value]
+        component.updateNode({
+          layout: name,
           layoutProps: props,
         })
       }}
     >
-      {layouts.map((x) => (
+      {Object.keys(layouts).map((x) => (
         <option key={x} value={x}>
           {x}
         </option>

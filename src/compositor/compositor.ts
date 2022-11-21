@@ -274,6 +274,7 @@ export type LayoutUpdates = {
 export type Project = DB &
   LayoutUpdates & {
     id: NodeId
+    compositor: CompositorInstance
     settings: ProjectSettings
     triggerEvent: Trigger
     subscribe: Subscribe
@@ -775,6 +776,7 @@ export const start = (settings: Settings): CompositorInstance => {
         return projectDb.batch([['update', parent]])
       },
       indexNode,
+      compositor: compositor as CompositorInstance,
     } as Partial<Project>
 
     Object.defineProperty(project, 'nodes', {

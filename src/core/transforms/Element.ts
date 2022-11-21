@@ -16,20 +16,20 @@ export const Element = {
   name: 'Element',
   sourceType: 'Element',
   create({ onUpdate }, { tagName }) {
-    const el = document.createElement(tagName)
+    const root = document.createElement('div')
+    let el = document.createElement(tagName || 'div') as HTMLElement
+    root.append(el)
 
     onUpdate(({ tagName, attributes = {}, fields = {} }: Props) => {
-      if (tagName === 'img') {
-        if (el?.src !== attributes['src']) {
-          Object.keys(attributes).forEach((attr) => {
-            el.setAttribute(attr, attributes[attr])
-          })
-        }
-      } else {
-        Object.keys(attributes).forEach((attr) => {
-          el.setAttribute(attr, attributes[attr])
-        })
+      if (el?.tagName.toLowerCase() !== tagName?.toLowerCase()) {
+        el.remove()
+        el = document.createElement(tagName || 'div')
+        root.append(el)
       }
+
+      Object.keys(attributes).forEach((attr) => {
+        el.setAttribute(attr, attributes[attr])
+      })
 
       Object.keys(fields).forEach((field) => {
         Object.assign(el[field as keyof HTMLElement], fields[field])
@@ -37,9 +37,9 @@ export const Element = {
     })
 
     return {
-      root: el,
+      root,
     }
   },
-} as Compositor.Transform.TransformDeclaration
+} as Compositor.Transform.TransformDeclaration<null, Props>
 
 export const Declaration = Element
