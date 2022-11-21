@@ -67,6 +67,7 @@ export const renderProject = (
     position: 'relative',
     left: '50%',
     top: '50%',
+    background: '#000',
   })
 
   // Build tree
@@ -553,7 +554,7 @@ const ElementTree = (props: {
           className="interactive-overlay"
           ref={interactiveRef}
           onDoubleClick={() => {
-            project.component(node.id).update({
+            project.component(node.interactionId)?.update({
               layoutProps: {
                 ...node.props.layoutProps,
                 showcase: node.id,

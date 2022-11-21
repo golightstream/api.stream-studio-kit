@@ -2,7 +2,14 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { asArray, generateId, insertAt, mapValues, memoize } from '../logic'
+import {
+  asArray,
+  generateId,
+  insertAt,
+  mapValues,
+  memoize,
+  swapItems,
+} from '../logic'
 import {
   PropsDefinition,
   CompositorBase,
@@ -76,9 +83,13 @@ export type NodeInterface<
   // Listen to changes to props of the node
   onChange: (cb: (newProps: Props) => void) => Disposable
   // Update the the node props
-  update: (props: Partial<Props>) => void
-  updateNode: (props: Partial<Props>) => void
-  remove: () => void
+  update: (props: Partial<Props>) => Promise<void>
+  updateNode: (props: Partial<Props>) => Promise<void>
+  remove: () => Promise<void>
+  // Move the node to another parent
+  move: (parentId: string) => Promise<void>
+  // Swap the node with another node
+  swap: (nodeId: string) => Promise<void>
   sources: SourceInterface
   execute: CommandsInterface<Commands> & {
     [name: string]: (...args: unknown[]) => any
@@ -362,6 +373,51 @@ export const init = (
       // TODO: Should update componentProps even for ElementNode
       update: (props) => project.update(node.id, props),
       remove: () => getParent()?.removeChild(node.id),
+      move: async (newParentId: string) => {
+        const currentParent = getParent()
+
+        // If the drop node is the current parent, do nothing
+        if (newParentId === currentParent.id) return
+
+        await Promise.all([
+          currentParent.removeChild(node.id),
+          getNodeInterface(newParentId).insertChild(
+            compositor.getNode(node.id),
+          ),
+        ])
+        return
+      },
+      swap: async (idB: string) => {
+        if (idB === node.id) return
+        const currentParentIdB = getNodeIdForVirtual(
+          compositor.parentIdIndex[getNodeIdForVirtual(idB)],
+        )
+
+        const parentA = getParent()
+        const parentB = getNodeInterface(currentParentIdB)
+
+        if (parentA.id === parentB.id) {
+          // Reorder instead
+          const ids = swapItems(
+            node.id,
+            idB,
+            parentA.children.map((x) => x.id),
+          )
+          return parentA.reorderChildren(ids)
+        }
+
+        const indexA = parentA.children.findIndex((x) => x.id === node.id)
+        const indexB = parentB.children.findIndex((x) => x.id === idB)
+
+        // Swap the nodes between parents
+        await Promise.all([
+          parentA.removeChild(node.id),
+          parentB.removeChild(idB),
+          parentA.insertChild(compositor.getNode(idB), indexA),
+          parentB.insertChild(compositor.getNode(node.id), indexB),
+        ])
+        return
+      },
       sources: sourceManager.wrap(node),
       execute: {},
       children: shallow ? [] : getInterfaceChildren(),
@@ -449,8 +505,8 @@ export const init = (
         },
         {},
       )
-      result.update = (props) => {
-        project.update(node.id, {
+      result.update = async (props) => {
+        await project.update(node.id, {
           ...node.props,
           componentProps: { ...node.props.componentProps, ...props },
         })
@@ -538,16 +594,7 @@ export const init = (
           const containerNode = renderNode(
             {
               layout: nodeInterface.nodeProps.layout,
-              layoutProps: nodeInterface.nodeProps.layoutProps || {
-                removalTransition: {
-                  duration: '1000ms',
-                  scale: { x: 0.5, y: 0.5 },
-                },
-                insertionTransition: {
-                  duration: '1000ms',
-                  scale: { x: 1, y: 1 },
-                },
-              },
+              layoutProps: nodeInterface.nodeProps.layoutProps,
               key: '__children',
             },
             map(nodeInterface.children).map((x) => {
@@ -599,6 +646,16 @@ export const init = (
 
                       const parentA = getNodeInterface(currentParentIdA)
                       const parentB = getNodeInterface(currentParentIdB)
+
+                      if (parentA.id === parentB.id) {
+                        // Reorder instead
+                        const ids = swapItems(
+                          idA,
+                          idB,
+                          nodeInterface.children.map((x) => x.id),
+                        )
+                        return nodeInterface.reorderChildren(ids)
+                      }
 
                       const indexA = parentA.children.findIndex(
                         (x) => x.id === idA,

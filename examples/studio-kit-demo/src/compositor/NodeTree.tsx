@@ -3,7 +3,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { Column, Flex, Row } from '../ui/Box'
-import { useApp, useProject } from './compositor-tree'
+import { useApp } from './Compositor'
+import { useProject } from './CompositorProject'
 import { Compositor } from '@api.stream/studio-kit'
 import { useState } from 'react'
 import Icon from './Icon'
@@ -26,10 +27,7 @@ export const NodeView = (props: { node: Compositor.SceneNode }) => {
   // )
 
   return (
-    <Flex
-      direction="column"
-      grow={1}
-      align="stretch"
+    <div
       onDoubleClick={() => {
         setIsEditingName(true)
       }}
@@ -44,10 +42,14 @@ export const NodeView = (props: { node: Compositor.SceneNode }) => {
         ...(isSelected && {
           fontWeight: 'bold',
         }),
+        padding: '3px 6px 3px 3px',
+        alignItems: 'stretch',
+        display: 'flex',
+        flexGrow: 1,
         // opacity: props.node.hidden ? 0.3 : 1,
       }}
     >
-      <Row justify={'space-between'} height="100%">
+      <Row justify={'space-between'} height="100%" grow={1}>
         <Flex align="center">
           {/* {canExpand && (
             <Flex marginRight="small" width={13} justify="center">
@@ -175,7 +177,7 @@ export const NodeView = (props: { node: Compositor.SceneNode }) => {
           )}
         </Flex>
       </Row>
-    </Flex>
+    </div>
   )
 }
 
@@ -184,6 +186,9 @@ export const Tree = (props: { node: Compositor.SceneNode }) => {
     useProject()
   const isSelected = isNodeSelected(props.node.id)
   const node = project.component(props.node.id)
+  const [isDragging, setIsDragging] = useState(false)
+  const [isDropping, setIsDropping] = useState(false)
+  const [isDroppingChildren, setIsDroppingChildren] = useState(false)
   // const isHidden = props.node.hidden
   // const isCollapsed = !editorState.expandedNodes.has(props.node.id)
 
@@ -208,15 +213,86 @@ export const Tree = (props: { node: Compositor.SceneNode }) => {
         }
       }}
     >
-      <NodeView node={props.node} />
+      <div
+        draggable={!node.isRoot}
+        onDragOver={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          e.dataTransfer.dropEffect = 'move'
+          setIsDropping(true)
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsDropping(false)
+        }}
+        onDrop={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          setIsDropping(false)
+          const dragNodeId = e.dataTransfer.getData('text/plain')
+          if (e.ctrlKey) {
+            project.component(dragNodeId).move(node.id)
+          } else {
+            project.component(dragNodeId).swap(node.id)
+          }
+        }}
+        onDragStart={(e) => {
+          e.dataTransfer.setData('text/plain', node.id)
+          e.dataTransfer.dropEffect = 'move'
+          e.dataTransfer.setDragImage(dragImage, 90, 15)
+          setIsDragging(true)
+        }}
+        onDragEnd={(e) => {
+          setIsDragging(false)
+        }}
+        style={{
+          height: '100%',
+          width: '100%',
+          ...(isDropping && { outline: '1px solid white' }),
+          ...(isDragging && { background: 'rgba(255,255,255,0.4)' }),
+          opacity: isDragging ? 0.4 : 1,
+        }}
+      >
+        <NodeView node={props.node} />
+      </div>
       {
         // !isHidden &&
         // !isCollapsed &&
-        <Flex direction="column" width="100%" align="stretch">
-          {(node.children || []).map((x, i) => (
-            <Tree key={i} node={x} />
-          ))}
-        </Flex>
+        !isDragging && (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              width: '100%',
+              outline: isDroppingChildren ? '1px solid white' : 'none',
+            }}
+            onDragOver={(e) => {
+              // TODO: Outline when drag over / unoutline when leave
+              e.preventDefault()
+              e.stopPropagation()
+              e.dataTransfer.dropEffect = 'move'
+              setIsDroppingChildren(true)
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setIsDroppingChildren(false)
+            }}
+            onDrop={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setIsDroppingChildren(false)
+              const dragNodeId = e.dataTransfer.getData('text/plain')
+              project.component(dragNodeId).move(node.id)
+            }}
+          >
+            {(node.children || []).map((x, i) => (
+              <Tree key={i} node={x} />
+            ))}
+          </div>
+        )
       }
     </Flex>
   )
@@ -239,6 +315,7 @@ export const NodeEditor = ({ nodeId }: { nodeId: string }) => {
           <label>Raw JSON</label>
           <JSONInput
             placeholder={node.props}
+            height="160px"
             reset={false}
             theme="dark"
             locale={locale}
@@ -249,3 +326,26 @@ export const NodeEditor = ({ nodeId }: { nodeId: string }) => {
     </Column>
   )
 }
+
+const dragImageSvg = `
+  <svg height="40" width="200" viewBox="0 0 120 75" xmlns="http://www.w3.org/2000/svg" style="">
+    <rect width="120" height="40" style="
+      opacity: 0.6;
+      stroke: white;
+      stroke-width: 1px;
+      stroke-opacity: 0.8;
+    "/>
+  </svg>`
+
+let dragImage: HTMLImageElement
+const loadDragImage = () => {
+  if (dragImage) return dragImage
+  dragImage = new Image()
+  dragImage.src = URL.createObjectURL(
+    new Blob([dragImageSvg], {
+      type: 'image/svg+xml',
+    }),
+  )
+  return dragImage
+}
+loadDragImage()

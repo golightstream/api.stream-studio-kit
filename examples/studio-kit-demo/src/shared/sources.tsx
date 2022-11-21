@@ -49,7 +49,7 @@ export function SourceList<SourceProps>({
       {sources
         .filter((x) => x.isActive)
         .map((x) => (
-          <Component participant={x} component={component as any} />
+          <Component key={x.id} participant={x} component={component as any} />
         ))}
     </>
   )

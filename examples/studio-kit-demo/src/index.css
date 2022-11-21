@@ -126,7 +126,6 @@ button[disabled] {
 
 .node-tree {
   position: relative;
-  margin-top: 6px;
   margin-left: 16px;
 }
 #node-tree-Game {
@@ -141,6 +140,7 @@ button[disabled] {
   width: 1px;
   background: white;
   opacity: 0.3;
+  pointer-events: none;
 }
 .node-tree.active:after {
   opacity: 1;
@@ -153,6 +153,7 @@ button[disabled] {
   bottom: 0;
   width: 1px;
   background: white;
+  pointer-events: none;
 }
 .node-item {
   cursor: default;
