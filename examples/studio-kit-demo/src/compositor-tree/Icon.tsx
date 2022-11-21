@@ -1,3 +1,7 @@
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * -------------------------------------------------------------------------------------------- */
 import React, { CSSProperties } from 'react'
 import { Flex } from '../ui/Box'
 import * as IconMap from './icons'

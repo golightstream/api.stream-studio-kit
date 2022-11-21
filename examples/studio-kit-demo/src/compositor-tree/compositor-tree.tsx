@@ -91,12 +91,8 @@ const tree = {
             RoomParticipant: [],
           },
           componentProps: {
-            layout: 'Grid',
             background: {
               stretch: false,
-            },
-            layoutProps: {
-              cover: false,
             },
           },
           componentChildren: [
@@ -190,12 +186,8 @@ const tree = {
             RoomParticipant: [],
           },
           componentProps: {
-            layout: 'Grid',
             background: {
               stretch: false,
-            },
-            layoutProps: {
-              cover: false,
             },
           },
           componentChildren: [
@@ -217,12 +209,8 @@ const tree = {
                   RoomParticipant: [],
                 },
                 componentProps: {
-                  layout: 'Grid',
                   background: {
                     stretch: false,
-                  },
-                  layoutProps: {
-                    cover: false,
                   },
                 },
                 componentChildren: [

@@ -1,9 +1,17 @@
+/* ---------------------------------------------------------------------------------------------
+ * Copyright (c) Infiniscene, Inc. All rights reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ * -------------------------------------------------------------------------------------------- */
 import { Column, Flex, Row } from '../ui/Box'
 import { useApp, useProject } from './compositor-tree'
 import { Compositor } from '@api.stream/studio-kit'
 import { useState } from 'react'
 import Icon from './Icon'
 import { Layout } from '../shared/props'
+import JSONInput from 'react-json-editor-ajrm/index'
+
+// @ts-ignore
+import locale from 'react-json-editor-ajrm/locale/en'
 
 export const NodeView = (props: { node: Compositor.SceneNode }) => {
   // const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -228,6 +236,14 @@ export const NodeEditor = ({ nodeId }: { nodeId: string }) => {
           <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>
             <Layout component={node} />
           </Flex>
+          <label>Raw JSON</label>
+          <JSONInput
+            placeholder={node.props}
+            reset={false}
+            theme="dark"
+            locale={locale}
+            onChange={(x: any) => node.update(x.jsObject)}
+          />
         </Column>
       </Row>
     </Column>
