@@ -29,15 +29,18 @@ const Project = {
     const { props, sources } = context
     let banner = sources.get(props.bannerId)
 
-    return renderNode({ key: 'project-root', layout: 'Layered' }, [
-      renderChildren(),
-      banner &&
-        renderNode({
-          key: 'banner',
-          element: 'LS-Banner',
-          sourceId: banner.id,
-        }),
-    ])
+    return renderNode(
+      { key: 'project-root', layout: 'Layered', layoutProps: { cover: true } },
+      [
+        renderChildren(),
+        banner &&
+          renderNode({
+            key: 'banner',
+            element: 'LS-Banner',
+            sourceId: banner.id,
+          }),
+      ],
+    )
   },
   migrations: [],
 } as Component<Interface>

@@ -57,6 +57,7 @@ type ChildMethods = {
     index?: number,
   ) => Promise<void>
   insertChild: (node: SceneNode, index?: number) => Promise<void>
+  insertTree: (tree: SceneNode, index?: number) => Promise<void>
   removeChild: (id: string) => Promise<void>
   updateChild: <Props extends {} = AnyProps>(
     id: string,
@@ -87,7 +88,7 @@ export type NodeInterface<
   updateNode: (props: Partial<Props>) => Promise<void>
   remove: () => Promise<void>
   // Move the node to another parent
-  move: (parentId: string) => Promise<void>
+  move: (parentId: string, index?: number) => Promise<void>
   // Swap the node with another node
   swap: (nodeId: string) => Promise<void>
   sources: SourceInterface
@@ -231,7 +232,7 @@ export const init = (
     parentId?: string,
   ) => CreateComponent =
     (projectId, parentId) =>
-    (type, props = {}, sources = {}, children = []): ComponentNode => {
+    (type, props = {}, sources = {}): ComponentNode => {
       const component = getComponent(type)
       if (!component) {
         throw new Error(
@@ -253,7 +254,7 @@ export const init = (
       const childNode = {
         id,
         props: {},
-        children,
+        children: [],
       } as ComponentNode
 
       // Index the node before initializing it:
@@ -273,8 +274,8 @@ export const init = (
             })),
           ),
         },
-        componentProps: component.create(props, children),
-        componentChildren: children,
+        componentProps: component.create(props),
+        componentChildren: [],
       }
 
       return childNode
@@ -314,8 +315,6 @@ export const init = (
       return existing
     }
     const project = compositor.getNodeProject(node.id)
-
-    // const createComponent = _createComponent(project.id, node.id)
 
     let kind = 'Base'
     if ((node as ComponentNode).props.type) {
@@ -373,7 +372,7 @@ export const init = (
       // TODO: Should update componentProps even for ElementNode
       update: (props) => project.update(node.id, props),
       remove: () => getParent()?.removeChild(node.id),
-      move: async (newParentId: string) => {
+      move: async (newParentId, index) => {
         const currentParent = getParent()
 
         // If the drop node is the current parent, do nothing
@@ -383,6 +382,7 @@ export const init = (
           currentParent.removeChild(node.id),
           getNodeInterface(newParentId).insertChild(
             compositor.getNode(node.id),
+            index,
           ),
         ])
         return
@@ -433,6 +433,26 @@ export const init = (
       },
       getParent,
       insertChild,
+      insertTree: async (tree, index) => {
+        const initializeTree = (node: SceneNode, parent: SceneNode) => {
+          const id = generateId()
+          const newNode = {
+            id,
+            props: {
+              ...node.props,
+              componentChildren: (node.props.componentChildren || []).map((x) =>
+                initializeTree(x, node),
+              ),
+            },
+            children: node.children.map((x) => initializeTree(x, node)),
+          } as SceneNode
+          // Index the node before initializing it:
+          project.indexNode(newNode, parent.id)
+          return newNode
+        }
+
+        await result.insertChild(initializeTree(tree, node), index)
+      },
       addChildComponent: (type, props = {}, index) => {
         const node = createComponent(type, props)
         return insertChild(node, index)

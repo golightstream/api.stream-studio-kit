@@ -146,6 +146,32 @@ export const ProjectProvider = ({
     [selectedNodes],
   )
 
+  useEffect(() => {
+    document.addEventListener('copy', (e) => {
+      const selectedNodeId =
+        document.activeElement?.getAttribute('data-node-id')
+      if (!selectedNodeId) return
+      const node = project.get(selectedNodeId)
+      if (node) {
+        e.preventDefault()
+        e.clipboardData.setData('text/plain', JSON.stringify(node))
+      }
+    })
+    document.addEventListener('paste', (e) => {
+      const selectedNodeId =
+        document.activeElement?.getAttribute('data-node-id')
+      if (!selectedNodeId) return
+      try {
+        const tree = JSON.parse(e.clipboardData.getData('text'))
+        if (tree.id && tree.children && tree.props) {
+          const node = project.component(selectedNodeId)
+          node.insertTree(tree)
+        }
+        e.preventDefault()
+      } catch (e) {}
+    })
+  }, [])
+
   if (!project) return null
 
   return (

@@ -132,12 +132,12 @@ export const forEachDown = <T extends GraphNode = GraphNode>(
 export const mapDown = <T extends GraphNode, U extends GraphNode>(
   node: T,
   fn: (next: T, parent: T) => Omit<GraphNode, 'children'>,
-  parent?: T
+  parent?: T,
 ): U => {
   const result = fn(node, parent)
   return {
     ...result,
-    children: (result?.children || node?.children || []).map((x) =>
+    children: (result?.children || node?.children || []).map((x: GraphNode) =>
       mapDown(x, fn, node),
     ),
   } as U

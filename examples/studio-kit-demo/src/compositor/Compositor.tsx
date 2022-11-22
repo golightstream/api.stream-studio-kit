@@ -134,10 +134,12 @@ const ProjectsView = () => {
   return (
     <Column gap={6}>
       <Row>
-        <button onClick={() => createProject()}>New project</button>
-      </Row>
-      <Row>
-        <input type="text" onChange={(e) => setProjectId(e.target.value)} />
+        <input
+          style={{ width: 160, marginRight: 2 }}
+          type="text"
+          placeholder='Project ID'
+          onChange={(e) => setProjectId(e.target.value)}
+        />
         <button
           onClick={() => {
             loadProject(projectId)
@@ -146,6 +148,9 @@ const ProjectsView = () => {
         >
           Load
         </button>
+      </Row>
+      <Row>
+        <button onClick={() => createProject()}>New project</button>
       </Row>
       {projects.map((x) => (
         <Flex

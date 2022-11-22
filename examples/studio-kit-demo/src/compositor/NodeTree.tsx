@@ -48,6 +48,8 @@ export const NodeView = (props: { node: Compositor.SceneNode }) => {
         flexGrow: 1,
         // opacity: props.node.hidden ? 0.3 : 1,
       }}
+      data-node-id={node.id}
+      tabIndex={1}
     >
       <Row justify={'space-between'} height="100%" grow={1}>
         <Flex align="center">
