@@ -766,7 +766,7 @@ const themes = {
           width:${scale(32)};
           height: ${scale(32)};
           fill: currentcolor;
-          color: ${chatBadgeTextColor}
+          color: ${chatBadgeTextColor};
       }
 
        .ChatOverlay-badge-container {
@@ -831,7 +831,7 @@ const themes = {
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
-        font-size: ${scale(36)}
+        font-size: ${scale(36)};
       }
 
       .NameBanner {
@@ -896,7 +896,7 @@ const themes = {
           width:${scale(32)};
           height: ${scale(32)};
           fill: currentcolor;
-          color: ${chatBadgeTextColor}
+          color: ${chatBadgeTextColor};
       }
 
        .ChatOverlay-badge-container {
@@ -971,12 +971,12 @@ const themes = {
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
-        font-size: ${scale(36)}
+        font-size: ${scale(36)};
         position: relative;
         z-index: 2;
       }
       .Banner-header {
-        font-size: ${scale(90)}
+        font-size: ${scale(90)};
         position: relative;
         z-index: 2;
       }
@@ -1043,7 +1043,7 @@ const themes = {
           width:${scale(32)};
           height: ${scale(32)};
           fill: currentcolor;
-          color: ${chatBadgeTextColor}
+          color: ${chatBadgeTextColor};
       }
 
 
@@ -1110,7 +1110,7 @@ const themes = {
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
-        font-size: ${scale(36)}
+        font-size: ${scale(36)};
       }
       .NameBanner {
         transform-origin: 0% 100%;
