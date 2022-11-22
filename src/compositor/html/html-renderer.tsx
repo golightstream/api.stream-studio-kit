@@ -5,7 +5,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { log } from '../../core/context'
-import { forEachDown, swapItems } from '../../logic'
+import { debounce, forEachDown, swapItems } from '../../logic'
 import {
   Disposable,
   Project,
@@ -106,14 +106,14 @@ export const renderProject = (
     // TODO: This will not work with multiple renderers
     // @ts-ignore
     window.__scale = scale
-    render()
+    debouncedRender()
   }
 
   const listeners = [
     project.on('NodeChanged', ({ nodeId }) => {
       // Do not re-render if the node is a sub-component
       if (project.getParentComponent(nodeId)) return
-      render()
+      debouncedRender()
     }),
   ]
 
@@ -144,6 +144,11 @@ export const renderProject = (
       renderEl,
     )
   }
+
+  const debouncedRender = debounce(render, 0, {
+    trailing: true,
+    leading: false,
+  })
 
   // Set initial scale
   setScale()

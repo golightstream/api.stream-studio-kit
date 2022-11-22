@@ -360,8 +360,12 @@ export const start = (settings: Settings): CompositorInstance => {
   const subscribe: Subscribe = (cb, nodeId): Disposable => {
     if (typeof cb !== 'function') return
 
+    // Restrict callback to once per event loop
+    // const debounced = Logic.debounce(cb, 0, { leading: false, trailing: true })
+    const debounced = Logic.debounce(cb, 0, { leading: false, trailing: true })
+
     const id = ++currentSubId
-    subscribers.set(id, cb)
+    subscribers.set(id, debounced)
     cb.nodeId = nodeId
 
     return () => {
@@ -633,9 +637,6 @@ export const start = (settings: Settings): CompositorInstance => {
     //  have been removed from the scene tree
     compositor.lastRenderIds = new Set<string>()
     compositor.lastRenderRemovedIds = new Set<string>()
-
-    // Crawl a node recursively, return its pre-processed render result,
-    //  and update each element based on its node's resulting props
 
     const project = {
       id,
