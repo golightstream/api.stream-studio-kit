@@ -265,7 +265,7 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
           width:${p(32)};
           height: ${p(32)};
           fill: currentcolor;
-          color: ${h}
+          color: ${h};
       }
 
        .ChatOverlay-badge-container {
@@ -330,7 +330,7 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
-        font-size: ${p(36)}
+        font-size: ${p(36)};
       }
 
       .NameBanner {
@@ -379,7 +379,7 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
           width:${p(32)};
           height: ${p(32)};
           fill: currentcolor;
-          color: ${h}
+          color: ${h};
       }
 
        .ChatOverlay-badge-container {
@@ -452,12 +452,12 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
-        font-size: ${p(36)}
+        font-size: ${p(36)};
         position: relative;
         z-index: 2;
       }
       .Banner-header {
-        font-size: ${p(90)}
+        font-size: ${p(90)};
         position: relative;
         z-index: 2;
       }
@@ -498,7 +498,7 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
           width:${p(32)};
           height: ${p(32)};
           fill: currentcolor;
-          color: ${h}
+          color: ${h};
       }
 
 
@@ -565,7 +565,7 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
         font-style: normal !important;
         font-weight: 700 !important;
         line-height: 120% !important;
-        font-size: ${p(36)}
+        font-size: ${p(36)};
       }
       .NameBanner {
         transform-origin: 0% 100%;
