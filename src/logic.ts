@@ -26,6 +26,7 @@ export {
   every,
   mapValues,
   memoize,
+  defaults,
 } from 'lodash-es'
 import deepEqual from 'fast-deep-equal'
 

@@ -337,7 +337,7 @@ const ElementTree = (props: {
   const element = project.getElement(node)
   const layout = node.props.layout || 'Row'
   const methods = project.settings.canEdit ? node.render?.methods : null
-  const _onDrop = useMemo(() => onDrop(methods, project), [])
+  const _onDrop = useMemo(() => onDrop(methods, project), [methods])
 
   const isDragTarget =
     // TODO: ctrlPressed should allow for dragging nodes containing other elements,

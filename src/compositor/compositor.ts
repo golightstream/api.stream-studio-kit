@@ -85,6 +85,7 @@ type BaseNode = {
     sources?: { [type: string]: Sources.NodeSource[] }
     layout?: string
     layoutProps?: LayoutProps
+    layoutControls?: boolean
 
     // IMPLEMENT: Generic properties shared by all nodes:
     muted?: boolean
@@ -132,7 +133,7 @@ export type SceneNode<Props extends {} = AnyProps> = {
 export type VirtualNode<Props extends {} = AnyProps> = SceneNode<Props> & {
   // Applies to a node during render (virtual nodes only)
   render?: {
-    methods: RenderMethods
+    methods?: RenderMethods
   }
   props: SceneNode<Props>['props'] & {
     key?: string

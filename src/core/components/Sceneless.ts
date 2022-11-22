@@ -63,7 +63,7 @@ const Sceneless = {
         ),
         renderChildren(
           (x) => x,
-          { controls: true },
+          { layoutControls: true },
         ),
         renderNode({
           key: 'foreground',

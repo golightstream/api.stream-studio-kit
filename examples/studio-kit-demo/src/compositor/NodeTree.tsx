@@ -198,7 +198,7 @@ export const Tree = (props: { node: Compositor.SceneNode }) => {
     <Flex
       direction="column"
       grow={1}
-      align="stretch"
+      align="flex-start"
       className={[
         'node-tree',
         // isCollapsed && 'collapsed',
@@ -250,7 +250,6 @@ export const Tree = (props: { node: Compositor.SceneNode }) => {
         }}
         style={{
           height: '100%',
-          width: '100%',
           ...(isDropping && { outline: '1px solid white' }),
           ...(isDragging && { background: 'rgba(255,255,255,0.4)' }),
           opacity: isDragging ? 0.4 : 1,
@@ -269,6 +268,9 @@ export const Tree = (props: { node: Compositor.SceneNode }) => {
               alignItems: 'stretch',
               width: '100%',
               outline: isDroppingChildren ? '1px solid white' : 'none',
+              ...(node.children?.length > 0
+                ? { paddingTop: 2, paddingBottom: 6 }
+                : {}),
             }}
             onDragOver={(e) => {
               // TODO: Outline when drag over / unoutline when leave

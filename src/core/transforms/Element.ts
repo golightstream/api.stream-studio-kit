@@ -20,11 +20,24 @@ export const Element = {
     let el = document.createElement(tagName || 'div') as HTMLElement
     root.append(el)
 
+    Object.assign(el.style, {
+      width: '100%',
+      height: '100%',
+      // Random background color
+      background: '#' + Math.floor(Math.random() * 16777215).toString(16),
+    })
+
     onUpdate(({ tagName, attributes = {}, fields = {} }: Props) => {
-      if (el?.tagName.toLowerCase() !== tagName?.toLowerCase()) {
+      if (tagName && el?.tagName.toLowerCase() !== tagName?.toLowerCase()) {
         el.remove()
         el = document.createElement(tagName || 'div')
         root.append(el)
+        Object.assign(el.style, {
+          width: '100%',
+          height: '100%',
+          // Random background color
+          background: '#' + Math.floor(Math.random() * 16777215).toString(16),
+        })
       }
 
       Object.keys(attributes).forEach((attr) => {
