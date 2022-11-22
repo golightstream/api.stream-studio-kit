@@ -232,7 +232,7 @@ export const init = (
     parentId?: string,
   ) => CreateComponent =
     (projectId, parentId) =>
-    (type, props = {}, sources = {}): ComponentNode => {
+    (type, props = {}, sources = {}, children = []): ComponentNode => {
       const component = getComponent(type)
       if (!component) {
         throw new Error(
@@ -254,7 +254,7 @@ export const init = (
       const childNode = {
         id,
         props: {},
-        children: [],
+        children,
       } as ComponentNode
 
       // Index the node before initializing it:
@@ -275,7 +275,7 @@ export const init = (
           ),
         },
         componentProps: component.create(props),
-        componentChildren: [],
+        componentChildren: children,
       }
 
       return childNode

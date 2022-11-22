@@ -405,7 +405,7 @@ export const HostView = () => {
         <Top studio={studio} project={project} />
         <Row align="stretch">
           <Column gap={10} marginTop={10}>
-            <Component component={root.children[0]} />
+            {root.children[0] && <Component component={root.children[0]} />}
             <Column>
               <label>Banner</label>
               <Flex padding={8} style={{ background: 'rgba(0, 0, 0, 0.2)' }}>
