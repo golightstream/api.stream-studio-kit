@@ -460,7 +460,7 @@ export interface Commands {
  */
 export const commands = (_project: ScenelessProject) => {
   const projectId = _project.id
-  const root = _project.scene.getRoot()
+  const root = _project.scene.getRoot().toObject()
   const { Command } = CoreContext
 
   const background = root.children.find((x) => x.props.id === 'bg')
@@ -2095,7 +2095,7 @@ export const createCompositor = async (
       style: { background: 'black' },
     },
   })
-  const root = project.getRoot()
+  const root = project.getRoot().toObject()
 
   // Create the base nodes for sceneless workflow
   const baseLayers = await Promise.all([

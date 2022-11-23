@@ -7,8 +7,8 @@ import { useApp } from './Compositor'
 import { useProject } from './CompositorProject'
 import { Compositor } from '@api.stream/studio-kit'
 import { useState } from 'react'
-import Icon from './Icon'
 import { Layout } from '../shared/props'
+import Icon from './Icon'
 import JSONInput from 'react-json-editor-ajrm/index'
 
 // @ts-ignore
@@ -19,7 +19,7 @@ export const NodeView = (props: { node: Compositor.SceneNode }) => {
   const [isEditingName, setIsEditingName] = useState(false)
   const { project, isNodeSelected } = useProject()
   const isSelected = isNodeSelected(props.node.id)
-  const node = project.component(props.node.id)
+  const node = project.get(props.node.id)
 
   // const isCollapsed = !editorState.expandedNodes.has(props.node.id)
   // const canExpand = Boolean(
@@ -187,7 +187,7 @@ export const Tree = (props: { node: Compositor.SceneNode }) => {
   const { project, isNodeSelected, resetSelectedNodes, toggleNodeSelected } =
     useProject()
   const isSelected = isNodeSelected(props.node.id)
-  const node = project.component(props.node.id)
+  const node = project.get(props.node.id)
   const [isDragging, setIsDragging] = useState(false)
   const [isDropping, setIsDropping] = useState(false)
   const [isDroppingChildren, setIsDroppingChildren] = useState(false)
@@ -234,9 +234,9 @@ export const Tree = (props: { node: Compositor.SceneNode }) => {
           setIsDropping(false)
           const dragNodeId = e.dataTransfer.getData('text/plain')
           if (e.ctrlKey) {
-            project.component(dragNodeId).move(node.id)
+            project.get(dragNodeId).move(node.id)
           } else {
-            project.component(dragNodeId).swap(node.id)
+            project.get(dragNodeId).swap(node.id)
           }
         }}
         onDragStart={(e) => {
@@ -289,7 +289,7 @@ export const Tree = (props: { node: Compositor.SceneNode }) => {
               e.stopPropagation()
               setIsDroppingChildren(false)
               const dragNodeId = e.dataTransfer.getData('text/plain')
-              project.component(dragNodeId).move(node.id)
+              project.get(dragNodeId).move(node.id)
             }}
           >
             {(node.children || []).map((x, i) => (
@@ -303,7 +303,7 @@ export const Tree = (props: { node: Compositor.SceneNode }) => {
 }
 
 export const NodeEditor = ({ nodeId }: { nodeId: string }) => {
-  const node = useProject().project.component(nodeId)
+  const node = useProject().project.get(nodeId)
 
   return (
     <Column>

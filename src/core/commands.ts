@@ -446,7 +446,7 @@ export const createNode = async (payload: {
   const nodeId = await project.compositor.insert(props, parentId, index)
   triggerInternal('NodeAdded', { projectId, nodeId })
   triggerInternal('NodeChanged', { projectId, nodeId: parentId })
-  return project.compositor.get(nodeId)
+  return project.compositor.getNode(nodeId)
 }
 
 /**
@@ -502,7 +502,7 @@ export const updateNode = async (payload: {
   // Update state
   project.compositor.update(nodeId, props)
   triggerInternal('NodeChanged', { projectId, nodeId })
-  return project.compositor.get(nodeId)
+  return project.compositor.getNode(nodeId)
 }
 
 /**

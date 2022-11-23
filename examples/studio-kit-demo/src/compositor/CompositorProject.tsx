@@ -1,25 +1,11 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react'
-import ReactDOM from 'react-dom'
-import {
-  Compositor,
-  Transforms,
-  Layouts,
-  Sources,
-  Components,
-} from '@api.stream/studio-kit'
-import logoUrl from '../logo.png'
+import { Compositor } from '@api.stream/studio-kit'
 import { Column, Flex, Row } from '../ui/Box'
 import { Renderer } from '../components'
-import { projects, sources } from '../host/host'
-import { asArray } from '../shared/logic'
-import { BackgroundSelect, BannerSelect, SourceList } from '../shared/sources'
-import { useRoot } from '../shared/hooks'
 import { NodeEditor, Tree } from './NodeTree'
-import { useApp } from './Compositor'
 
 export const ProjectView = () => {
-  const { project, selectedNodes } = useProject()
-  const root = useRoot<Components.Project.Interface>(project)
+  const { project, tree, selectedNodes } = useProject()
 
   const components = project.compositor.components.components
   const componentNames = Object.keys(components)
@@ -33,15 +19,15 @@ export const ProjectView = () => {
     elementNames[0],
   )
 
-  const addToNode = project.component(Array.from(selectedNodes)[0])
+  const selectedNode = project.get(Array.from(selectedNodes)[0])
 
   // @ts-ignore Debug
-  window.node = addToNode
+  window.node = selectedNode
 
   // @ts-ignore Debug
   window.project = project
 
-  if (!project || !root) {
+  if (!project) {
     return <Flex>Loading...</Flex>
   }
 
@@ -65,7 +51,7 @@ export const ProjectView = () => {
             ))}
           </select>
           <button
-            onClick={() => addToNode.addChildComponent(selectedComponent)}
+            onClick={() => selectedNode.addChildComponent(selectedComponent)}
           >
             Add component
           </button>
@@ -82,14 +68,14 @@ export const ProjectView = () => {
               </option>
             ))}
           </select>
-          <button onClick={() => addToNode.addChildElement(selectedElement)}>
+          <button onClick={() => selectedNode.addChildElement(selectedElement)}>
             Add element
           </button>
         </Row>
       </Column>
       <Row align="flex-start">
         <Flex width={200} align="stretch" marginTop={20}>
-          <Tree node={project.getRoot()} />
+          {tree && <Tree node={tree} />}
         </Flex>
         <Column marginLeft={20}>
           <Renderer scene={project} />
@@ -105,6 +91,7 @@ export const ProjectView = () => {
 }
 
 type ProjectContext = {
+  tree: Compositor.SceneNode
   project: Compositor.Project
   selectedNodes: Set<string>
   selectNode: (id: string) => void
@@ -127,7 +114,7 @@ export const ProjectProvider = ({
   project: Compositor.Project
 }) => {
   const [selectedNodes, setSelectedNodes] = useState(new Set<string>())
-  const { compositor } = useApp()
+  const [tree, setTree] = useState<Compositor.SceneNode>()
 
   // @ts-ignore Debug
   window.project = project
@@ -146,6 +133,8 @@ export const ProjectProvider = ({
     [selectedNodes],
   )
 
+  useEffect(() => project.useTree(setTree), [])
+
   useEffect(() => {
     document.addEventListener('copy', (e) => {
       const selectedNodeId =
@@ -154,7 +143,7 @@ export const ProjectProvider = ({
       const node = project.get(selectedNodeId)
       if (node) {
         e.preventDefault()
-        e.clipboardData.setData('text/plain', JSON.stringify(node))
+        e.clipboardData.setData('text/plain', node.toString())
       }
     })
     document.addEventListener('paste', (e) => {
@@ -164,7 +153,7 @@ export const ProjectProvider = ({
       try {
         const tree = JSON.parse(e.clipboardData.getData('text'))
         if (tree.id && tree.children && tree.props) {
-          const node = project.component(selectedNodeId)
+          const node = project.get(selectedNodeId)
           node.insertTree(tree)
         }
         e.preventDefault()
@@ -178,6 +167,7 @@ export const ProjectProvider = ({
     <ProjectContext.Provider
       value={{
         project,
+        tree,
         selectedNodes,
         selectNode,
         deselectNode,

@@ -42,7 +42,7 @@ export const Overlay = {
         if (iframeRef.current) {
           const project = getProject(CoreContext.state.activeProjectId)
           const root = project.compositor.getRoot()
-          const { x: rootWidth, y: rootHeight } = root.props.size
+          const { x: rootWidth, y: rootHeight } = root.nodeProps.size
           let iframeWidth = iframeRef.current.clientWidth
           let iframeHeight = iframeRef.current.clientHeight
 

@@ -479,7 +479,7 @@ export const render = (settings: CompositorSettings) => {
   }
 
   const root = project.compositor.getRoot()
-  const { x: rootWidth, y: rootHeight } = root.props.size
+  const { x: rootWidth, y: rootHeight } = root.nodeProps.size
 
   const setScale = () => {
     let { width, height } = containerEl.getBoundingClientRect()

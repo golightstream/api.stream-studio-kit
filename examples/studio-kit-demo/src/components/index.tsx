@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { Compositor, SDK } from '@api.stream/studio-kit'
-import { useRenderRef, useRoot } from '../shared/hooks'
+import { useRenderRef } from '../shared/hooks'
 import { MultiSceneComponent } from './MultiScene'
 import { ScenelessComponent } from './Sceneless'
 
@@ -24,10 +24,7 @@ export const Component = ({
 }
 
 export const Renderer = ({ scene }: { scene: Compositor.Project }) => {
-  const root = useRoot(scene)
   const renderContainer = useRenderRef(scene)
-
-  if (!root) return null
 
   return <div ref={renderContainer} style={{ width: 840, height: 500 }}></div>
 }

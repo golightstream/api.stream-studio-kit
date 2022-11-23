@@ -106,8 +106,8 @@ export const RoomParticipant = {
           const rect = ref.current
           setLabelSize(
             getSize(rect.clientWidth, {
-              width: project.compositor.getRoot().props.size.x,
-              height: project.compositor.getRoot().props.size.y,
+              width: project.compositor.getRoot().nodeProps.size.x,
+              height: project.compositor.getRoot().nodeProps.size.y,
             }),
           )
         }

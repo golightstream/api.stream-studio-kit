@@ -15,7 +15,7 @@ export const Layout = ({
 
   return (
     <select
-      defaultValue={layout}
+      value={layout}
       onChange={(e) => {
         const { name, props } = layouts[e.target.value]
         component.updateNode({

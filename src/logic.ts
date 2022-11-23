@@ -25,8 +25,9 @@ export {
   isMatch,
   every,
   mapValues,
-  memoize,
   defaults,
+  padEnd,
+  memoize,
 } from 'lodash-es'
 import deepEqual from 'fast-deep-equal'
 

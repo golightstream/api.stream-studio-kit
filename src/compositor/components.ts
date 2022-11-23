@@ -102,7 +102,8 @@ export type NodeInterface<
   getParent: () => NodeInterface
   hasAncestor: (nodeId: string) => boolean
   children: ChildInterface[]
-  toNode: () => SceneNode
+  toObject: () => SceneNode
+  toString: () => string
 } & ChildMethods
 
 type x = Component['children']
@@ -542,7 +543,8 @@ export const init = (
           componentChildren: current,
         })
       },
-      toNode: () => compositor.nodeIndex[nodeId],
+      toObject: () => compositor.nodeIndex[nodeId],
+      toString: () => JSON.stringify(compositor.nodeIndex[nodeId]),
     } as NodeInterface<any, any>
 
     if (kind === 'Component') {

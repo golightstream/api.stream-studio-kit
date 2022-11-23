@@ -109,7 +109,7 @@ export const ChatOverlay = {
     const projectRoot = project.compositor.getRoot()
 
     /* Setting the rootWidth to the width of the projectRoot. */
-    const { x: rootWidth } = projectRoot.props.size
+    const { x: rootWidth } = projectRoot.nodeProps.size
     const scalar = (rootWidth ?? 1280) / 1920
     const scale = (px: number) => px * scalar + 'px'
 

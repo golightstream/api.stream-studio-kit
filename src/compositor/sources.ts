@@ -299,8 +299,8 @@ export const init = (
         cb(sourceTypeIndex[type] as S[])
         return compositor.on('AvailableSourcesChanged', (payload) => {
           if (payload.type !== type) return
-          if (payload.nodeId !== node.id) return
-          cb(sourceTypeIndex[type] as S[])
+          // if (payload.nodeId !== node.id) return
+          cb([...sourceTypeIndex[type]] as S[])
         })
       },
       add: async (type: string, source: NodeSource) => {
@@ -464,7 +464,7 @@ export const init = (
       cb(sourceTypeIndex[type] as S[])
       return compositor.on('AvailableSourcesChanged', (payload) => {
         if (payload.type !== type) return
-        cb(payload.sources as S[])
+        cb([...payload.sources] as S[])
       })
     },
     wrap(node: SceneNode) {

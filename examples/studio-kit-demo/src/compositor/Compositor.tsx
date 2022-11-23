@@ -120,7 +120,9 @@ const ProjectsView = () => {
     // Load initial project from URL
     const pageURL = new URL(document.location.toString())
     const projectId = pageURL.searchParams.get('id')
-    loadProject(projectId)
+    if (projectId) {
+      loadProject(projectId)
+    }
   }, [])
 
   useEffect(() => {

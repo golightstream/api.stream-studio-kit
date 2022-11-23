@@ -111,8 +111,6 @@ export const renderProject = (
 
   const listeners = [
     project.on('NodeChanged', ({ nodeId }) => {
-      // Do not re-render if the node is a sub-component
-      if (project.getParentComponent(nodeId)) return
       debouncedRender()
     }),
   ]
@@ -559,7 +557,7 @@ const ElementTree = (props: {
           className="interactive-overlay"
           ref={interactiveRef}
           onDoubleClick={() => {
-            project.component(node.interactionId)?.update({
+            project.get(node.interactionId)?.update({
               layoutProps: {
                 ...node.props.layoutProps,
                 showcase: node.id,

@@ -2,7 +2,6 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { background } from 'csx'
 import { ElementNode, SceneNode } from '../../compositor'
 import { Component, NodeInterface } from '../../compositor/components'
 import { Elements } from '../namespaces'

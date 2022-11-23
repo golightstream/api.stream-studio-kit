@@ -2,6 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
+import { padEnd } from '../../logic'
 import { Compositor } from '../namespaces'
 
 type Props = {
@@ -24,7 +25,7 @@ export const Element = {
       width: '100%',
       height: '100%',
       // Random background color
-      background: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      background: '#' + padEnd(Math.floor(Math.random() * 16777215).toString(16), 6, '0'),
     })
 
     onUpdate(({ tagName, attributes = {}, fields = {} }: Props) => {

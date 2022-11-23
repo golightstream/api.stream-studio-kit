@@ -21,6 +21,7 @@ import {
   ComponentSettings,
   ComponentManager,
 } from './components'
+import { debounce } from '../logic'
 const { forEachDown, insertAt, toDataNode, pull, replaceItem } = Logic
 
 // Export namespaces
@@ -279,18 +280,15 @@ export type Project = DB &
     settings: ProjectSettings
     triggerEvent: Trigger
     subscribe: Subscribe
-    on: On
     nodes: SceneNode[]
-    component: (id?: NodeId) => ReturnType<ComponentManager['getNodeInterface']>
-    useRoot: <I extends Components.NodeInterface = Components.NodeInterface>(
-      cb: (tree: I) => void,
-    ) => Disposable
-    useNode: ComponentManager['useNodeInterface']
-    get: (id: NodeId) => SceneNode
+    on: On
+    useTree: (cb: (tree: SceneNode) => void) => Disposable
+    get: (id: NodeId) => Components.NodeInterface
+    getRoot: () => Components.NodeInterface
+    getParent: (id: NodeId) => Components.NodeInterface
+    getNode: (id: NodeId) => SceneNode
     getElement: TransformElementGetter
-    getParent: (id: NodeId) => SceneNode
     getParentComponent: (id: NodeId) => SceneNode
-    getRoot: () => SceneNode
     insertRoot: (props?: DataNode['props']) => Promise<NodeId>
     indexNode: (node: SceneNode, parentId: string) => void
     render: (settings: RenderSettings) => Disposable
@@ -651,30 +649,30 @@ export const start = (settings: Settings): CompositorInstance => {
       triggerEvent: (event, payload) => {
         return triggerEvent(event, { ...payload, projectId: project.id })
       },
-      useRoot(cb) {
-        let listeners = [] as Disposable[]
-        if (!root) {
-          listeners.push(
-            project.on('NodeAdded', ({ nodeId }) => {
-              if (nodeId === root?.id) {
-                listeners.push(project.useRoot(cb))
-              }
-            }),
-          )
-        }
-        listeners.push(project.useNode(root.id, cb))
-        return () => listeners.forEach((x) => x())
+      useTree: (cb) => {
+        const callback = debounce(
+          () => {
+            // Shallow-copy the object to break Object.is() check for frontend libraries
+            cb({...root})
+          },
+          0,
+          {
+            trailing: true,
+            leading: false,
+          },
+        )
+        callback()
+        return project.on('NodeChanged', callback)
       },
-      useNode(id, cb) {
-        return componentManager.useNodeInterface(id, cb)
-      },
-      component: (id) => componentManager.getNodeInterface(id || root.id),
-      getRoot: () => root,
+      getRoot: () => root && componentManager.getNodeInterface(root.id),
       get(id) {
+        return componentManager.getNodeInterface(id)
+      },
+      getNode(id) {
         return nodeIndex[id]
       },
       getParent(id) {
-        return nodeIndex[parentIdIndex[id]]
+        return componentManager.getNodeInterface(parentIdIndex[id])
       },
       getParentComponent(id) {
         return nodeIndex[parentComponentIdIndex[id]]

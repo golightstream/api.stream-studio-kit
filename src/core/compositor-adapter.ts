@@ -88,7 +88,7 @@ export const compositorAdapter: Compositor.DBAdapter = {
         })
         if ((result as any).code) throw new Error((result as any).message)
 
-        const parentNode = await project.get(parentId)
+        const parentNode = await project.getNode(parentId)
         if (parentId && !parentNode) throw Error('Parent not found with ID')
         if (parentNode) {
           // Convert the parent to Layer schema
@@ -117,7 +117,7 @@ export const compositorAdapter: Compositor.DBAdapter = {
         return String(result.id)
       },
       async update(id, props = {}, replaceAll = false) {
-        const node = project.get(id)
+        const node = project.getNode(id)
 
         // Convert the data to Layer schema
         const layer = sceneNodeToLayer({
@@ -187,7 +187,7 @@ export const compositorAdapter: Compositor.DBAdapter = {
       },
       // @ts-ignore
       async reorder(id, childIds) {
-        const node = project.get(id)
+        const node = project.getNode(id)
 
         // Convert the data to Layer schema
         const layer = nodeToLayer({
@@ -214,8 +214,8 @@ export const compositorAdapter: Compositor.DBAdapter = {
       },
       // @ts-ignore
       async move(id, newParentId, index) {
-        const node = project.get(id)
-        const prevParentNode = project.get(project.getParent(id).id)
+        const node = project.getNode(id)
+        const prevParentNode = project.getNode(project.getParent(id).id)
         const prevParentLayer = nodeToLayer({
           ...prevParentNode,
           childIds: pull(
@@ -224,7 +224,7 @@ export const compositorAdapter: Compositor.DBAdapter = {
           ),
         })
 
-        const newParentNode = project.get(newParentId)
+        const newParentNode = project.getNode(newParentId)
         const newParentLayer = nodeToLayer({
           ...newParentNode,
           childIds: insertAt(

@@ -23,7 +23,6 @@ import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { Column, Flex, Row } from '../ui/Box'
 import { Component, Renderer } from '../components'
-import { useRoot } from '../shared/hooks'
 import { BackgroundSelect, BannerSelect, SourceList } from '../shared/sources'
 
 const { useStudio } = Helpers.React
@@ -181,7 +180,7 @@ const Login = (props: {
           }
         >
           {Object.keys(projects).map((x) => (
-            <option value={x}>{x}</option>
+            <option key={x} value={x}>{x}</option>
           ))}
         </select>
         <div style={{ marginTop: 10, height: 78 }}>
@@ -335,10 +334,10 @@ export const HostView = () => {
   const [projectType, setProjectType] = useState<keyof typeof projects>(
     localStorage['projectType'],
   )
-  const root = useRoot<Components.Project.Interface>(project?.scene)
+  const root = project?.scene.getRoot()
 
-  // Store as a global for debugging in console
-  window.SDK = useStudio()
+  // @ts-ignore Debug helper
+  window.project = project
 
   // @ts-ignore Debug helper
   window.component = root
