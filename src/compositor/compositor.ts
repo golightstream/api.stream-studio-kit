@@ -8,7 +8,6 @@ import * as Sources from './sources'
 import * as Components from './components'
 import * as Renderer from './html/html-renderer'
 import * as Logic from '../logic'
-import { log } from '../core/context'
 import {
   TransformElementGetter,
   TransformRegister,
@@ -180,6 +179,7 @@ export type Settings = {
   sourceSettings?: SourceSettings
   componentSettings?: ComponentSettings
   updateOutdatedComponents?: boolean
+  log?: Partial<Console>
   // TODO: We do not yet offer any settings for layouts
   // layoutSettings?: LayoutSettings
 }
@@ -324,6 +324,7 @@ export const start = (settings: Settings): CompositorInstance => {
     transformSettings = {},
     sourceSettings = {},
     componentSettings = {},
+    log = console,
   } = settings
 
   type ProjectDbMap = { [id: string]: DB }

@@ -82,6 +82,7 @@ export const Column = {
         paddingTop: margin.top + 'px',
         paddingBottom: margin.bottom + 'px',
         paddingRight: margin.right + 'px',
+        gap: margin.between + 'px',
       }}>
       ${children.map(
         (x, i) =>
@@ -98,7 +99,6 @@ export const Column = {
             width: cover ? '100%' : itemWidth + 'px',
             height: cover ? itemHeight + 'px' : 'auto',
             aspectRatio: dimensions,
-            marginBottom: i === children.length - 1 ? 0 : margin.between + 'px',
             flexGrow: 0,
             flexShrink: 1,
             flexBasis: itemHeight + 'px',
@@ -154,6 +154,7 @@ export const Row = {
         paddingTop: margin.top + 'px',
         paddingBottom: margin.bottom + 'px',
         paddingRight: margin.right + 'px',
+        gap: margin.between + 'px',
       }}>
           ${children.map(
             (x, i) =>
@@ -169,10 +170,8 @@ export const Row = {
                 display: 'flex',
                 height: cover ? '100%' : itemHeight + 'px',
                 width: itemWidth + 'px',
-                aspectRatio: dimensions,
-                marginRight:
-                  i === children.length - 1 ? 0 : margin.between + 'px',
-                flexGrow: 0,
+                maxWidth: maxWidth * size.x,
+                flexGrow: 1,
                 flexShrink: 1,
                 flexBasis: itemWidth + 'px',
               }}></div>`,

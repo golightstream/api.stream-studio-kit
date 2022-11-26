@@ -101,6 +101,7 @@ export const init = async (
   const guestProject = await client.load(guestToken)
 
   const compositor = Compositor.start({
+    log,
     // Ensure components up to date unless joining a project as a guest
     updateOutdatedComponents: !guestProject && useComponents,
     dbAdapter: settings.dbAdapter || compositorAdapter,

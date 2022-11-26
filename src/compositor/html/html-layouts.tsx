@@ -32,6 +32,7 @@ import {
   sizeToNum,
   forEachDown,
   mapDown,
+  defaults,
 } from '../../logic'
 import { log } from '../../core/context'
 import {
@@ -553,7 +554,8 @@ export class Layout extends HTMLElement {
       childEl.mutationObserver = new MutationObserver((mutations) => {
         mutations.forEach((x) => {
           if (x.type === 'attributes') {
-            if (!['data-size', 'data-position'].includes(x.attributeName)) return
+            if (!['data-size', 'data-position'].includes(x.attributeName))
+              return
             queueOp(['childAttributesChanged', this.id, childEl.id])
           }
         })
@@ -664,8 +666,11 @@ export class Layout extends HTMLElement {
         return {
           id: x.id,
           props: {
-            position: JSON.parse(x.getAttribute('data-position')),
-            size: JSON.parse(x.getAttribute('data-size')),
+            position: defaults(JSON.parse(x.getAttribute('data-position')), {
+              x: 0,
+              y: 0,
+            }),
+            size: defaults(JSON.parse(x.getAttribute('data-size')), size),
           },
           children: [],
         }

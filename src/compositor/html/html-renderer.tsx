@@ -4,7 +4,6 @@
  * -------------------------------------------------------------------------------------------- */
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
-import { log } from '../../core/context'
 import { debounce, forEachDown, swapItems } from '../../logic'
 import {
   Disposable,
@@ -26,11 +25,16 @@ const projects = {} as {
   [id: string]: Map<HTMLElement, Disposable>
 }
 
+let log: Partial<Console>
+
 export const renderProject = (
   project: Project,
-  settings: RenderSettings,
+  settings: RenderSettings & {
+    log?: Partial<Console>
+  },
 ): Disposable => {
-  const { containerEl } = settings
+  const { containerEl, log: logger = console } = settings
+  log = logger
   if (!projects[project.id]) projects[project.id] = new Map()
   if (projects[project.id].get(containerEl)) {
     return projects[project.id].get(containerEl)
@@ -552,7 +556,10 @@ const ElementTree = (props: {
           height: '100%',
         }}
       >
-        <div ref={transformRef}></div>
+        <div
+          ref={transformRef}
+          style={{ opacity: node.props.opacity ?? 1 }}
+        ></div>
         <div
           className="interactive-overlay"
           ref={interactiveRef}
@@ -588,35 +595,37 @@ const ElementTree = (props: {
               pointerEvents: 'none',
             }}
           >
-            {node.children.map((x: VirtualNode) => (
-              <div
-                key={x.id}
-                data-id={x.id + '-x'}
-                data-item
-                data-type={
-                  node.props.type || (node as TransformNode).props.element
-                }
-                data-size={JSON.stringify(x.props.size || {})}
-                data-position={JSON.stringify(x.props.position || {})}
-              >
-                <ElementTree
+            {node.children
+              .filter((x) => !x.props.hidden)
+              .map((x: VirtualNode) => (
+                <div
                   key={x.id}
-                  node={x}
-                  transformDragHandlers={childTransformDragHandlers}
-                  onDoubleClick={
-                    doubleClickShowcase && methods?.showcase
-                      ? () => {
-                          const isShowcase =
-                            x.id ===
-                            project.get(node.sceneNodeId).props.layoutProps
-                              ?.showcase
-                          methods.showcase(isShowcase ? null : x.id)
-                        }
-                      : () => {}
+                  data-id={x.id + '-x'}
+                  data-item
+                  data-type={
+                    node.props.type || (node as TransformNode).props.element
                   }
-                />
-              </div>
-            ))}
+                  data-size={JSON.stringify(x.props.size)}
+                  data-position={JSON.stringify(x.props.position)}
+                >
+                  <ElementTree
+                    key={x.id}
+                    node={x}
+                    transformDragHandlers={childTransformDragHandlers}
+                    onDoubleClick={
+                      doubleClickShowcase && methods?.showcase
+                        ? () => {
+                            const isShowcase =
+                              x.id ===
+                              project.get(node.sceneNodeId).props.layoutProps
+                                ?.showcase
+                            methods.showcase(isShowcase ? null : x.id)
+                          }
+                        : () => {}
+                    }
+                  />
+                </div>
+              ))}
           </ls-layout>
         </ErrorBoundary>
       </div>
