@@ -5,7 +5,7 @@
 import { CoreContext, setAppState, log } from './context'
 import { asArray, omit, toDataNode, toSceneTree } from '../logic'
 import { ApiStream, LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
-import { compositorAdapter, latestUpdateVersion } from './compositor-adapter'
+import { compositorAdapter, latestUpdateVersion, layerToNode } from './compositor-adapter'
 import config from '../../config'
 import * as Transforms from './transforms/index'
 import * as Layouts from './layouts/index'
@@ -20,7 +20,6 @@ import {
   getProject,
   getProjectByLayoutId,
   hydrateProject,
-  layerToNode,
 } from './data'
 import { render } from '../helpers/compositor'
 
@@ -378,11 +377,8 @@ export const init = async (
         latestUpdateVersion[node.id] = updateVersions[node.id]
 
         const project = getProjectByLayoutId(layoutId)
-        project.compositor.local.update(
-          layer.update.id,
-          node.props,
-          node.childIds,
-        )
+        const children = node.childIds.map((x) => project.compositor.getNode(x))
+        project.compositor.local.update(layer.update.id, node.props, children)
         triggerInternal('NodeChanged', {
           projectId: project.id,
           nodeId: node.id,
@@ -430,10 +426,13 @@ export const init = async (
               }
               latestUpdateVersion[node.id] = updateVersions[node.id]
 
+              const children = node.childIds.map((x) =>
+                project.compositor.getNode(x),
+              )
               project.compositor.local.update(
                 node.id,
                 node.props,
-                node.childIds,
+                children,
               )
               triggerInternal('NodeChanged', {
                 projectId: project.id,

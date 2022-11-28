@@ -155,46 +155,6 @@ export const hydrateProject = async (
   } as Context.InternalProject
 }
 
-export const sceneNodeToLayer = (
-  node: Partial<Compositor.SceneNode>,
-): LayoutApiModel.Layer => {
-  const { id, props = {}, children = [] } = node
-  return {
-    ...(id ? { id } : {}),
-    type: props.type,
-    data: {
-      ...props,
-    },
-    children: children.map((x) => x.id),
-  } as LayoutApiModel.Layer
-}
-
-export const nodeToLayer = (
-  node: Compositor.DataNode,
-): LayoutApiModel.Layer => {
-  return {
-    id: node.id,
-    type: node.props.type,
-    data: {
-      ...node.props,
-    },
-    children: node.childIds.map((x) => x),
-  } as LayoutApiModel.Layer
-}
-
-export const layerToNode = (
-  layer: LayoutApiModel.Layer,
-): Compositor.DataNode => {
-  return {
-    id: String(layer.id),
-    props: {
-      type: layer.type,
-      ...layer.data,
-    },
-    childIds: layer.children.map((x) => String(x)),
-  }
-}
-
 /**
  * Queries
  */

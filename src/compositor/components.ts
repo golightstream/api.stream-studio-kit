@@ -48,7 +48,7 @@ type ChildMethods = {
     type: string,
     props?: Partial<I['props']>,
     index?: number,
-  ) => Promise<void>
+  ) => Promise<SceneNode>
   addChildElement: <
     ElementProps extends Partial<TransformNode['props']> = AnyProps,
   >(
@@ -56,9 +56,9 @@ type ChildMethods = {
     props?: Partial<ElementProps>,
     sourceId?: string,
     index?: number,
-  ) => Promise<void>
-  insertChild: (node: SceneNode, index?: number) => Promise<void>
-  insertTree: (tree: SceneNode, index?: number) => Promise<void>
+  ) => Promise<SceneNode>
+  insertChild: (node: SceneNode, index?: number) => Promise<SceneNode>
+  insertTree: (tree: SceneNode, index?: number) => Promise<SceneNode>
   removeChild: (id: string) => Promise<void>
   updateChild: <Props extends {} = AnyProps>(
     id: string,
@@ -256,9 +256,8 @@ export const init = (
         {},
       )
 
-      const id = generateId()
       const childNode = {
-        id,
+        id: null,
         props: {},
         children,
       } as ComponentNode
@@ -281,7 +280,6 @@ export const init = (
           ),
         },
         componentProps: component.create(props),
-        componentChildren: children,
       }
 
       return childNode
@@ -300,7 +298,7 @@ export const init = (
     if (!node) return null
 
     const getInterfaceChildren = () => {
-      return (node.props.componentChildren || node.children).map((x) => {
+      return node.children.map((x) => {
         return getNodeInterface(x.id)
       })
     }
@@ -331,19 +329,6 @@ export const init = (
 
     const component = getComponent(node.props.type)
 
-    const insertChild = (childNode: SceneNode, index?: number) => {
-      const previous = node.props.componentChildren || []
-      const current = insertAt(
-        typeof index === 'number' ? index : previous.length,
-        childNode,
-        previous,
-      )
-      return project.update(node.id, {
-        ...node.props,
-        componentChildren: current,
-      })
-    }
-
     const createComponent = _createComponent(project.id, node.id)
 
     const result = {
@@ -366,11 +351,8 @@ export const init = (
         : () => {
             return {
               ...node,
-              children: [
-                ...(node.children || []),
-                ...(node.props.componentChildren || []),
-              ].map((x) => {
-                return renderVirtualNode(x, node.id)
+              children: (node.children || []).map((x) => {
+                return renderVirtualNode(x)
               }),
             }
           },
@@ -464,35 +446,31 @@ export const init = (
         }
         return findAncestor(getNodeInterface(node.id))
       },
-      insertChild,
+      insertChild: (childNode, index) => {
+        return project.insert(childNode, node.id, index)
+      },
       insertTree: async (tree, index) => {
         const initializeTree = (node: SceneNode, parent: SceneNode) => {
           const id = generateId()
           const newNode = {
             id,
-            props: {
-              ...node.props,
-              componentChildren: (node.props.componentChildren || []).map((x) =>
-                initializeTree(x, node),
-              ),
-            },
+            props: node.props,
             children: node.children.map((x) => initializeTree(x, node)),
           } as SceneNode
-          // Index the node before initializing it:
-          project.indexNode(newNode, parent.id)
           return newNode
         }
 
         const nodeInterface = getNodeInterface(node.id)
-        await nodeInterface.insertChild(initializeTree(tree, node), index)
+        return nodeInterface.insertChild(initializeTree(tree, node), index)
       },
       addChildComponent: (type, props = {}, index) => {
-        const node = createComponent(type, props)
-        return insertChild(node, index)
+        const nodeInterface = getNodeInterface(node.id)
+        const childNode = createComponent(type, props)
+        return nodeInterface.insertChild(childNode, index)
       },
       addChildElement: (type, props = {}, sourceId, index) => {
-        const node = {
-          id: generateId(),
+        const childNode = {
+          id: null,
           props: {
             element: type,
             ...props,
@@ -500,48 +478,38 @@ export const init = (
           },
           children: [],
         } as TransformNode
-        return insertChild(node, index)
-      },
-      removeChild: (id) => {
-        const previous = node.props.componentChildren || []
-        const current = previous.filter((x) => x.id !== id)
-        return project.update(node.id, {
-          ...node.props,
-          componentChildren: current,
-        })
-      },
-      updateChild: (id, props) => {
         const nodeInterface = getNodeInterface(node.id)
-        const childNodes = nodeInterface.children || []
-        const childNode = childNodes.find((x) => x.id === id)
+        return nodeInterface.insertChild(childNode, index)
+      },
+      removeChild: async (id) => {
+        const nodeInterface = getNodeInterface(node.id)
+        if (!nodeInterface.getChild(id)) return
+
+        await project.remove(id)
+      },
+      updateChild: async (id, props) => {
+        const nodeInterface = getNodeInterface(node.id)
+        const childNode = nodeInterface.getChild(id)
         if (!childNode) return
 
         // If the node is a component, update its componentProps
-        if (childNode.props.type) {
-          childNode.props.componentProps = {
-            ...(childNode.props.componentProps || {}),
-            ...props,
-          }
+        if (childNode.kind === 'Component') {
+          await project.update(id, {
+            ...childNode.props,
+            componentProps: {
+              ...(childNode.props.componentProps || {}),
+              ...props,
+            },
+          })
         } else {
-          childNode.props = {
+          await project.update(id, {
             ...childNode.props,
             ...props,
-          }
+          })
         }
-
-        return project.update(node.id, {
-          ...node.props,
-          componentChildren: childNodes,
-        })
       },
       reorderChildren: (ids) => {
-        const previous = node.props.componentChildren || []
-        const current = ids.map((x) => previous.find((y) => y.id === x))
-
-        return project.update(node.id, {
-          ...node.props,
-          componentChildren: current,
-        })
+        return project.reorder(node.id, ids)
       },
       toObject: () => compositor.nodeIndex[nodeId],
       toString: () => JSON.stringify(compositor.nodeIndex[nodeId]),
@@ -658,7 +626,6 @@ export const init = (
           props,
           children: children.filter(Boolean),
         },
-        node.id,
       )
     }
 
@@ -677,7 +644,7 @@ export const init = (
               key: '__children',
             },
             map(nodeInterface.children).map((x) => {
-              return renderVirtualNode(x, node.id)
+              return renderVirtualNode(x)
             }),
           )
           return {

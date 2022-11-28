@@ -195,7 +195,7 @@ export const recreateLayout = async (payload: {
     })
 
   CoreContext.log.debug('New layout assigned to project:', { layout })
-    
+
   // Trigger event to update state
   await triggerInternal('ProjectChanged', { project: updateResponse.project })
 
@@ -423,7 +423,7 @@ export const joinRoom = async (payload: {
  * ----
  * _Note: This is a low level interface. Abstractions like {@link ScenelessProject}
  * prevent the need for node manipulations._
- * 
+ *
  * @deprecated
  * @internal _Use with caution_
  * @category Node
@@ -443,10 +443,10 @@ export const createNode = async (payload: {
   const project = getProject(projectId)
 
   // Update state
-  const nodeId = await project.compositor.insert(props, parentId, index)
-  triggerInternal('NodeAdded', { projectId, nodeId })
+  const { id } = await project.compositor.insert(props, parentId, index)
+  triggerInternal('NodeAdded', { projectId, nodeId: id })
   triggerInternal('NodeChanged', { projectId, nodeId: parentId })
-  return project.compositor.getNode(nodeId)
+  return project.compositor.getNode(id)
 }
 
 /**

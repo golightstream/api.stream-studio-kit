@@ -104,7 +104,7 @@ const ProjectsView = () => {
       {},
       sources,
     )
-    await project.insertRoot(projectComponent.props)
+    await project.insertRoot({ props: projectComponent.props })
     setProjects(Object.values(compositor.projects))
   }, [compositor])
 
@@ -139,7 +139,7 @@ const ProjectsView = () => {
         <input
           style={{ width: 160, marginRight: 2 }}
           type="text"
-          placeholder='Project ID'
+          placeholder="Project ID"
           onChange={(e) => setProjectId(e.target.value)}
         />
         <button

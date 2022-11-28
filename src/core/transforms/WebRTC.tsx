@@ -72,8 +72,6 @@ export const RoomParticipant = {
       const { volume = 1, isHidden = false } = props
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
       const ref = useRef<HTMLVideoElement>()
-      // TODO: Transforms should not rely on external state
-      const project = getProject(CoreContext.state.activeProjectId)
       const room = getRoom(CoreContext.state.activeProjectId)
       const isSelf = source?.id === room?.participantId
 
@@ -98,30 +96,6 @@ export const RoomParticipant = {
           ref.current.srcObject = null
         }
       }, [ref.current, source?.value])
-
-      useLayoutEffect(() => {
-        if (!ref.current) return
-
-        const calculate = () => {
-          const rect = ref.current
-          setLabelSize(
-            getSize(rect.clientWidth, {
-              width: project.compositor.getRoot().nodeProps.size.x,
-              height: project.compositor.getRoot().nodeProps.size.y,
-            }),
-          )
-        }
-
-        const resizeObserver = new ResizeObserver((entries) => {
-          calculate()
-        })
-        calculate()
-        resizeObserver.observe(ref.current)
-
-        return () => {
-          resizeObserver.unobserve(ref.current)
-        }
-      }, [ref.current, project])
 
       useEffect(() => {
         if (!ref.current) return

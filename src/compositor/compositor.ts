@@ -63,6 +63,7 @@ export type DataNode = {
   props: {
     [prop: string]: any
   }
+  metadata?: { [prop: string]: any }
   childIds: NodeId[]
 }
 
@@ -86,6 +87,7 @@ type BaseNode = {
     layout?: string
     layoutProps?: LayoutProps
     layoutControls?: boolean
+    bundleChildren?: boolean
 
     // IMPLEMENT: Generic properties shared by all nodes:
     muted?: boolean
@@ -93,7 +95,6 @@ type BaseNode = {
     opacity?: number
     size?: { x: number; y: number }
     position?: { x: number; y: number }
-    componentChildren?: SceneNode[]
   }
   children: SceneNode[]
 }
@@ -128,6 +129,7 @@ export type ElementNode<Props extends {} = AnyProps> = TransformNode<Props>
 // TODO: Can we infer Node type Transform vs Component?
 export type SceneNode<Props extends {} = AnyProps> = {
   _deleted?: boolean
+  metadata?: { [prop: string]: any }
 } & (TransformNode<Props> | ComponentNode<Props>)
 
 export type VirtualNode<Props extends {} = AnyProps> = SceneNode<Props> & {
@@ -144,26 +146,24 @@ export type VirtualNode<Props extends {} = AnyProps> = SceneNode<Props> & {
 
 export type DB = {
   insert: (
-    props: DataNode['props'],
+    props: Partial<SceneNode>,
     parentId?: NodeId,
     index?: number,
-  ) => Promise<NodeId> | NodeId
-  update: (id: NodeId, props: DataNode['props']) => Promise<void> | void
+    id?: NodeId,
+  ) => Promise<SceneNode> | SceneNode
+  update: (id: NodeId, props: SceneNode['props']) => Promise<void> | void
   remove: (id: NodeId) => Promise<void> | void
+  reorder: (id: NodeId, childIds: NodeId[]) => Promise<void> | void
 }
 
 type LocalDB = {
-  insert: (
-    node: Partial<SceneNode>,
-    parentId?: NodeId,
-    index?: number,
-  ) => Promise<NodeId>
+  insert: (node: Partial<SceneNode>, parentId?: NodeId, index?: number) => void
   update: (
     id: NodeId,
-    props: DataNode['props'],
-    childIds?: NodeId[],
-  ) => Promise<void>
-  remove: (id: NodeId) => Promise<void>
+    props: SceneNode['props'],
+    children?: SceneNode[],
+  ) => void
+  remove: (id: NodeId) => void
 }
 
 export type DBAdapter = {
@@ -205,9 +205,6 @@ export type CompositorBase = {
     [nodeId: NodeId]: NodeId
   }
   projectIdIndex: {
-    [nodeId: NodeId]: NodeId
-  }
-  parentComponentIdIndex: {
     [nodeId: NodeId]: NodeId
   }
   settings: Settings
@@ -283,13 +280,17 @@ export type Project = DB &
     nodes: SceneNode[]
     on: On
     useTree: (cb: (tree: SceneNode) => void) => Disposable
+    useUpdate: (id: string, cb: () => void) => Disposable
+    useComponent: (
+      id: string,
+      cb: (component: Components.NodeInterface) => void,
+    ) => Disposable
     get: (id: NodeId) => Components.NodeInterface
     getRoot: () => Components.NodeInterface
     getParent: (id: NodeId) => Components.NodeInterface
     getNode: (id: NodeId) => SceneNode
     getElement: TransformElementGetter
-    getParentComponent: (id: NodeId) => SceneNode
-    insertRoot: (props?: DataNode['props']) => Promise<NodeId>
+    insertRoot: (props?: DataNode['props']) => Promise<SceneNode>
     indexNode: (node: SceneNode, parentId: string) => void
     render: (settings: RenderSettings) => Disposable
     renderVirtualTree: () => SceneNode
@@ -345,9 +346,6 @@ export const start = (settings: Settings): CompositorInstance => {
   const projectIdIndex = {} as {
     [nodeId: NodeId]: NodeId
   }
-  const parentComponentIdIndex = {} as {
-    [nodeId: NodeId]: NodeId
-  }
   const parentIdIndex = {} as {
     [nodeId: NodeId]: NodeId
   }
@@ -365,8 +363,10 @@ export const start = (settings: Settings): CompositorInstance => {
     const debounced = Logic.debounce(cb, 0, { leading: false, trailing: true })
 
     const id = ++currentSubId
+
+    // @ts-ignore
+    debounced.nodeId = nodeId
     subscribers.set(id, debounced)
-    cb.nodeId = nodeId
 
     return () => {
       subscribers.delete(id)
@@ -380,6 +380,7 @@ export const start = (settings: Settings): CompositorInstance => {
   }
 
   const triggerEvent: Trigger = (event, payload) => {
+    log.debug('Compositor event: ' + event, payload)
     subscribers.forEach((handler) => {
       if (handler.nodeId) {
         if (payload?.nodeId && payload?.nodeId === handler.nodeId) {
@@ -412,7 +413,6 @@ export const start = (settings: Settings): CompositorInstance => {
     nodeIndex,
     parentIdIndex,
     projectIdIndex,
-    parentComponentIdIndex,
     settings,
     projects: projectIndex,
     subscribe,
@@ -506,28 +506,19 @@ export const start = (settings: Settings): CompositorInstance => {
       // TODO: Validate the scene tree
     }
 
-    const indexNode = (
-      node: SceneNode,
-      parentId?: string,
-      componentId?: string,
-    ) => {
+    const indexNode = (node: SceneNode, parentId?: string) => {
       nodeIndex[node.id] = node
       parentIdIndex[node.id] = parentId || parentIdIndex[node.id]
       projectIdIndex[node.id] = id
-      parentComponentIdIndex[node.id] =
-        componentId || parentComponentIdIndex[node.id]
 
       // Wrap the node to initialize its source management
       window.setTimeout(() => {
         sourceManager.wrap(node)
       })
 
-      if (node.props.componentChildren) {
-        node.props.componentChildren.forEach((x: SceneNode) =>
-          // Component ID will be passed down from the topmost component
-          indexNode(x, node.id, componentId || node.id),
-        )
-      }
+      node.children.forEach((x) => {
+        indexNode(x, node.id)
+      })
     }
 
     // Traverse root and index each node as SceneNode
@@ -541,7 +532,7 @@ export const start = (settings: Settings): CompositorInstance => {
     })
 
     const dbApi = {
-      insert: async (node, parentId, index = 0) => {
+      insert: (node, parentId, index = 0) => {
         if (node.id && nodeIndex[node.id]) return nodeIndex[node.id] // Already exists
         if (!node.children) {
           node.children = []
@@ -561,31 +552,23 @@ export const start = (settings: Settings): CompositorInstance => {
             node as SceneNode,
             parent.children || [],
           )
-          parentIdIndex[node.id] = parentId
-        } else {
+          indexNode(node as SceneNode, parentId)
+          triggerEvent('NodeChanged', {
+            nodeId: parentId,
+            projectId: project.id,
+          })
+        } else if (!root) {
           root = node as SceneNode
         }
 
-        // Add to nodeIndex/parentNodeIndex
-        nodeIndex[node.id] = node as SceneNode
-        projectIdIndex[node.id] = id
+        indexNode(node as SceneNode, parentId)
 
         triggerEvent('NodeAdded', { nodeId: node.id, projectId: project.id })
 
         return node.id
       },
-      update: async (id, props = {}, childIds) => {
-        // TODO: Validate by node/parent exist
-        // TODO: Validate props by types
+      update: (id, props = {}, children) => {
         const current = nodeIndex[id]
-
-        if (childIds) {
-          const children = childIds.map((x) => {
-            const node = nodeIndex[x]
-            return node
-          })
-          current.children = children
-        }
 
         // Update the node in memory
         current.props = {
@@ -597,18 +580,24 @@ export const start = (settings: Settings): CompositorInstance => {
           },
         }
 
-        // Re-index to ensure child/component nodes are indexed
-        if (props.componentChildren) {
-          indexNode(current)
+        if (children) {
+          current.children = children
+          indexNode(current, parentIdIndex[current.id])
         }
+
+        // Re-index to ensure child/component nodes are indexed
+        indexNode(current)
 
         triggerEvent('NodeChanged', { nodeId: id, projectId: project.id })
       },
-      remove: async (id) => {
+      remove: (id) => {
         const parent = nodeIndex[parentIdIndex[id]]
-        // TODO: Sometimes parent is undefined, though it shouldn't be
         if (parent) {
           parent.children = parent.children.filter((x) => x.id !== id)
+          triggerEvent('NodeChanged', {
+            nodeId: parent.id,
+            projectId: project.id,
+          })
         } else {
           root = null
         }
@@ -641,11 +630,15 @@ export const start = (settings: Settings): CompositorInstance => {
     const project = {
       id,
       settings: projectSettings,
-      on(event, cb) {
-        return on(event, (payload) => {
-          if (payload.projectId !== project.id) return
-          cb(payload)
-        })
+      on(event, cb, nodeId) {
+        return on(
+          event,
+          (payload) => {
+            if (payload.projectId !== project.id) return
+            cb(payload)
+          },
+          nodeId,
+        )
       },
       triggerEvent: (event, payload) => {
         return triggerEvent(event, { ...payload, projectId: project.id })
@@ -654,7 +647,7 @@ export const start = (settings: Settings): CompositorInstance => {
         const callback = debounce(
           () => {
             // Shallow-copy the object to break Object.is() check for frontend libraries
-            cb({...root})
+            cb({ ...root })
           },
           0,
           {
@@ -663,7 +656,19 @@ export const start = (settings: Settings): CompositorInstance => {
           },
         )
         callback()
-        return project.on('NodeChanged', callback)
+        const listeners = [project.on('NodeChanged', callback)]
+        return () => listeners.forEach((x) => x())
+      },
+      useUpdate: (id, cb) => {
+        return project.on('NodeChanged', () => cb(), id)
+      },
+      useComponent: (id, cb) => {
+        if (!id) return () => {}
+        const callback = () => {
+          cb(componentManager.getNodeInterface(id))
+        }
+        callback()
+        return project.on('NodeChanged', callback, id)
       },
       getRoot: () => root && componentManager.getNodeInterface(root.id),
       get(id) {
@@ -674,9 +679,6 @@ export const start = (settings: Settings): CompositorInstance => {
       },
       getParent(id) {
         return componentManager.getNodeInterface(parentIdIndex[id])
-      },
-      getParentComponent(id) {
-        return nodeIndex[parentComponentIdIndex[id]]
       },
       getElement: (node) => transformManager.getElement(node),
       render(settings) {
@@ -690,21 +692,16 @@ export const start = (settings: Settings): CompositorInstance => {
         projectIdIndex[node.id] = project.id
 
         let result = componentManager.renderVirtualNode(node)
-
-        // TODO: This will result in redundant NodeRemoved events for non-virtual nodes
-        compositor.lastRenderRemovedIds.forEach((x) =>
-          triggerEvent('NodeRemoved', {
-            projectId: project.id,
-            nodeId: x,
-          }),
-        )
         return result
       },
       local: dbApi,
-      insertRoot: (props = {}) => {
-        return project.insert({ ...props, isRoot: true })
+      insertRoot: (node) => {
+        return project.insert({
+          ...node,
+          props: { ...node.props, isRoot: true },
+        })
       },
-      insert: async (props = {}, parentId, index = 0) => {
+      insert: async (node, parentId, index = 0, id) => {
         if (!canEdit) return
         if (!parentId && root) {
           console.warn(
@@ -712,69 +709,36 @@ export const start = (settings: Settings): CompositorInstance => {
           )
           return
         }
-        if (parentId && !project.getParent(parentId)) {
+        const parent = project.get(parentId)
+        if (parentId && !parent) {
           console.warn('Cannot find parent node of ID', parentId)
           return
         }
-        // TODO: Validate by types (throw ValidationError)
-        // TODO: Validate by business rules (throw NotAllowedError)
-        const id = await projectDb.insert(props, parentId, index)
-        const node = {
-          id,
-          props,
-          children: [],
-        } as SceneNode
-        return dbApi.insert(node, parentId, index)
+
+        const finalNode = await projectDb.insert(node, parentId, index, id)
+        dbApi.insert(finalNode, parentId, index)
+        return node
       },
       update: async (id, props) => {
         if (!canEdit) return
-        await dbApi.update(id, props)
-        const componentNode = project.getParentComponent(id)
-
-        // If the node is not part of a component, update it directly
-        if (!componentNode) {
-          return projectDb.update(id, filterLocalSources(props))
-        } else {
-          // Update the component node
-          return project.update(
-            componentNode.id,
-            filterLocalSources(componentNode.props),
-          )
-        }
+        dbApi.update(id, props)
+        await projectDb.update(id, filterLocalSources(props))
       },
       remove: async (id) => {
         if (!canEdit) return
-        await dbApi.remove(id)
-        const parent = nodeIndex[parentIdIndex[id]]
-        const children = parent.children.filter((x) => x.id !== id)
-
-        // @ts-ignore
-        return projectDb.batch([
-          [
-            'delete',
-            {
-              id,
-            },
-          ],
-          [
-            'update',
-            {
-              ...parent,
-              children,
-            },
-          ],
-        ])
+        dbApi.remove(id)
+        projectDb.remove(id)
       },
       reorder: async (parentId: string, childIds: string[]) => {
         if (!canEdit) return
-        // TODO: Ensure childIds has the same exact IDs as it currently does
+        // TODO: Validate childIds to ensure it contains the same IDs as the node currently does
         const parent = nodeIndex[parentId]
-        parent.children = childIds.map((x) =>
+        const children = childIds.map((x) =>
           parent.children.find((y) => y.id === x),
         )
 
-        // @ts-ignore
-        return projectDb.batch([['update', parent]])
+        dbApi.update(parentId, parent.props, children)
+        return projectDb.reorder(parentId, childIds)
       },
       indexNode,
       compositor: compositor as CompositorInstance,
@@ -793,9 +757,10 @@ export const start = (settings: Settings): CompositorInstance => {
       (dbAdapter
         ? dbAdapter.db(project as Project)
         : ({
-            insert: () => Logic.generateId(),
+            insert: () => ({} as SceneNode),
             update: () => {},
             remove: () => {},
+            reorder: () => {},
           } as DB))
     projectDbMap[id] = projectDb
     projectIndex[id] = project as Project

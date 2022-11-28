@@ -2,11 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
+import { useCallback, useEffect, useReducer, useState } from 'react'
 import { Compositor } from '@api.stream/studio-kit'
 
 type NodeInterface = Compositor.Component.NodeInterface
@@ -32,6 +28,11 @@ export function useRenderRef(project: Compositor.Project) {
     })
   }, [])
   return renderContainer
+}
+
+export function useUpdate(nodeId: string, project: Compositor.Project) {
+  const [_, forceUpdate] = useReducer((x) => x + 1, 0)
+  useEffect(() => project.useUpdate(nodeId, forceUpdate), [nodeId])
 }
 
 type CopiedValue = string | null

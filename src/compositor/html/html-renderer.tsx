@@ -114,7 +114,13 @@ export const renderProject = (
   }
 
   const listeners = [
-    project.on('NodeChanged', ({ nodeId }) => {
+    project.on('NodeRemoved', () => {
+      debouncedRender()
+    }),
+    project.on('NodeAdded', () => {
+      debouncedRender()
+    }),
+    project.on('NodeChanged', () => {
       debouncedRender()
     }),
   ]

@@ -523,11 +523,13 @@ export const commands = (_project: ScenelessProject) => {
       if (!bannerContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'BannerContainer',
-            id: 'fg-banners',
-            layout: 'Column',
-            layoutProps: {
-              cover: true,
+            props: {
+              name: 'BannerContainer',
+              id: 'fg-banners',
+              layout: 'Column',
+              layoutProps: {
+                cover: true,
+              },
             },
           },
           foreground.id,
@@ -544,9 +546,11 @@ export const commands = (_project: ScenelessProject) => {
       if (!foregroundImageContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'ImageOverlay',
-            id: 'fg-image',
-            layout: 'Free',
+            props: {
+              name: 'ImageOverlay',
+              id: 'fg-image',
+              layout: 'Free',
+            },
           },
           foreground.id,
         )
@@ -564,14 +568,16 @@ export const commands = (_project: ScenelessProject) => {
       if (!foregroundOverlayContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'Overlay',
-            sourceType: 'Overlay',
-            id: 'overlay',
-            layout: 'Free',
-            style: {
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
+            props: {
+              name: 'Overlay',
+              sourceType: 'Overlay',
+              id: 'overlay',
+              layout: 'Free',
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              },
             },
           },
           foreground.id,
@@ -590,17 +596,19 @@ export const commands = (_project: ScenelessProject) => {
       if (!foregroundVideoContainer2) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'VideoOverlay2',
-            sourceType: 'Video2',
-            // this will enable to register a transfrom on another source
-            // doing so will enable to resume source
-            proxySource: 'Overlay',
-            id: 'video-overlay',
-            layout: 'Free',
-            style: {
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
+            props: {
+              name: 'VideoOverlay2',
+              sourceType: 'Video2',
+              // this will enable to register a transfrom on another source
+              // doing so will enable to resume source
+              proxySource: 'Overlay',
+              id: 'video-overlay',
+              layout: 'Free',
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              },
             },
           },
           foreground.id,
@@ -619,9 +627,11 @@ export const commands = (_project: ScenelessProject) => {
       if (!foregroundVideoContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'VideoOverlay',
-            id: 'fg-video',
-            layout: 'Free',
+            props: {
+              name: 'VideoOverlay',
+              id: 'fg-video',
+              layout: 'Free',
+            },
           },
           foreground.id,
         )
@@ -638,15 +648,17 @@ export const commands = (_project: ScenelessProject) => {
       if (!foregroundLogoContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'Logo',
-            layout: 'Free',
-            sourceType: 'Logo',
-            id: 'logo',
-            style: {
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              position: 'unset',
+            props: {
+              name: 'Logo',
+              layout: 'Free',
+              sourceType: 'Logo',
+              id: 'logo',
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+                position: 'unset',
+              },
             },
           },
           foreground.id,
@@ -664,18 +676,20 @@ export const commands = (_project: ScenelessProject) => {
       if (!backgroundContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'ImageBackground',
-            id: 'bg-image',
-            tagName: 'img',
-            sourceType: 'Element',
-            attributes: {
-              src: '',
-            },
-            fields: {
-              style: {
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
+            props: {
+              name: 'ImageBackground',
+              id: 'bg-image',
+              tagName: 'img',
+              sourceType: 'Element',
+              attributes: {
+                src: '',
+              },
+              fields: {
+                style: {
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                },
               },
             },
           },
@@ -694,16 +708,18 @@ export const commands = (_project: ScenelessProject) => {
       if (!backgroundImageContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'ImageBackground2',
-            sourceType: 'Image2',
-            proxySource: 'Background',
-            id: 'image-background',
-            layout: 'Free',
-            src: '',
-            style: {
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
+            props: {
+              name: 'ImageBackground2',
+              sourceType: 'Image2',
+              proxySource: 'Background',
+              id: 'image-background',
+              layout: 'Free',
+              src: '',
+              style: {
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              },
             },
           },
           background.id,
@@ -721,16 +737,18 @@ export const commands = (_project: ScenelessProject) => {
       if (!backgroundVideoContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'VideoBackground',
-            sourceType: 'Video2',
-            proxySource: 'Background',
-            id: 'video-background',
-            layout: 'Free',
-            style: {
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              objectFit: 'cover',
+            props: {
+              name: 'VideoBackground',
+              sourceType: 'Video2',
+              proxySource: 'Background',
+              id: 'video-background',
+              layout: 'Free',
+              style: {
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                objectFit: 'cover',
+              },
             },
           },
           background.id,
@@ -2084,15 +2102,17 @@ export const createCompositor = async (
 
   // TODO: Batch insert
   await project.insertRoot({
-    name: 'Root',
-    type: 'sceneless-project',
-    sourceType: 'Element',
-    layout: 'Layered',
-    size,
-    isRoot: true,
-    tagName: 'div',
-    fields: {
-      style: { background: 'black' },
+    props: {
+      name: 'Root',
+      type: 'sceneless-project',
+      sourceType: 'Element',
+      layout: 'Layered',
+      size,
+      isRoot: true,
+      tagName: 'div',
+      fields: {
+        style: { background: 'black' },
+      },
     },
   })
   const root = project.getRoot().toObject()
@@ -2101,27 +2121,33 @@ export const createCompositor = async (
   const baseLayers = await Promise.all([
     project.insert(
       {
-        name: 'Background',
-        id: 'bg',
-        layout: 'Free',
+        props: {
+          name: 'Background',
+          id: 'bg',
+          layout: 'Free',
+        },
       },
       root.id,
     ),
 
     project.insert(
       {
-        id: 'content',
-        name: 'Content',
-        layout,
-        layoutProps,
+        props: {
+          id: 'content',
+          name: 'Content',
+          layout,
+          layoutProps,
+        },
       },
       root.id,
     ),
     project.insert(
       {
-        id: 'foreground',
-        name: 'Overlays',
-        layout: 'Free',
+        props: {
+          id: 'foreground',
+          name: 'Overlays',
+          layout: 'Free',
+        },
       },
       root.id,
     ),
@@ -2133,75 +2159,87 @@ export const createCompositor = async (
   const baseForegroundLayers = await Promise.all([
     project.insert(
       {
-        name: 'ImageOverlay',
-        id: 'fg-image',
-        layout: 'Free',
-      },
-      foreground.id,
-    ),
-    project.insert(
-      {
-        name: 'Overlay',
-        sourceType: 'Overlay',
-        id: 'overlay',
-        layout: 'Free',
-        style: {
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
+        props: {
+          name: 'ImageOverlay',
+          id: 'fg-image',
+          layout: 'Free',
         },
       },
       foreground.id,
     ),
     project.insert(
       {
-        name: 'BannerContainer',
-        id: 'fg-banners',
-        // NOTE: This is not ideal - currently only using layout
-        //  "Column" for its built-in animations
-        layout: 'Column',
-        layoutProps: {
-          cover: true,
+        props: {
+          name: 'Overlay',
+          sourceType: 'Overlay',
+          id: 'overlay',
+          layout: 'Free',
+          style: {
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          },
         },
       },
       foreground.id,
     ),
     project.insert(
       {
-        name: 'VideoOverlay',
-        id: 'fg-video',
-        layout: 'Free',
-      },
-      foreground.id,
-    ),
-    project.insert(
-      {
-        name: 'VideoOverlay2',
-        layout: 'Free',
-        sourceType: 'Video2',
-        // this will enable to register a transfrom on another source
-        // doing so will enable to resume source
-        proxySource: 'Overlay',
-        id: 'video-overlay',
-        style: {
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
+        props: {
+          name: 'BannerContainer',
+          id: 'fg-banners',
+          // NOTE: This is not ideal - currently only using layout
+          //  "Column" for its built-in animations
+          layout: 'Column',
+          layoutProps: {
+            cover: true,
+          },
         },
       },
       foreground.id,
     ),
     project.insert(
       {
-        name: 'Logo',
-        layout: 'Free',
-        sourceType: 'Logo',
-        id: 'logo',
-        style: {
-          width: '100%',
-          height: '100%',
-          objectFit: 'contain',
-          position: 'unset',
+        props: {
+          name: 'VideoOverlay',
+          id: 'fg-video',
+          layout: 'Free',
+        },
+      },
+      foreground.id,
+    ),
+    project.insert(
+      {
+        props: {
+          name: 'VideoOverlay2',
+          layout: 'Free',
+          sourceType: 'Video2',
+          // this will enable to register a transfrom on another source
+          // doing so will enable to resume source
+          proxySource: 'Overlay',
+          id: 'video-overlay',
+          style: {
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          },
+        },
+      },
+      foreground.id,
+    ),
+    project.insert(
+      {
+        props: {
+          name: 'Logo',
+          layout: 'Free',
+          sourceType: 'Logo',
+          id: 'logo',
+          style: {
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            position: 'unset',
+          },
         },
       },
       foreground.id,
@@ -2215,14 +2253,34 @@ export const createCompositor = async (
   const baseBackgroundLayers = await Promise.all([
     project.insert(
       {
-        name: 'ImageBackground',
-        id: 'bg-image',
-        tagName: 'img',
-        sourceType: 'Element',
-        attributes: {
-          src: backgroundImage,
+        props: {
+          name: 'ImageBackground',
+          id: 'bg-image',
+          tagName: 'img',
+          sourceType: 'Element',
+          attributes: {
+            src: backgroundImage,
+          },
+          fields: {
+            style: {
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            },
+          },
         },
-        fields: {
+      },
+      background.id,
+    ),
+    project.insert(
+      {
+        props: {
+          name: 'ImageBackground2',
+          sourceType: 'Image2',
+          proxySource: 'Background',
+          id: 'image-background',
+          layout: 'Free',
+          src: backgroundImage,
           style: {
             width: '100%',
             height: '100%',
@@ -2234,31 +2292,17 @@ export const createCompositor = async (
     ),
     project.insert(
       {
-        name: 'ImageBackground2',
-        sourceType: 'Image2',
-        proxySource: 'Background',
-        id: 'image-background',
-        layout: 'Free',
-        src: backgroundImage,
-        style: {
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-        },
-      },
-      background.id,
-    ),
-    project.insert(
-      {
-        name: 'VideoBackground',
-        sourceType: 'Video2',
-        proxySource: 'Background',
-        id: 'video-background',
-        layout: 'Free',
-        style: {
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
+        props: {
+          name: 'VideoBackground',
+          sourceType: 'Video2',
+          proxySource: 'Background',
+          id: 'video-background',
+          layout: 'Free',
+          style: {
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          },
         },
       },
       background.id,

@@ -2,11 +2,11 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { insertAt, pull, toSceneTree } from '../logic'
-import { layerToNode, nodeToLayer, sceneNodeToLayer } from './data'
+import { generateId, insertAt, pull, toSceneTree } from '../logic'
 import { CoreContext, log } from './context'
 import { Compositor } from './namespaces'
 import { LayoutApiModel } from '@api.stream/sdk'
+import { SceneNode } from './types'
 
 export type BatchItem = LayoutApiModel.BatchLayerRequest_BatchItem
 export type Batch = BatchItem[]
@@ -59,11 +59,11 @@ export const compositorAdapter: Compositor.DBAdapter = {
     const layoutId = project.id
 
     return {
-      async insert(props = {}, parentId, index) {
+      async insert(node, parentId, index) {
         // Convert the data to Layer schema
         const layer = nodeToLayer({
           id: null,
-          props,
+          props: node.props,
           childIds: [],
         })
 
@@ -114,7 +114,11 @@ export const compositorAdapter: Compositor.DBAdapter = {
           await CoreContext.clients.LayoutApi().layer.updateLayer(update)
         }
 
-        return String(result.id)
+        return {
+          id: result.id,
+          props: node.props || {},
+          children: node.children || [],
+        }
       },
       async update(id, props = {}, replaceAll = false) {
         const node = project.getNode(id)
@@ -148,42 +152,26 @@ export const compositorAdapter: Compositor.DBAdapter = {
         await CoreContext.clients.LayoutApi().layer.updateLayer(update)
       },
       async remove(id) {
-        const parentNode = await project.getParent(id)
-        if (parentNode) {
-          // Convert the parent to Layer schema
-          const parent = sceneNodeToLayer(parentNode)
-          const children = parent.children.filter((x) => x !== id)
-
-          const update = {
-            layoutId,
-            layerId: parent.id,
-            layer: {
+        const parent = project.getParent(id).toObject()
+        const children = parent.children.filter((x) => x.id !== id)
+        const layerBatch = [
+          [
+            'delete',
+            {
+              id,
+            } as SceneNode,
+          ],
+          [
+            'update',
+            {
+              ...parent,
               children,
-              requestMetadata: {
-                connectionId,
-                layoutId,
-                updateVersions: {
-                  [parent.id]: getNextNodeVersion(parent.id),
-                },
-              },
-            },
-          }
-
-          // Update the parent
-          await CoreContext.clients.LayoutApi().layer.updateLayer(update)
-        }
-
-        // Update the database
-        await CoreContext.clients.LayoutApi().layer.deleteLayer({
-          layoutId,
-          layerId: id,
-          payload: {
-            requestMetadata: {
-              connectionId,
-              layoutId,
-            },
-          },
-        })
+            } as SceneNode,
+          ],
+          // @ts-ignore
+        ].map(([type, node]) => [type, sceneNodeToLayer(node)] as Action)
+        await request(layoutId, layerBatch)
+        return
       },
       // @ts-ignore
       async reorder(id, childIds) {
@@ -312,4 +300,43 @@ export const compositorAdapter: Compositor.DBAdapter = {
     const tree = rootNode ? toSceneTree(dataNodes, rootNode.id) : null
     return tree
   },
+}
+
+export const sceneNodeToLayer = (
+  node: Partial<Compositor.SceneNode>,
+): LayoutApiModel.Layer => {
+  const { id, props = {}, children = [] } = node
+  return {
+    ...(id ? { id } : {}),
+    type: props.type,
+    data: {
+      ...props,
+    },
+    children: children.map((x) => x.id),
+  } as LayoutApiModel.Layer
+}
+
+export const nodeToLayer = (
+  node: Compositor.DataNode,
+): LayoutApiModel.Layer => {
+  return {
+    id: node.id,
+    type: node.props.type,
+    data: {
+      ...node.props,
+    },
+    children: node.childIds.map((x) => x),
+  } as LayoutApiModel.Layer
+}
+
+export const layerToNode = (
+  layer: LayoutApiModel.Layer,
+): Compositor.DataNode => {
+  return {
+    id: String(layer.id),
+    props: {
+      ...layer.data,
+    },
+    childIds: layer.children.map((x) => String(x)),
+  }
 }

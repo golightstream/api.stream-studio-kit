@@ -198,20 +198,26 @@ export const createLayout = async (request: {
 
   const component = CoreContext.compositor.components.getComponent(type)
   if (component) {
-    const tempNode = CoreContext.compositor.components.createTempComponent(
-      type,
-      settings.props,
-    )
     const project = CoreContext.compositor.components.createTempComponent(
       'Project',
       {},
       settings.sources,
-      [tempNode],
+    )
+    const tempNode = CoreContext.compositor.components.createTempComponent(
+      type,
+      settings.props,
     )
     await compositorProject.insertRoot({
-      ...project.props,
-      size,
+      props: {
+        ...project.props,
+        size,
+      },
     })
+    await compositorProject.getRoot().updateNode({
+      layout: 'Free',
+      layoutProps: {},
+    })
+    await compositorProject.getRoot().insertChild(tempNode)
   } else if (type === 'sceneless') {
     // @deprecated - Use settings.type="ScenelessProject"
     await Helpers.ScenelessProject.createCompositor(
@@ -221,10 +227,12 @@ export const createLayout = async (request: {
     )
   } else {
     await compositorProject.insertRoot({
-      layout: 'Free',
-      ...settings,
-      isRoot: true,
-      size,
+      props: {
+        layout: 'Free',
+        ...settings,
+        isRoot: true,
+        size,
+      },
     })
   }
 
