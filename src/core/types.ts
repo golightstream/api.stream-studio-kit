@@ -832,6 +832,11 @@ export type Disposable = () => void
  */
 export type Props = { [prop: string]: any }
 
+export const enum VideoRole {
+  Intro = 'intro',
+  Outro = 'outro',
+}
+
 export type LogLevel = 'Debug' | 'Info' | 'Warn' | 'Error'
 
 export interface IframeProps {

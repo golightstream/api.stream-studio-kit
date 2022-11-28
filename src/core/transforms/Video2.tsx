@@ -12,6 +12,7 @@ import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
 import { hasPermission, Permission } from '../../helpers/permission'
 import { Overlay } from '../sources/Overlays'
+import { VideoRole } from '../types'
 
 interface ISourceMap {
   sourceType: string
@@ -59,6 +60,10 @@ export const Video2 = {
       type: String,
       required: true,
     },
+    videoRole: {
+      type: String,
+      required: false,
+    },
   },
   useSource(sources, props) {
     return sources.find((x) => x.props.type === props.id)
@@ -75,32 +80,47 @@ export const Video2 = {
     let source: any
     let interval: NodeJS.Timer
 
-    const Video = ({ source }: { source: any }) => {
+    // intro / outro designated by videoRole
+    const Video = (everything: { source: any }) => {
       const SourceTrigger = SourceTriggerMap.find(
         (x) => x.sourceType === initialProps.proxySource,
       )
+      const { source } = everything
       const { src, type, meta, loop } = source?.value || {}
+      const props = source?.props
       const { id } = source || {}
-      const isOutro = source?.props?.isOutro ?? false
+      const videoRole: VideoRole = source?.props?.videoRole
 
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
       console.log('Updated current time', videoRef?.current?.currentTime)
 
+      // We show video initially unless it is an intro video and we are not on the renderer, in which case we wait for the broadcast to start before showing the video
+      const initialShowVideo = React.useMemo(() => {
+        const value = videoRole !== VideoRole.Intro || role === SDK.Role.ROLE_RENDERER
+        return value
+      }, [props])
+      // When showVideo is false, layer will just be plain black
+      // (This is good for outros and intros)
+      const [showVideo, setShowVideo] = React.useReducer(showVideoReducer, initialShowVideo)
+
+      React.useEffect(() => {
+        setShowVideo(initialShowVideo)
+      }, [initialShowVideo])
+
       /* A callback function that is called when the video element is created. */
       const handleRect = React.useCallback((node: HTMLVideoElement) => {
-        videoRef.current = node
-        setRefId(node ? node.id : null)
-      }, [])
-      // When showVideo is false, layer will just be plain black
-      // (This is good for outros)
-      const [showVideo, setShowVideo] = React.useReducer(showVideoReducer, true)
+        if (showVideo) {
+          videoRef.current = node
+          setRefId(node ? node.id : null)
+        }
+      }, [showVideo])
 
       React.useEffect(() => {
         // Do this when broadcast ends, or else this layer will remain black
         return on('BroadcastStopped', (payload) => {
+          console.log('broadcast stopped!')
           if (payload.projectId === CoreContext.state.activeProjectId) {
-            const project = CoreContext.state.projects.find(p => p.id === CoreContext.state.activeProjectId)
             if (role !== SDK.Role.ROLE_RENDERER) {
               setShowVideo(true)
             }
@@ -108,9 +128,27 @@ export const Video2 = {
         })
       })
 
+      React.useEffect(() => {
+        return room.onData((data) => {
+          // Start video when we receive signal from renderer
+          // This prevents situation where intro video cuts out too early.
+          if (data.type === 'StartVideo' && data.id === id && role !== SDK.Role.ROLE_RENDERER) {
+            setShowVideo(true)
+          }
+        })
+      })
+
       /* A callback function that is called when the video element is loaded. */
       const onLoadedData = React.useCallback(() => {
+        // Send "start" signal over to webrtc ws connection so that other parties know to start the video
         if (videoRef?.current) {
+          if (role === SDK.Role.ROLE_RENDERER) {
+            const data = {
+              type: 'StartVideo',
+              id: id,
+            }
+            room.sendData(data)
+          }
           videoRef.current!.play().catch(() => {
             videoRef.current.muted = true
             videoRef.current?.play()
@@ -123,10 +161,21 @@ export const Video2 = {
         if (interval) {
           clearInterval(interval)
         }
+        const project = CoreContext.state.projects[0]
+        const sceneNode = CoreContext.state.projects[0].compositor.getRoot()
         // If video is an outro, stop the broadcast and remove the video from the renderer
-        if (isOutro) {
-          const project = CoreContext.state.projects[0]
-          const sceneNode = CoreContext.state.projects[0].compositor.getRoot()
+        if (videoRole === VideoRole.Intro && sceneNode?.props?.type === 'scneless-project') {
+          if (role === SDK.Role.ROLE_RENDERER) {
+            const newForegroundOverlays = newOverlays(project, id)
+            CoreContext.Command.updateProjectProps({
+              projectId: CoreContext.state.activeProjectId,
+              props: {
+                overlays: newForegroundOverlays,
+              },
+            })
+          }
+        }
+        if (videoRole === VideoRole.Outro) {
 
           // TODO: perhaps define behavior for non-sceneless projects
           if (sceneNode?.props?.type === 'sceneless-project') {
@@ -162,7 +211,7 @@ export const Video2 = {
             }
           }
         }
-        trigger('VideoEnded', { id: id, category: type })
+        trigger('VideoEnded', { id: id, category: type, videoRole })
       }, [src])
 
       /* Checking if the video is playing and if the user has permission to manage self and if the guest is

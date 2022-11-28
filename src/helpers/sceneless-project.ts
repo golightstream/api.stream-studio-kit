@@ -40,6 +40,7 @@
 import { LogoProps } from './../core/sources/Logo'
 import { Background, BackgroundProps } from './../core/sources/Background'
 import { Overlay, OverlayProps } from './../core/sources/Overlays'
+import { VideoRole } from '../core/types'
 import { CoreContext } from '../core/context'
 import { getProject, getProjectRoom } from '../core/data'
 import { SDK, Compositor } from '../core/namespaces'
@@ -1598,7 +1599,7 @@ export const commands = (_project: ScenelessProject) => {
 
     async addVideoOverlay2(
       overlayId: string,
-      props: OverlayProps & HTMLVideoElementAttributes = {},
+      props: OverlayProps & { videoRole?: VideoRole } & HTMLVideoElementAttributes = {},
     ) {
       const existingOverlays = commands.getOverlays()
       const overlay = existingOverlays.find((x) => x.id === overlayId)

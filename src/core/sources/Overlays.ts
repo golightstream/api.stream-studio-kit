@@ -6,12 +6,15 @@ import { deepEqual } from '../../logic'
 import { CoreContext } from '../context'
 import { getProject } from '../data'
 import { Compositor, SDK } from '../namespaces'
+import { VideoRole } from '../types'
 
 type SourceDeclaration = Compositor.Source.SourceDeclaration
 
 export type OverlayProps = {
   src? :string
   type? : 'video-overlay' | 'overlay'
+  /** only needed on intro/outro video overlays */
+  videoRole?: VideoRole
   // Opaque to the SDK
   [prop: string]: any
 }

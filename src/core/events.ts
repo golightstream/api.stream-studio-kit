@@ -288,6 +288,7 @@ export interface ExternalEventMap {
   VideoEnded: {
     id: string
     category: string
+    videoRole?: string
   }
 }
 
