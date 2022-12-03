@@ -328,7 +328,6 @@ const Bottom = () => {
 }
 
 export const HostView = () => {
-  const { studio, project, room, setProject, setRoom, setStudio } = useStudio()
   const [token, setToken] = useState<string>(localStorage['token'])
   const [failure, setFailure] = useState<string>(null)
   const [projectType, setProjectType] = useState<keyof typeof projects>(
@@ -361,36 +360,6 @@ export const HostView = () => {
     //  associated with it (e.g. guest view)
     setProject(studio.initialProject)
   }, [studio])
-
-  useEffect(() => {
-    if (!token || !studio || project) return
-    // Log in
-    studio
-      .load(token)
-      .then(async (user) => {
-        // If there's a project, return it - otherwise create one
-        let project = user.projects[0]
-        if (!project) {
-          project = await studio.Command.createProject({
-            settings: projects[projectType].settings,
-          })
-        }
-        const activeProject = await studio.Command.setActiveProject({
-          projectId: project.id,
-        })
-        const room = await activeProject.joinRoom({
-          displayName: localStorage.userName,
-        })
-
-        setRoom(room)
-        setProject(activeProject)
-      })
-      .catch((e) => {
-        console.warn(e)
-        setToken(null)
-        localStorage.removeItem('token')
-      })
-  }, [studio, token])
 
   useEffect(() => {
     if (room) {
