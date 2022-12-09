@@ -1,6 +1,6 @@
 {
   "name": "@api.stream/studio-kit",
-  "version": "1.1.54",
+  "version": "1.1.55",
   "description": "Client SDK for building studio experiences with API.stream",
   "license": "MIT",
   "private": false,
@@ -90,8 +90,8 @@
     "vite": "^2.7.12"
   },
   "peerDependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": ">=17.0.2",
+    "react-dom": ">=17.0.2"
   },
   "env": {
     "NODE_ENV": "prod"
