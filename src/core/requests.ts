@@ -144,7 +144,7 @@ export const loadUser = async (size?: {
 
   // Take the Vapi Project and hydrate it with Compositor and Lapi project details
   const projects = await Promise.all(
-    collection.projects.map((project) =>
+    collection.projects.filter((p) => Boolean(p.metadata?.layoutId)).map((project) =>
       hydrateProject(project, 'ROLE_HOST' as Role, size),
     ),
   )
