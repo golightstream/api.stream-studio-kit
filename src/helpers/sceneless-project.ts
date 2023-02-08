@@ -686,6 +686,7 @@ export const commands = (_project: ScenelessProject) => {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
+                opacity: 0
               },
             },
           },
@@ -1125,6 +1126,7 @@ export const commands = (_project: ScenelessProject) => {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
+                opacity: 1,
               },
             },
           },
@@ -1729,7 +1731,7 @@ export const commands = (_project: ScenelessProject) => {
         null) as Background
       if (exisitingBackground) {
         if (exisitingBackground.id === backgroundId) {
-          return Command.updateProjectProps({
+          return await Command.updateProjectProps({
             projectId,
             props: {
               background: exisitingBackground,
@@ -1749,7 +1751,7 @@ export const commands = (_project: ScenelessProject) => {
         },
       }
 
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           background: newBackground,
@@ -2307,6 +2309,7 @@ export const createCompositor = async (
             width: '100%',
             height: '100%',
             objectFit: 'cover',
+            opacity : 0
           },
         },
       },
