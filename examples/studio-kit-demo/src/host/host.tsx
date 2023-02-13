@@ -392,15 +392,13 @@ const Project = () => {
                       key={overlay.id}
                       onClick={() => {
                         if (overlay.props.type === 'video') {
-                          projectCommands.setVideoOverlay(
-                            overlay.id,
-                            overlay.props.src,
-                          )
+                          projectCommands.setVideoOverlay(overlay.id, {
+                            ...overlay.props,
+                          })
                         } else if (overlay.props.type === 'image') {
-                          projectCommands.setImageOverlay(
-                            overlay.id,
-                            overlay.props.src,
-                          )
+                          projectCommands.setImageOverlay(overlay.id, {
+                            ...overlay.props,
+                          })
                         } else {
                           projectCommands.setCustomOverlay(overlay.id, {
                             src: overlay.props.src,
@@ -654,15 +652,13 @@ const Project = () => {
                   defaultValue={background.id}
                   onClick={(e) => {
                     if (background.props.type === 'image') {
-                      projectCommands.setBackgroundImage(
-                        background.id,
-                        background.props.src,
-                      )
+                      projectCommands.setBackgroundImage(background.id, {
+                        ...background.props,
+                      })
                     } else {
-                      projectCommands.setBackgroundVideo(
-                        background.id,
-                        background.props.src,
-                      )
+                      projectCommands.setBackgroundVideo(background.id, {
+                        ...background.props,
+                      })
                     }
                   }}
                 />
