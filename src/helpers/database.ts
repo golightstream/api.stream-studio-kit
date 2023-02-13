@@ -301,16 +301,38 @@ const allowedSourceTypes = [
   'Square',
 ]
 
+function validateEachChildren(children: Compositor.SceneNode[]) {
+  let isValid = true
+  children.forEach((child) => {
+    if (!allowedSourceTypes.includes(child.props.sourceType)) {
+      isValid = false
+    } else {
+      if (child.children.length > 0) {
+        isValid = isValid && validateEachChildren(child.children)
+      }
+    }
+  })
+  return isValid
+}
+
 const checkIsBackgroundValid = (root: Compositor.SceneNode) => {
   const background = root.children.find(
     (node: any) => node.props.id === 'background',
   )
   if (!background) return false
   if (background.children.length) {
-    const checkInvalidSourceType = background.children.some((node: any) => {
-      allowedSourceTypes.includes(node.props.sourceType)
-    })
-    if (checkInvalidSourceType) return false
+    return validateEachChildren(background.children)
+  }
+  return true
+}
+
+const checkIsForegroundValid = (root: Compositor.SceneNode) => {
+  const foreground = root.children.find(
+    (node: any) => node.props.id === 'foreground',
+  )
+  if (!foreground) return false
+  if (foreground.children.length) {
+    return validateEachChildren(foreground.children)
   }
   return true
 }
@@ -320,7 +342,7 @@ export const migrateLayout = async (
   root: Compositor.SceneNode,
 ): Promise<{ project: SDK.Project; internalProject: InternalProject }> => {
   if (root) {
-    if (!checkIsBackgroundValid(root)) {
+    if (!checkIsBackgroundValid(root) || !checkIsForegroundValid(root)) {
       return await CoreContext.Command.recreateLayout({ projectId: project })
     }
   }
