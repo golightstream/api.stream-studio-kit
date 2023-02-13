@@ -78,7 +78,7 @@ const addingCache = {
 
 export type ParticipantType = 'camera' | 'screen'
 
-interface ScenelessProject extends SDK.Project {}
+export interface ScenelessProject extends SDK.Project {}
 
 // Note: Assume project is a valid sceneless project
 // Note: In the future commands will be returned by an argument of SceneNode
@@ -545,7 +545,7 @@ export const commands = (_project: ScenelessProject) => {
   const projectId = _project.id
   const root = _project.scene.getRoot()
   const { Command } = CoreContext
-
+  
   const background = root.children.find((x) => x.props.id === 'background')
   const content = root.children.find((x) => x.props.id === 'content')
   const foreground = root.children.find((x) => x.props.id === 'foreground')
@@ -2501,6 +2501,7 @@ export const commands = (_project: ScenelessProject) => {
   ensureValid()
 
   return commands
+
 }
 
 export type LayoutProps = {

@@ -1,3 +1,4 @@
+import { runMigrations } from './../helpers/database';
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -529,7 +530,6 @@ const load = async (
 
   // Load the projects and user data
   const result = await CoreContext.Request.loadUser(size)
-
   // TODO: Move to UserLoaded event handler
   setAppState({
     user: result.user,
@@ -539,6 +539,7 @@ const load = async (
   })
 
   user = getBaseUser()
+  //await runMigrations(user.projects[0])
   trigger('UserLoaded', user)
   return user
 }
