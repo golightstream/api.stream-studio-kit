@@ -3,7 +3,7 @@ import { runMigrations } from './../helpers/database'
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { CoreContext, setAppState, log } from './context'
+import { CoreContext, setAppState, log, InternalProject } from './context'
 import { omit, toDataNode, toSceneTree } from '../logic'
 import { ApiStream, LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
 import { compositorAdapter, latestUpdateVersion } from './compositor-adapter'
@@ -540,10 +540,21 @@ const load = async (
 
   user = getBaseUser()
   if (result.projects.length) {
-    await runMigrations(
+    const { internalProject } = await runMigrations(
       result.projects[0].id,
       result.projects[0].compositor.getRoot(),
     )
+    const updatedProjects = result.projects.map((x: InternalProject) => {
+      if (x.id !== internalProject.id) return x
+      return internalProject
+    })
+
+    setAppState({
+      projects: updatedProjects,
+      user: result.user,
+      sources: result.sources,
+      activeProjectId: null,
+    })
   }
   trigger('UserLoaded', user)
   return user

@@ -1,5 +1,5 @@
-import { Compositor } from '../core'
-import CoreContext from '../core/context'
+import { Compositor, SDK } from '../core'
+import CoreContext, { InternalProject } from '../core/context'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -318,10 +318,8 @@ const checkIsBackgroundValid = (root: Compositor.SceneNode) => {
 export const runMigrations = async (
   project: string,
   root: Compositor.SceneNode,
-) => {
-  
+): Promise<{ project: SDK.Project; internalProject: InternalProject }> => {
   if (!checkIsBackgroundValid(root)) {
-    await CoreContext.Command.recreateLayout({ projectId: project })
-    await CoreContext.Command.setActiveProject({ projectId: project })
+    return await CoreContext.Command.recreateLayout({ projectId: project })
   }
 }
