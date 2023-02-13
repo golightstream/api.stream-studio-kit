@@ -15,6 +15,8 @@ import ReCAPTCHA from 'react-google-recaptcha'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { Banner } from '../../../../types/src/helpers/sceneless-project'
+import { Background } from '@api.stream/studio-kit/types/src/core/sources/Background'
+import { Overlay } from '../../../../types/src/core/sources/Overlays'
 
 const { ScenelessProject } = Helpers
 const { useStudio } = Helpers.React
@@ -144,24 +146,25 @@ const Project = () => {
   const [isLive, setIsLive] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [selectedImage, setSelectedImage] = useState(null)
-  const [banners, setBanners] = React.useState<Banner[]>(
-    studio.compositor.getSources('Banner'),
-  )
-
+  const [banners, setBanners] = React.useState<any[]>([])
+  const [backgrounds, setBackgrounds] = React.useState<any[]>([])
+  const [overlays, setOverlays] = React.useState<any[]>([])
   const [projectedLoaded, setProjectedLoaded] = useState(false)
   // Get custom layout name from metadata we store
   const layout = project.props.layout
   const background = projectCommands.getBackgroundMedia()
   const overlay = projectCommands.getImageOverlay()
 
-  const overlays = [
+  const imageoverlays = [
     {
       id: '123',
       url: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
+      type: 'image',
     },
     {
       id: '124',
       url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
+      type: 'image',
     },
   ]
 
@@ -180,14 +183,32 @@ const Project = () => {
     {
       id: '125',
       url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4',
+      type: 'video',
     },
     {
       id: '126',
       url: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
+      type: 'video',
     },
     {
       id: '127',
       url: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
+      type: 'video',
+    },
+  ]
+
+  const customOverlays = [
+    {
+      id: '112',
+      url: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
+      width: 1920,
+      height: 1080,
+    },
+    {
+      id: '113',
+      url: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
+      width: 1280,
+      height: 720,
     },
   ]
 
@@ -203,6 +224,39 @@ const Project = () => {
   }, [])
 
   useEffect(() => {
+    if (project) {
+      Helpers.ScenelessProject.commands(project).useProp(
+        'backgrounds',
+        setBackgrounds,
+      )
+      Helpers.ScenelessProject.commands(project).useProp(
+        'overlays',
+        setOverlays,
+      )
+    }
+  }, [project])
+
+  // useEffect(() => {
+  //   return studio.subscribe((event, payload) => {
+  //     if (event === 'ActiveProjectChanged') {
+  //       Helpers.ScenelessProject.commands(project).useProp(
+  //         'backgrounds',
+  //         setBackgrounds,
+  //       )
+
+  //       //studio.Command.useProp(propName, setProp)
+  //       //  setProjectedLoaded(true)
+  //     }
+  //     if (event === 'ProjectChanged') {
+  //       Helpers.ScenelessProject.commands(project).useProp(
+  //         'backgrounds',
+  //         setBackgrounds,
+  //       )
+  //     }
+  //   })
+  // })
+
+  useEffect(() => {
     studio.compositor.subscribe((event, payload) => {
       if (event === 'VideoTimeUpdate') {
         console.log(payload)
@@ -210,7 +264,11 @@ const Project = () => {
     })
   }, [])
 
-  React.useEffect(() => studio.compositor.useSources('Banner', setBanners), [])
+  // React.useEffect(() => {
+  //   studio.compositor.useSources('Banner', setBanners)
+  //   studio.compositor.useSources('Background', setBackgrounds)
+  //   studio.compositor.useSources('Overlay', setOverlays)
+  // }, [])
   // Generate project links
   useEffect(() => {
     studio.createPreviewLink().then(setPreviewUrl)
@@ -306,53 +364,173 @@ const Project = () => {
         >
           <div>
             <span>
-              Overlays
+              <input
+                type="button"
+                value="Remove Image overlay"
+                onClick={async () => {
+                  await projectCommands.removeImageOverlay()
+                }}
+              ></input>
+              <input
+                type="button"
+                value="Remove Video overlay"
+                onClick={async () => {
+                  await projectCommands.removeVideoOverlay()
+                }}
+              ></input>
+              <input
+                type="button"
+                value="Remove Custom overlay"
+                onClick={async () => {
+                  await projectCommands.removeCustomOverlay()
+                }}
+              ></input>
               <ul style={{ listStyle: 'none' }}>
                 {overlays.map((overlay) => (
-                  <li
-                    key={overlay.id}
-                    onClick={() => {
-                      if (selectedImage !== overlay.id) {
-                        setSelectedImage(overlay.id)
-                        projectCommands.addImageOverlay2(overlay.id, {
-                          src: overlay.url,
-                        })
-                      } else {
-                        projectCommands.removeImageOverlay2(selectedImage)
-                        setSelectedImage(null)
-                      }
-                    }}
-                  >
-                    <img width="40px" height="50px" src={overlay.url} />
-                  </li>
+                  <>
+                    <li
+                      key={overlay.id}
+                      onClick={() => {
+                        if (overlay.props.type === 'video') {
+                          projectCommands.setVideoOverlay(
+                            overlay.id,
+                            overlay.props.src,
+                          )
+                        } else if (overlay.props.type === 'image') {
+                          projectCommands.setImageOverlay(
+                            overlay.id,
+                            overlay.props.src,
+                          )
+                        } else {
+                          projectCommands.setCustomOverlay(overlay.id, {
+                            src: overlay.props.src,
+                            height: 1080,
+                            width: 1920,
+                          })
+                        }
+                      }}
+                    >
+                      {overlay.props.type === 'image' && (
+                        <img
+                          width="40px"
+                          height="50px"
+                          src={overlay.props.src}
+                        />
+                      )}
+                      {overlay.props.type === 'video' && (
+                        <video
+                          width="40px"
+                          height="50px"
+                          src={overlay.props.src}
+                        />
+                      )}
+                      {overlay.props.type === 'custom' && (
+                        <input type="button" value={overlay.id} />
+                      )}
+                    </li>
+                  </>
                 ))}
               </ul>
+              Image Overlays
+              <input
+                type="button"
+                value="Add overlay image"
+                onClick={async (e) => {
+                  await studio.Command.updateProjectProps({
+                    projectId: project.id,
+                    props: {
+                      overlays: [
+                        ...overlays,
+                        ...[
+                          {
+                            id: 7830,
+                            props: {
+                              src: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
+                              type: 'image',
+                            },
+                          },
+                          {
+                            id: 7321,
+                            props: {
+                              src: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
+                              type: 'image',
+                            },
+                          },
+                        ],
+                      ],
+                    },
+                  })
+                }}
+              />
             </span>
           </div>
           <div>
             <span>
               Video clips
-              <ul style={{ listStyle: 'none' }}>
-                {videooverlays.map((overlay) => (
-                  <li
-                    key={overlay.id}
-                    onClick={() => {
-                      if (selectedVideo !== overlay.id) {
-                        setSelectedVideo(overlay.id)
-                        projectCommands.addVideoOverlay2(overlay.id, {
-                          src: overlay.url,
-                          loop: true,
-                        })
-                      } else {
-                        projectCommands.removeVideoOverlay2(selectedVideo)
-                        setSelectedVideo(null)
-                      }
-                    }}
-                  >
-                    <video width="40px" height="50px" src={overlay.url} />
-                  </li>
-                ))}
-              </ul>
+              <input
+                type="button"
+                value="Add overlay video"
+                onClick={async (e) => {
+                  await studio.Command.updateProjectProps({
+                    projectId: project.id,
+                    props: {
+                      overlays: [
+                        ...overlays,
+                        ...[
+                          {
+                            id: 7830,
+                            props: {
+                              src: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4',
+                              type: 'video',
+                            },
+                          },
+                          {
+                            id: 7321,
+                            props: {
+                              src: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
+                              type: 'video',
+                            },
+                          },
+                        ],
+                      ],
+                    },
+                  })
+                }}
+              />
+            </span>
+            <span>
+              Custom Overlay clips
+              <input
+                type="button"
+                value="Add custom overlay"
+                onClick={async (e) => {
+                  await studio.Command.updateProjectProps({
+                    projectId: project.id,
+                    props: {
+                      overlays: [
+                        ...overlays,
+                        ...[
+                          {
+                            id: 112,
+
+                            props: {
+                              src: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
+                              type: 'custom',
+                            },
+                          },
+                          {
+                            id: 113,
+                            props: {
+                              src: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
+                              type: 'custom',
+                            },
+                          },
+                        ],
+                      ],
+                    },
+                  })
+                }}
+              />
             </span>
           </div>
           <div>
@@ -408,22 +586,88 @@ const Project = () => {
               onChange={(e) => {
                 if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(e.target.value)) {
                   //          projectCommands.setBackgroundImage(e.target.value)
-                  projectCommands.setBackgroundImage2(generateId(), {
-                    src: e.target.value,
-                  })
+                  //     projectCommands.setActiveBackground('123')
                 } else {
                   //            projectCommands.setBackgroundVideo(e.target.value)
                   // projectCommands.setBackgroundVideo2(generateId(), {
                   //   src: e.target.value,
                   // })
-                  projectCommands.addCustomOverlay(generateId(), {
-                    src: e.target.value,
-                    width: '1920px',
-                    height: '1080px',
-                  })
+                  //  projectCommands.setBackgroundImage('')
+                  // projectCommands.addCustomOverlay(generateId(), {
+                  //   src: e.target.value,
+                  //   width: '1920px',
+                  //   height: '1080px',
+                  // })
                 }
               }}
             />
+          </div>
+          <div className={Style.column}>
+            <label>add Background Image</label>
+            <input
+              type="button"
+              defaultValue={background}
+              onClick={async (e) => {
+                studio.Command.updateProjectProps({
+                  projectId: project.id,
+                  props: {
+                    backgrounds: [
+                      {
+                        id: 7834,
+                        props: {
+                          src: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
+                          type: 'image',
+                        },
+                      },
+                      {
+                        id: 7324,
+                        props: {
+                          src: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
+                          type: 'video',
+                        },
+                      },
+                    ],
+                  },
+                })
+                // await projectCommands.addBackground({
+                //   src: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
+                //   type: 'image',
+                // })
+                // await projectCommands.addBackground({
+                //   src: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
+                //   type: 'video',
+                // })
+                // await projectCommands.addBackground({
+                //   src: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4',
+                //   type: 'video',
+                // })
+                // await projectCommands.addBackground({
+                //   src: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
+                //   type: 'image',
+                // })
+              }}
+            />
+            {backgrounds.map((background) => (
+              <div>
+                <input
+                  type="button"
+                  defaultValue={background.id}
+                  onClick={(e) => {
+                    if (background.props.type === 'image') {
+                      projectCommands.setBackgroundImage(
+                        background.id,
+                        background.props.src,
+                      )
+                    } else {
+                      projectCommands.setBackgroundVideo(
+                        background.id,
+                        background.props.src,
+                      )
+                    }
+                  }}
+                />
+              </div>
+            ))}
           </div>
           <div className={Style.column}>
             <label>CHat Overlay</label>

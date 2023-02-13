@@ -29,7 +29,7 @@ export type TransformElement = TransformElementBase & {
   role: string
   nodeId: string
   sourceType: string
-  proxySource: string
+  sourceProxy: string
   transformName: string
   // The source currently in use by the element
   source?: Source

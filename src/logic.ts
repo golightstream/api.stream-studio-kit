@@ -28,7 +28,6 @@ import deepEqual from 'fast-deep-equal'
 
 export { deepEqual }
 
-
 // Note: Not reliable for matters of security
 export const generateId = () => (Math.random() * 1e20).toString(36)
 
@@ -199,6 +198,6 @@ export const asDuration = (x: string | number | null) => {
   return '0ms'
 }
 
+
 /** Convert a Map to an array of its values */
 export const values = <T>(map: Map<any, T>) => Array.from(map.values())
-

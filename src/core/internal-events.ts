@@ -13,7 +13,7 @@ import {
 import { InternalEventMap, subscribeInternal, trigger } from './events'
 import { SDK } from './namespaces'
 import { CoreContext, log } from './context'
-import { OverlaySource } from './sources'
+// import {  OverlaySource } from './sources'
 
 const { state } = CoreContext
 
@@ -226,10 +226,9 @@ subscribeInternal(async (event, payload) => {
       if (role === 'ROLE_HOST' || role === 'ROLE_COHOST') {
         const internalProject = getProject(projectId)
         if (!internalProject) return
-        if (internalProject.props.background.id !== sourceId) {
-          return
-        }
-        let source = internalProject?.props?.background
+        let source = internalProject?.props?.backgrounds?.find(
+          (x: any) => x.id === sourceId,
+        )
         if (source) {
           source = {
             ...source,
@@ -269,7 +268,7 @@ subscribeInternal(async (event, payload) => {
         const internalProject = getProject(projectId)
         if (!internalProject) return
         let source = internalProject.props.overlays.find(
-          (x: OverlaySource) => x.id === sourceId,
+          (x: any) => x.id === sourceId,
         )
         if (source) {
           source = {
@@ -284,7 +283,7 @@ subscribeInternal(async (event, payload) => {
           }
 
           const overlayIndex = internalProject.props.overlays.findIndex(
-            (x: OverlaySource) => x.id === sourceId,
+            (x: any) => x.id === sourceId,
           )
 
           if (overlayIndex > -1) {

@@ -96,7 +96,7 @@ export const init = (
     if (!transform.useSource) return
 
     const node = compositor.getNode(nodeId)
-     const elementSourceType = element.proxySource ? element.proxySource : element.sourceType;
+     const elementSourceType = element.sourceProxy ? element.sourceProxy : element.sourceType;
     const sources = sourceManager.getSources(elementSourceType) 
     const source = transform.useSource(sources, node.props)
     const previousValue = element.sourceValue
@@ -151,7 +151,7 @@ export const init = (
     if (nodeElementIndex[node.id]) return nodeElementIndex[node.id]
 
     const { props = {} } = node
-    const { sourceType , proxySource } = props
+    const { sourceType , sourceProxy } = props
 
     if (!sourceType) return null
 
@@ -197,7 +197,7 @@ export const init = (
         },
         node.props,
       ),
-      proxySource,
+      sourceProxy,
       sourceType,
       nodeId: node.id,
       transformName: transform.name,
@@ -208,7 +208,7 @@ export const init = (
 
     // Update indexes
     nodeElementIndex[node.id] = result
-    const elementSourceType = proxySource ? proxySource : sourceType;
+    const elementSourceType = sourceProxy ? sourceProxy : sourceType;
     elementSourceTypeIndex[elementSourceType] = [
       ...(elementSourceTypeIndex[elementSourceType] || []),
       result,
@@ -232,7 +232,7 @@ export const init = (
 
           // Update indexes
           delete nodeElementIndex[node.id]
-          const elementSourceType = proxySource ? proxySource : sourceType
+          const elementSourceType = sourceProxy ? sourceProxy : sourceType
           elementSourceTypeIndex[elementSourceType] = elementSourceTypeIndex[
             elementSourceType
           ].filter((x) => x !== nodeElementIndex[node.id])

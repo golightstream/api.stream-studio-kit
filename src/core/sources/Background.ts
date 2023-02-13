@@ -11,7 +11,7 @@ type SourceDeclaration = Compositor.Source.SourceDeclaration
 
 export type BackgroundProps = {
   src?: string
-  type?: 'image-background' | 'video-background'
+  type?: 'image' | 'video'
   // Opaque to the SDK
   [prop: string]: any
 }
@@ -32,61 +32,58 @@ export const Background = {
   type: 'Background',
   valueType: Object,
   props: {},
-  init({
-    addSource,
-    removeSource,
-    updateSource,
-    getSource,
-    modifySourceValue,
-  }) {
-    let previousBackground: Background
+  init({ addSource, removeSource, updateSource, modifySourceValue }) {
+    let previousBackgrounds: Background[]
 
-    const update = (background: Background) => {
-      if (!background) return
+    const update = (backgrounds: Background[] = []) => {
       // Get banners not contained in previousBanners
-      const newBackground =
-        previousBackground?.id !== background?.id ? background : null
-
+      const newBackgrounds = backgrounds.filter(
+        (background) =>
+          !previousBackgrounds.some((x) => x.id === background.id),
+      )
+      // Get previous banners not contained in current banners
+      const removedBackgrounds = previousBackgrounds.filter(
+        (background) => !backgrounds.some((x) => x.id === background.id),
+      )
       // Get banners whose properties have changed
-      const changedBackground = !deepEqual(background, previousBackground)
-        ? background
-        : null
+      const changedBackgrounds = backgrounds.filter((background) => {
+        const existing = previousBackgrounds.find((x) => x.id === background.id)
+        return !deepEqual(background, existing)
+      })
 
-      if (newBackground) {
+      newBackgrounds.forEach((x) =>
         addSource({
-          id: newBackground?.id,
+          id: x.id,
           value: {
-            ...newBackground?.props,
+            ...x.props
           },
           // TODO: It feels odd to have "props" match "value" exactly.
           //  They probably shouldn't be necessary here.
-          props: newBackground?.props,
+          props: x.props,
+        }),
+      )
+      removedBackgrounds.forEach((x) => removeSource(x.id))
+      changedBackgrounds.forEach((x) => {
+        updateSource(x.id, x.props)
+        modifySourceValue(x.id, (value) => {
+          value = { ...x.props }
         })
-        removeSource(previousBackground?.id)
-      }
+      })
 
-      if (changedBackground) {
-        updateSource(changedBackground?.id, changedBackground?.props)
-        modifySourceValue(changedBackground?.id, (value) => {
-          Object.keys(changedBackground?.props).forEach((key) => {
-            value[key] = changedBackground?.props[key]
-          })
-        })
-      }
-      previousBackground = JSON.parse(JSON.stringify(background))
+      previousBackgrounds = JSON.parse(JSON.stringify(backgrounds))
     }
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
       // Reset on project change
-      previousBackground = null
+      previousBackgrounds = []
       if (!projectId) return
 
       const project = getProject(projectId)
-      update(project.props.background)
+      update(project.props.backgrounds)
     })
 
     CoreContext.on('ProjectChanged', ({ project }) => {
-      update(project.props.background)
+      update(project.props.backgrounds)
     })
   },
 } as SourceDeclaration

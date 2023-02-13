@@ -3,14 +3,34 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import ReactDOM from 'react-dom'
-import React from 'react'
-import { CoreContext } from '../context'
-import { getProject, getProjectRoom } from '../data'
+import React, { useEffect } from 'react'
 import { Compositor } from '../namespaces'
-import { InternalEventMap, trigger, triggerInternal } from '../events'
+// import { BackgroundProps, BackgroundSource } from '../sources'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
+import { getProject, getProjectRoom } from '../data'
+import CoreContext from '../context'
+import { InternalEventMap, trigger, triggerInternal } from '../events'
 import { hasPermission, Permission } from '../../helpers/permission'
+
+export type BackgroundProps = {
+  src?: string
+  type?: 'image' | 'video'
+  // Opaque to the SDK
+  [prop: string]: any
+}
+
+export type Background = {
+  id: string
+  props: BackgroundProps
+}
+
+export type BackgroundSource = {
+  id: string
+  value: BackgroundProps
+  // TODO: This shouldn't be necessary
+  props: BackgroundProps
+}
 
 interface ISourceMap {
   sourceType: string
@@ -19,27 +39,30 @@ interface ISourceMap {
 
 const SourceTriggerMap = [
   {
-    sourceType: 'Overlay',
-    trigger: 'OverlayMetadataUpdate',
-  },
-  {
     sourceType: 'Background',
     trigger: 'BackgroundMetadataUpdate',
   },
 ] as ISourceMap[]
 
-export const Video2 = {
-  name: 'LS-Video-2',
-  sourceType: 'Video2',
+export const Background = {
+  name: 'LS-Background',
+  sourceType: 'Background',
   props: {
     id: {
       type: String,
       required: true,
     },
+    props: {
+      src: {
+        type: String,
+        required: true,
+      },
+    },
   },
-  useSource(sources, props) {
-    return sources.find((x) => x.props.type === props.id)
-  },
+  // useSource(sources, props) {
+  //   // TODO: Filter source.isActive to ensure we're getting the best match
+  //   return sources.find((x) => x.id === props.backgroundId)
+  // },
   create({ onUpdate, onNewSource, onRemove }, initialProps) {
     onRemove(() => {
       clearInterval(interval)
@@ -48,15 +71,20 @@ export const Video2 = {
     const root = document.createElement('div')
     const room = getProjectRoom(CoreContext.state.activeProjectId)
     const role = getProject(CoreContext.state.activeProjectId).role
-
-    let source: any
     let interval: NodeJS.Timer
 
-    const Video = ({ source }: { source: any }) => {
+    const Video = ({
+      source,
+      setStartAnimation,
+    }: {
+      source: BackgroundSource
+      setStartAnimation: (value: boolean) => void
+    }) => {
       const SourceTrigger = SourceTriggerMap.find(
-        (x) => x.sourceType === initialProps.proxySource,
+        (x) => x.sourceType === initialProps.sourceType,
       )
-      const { src, type, meta, loop } = source?.value || {}
+
+      const { src, type, meta, loop } = source?.props || {}
       const { id } = source || {}
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
@@ -178,37 +206,95 @@ export const Video2 = {
       }, [refId])
 
       return (
-        <APIKitAnimation
-          id={id}
-          type="video"
-          enter={APIKitAnimationTypes.FADE_IN}
-          exit={APIKitAnimationTypes.FADE_OUT}
-          duration={400}
-        >
+        <React.Fragment key={id}>
           {src && (
             <video
               id={id}
               ref={handleRect}
-              style={initialProps.style}
+              style={{ ...initialProps.style }}
               {...initialProps.props}
               onLoadedData={onLoadedData}
               onEnded={onEnded}
+              onCanPlayThrough={() => setStartAnimation(true)}
             />
           )}
+        </React.Fragment>
+      )
+    }
+
+    const Image = ({
+      source,
+      setStartAnimation,
+    }: {
+      source: BackgroundSource
+      setStartAnimation: (value: boolean) => void
+    }) => {
+      const { src, meta, type } = source?.props || {}
+      const { id } = source || {}
+
+      return (
+        <React.Fragment key={id}>
+          {src && (
+            <img
+              style={{
+                ...initialProps?.style,
+                ...meta?.style,
+              }}
+              src={src}
+              onLoad={() => setStartAnimation(true)}
+            />
+          )}
+        </React.Fragment>
+      )
+    }
+
+    const Background = ({ source }: { source: BackgroundSource }) => {
+      const { type } = source.props
+      const { id } = source || {}
+      const [startAnimation, setStartAnimation] = React.useState(false)
+      useEffect(() => {
+        setStartAnimation(false)
+      }, [id])
+
+      return (
+        <APIKitAnimation
+          id={id}
+          type="background"
+          enter={APIKitAnimationTypes.FADE_IN}
+          exit={APIKitAnimationTypes.FADE_OUT}
+          duration={400}
+        >
+          <div
+            style={{ opacity: startAnimation ? 1 : 0 }}
+            className={`backgroundContainer background-transition`}
+          >
+            {id && type === 'image' && (
+              <Image source={source} setStartAnimation={setStartAnimation} />
+            )}
+            {id && type === 'video' && (
+              <Video source={source} setStartAnimation={setStartAnimation} />
+            )}
+          </div>
         </APIKitAnimation>
       )
     }
 
-    const render = () => ReactDOM.render(<Video source={source} />, root)
+    const render = (source: BackgroundSource) =>
+      ReactDOM.render(
+        <>
+          <Background source={source} />
+        </>,
+        root,
+      )
 
-    onUpdate(() => {
-      render()
+    onUpdate((props) => {
+      render({ ...props })
     })
 
-    onNewSource((_source) => {
-      source = _source
-      render()
-    })
+    // onNewSource((_source) => {
+    //   source = _source
+    //   render()
+    // })
 
     return {
       root,

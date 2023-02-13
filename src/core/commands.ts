@@ -489,7 +489,7 @@ export const updateNode = async (payload: {
 
   // Prune protected fields
   delete props.type
-  delete props.sourceType
+  // delete props.sourceType
 
   // Update state
   project.compositor.update(nodeId, props)

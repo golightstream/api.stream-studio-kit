@@ -11,7 +11,7 @@ type SourceDeclaration = Compositor.Source.SourceDeclaration
 
 export type OverlayProps = {
   src? :string
-  type? : 'video-overlay' | 'overlay'
+  type? : 'image' | 'video' | 'custom'
   // Opaque to the SDK
   [prop: string]: any
 }
@@ -36,7 +36,6 @@ export const Overlays = {
     addSource,
     removeSource,
     updateSource,
-    getSource,
     modifySourceValue,
   }) {
     let previousOverlays = [] as Overlay[]
