@@ -530,12 +530,6 @@ const load = async (
 
   // Load the projects and user data
   const result = await CoreContext.Request.loadUser(size)
-  if (result.projects.length) {
-    await runMigrations(
-      result.projects[0].id,
-      result.projects[0].compositor.getRoot(),
-    )
-  }
   // TODO: Move to UserLoaded event handler
   setAppState({
     user: result.user,
@@ -545,6 +539,12 @@ const load = async (
   })
 
   user = getBaseUser()
+  if (result.projects.length) {
+    await runMigrations(
+      result.projects[0].id,
+      result.projects[0].compositor.getRoot(),
+    )
+  }
   trigger('UserLoaded', user)
   return user
 }
