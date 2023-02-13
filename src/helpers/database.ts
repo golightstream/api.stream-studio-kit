@@ -315,11 +315,17 @@ const checkIsBackgroundValid = (root: Compositor.SceneNode) => {
   return true
 }
 
-export const runMigrations = async (
+export const migrateLayout = async (
   project: string,
   root: Compositor.SceneNode,
 ): Promise<{ project: SDK.Project; internalProject: InternalProject }> => {
-  if (!checkIsBackgroundValid(root)) {
-    return await CoreContext.Command.recreateLayout({ projectId: project })
+  if (root) {
+    if (!checkIsBackgroundValid(root)) {
+      return await CoreContext.Command.recreateLayout({ projectId: project })
+    }
+  }
+  return {
+    project: null,
+    internalProject: null,
   }
 }

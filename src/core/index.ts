@@ -1,4 +1,4 @@
-import { runMigrations } from './../helpers/database'
+import { migrateLayout } from './../helpers/database'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -540,21 +540,23 @@ const load = async (
 
   user = getBaseUser()
   if (result.projects.length) {
-    const { internalProject } = await runMigrations(
+    const { internalProject } = await migrateLayout(
       result.projects[0].id,
-      result.projects[0].compositor.getRoot(),
+      result.projects[0]?.compositor?.getRoot(),
     )
-    const updatedProjects = result.projects.map((x: InternalProject) => {
-      if (x.id !== internalProject.id) return x
-      return internalProject
-    })
+    if (internalProject) {
+      const updatedProjects = result.projects.map((x: InternalProject) => {
+        if (x.id !== internalProject.id) return x
+        return internalProject
+      })
 
-    setAppState({
-      projects: updatedProjects,
-      user: result.user,
-      sources: result.sources,
-      activeProjectId: null,
-    })
+      setAppState({
+        projects: updatedProjects,
+        user: result.user,
+        sources: result.sources,
+        activeProjectId: null,
+      })
+    }
   }
   trigger('UserLoaded', user)
   return user
