@@ -176,7 +176,7 @@ export interface Commands {
    * Set the active background image
    * @deprecated Use getBackgroundMedia2() instead with type
    */
-  getBackgroundMedia(): string
+  // getBackgroundMedia(): string
   /**
    * Get the active background image
    */
@@ -241,22 +241,22 @@ export interface Commands {
    * Get the active image overlay
    * @deprecated Use getImageOverlay2() instead
    */
-  getImageOverlay(): string | string[]
+  getImageOverlay(): string | null
   /**
    * Get the active video overlay
    * @deprecated Use getVideoOverlay2() instead
    */
-  getVideoOverlay(): string | string[]
+  getVideoOverlay(): string | null
   /**
    * Get the active background image
    * @deprecated Use getBackgroundImage2() instead
    */
-  getBackgroundImage(): string
+  getBackgroundImage(): string | null
   /**
    * Get the active background video
    * @deprecated Use getBackgroundVideo2() instead
    */
-  getBackgroundVideo(): string
+  getBackgroundVideo(): string | null
 
   //  getBackgroundMedia2(type?: string): string
   /**
@@ -283,7 +283,7 @@ export interface Commands {
   /**
    * Get the active foreground image overlay
    */
-  //getCustomOverlay(): string | string[]
+  getCustomOverlay(): string | null
   // /**
   //  * Get the active foreground image overlay
   //  */
@@ -728,25 +728,45 @@ export const commands = (_project: ScenelessProject) => {
       return commands.setProp('logo', null)
     },
 
-    getImageOverlay(): string | string[] {
-      const foregroundImageIds =
-        foregroundImageIframeContainer?.children?.map(
-          (x) => x?.props?.sourceProps?.id,
-        ) ?? []
-      return foregroundImageIds.length > 1
-        ? foregroundImageIds
-        : foregroundImageIds[0]
+    getCustomOverlay(): string | null {
+      // find overlay node by id
+      const [existingForegroundNode, ...excessForegroundNode] =
+        foregroundImageIframeContainer?.children || ([] as SceneNode[])
+
+      if (existingForegroundNode) {
+        if (existingForegroundNode.props.props.type === 'custom') {
+          return existingForegroundNode.props.id
+        }
+      }
+      return null
     },
 
-    getVideoOverlay(): string | string[] {
-      const foregroundVideoIds =
-        foregroundVideoContainer?.children?.map(
-          (x) => x?.props?.sourceProps?.id,
-        ) ?? []
-      return foregroundVideoIds.length > 1
-        ? foregroundVideoIds
-        : foregroundVideoIds[0]
+    getImageOverlay(): string | null {
+      // find overlay node by id
+      const [existingForegroundNode, ...excessForegroundNode] =
+        foregroundImageIframeContainer?.children || ([] as SceneNode[])
+
+      if (existingForegroundNode) {
+        if (existingForegroundNode.props.props.type === 'image') {
+          return existingForegroundNode.props.id
+        }
+      }
+      return null
     },
+
+    getVideoOverlay(): string | null {
+      // find overlay node by id
+      const [existingForegroundNode, ...excessForegroundNode] =
+        foregroundImageIframeContainer?.children || ([] as SceneNode[])
+
+      if (existingForegroundNode) {
+        if (existingForegroundNode.props.props.type === 'video') {
+          return existingForegroundNode.props.id
+        }
+      }
+      return null
+    },
+
     autoPlayBackgroundVideo(
       attributes: HTMLVideoElementAttributes = {
         muted: true,
@@ -943,23 +963,35 @@ export const commands = (_project: ScenelessProject) => {
     //     })
     //   }
     // },
-    getBackgroundMedia() {
-      const backgroundChild = background.children.filter((x) => x)
-      return backgroundChild[0]?.props?.attributes?.src
+    // getBackgroundMedia() {
+    //   const backgroundChild = background?.children?.filter((x) => x)
+    //   return backgroundChild[0]?.props?.attributes?.src
+    // },
+
+    getBackgroundImage(): string | null {
+      // find overlay node by id
+      const [existingBackgroundNode, ...excessBackgroundNode] =
+        background?.children || ([] as SceneNode[])
+
+      if (existingBackgroundNode) {
+        if (existingBackgroundNode.props.props.type === 'image') {
+          return existingBackgroundNode.props.id
+        }
+      }
+      return null
     },
 
-    getBackgroundImage() {
-      const backgroundChild = background.children.filter(
-        (x) => x.props.id === 'bg-image',
-      )
-      return backgroundChild[0]?.props?.attributes?.src
-    },
+    getBackgroundVideo(): string | null {
+      // find overlay node by id
+      const [existingBackgroundNode, ...excessBackgroundNode] =
+        background?.children || ([] as SceneNode[])
 
-    getBackgroundVideo() {
-      const backgroundChild = background.children.filter(
-        (x) => x.props.id === 'bg-video',
-      )
-      return backgroundChild[0]?.props?.attributes?.src
+      if (existingBackgroundNode) {
+        if (existingBackgroundNode.props.props.type === 'video') {
+          return existingBackgroundNode.props.id
+        }
+      }
+      return null
     },
 
     //async setBackgroundImage(src: string) {
