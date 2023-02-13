@@ -304,7 +304,7 @@ const allowedSourceTypes = [
 function validateEachChildren(children: Compositor.SceneNode[]) {
   let isValid = true
   children.forEach((child) => {
-    if (!allowedSourceTypes.includes(child.props.sourceType)) {
+    if (child.props?.sourceType && !allowedSourceTypes.includes(child.props?.sourceType)) {
       isValid = false
     } else {
       if (child.children.length > 0) {
