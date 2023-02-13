@@ -1,6 +1,4 @@
 import { Compositor } from '../core'
-import { ScenelessProject } from './sceneless-project'
-import * as Transforms from '../core/transforms/index'
 import CoreContext from '../core/context'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.

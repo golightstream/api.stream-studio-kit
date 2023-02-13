@@ -1,4 +1,3 @@
-import { runMigrations } from './../helpers/database';
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
@@ -135,7 +134,7 @@ export const hydrateProject = async (
   }
 
   const compositorProject = await layoutToProject(metadata.layoutId, size)
-  await runMigrations(project.projectId, compositorProject.getRoot())
+
   return {
     id: project.projectId,
     compositor: compositorProject,

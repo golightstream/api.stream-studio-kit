@@ -151,7 +151,7 @@ const Project = () => {
   const [overlays, setOverlays] = React.useState<any[]>([])
   const [projectedLoaded, setProjectedLoaded] = useState(false)
   // Get custom layout name from metadata we store
-  const layout = project.props.layout
+  const layout = project.props.layoute
   const background = projectCommands.getBackgroundImage() || projectCommands.getBackgroundVideo()
   const overlay = projectCommands.getImageOverlay()
   const overlay1 = projectCommands.getVideoOverlay()
