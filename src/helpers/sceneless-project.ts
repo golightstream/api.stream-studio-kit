@@ -245,7 +245,10 @@ export interface Commands {
   /**
    * Set the active background image
    */
-  setBackgroundImage2(backgroundId: string, props: BackgroundProps): Promise<void>
+  setBackgroundImage2(
+    backgroundId: string,
+    props: BackgroundProps,
+  ): Promise<void>
 
   /**
    * Set the active background video
@@ -528,6 +531,22 @@ export const commands = (_project: ScenelessProject) => {
     (x) => x.props.id === 'fg-banners',
   )
 
+  const ensureRootLayersProps = async () => {
+    if (background?.props?.layout !== 'Layered') {
+      await coreProject.compositor.update(background.id, {
+        name: 'Background',
+        id: 'bg',
+        layout: 'Layered',
+      })
+    }
+    if (foreground?.props?.layout !== 'Layered') {
+      await coreProject.compositor.update(foreground.id, {
+        id: 'foreground',
+        name: 'Overlays',
+        layout: 'Layered',
+      })
+    }
+  }
   const ensureForegroundContainers = async () => {
     const ensureBannerContainer = async () => {
       if (!bannerContainer) {
@@ -2083,6 +2102,7 @@ export const commands = (_project: ScenelessProject) => {
     },
   }
   const ensureValid = async () => {
+    await ensureRootLayersProps()
     await ensureForegroundContainers()
     beforeInit(commands)
   }
@@ -2182,7 +2202,7 @@ export const createCompositor = async (
       {
         name: 'Background',
         id: 'bg',
-        layout: 'Free',
+        layout: 'Layered',
       },
       root.id,
     ),
@@ -2200,7 +2220,7 @@ export const createCompositor = async (
       {
         id: 'foreground',
         name: 'Overlays',
-        layout: 'Free',
+        layout: 'Layered',
       },
       root.id,
     ),
