@@ -39,9 +39,9 @@ const Iframe = ({
     className: className || null,
     id: id || null,
     onLoad: onLoad || null,
-    height : height || '100%',
-    width : width || '100%',
-    allow : "autoplay"
+    height: height || '100%',
+    width: width || '100%',
+    allow: 'autoplay',
   })
   let props = Object.create(null)
   for (let prop of Object.keys(defaultProps)) {
@@ -71,13 +71,7 @@ const Iframe = ({
     }
   }
   return (
-    <APIKitAnimation
-      id={id}
-      type="image"
-      enter={APIKitAnimationTypes.FADE_IN}
-      exit={APIKitAnimationTypes.FADE_OUT}
-      duration={400}
-    >
+    <React.Fragment>
       {children ? (
         <iframe ref={iframeRef} {...props}>
           {children}
@@ -85,7 +79,7 @@ const Iframe = ({
       ) : (
         <iframe ref={iframeRef} {...props} />
       )}
-    </APIKitAnimation>
+    </React.Fragment>
   )
 }
 
