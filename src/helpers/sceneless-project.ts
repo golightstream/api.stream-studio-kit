@@ -143,7 +143,7 @@ export interface Commands {
 
   removeLogo(id: string): void
 
-  addLogo(id: string, logo: LogoProps): void
+  addLogo(id: string, logo: LogoProps): Promise<void>
 
   getLogo(): string
 
@@ -1204,12 +1204,12 @@ export const commands = (_project: ScenelessProject) => {
         })
       }
     },
-    addLogo(logoId: string, props: LogoProps) {
+    async addLogo(logoId: string, props: LogoProps) {
       const exisitingLogo = (getProject(_project.id).props.logo ||
         null) as Background
       if (exisitingLogo) {
         if (exisitingLogo.id === logoId) {
-          return Command.updateProjectProps({
+          return await Command.updateProjectProps({
             projectId,
             props: {
               logo: exisitingLogo,
@@ -1229,7 +1229,7 @@ export const commands = (_project: ScenelessProject) => {
         },
       }
 
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           logo: newLogo,
@@ -1361,7 +1361,7 @@ export const commands = (_project: ScenelessProject) => {
 
       /* Creating a banner node if it doesn't exist, or updating it if it does. */
       if (!existingBannerNode) {
-        return CoreContext.Command.createNode({
+        await CoreContext.Command.createNode({
           parentId: bannerContainer?.id,
           props: {
             sourceType: 'ChatOverlay',
@@ -1371,7 +1371,7 @@ export const commands = (_project: ScenelessProject) => {
           },
         })
       } else {
-        CoreContext.Command.updateNode({
+        await CoreContext.Command.updateNode({
           nodeId: existingBannerNode.id,
           props: {
             sourceType: 'ChatOverlay',
@@ -1383,11 +1383,11 @@ export const commands = (_project: ScenelessProject) => {
       }
     },
 
-    removeChatOverlay(id: string) {
+    async removeChatOverlay(id: string) {
       // Remove dependent nodes from stream
-      bannerContainer?.children?.forEach((x) => {
+      bannerContainer?.children?.forEach(async (x) => {
         if (x.props.chatOverlayId !== id) return
-        CoreContext.Command.deleteNode({
+        await CoreContext.Command.deleteNode({
           nodeId: x.id,
         })
       })
@@ -1438,7 +1438,7 @@ export const commands = (_project: ScenelessProject) => {
       // find overlay node by id
       const existingOverlays = commands.getOverlays()
 
-      return Command.updateProjectProps({
+      return await Command.updateProjectProps({
         projectId,
         props: {
           overlays: existingOverlays.filter((x) => x.id !== overlayId),
@@ -1450,7 +1450,7 @@ export const commands = (_project: ScenelessProject) => {
       // find overlay node by id
       const existingOverlays = commands.getOverlays()
 
-      return Command.updateProjectProps({
+      return await Command.updateProjectProps({
         projectId,
         props: {
           overlays: existingOverlays.filter((x) => x.id !== overlayId),
@@ -1483,7 +1483,7 @@ export const commands = (_project: ScenelessProject) => {
         }
       })
 
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           overlays: newForegroundLayers,
@@ -1505,7 +1505,7 @@ export const commands = (_project: ScenelessProject) => {
 
           shallowOverlays.splice(overlayIndex, 1, overlay)
 
-          return Command.updateProjectProps({
+          return await Command.updateProjectProps({
             projectId,
             props: {
               overlays: shallowOverlays,
@@ -1535,7 +1535,7 @@ export const commands = (_project: ScenelessProject) => {
         (x) => x.props.type !== 'overlay',
       )
 
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           overlays: [...nonHTMLOverlays, newOverlay],
@@ -1557,7 +1557,7 @@ export const commands = (_project: ScenelessProject) => {
 
           shallowOverlays.splice(overlayIndex, 1, overlay)
 
-          return Command.updateProjectProps({
+          return await Command.updateProjectProps({
             projectId,
             props: {
               overlays: shallowOverlays,
@@ -1587,7 +1587,7 @@ export const commands = (_project: ScenelessProject) => {
         (x) => x.props.type !== 'overlay',
       )
 
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           overlays: [...nonImageOverlays, newOverlay],
@@ -1611,7 +1611,7 @@ export const commands = (_project: ScenelessProject) => {
 
           shallowOverlays.splice(overlayIndex, 1, overlay)
 
-          return Command.updateProjectProps({
+          return await Command.updateProjectProps({
             projectId,
             props: {
               overlays: shallowOverlays,
@@ -1649,7 +1649,7 @@ export const commands = (_project: ScenelessProject) => {
         },
       }
 
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           overlays: [...newForegroundLayers, newOverlay],
@@ -1713,7 +1713,7 @@ export const commands = (_project: ScenelessProject) => {
         },
       }
 
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           background: newBackground,
@@ -1749,7 +1749,7 @@ export const commands = (_project: ScenelessProject) => {
         },
       }
 
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           background: newBackground,
@@ -1860,7 +1860,6 @@ export const commands = (_project: ScenelessProject) => {
           })
         })
     },
-
 
     async addParticipant(
       participantId: string,
