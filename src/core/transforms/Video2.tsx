@@ -60,7 +60,13 @@ export const Video2 = {
       const { id } = source || {}
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
+      const [startAnimation, setStartAnimation] = React.useState(false)
+
       console.log('Updated current time', videoRef?.current?.currentTime)
+
+      React.useEffect(() => {
+        setStartAnimation(false)
+      }, [id])
 
       /* A callback function that is called when the video element is created. */
       const handleRect = React.useCallback((node: HTMLVideoElement) => {
@@ -185,16 +191,22 @@ export const Video2 = {
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
-          {src && (
-            <video
-              id={id}
-              ref={handleRect}
-              style={initialProps.style}
-              {...initialProps.props}
-              onLoadedData={onLoadedData}
-              onEnded={onEnded}
-            />
-          )}
+          <div
+            style={{ opacity: startAnimation ? 1 : 0 }}
+            className={`video-transition`}
+          >
+            {src && (
+              <video
+                id={id}
+                ref={handleRect}
+                style={initialProps.style}
+                {...initialProps.props}
+                onLoadedData={onLoadedData}
+                onEnded={onEnded}
+                onCanPlayThrough={() => setStartAnimation(true)}
+              />
+            )}
+          </div>
         </APIKitAnimation>
       )
     }
