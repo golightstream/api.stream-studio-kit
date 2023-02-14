@@ -141,21 +141,6 @@ export const Video2 = {
               }
             }, 1000)
 
-            // /* This is checking if the user has permission to manage guests. If they do, then it triggers an
-            // internal event. */
-            // if (hasPermission(role, Permission.ManageGuests)) {
-            //   triggerInternal(SourceTrigger.trigger, {
-            //     projectId: CoreContext.state.activeProjectId,
-            //     role,
-            //     sourceId: id,
-            //     doTrigger: true,
-            //     metadata: {
-            //       time: Math.floor(videoRef?.current?.currentTime) || 0,
-            //       owner: room?.participantId,
-            //     },
-            //   })
-            // }
-
             return room?.onData((event, senderId) => {
               // Handle request for time sync.
               if (videoRef?.current?.currentTime) {
