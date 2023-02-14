@@ -57311,11 +57311,11 @@ const commands = (_project) => {
         });
       }
     },
-    addLogo(logoId, props) {
+    async addLogo(logoId, props) {
       const exisitingLogo = getProject(_project.id).props.logo || null;
       if (exisitingLogo) {
         if (exisitingLogo.id === logoId) {
-          return Command.updateProjectProps({
+          return await Command.updateProjectProps({
             projectId,
             props: {
               logo: exisitingLogo
@@ -57337,7 +57337,7 @@ const commands = (_project) => {
           meta
         }
       };
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           logo: newLogo
@@ -57447,7 +57447,7 @@ const commands = (_project) => {
         });
       });
       if (!existingBannerNode) {
-        return CoreContext.Command.createNode({
+        await CoreContext.Command.createNode({
           parentId: bannerContainer == null ? void 0 : bannerContainer.id,
           props: {
             sourceType: "ChatOverlay",
@@ -57457,7 +57457,7 @@ const commands = (_project) => {
           }
         });
       } else {
-        CoreContext.Command.updateNode({
+        await CoreContext.Command.updateNode({
           nodeId: existingBannerNode.id,
           props: {
             sourceType: "ChatOverlay",
@@ -57468,12 +57468,12 @@ const commands = (_project) => {
         });
       }
     },
-    removeChatOverlay(id) {
+    async removeChatOverlay(id) {
       var _a3;
-      (_a3 = bannerContainer == null ? void 0 : bannerContainer.children) == null ? void 0 : _a3.forEach((x) => {
+      (_a3 = bannerContainer == null ? void 0 : bannerContainer.children) == null ? void 0 : _a3.forEach(async (x) => {
         if (x.props.chatOverlayId !== id)
           return;
-        CoreContext.Command.deleteNode({
+        await CoreContext.Command.deleteNode({
           nodeId: x.id
         });
       });
@@ -57505,7 +57505,7 @@ const commands = (_project) => {
     },
     async removeCustomOverlay(overlayId) {
       const existingOverlays = commands2.getOverlays();
-      return Command.updateProjectProps({
+      return await Command.updateProjectProps({
         projectId,
         props: {
           overlays: existingOverlays.filter((x) => x.id !== overlayId)
@@ -57514,7 +57514,7 @@ const commands = (_project) => {
     },
     async removeImageOverlay2(overlayId) {
       const existingOverlays = commands2.getOverlays();
-      return Command.updateProjectProps({
+      return await Command.updateProjectProps({
         projectId,
         props: {
           overlays: existingOverlays.filter((x) => x.id !== overlayId)
@@ -57539,7 +57539,7 @@ const commands = (_project) => {
           }
         };
       });
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           overlays: newForegroundLayers
@@ -57554,7 +57554,7 @@ const commands = (_project) => {
         if (overlayIndex > -1) {
           const shallowOverlays = JSON.parse(JSON.stringify(existingOverlays));
           shallowOverlays.splice(overlayIndex, 1, overlay);
-          return Command.updateProjectProps({
+          return await Command.updateProjectProps({
             projectId,
             props: {
               overlays: shallowOverlays
@@ -57584,7 +57584,7 @@ const commands = (_project) => {
         }
       };
       const nonHTMLOverlays = existingOverlays.filter((x) => x.props.type !== "overlay");
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           overlays: [...nonHTMLOverlays, newOverlay]
@@ -57599,7 +57599,7 @@ const commands = (_project) => {
         if (overlayIndex > -1) {
           const shallowOverlays = JSON.parse(JSON.stringify(existingOverlays));
           shallowOverlays.splice(overlayIndex, 1, overlay);
-          return Command.updateProjectProps({
+          return await Command.updateProjectProps({
             projectId,
             props: {
               overlays: shallowOverlays
@@ -57629,7 +57629,7 @@ const commands = (_project) => {
         }
       };
       const nonImageOverlays = existingOverlays.filter((x) => x.props.type !== "overlay");
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           overlays: [...nonImageOverlays, newOverlay]
@@ -57644,7 +57644,7 @@ const commands = (_project) => {
         if (overlayIndex > -1) {
           const shallowOverlays = JSON.parse(JSON.stringify(existingOverlays));
           shallowOverlays.splice(overlayIndex, 1, overlay);
-          return Command.updateProjectProps({
+          return await Command.updateProjectProps({
             projectId,
             props: {
               overlays: shallowOverlays
@@ -57676,7 +57676,7 @@ const commands = (_project) => {
           meta
         }
       };
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           overlays: [...newForegroundLayers, newOverlay]
@@ -57726,7 +57726,7 @@ const commands = (_project) => {
           meta
         }
       };
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           background: newBackground
@@ -57754,7 +57754,7 @@ const commands = (_project) => {
           meta
         }
       };
-      Command.updateProjectProps({
+      await Command.updateProjectProps({
         projectId,
         props: {
           background: newBackground
