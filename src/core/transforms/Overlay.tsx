@@ -9,6 +9,8 @@ import Iframe from './components/Iframe'
 import { Image } from './components/Image'
 import CoreContext from '../context'
 import { getProject } from '../data'
+import { APIKitAnimationTypes } from '../../animation/core/types'
+import APIKitAnimation from '../../compositor/html/html-animation'
 
 export const Overlay = {
   name: 'LS-Overlay',
@@ -28,13 +30,19 @@ export const Overlay = {
 
     const IFrame = ({ source }: { source: any }) => {
       const { src, meta, height, width } = source?.value || {}
+      const { id } = source || {}
       const iframeRef = React.useRef<HTMLIFrameElement>(null)
+      const [startAnimation, setStartAnimation] = React.useState(false)
+
+      React.useEffect(() => {
+        setStartAnimation(false)
+      }, [id])
 
       useEffect(() => {
         if (iframeRef.current) {
           iframeRef.current.style.removeProperty('transformOrigin')
           iframeRef.current.style.removeProperty('transform')
-          iframeRef.current.style.opacity = "0"
+          iframeRef.current.style.opacity = '0'
         }
       }, [src])
 
@@ -60,10 +68,17 @@ export const Overlay = {
           iframeRef.current.style.transformOrigin = '0 0'
           iframeRef.current.style.transform = `scale(${scale}) translateZ(0)`
           iframeRef.current.style.opacity = '1'
+          setStartAnimation(true)
         }
       }
       return (
-        <React.Fragment>
+        <APIKitAnimation
+          id={id}
+          type="video"
+          enter={APIKitAnimationTypes.FADE_IN}
+          exit={APIKitAnimationTypes.FADE_OUT}
+          duration={400}
+        >
           {meta?.type === 'html-overlay' && (
             <Iframe
               url={src}
@@ -76,9 +91,13 @@ export const Overlay = {
             />
           )}
           {meta?.type === 'image-overlay' && (
-            <Image source={source} initialProps={initialProps} />
+            <Image
+              source={source}
+              initialProps={initialProps}
+              setStartAnimation={setStartAnimation}
+            />
           )}
-        </React.Fragment>
+        </APIKitAnimation>
       )
     }
 

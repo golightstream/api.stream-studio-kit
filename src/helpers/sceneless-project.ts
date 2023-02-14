@@ -508,7 +508,7 @@ export const commands = (_project: ScenelessProject) => {
   )
 
   let foregroundOverlayContainer = foreground?.children?.find(
-    (x) => x.props.id === 'iframe-overlay',
+    (x) => x.props.id === 'overlay',
   )
 
   let foregroundVideoContainer2 = foreground?.children?.find(
@@ -2221,6 +2221,14 @@ export const createCompositor = async (
     ),
     project.insert(
       {
+        name: 'VideoOverlay',
+        id: 'fg-video',
+        layout: 'Free',
+      },
+      foreground.id,
+    ),
+    project.insert(
+      {
         name: 'Overlay',
         sourceType: 'Overlay',
         id: 'overlay',
@@ -2243,14 +2251,6 @@ export const createCompositor = async (
         layoutProps: {
           cover: true,
         },
-      },
-      foreground.id,
-    ),
-    project.insert(
-      {
-        name: 'VideoOverlay',
-        id: 'fg-video',
-        layout: 'Free',
       },
       foreground.id,
     ),
