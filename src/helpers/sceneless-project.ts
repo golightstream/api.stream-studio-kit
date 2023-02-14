@@ -245,7 +245,7 @@ export interface Commands {
   /**
    * Set the active background image
    */
-  setBackgroundImage2(backgroundId: string, props: BackgroundProps): void
+  setBackgroundImage2(backgroundId: string, props: BackgroundProps): Promise<void>
 
   /**
    * Set the active background video
@@ -253,7 +253,7 @@ export interface Commands {
   setBackgroundVideo2(
     backgroundId: string,
     props: BackgroundProps & HTMLVideoElementAttributes,
-  ): void
+  ): Promise<void>
 
   /**
    * Get the active foreground image overlay
