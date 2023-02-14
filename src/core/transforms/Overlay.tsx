@@ -74,29 +74,34 @@ export const Overlay = {
       return (
         <APIKitAnimation
           id={id}
-          type="video"
+          type="image"
           enter={APIKitAnimationTypes.FADE_IN}
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
-          {meta?.type === 'html-overlay' && (
-            <Iframe
-              url={src}
-              frameBorder={0}
-              iframeRef={iframeRef}
-              height={height}
-              width={width}
-              onLoad={resizeIframe}
-              styles={{ ...meta?.style, opacity: 0 }}
-            />
-          )}
-          {meta?.type === 'image-overlay' && (
-            <Image
-              source={source}
-              initialProps={initialProps}
-              setStartAnimation={setStartAnimation}
-            />
-          )}
+          <div
+            style={{ opacity: startAnimation ? 1 : 0 }}
+            className={`image-transition`}
+          >
+            {meta?.type === 'html-overlay' && (
+              <Iframe
+                url={src}
+                frameBorder={0}
+                iframeRef={iframeRef}
+                height={height}
+                width={width}
+                onLoad={resizeIframe}
+                styles={{ ...meta?.style, opacity: 0 }}
+              />
+            )}
+            {meta?.type === 'image-overlay' && (
+              <Image
+                source={source}
+                initialProps={initialProps}
+                setStartAnimation={setStartAnimation}
+              />
+            )}
+          </div>
         </APIKitAnimation>
       )
     }

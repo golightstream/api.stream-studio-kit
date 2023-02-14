@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import ReactDOM from 'react-dom'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Compositor } from '../namespaces'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
@@ -25,8 +25,13 @@ export const Logo = {
     let source: any
 
     const Logo = ({ source }: { source: any }) => {
-      const { src, meta, logoPosition } = source?.value || {}
+      const { src, meta } = source?.value || {}
       const { id } = source || {}
+      const [startAnimation, setStartAnimation] = React.useState(false)
+
+      useEffect(() => {
+        setStartAnimation(false)
+      }, [id])
 
       return (
         <APIKitAnimation
@@ -36,14 +41,20 @@ export const Logo = {
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
+          <div
+            style={{ opacity: startAnimation ? 1 : 0 }}
+            className={`logo-transition`}
+          >
           {src && (
             <div className="logo wrapper">
               <img
                 style={{ ...initialProps?.style, ...meta?.style }}
                 src={src}
+                onLoad={() => setStartAnimation(true)}
               />
             </div>
           )}
+          </div>
         </APIKitAnimation>
       )
     }
