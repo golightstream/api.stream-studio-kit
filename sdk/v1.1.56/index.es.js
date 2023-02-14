@@ -51527,7 +51527,11 @@ const Video2 = {
       } = source22 || {};
       const [refId, setRefId] = React.useState(null);
       const videoRef = React.useRef(null);
+      const [startAnimation, setStartAnimation] = React.useState(false);
       console.log("Updated current time", (_a2 = videoRef == null ? void 0 : videoRef.current) == null ? void 0 : _a2.currentTime);
+      React.useEffect(() => {
+        setStartAnimation(false);
+      }, [id]);
       const handleRect = React.useCallback((node) => {
         videoRef.current = node;
         setRefId(node ? node.id : null);
@@ -51629,14 +51633,20 @@ const Video2 = {
         enter: APIKitAnimationTypes.FADE_IN,
         exit: APIKitAnimationTypes.FADE_OUT,
         duration: 400
+      }, /* @__PURE__ */ React.createElement("div", {
+        style: {
+          opacity: startAnimation ? 1 : 0
+        },
+        className: `video-transition`
       }, src && /* @__PURE__ */ React.createElement("video", {
         id,
         ref: handleRect,
         style: initialProps.style,
         ...initialProps.props,
         onLoadedData,
-        onEnded
-      }));
+        onEnded,
+        onCanPlayThrough: () => setStartAnimation(true)
+      })));
     };
     const render2 = () => ReactDOM.render(/* @__PURE__ */ React.createElement(Video3, {
       source: source2
@@ -51681,20 +51691,29 @@ const Image2 = {
       const {
         id
       } = source22 || {};
+      const [startAnimation, setStartAnimation] = React.useState(false);
+      React.useEffect(() => {
+        setStartAnimation(false);
+      }, [id]);
       return /* @__PURE__ */ React.createElement(APIKitAnimation, {
         id,
         type: "image",
         enter: APIKitAnimationTypes.FADE_IN,
         exit: APIKitAnimationTypes.FADE_OUT,
         duration: 400
+      }, /* @__PURE__ */ React.createElement("div", {
+        style: {
+          opacity: startAnimation ? 1 : 0
+        },
+        className: `image-transition`
       }, src && /* @__PURE__ */ React.createElement("img", {
         style: {
           ...initialProps == null ? void 0 : initialProps.style,
           ...meta == null ? void 0 : meta.style
         },
-        className: "image-transition",
-        src
-      }));
+        src,
+        onLoad: () => setStartAnimation(true)
+      })));
     };
     const render2 = () => ReactDOM.render(/* @__PURE__ */ React.createElement(Image3, {
       source: source2
@@ -51935,18 +51954,26 @@ const Logo$1 = {
     }) => {
       const {
         src,
-        meta,
-        logoPosition
+        meta
       } = (source22 == null ? void 0 : source22.value) || {};
       const {
         id
       } = source22 || {};
+      const [startAnimation, setStartAnimation] = React.useState(false);
+      useEffect(() => {
+        setStartAnimation(false);
+      }, [id]);
       return /* @__PURE__ */ React.createElement(APIKitAnimation, {
         type: "logo",
         id,
         enter: APIKitAnimationTypes.FADE_IN,
         exit: APIKitAnimationTypes.FADE_OUT,
         duration: 400
+      }, /* @__PURE__ */ React.createElement("div", {
+        style: {
+          opacity: startAnimation ? 1 : 0
+        },
+        className: `logo-transition`
       }, src && /* @__PURE__ */ React.createElement("div", {
         className: "logo wrapper"
       }, /* @__PURE__ */ React.createElement("img", {
@@ -51954,8 +51981,9 @@ const Logo$1 = {
           ...initialProps == null ? void 0 : initialProps.style,
           ...meta == null ? void 0 : meta.style
         },
-        src
-      })));
+        src,
+        onLoad: () => setStartAnimation(true)
+      }))));
     };
     const render2 = () => ReactDOM.render(/* @__PURE__ */ React.createElement(Logo2, {
       source: source2
@@ -52032,13 +52060,7 @@ const Iframe = ({
       props.style.border = frameBorder;
     }
   }
-  return /* @__PURE__ */ React.createElement(APIKitAnimation, {
-    id,
-    type: "image",
-    enter: APIKitAnimationTypes.FADE_IN,
-    exit: APIKitAnimationTypes.FADE_OUT,
-    duration: 400
-  }, children ? /* @__PURE__ */ React.createElement("iframe", {
+  return /* @__PURE__ */ React.createElement(React.Fragment, null, children ? /* @__PURE__ */ React.createElement("iframe", {
     ref: iframeRef,
     ...props
   }, children) : /* @__PURE__ */ React.createElement("iframe", {
@@ -52048,28 +52070,21 @@ const Iframe = ({
 };
 const Image$1 = ({
   source: source2,
-  initialProps
+  initialProps,
+  setStartAnimation
 }) => {
   const {
     src,
     meta
   } = (source2 == null ? void 0 : source2.value) || {};
-  const {
-    id
-  } = source2 || {};
-  return /* @__PURE__ */ React.createElement(APIKitAnimation, {
-    id,
-    type: "image",
-    enter: APIKitAnimationTypes.FADE_IN,
-    exit: APIKitAnimationTypes.FADE_OUT,
-    duration: 400
-  }, src && /* @__PURE__ */ React.createElement("img", {
+  return /* @__PURE__ */ React.createElement(React.Fragment, null, src && /* @__PURE__ */ React.createElement("img", {
     style: {
       ...initialProps == null ? void 0 : initialProps.style,
       ...meta == null ? void 0 : meta.style
     },
     className: "image-transition",
-    src
+    src,
+    onLoad: () => setStartAnimation(true)
   }));
 };
 const Overlay = {
@@ -52099,7 +52114,14 @@ const Overlay = {
         height,
         width
       } = (source22 == null ? void 0 : source22.value) || {};
+      const {
+        id
+      } = source22 || {};
       const iframeRef = React.useRef(null);
+      const [startAnimation, setStartAnimation] = React.useState(false);
+      React.useEffect(() => {
+        setStartAnimation(false);
+      }, [id]);
       useEffect(() => {
         if (iframeRef.current) {
           iframeRef.current.style.removeProperty("transformOrigin");
@@ -52127,9 +52149,21 @@ const Overlay = {
           iframeRef.current.style.transformOrigin = "0 0";
           iframeRef.current.style.transform = `scale(${scale}) translateZ(0)`;
           iframeRef.current.style.opacity = "1";
+          setStartAnimation(true);
         }
       };
-      return /* @__PURE__ */ React.createElement(React.Fragment, null, (meta == null ? void 0 : meta.type) === "html-overlay" && /* @__PURE__ */ React.createElement(Iframe, {
+      return /* @__PURE__ */ React.createElement(APIKitAnimation, {
+        id,
+        type: "image",
+        enter: APIKitAnimationTypes.FADE_IN,
+        exit: APIKitAnimationTypes.FADE_OUT,
+        duration: 400
+      }, /* @__PURE__ */ React.createElement("div", {
+        style: {
+          opacity: startAnimation ? 1 : 0
+        },
+        className: `image-transition`
+      }, (meta == null ? void 0 : meta.type) === "html-overlay" && /* @__PURE__ */ React.createElement(Iframe, {
         url: src,
         frameBorder: 0,
         iframeRef,
@@ -52142,8 +52176,9 @@ const Overlay = {
         }
       }), (meta == null ? void 0 : meta.type) === "image-overlay" && /* @__PURE__ */ React.createElement(Image$1, {
         source: source22,
-        initialProps
-      }));
+        initialProps,
+        setStartAnimation
+      })));
     };
     const render2 = () => ReactDOM.render(/* @__PURE__ */ React.createElement(IFrame, {
       source: source2
@@ -56743,7 +56778,7 @@ const commands = (_project) => {
   let backgroundImageContainer = (_c = background == null ? void 0 : background.children) == null ? void 0 : _c.find((x) => x.props.id === "image-background");
   let foregroundImageContainer = (_d = foreground == null ? void 0 : foreground.children) == null ? void 0 : _d.find((x) => x.props.id === "fg-image");
   (_e = foreground == null ? void 0 : foreground.children) == null ? void 0 : _e.find((x) => x.props.id === "image-overlay");
-  let foregroundOverlayContainer = (_f = foreground == null ? void 0 : foreground.children) == null ? void 0 : _f.find((x) => x.props.id === "iframe-overlay");
+  let foregroundOverlayContainer = (_f = foreground == null ? void 0 : foreground.children) == null ? void 0 : _f.find((x) => x.props.id === "overlay");
   let foregroundVideoContainer2 = (_g = foreground == null ? void 0 : foreground.children) == null ? void 0 : _g.find((x) => x.props.id === "video-overlay");
   let foregroundLogoContainer = (_h = foreground == null ? void 0 : foreground.children) == null ? void 0 : _h.find((x) => x.props.id === "logo");
   let foregroundVideoContainer = (_i = foreground == null ? void 0 : foreground.children) == null ? void 0 : _i.find((x) => x.props.id === "fg-video");
@@ -58058,6 +58093,10 @@ const createCompositor = async (layoutId, size, settings) => {
     id: "fg-image",
     layout: "Free"
   }, foreground.id), project.insert({
+    name: "VideoOverlay",
+    id: "fg-video",
+    layout: "Free"
+  }, foreground.id), project.insert({
     name: "Overlay",
     sourceType: "Overlay",
     id: "overlay",
@@ -58074,10 +58113,6 @@ const createCompositor = async (layoutId, size, settings) => {
     layoutProps: {
       cover: true
     }
-  }, foreground.id), project.insert({
-    name: "VideoOverlay",
-    id: "fg-video",
-    layout: "Free"
   }, foreground.id), project.insert({
     name: "VideoOverlay2",
     layout: "Free",
