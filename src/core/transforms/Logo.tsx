@@ -10,6 +10,25 @@ import { APIKitAnimationTypes } from '../../animation/core/types'
 import { getProject } from '../data'
 import CoreContext from '../context'
 
+export type LogoProps = {
+  src?: string
+  type?: 'logo'
+  // Opaque to the SDK
+  [prop: string]: any
+}
+
+export type Logo = {
+  id: string
+  props: LogoProps
+}
+
+export type LogoSource = {
+  id: string
+  value: LogoProps
+  // TODO: This shouldn't be necessary
+  props: LogoProps
+}
+
 export const Logo = {
   name: 'LS-Logo',
   sourceType: 'Logo',
@@ -19,12 +38,8 @@ export const Logo = {
       required: true,
     },
   },
-  useSource(sources, props) {
-    return sources.find((x) => x.props.type === props.id)
-  },
-  create({ onUpdate, onNewSource }, initialProps) {
+  create({ onUpdate }, initialProps) {
     const root = document.createElement('div')
-    let source: any
 
     const project = getProject(CoreContext.state.activeProjectId)
     const projectRoot = project.compositor.getRoot()
@@ -34,8 +49,8 @@ export const Logo = {
     const scalar = (rootWidth ?? 1280) / 1920
     const scale = (px: number) => px * scalar + 'px'
 
-    const Logo = ({ source }: { source: any }) => {
-      const { src, meta, props = {} } = source?.value || {}
+    const Logo = ({ source }: { source: LogoSource }) => {
+      const { src, meta } = source?.props || {}
       const { id } = source || {}
       const [startAnimation, setStartAnimation] = React.useState(false)
 
@@ -83,16 +98,17 @@ export const Logo = {
       )
     }
 
-    const render = () => ReactDOM.render(<Logo source={source} />, root)
+    const render = (source: LogoSource) =>
+      ReactDOM.render(<Logo source={source} />, root)
 
-    onUpdate(() => {
-      render()
+    onUpdate((props) => {
+      render({ ...props })
     })
 
-    onNewSource((_source) => {
-      source = _source
-      render()
-    })
+    // onNewSource((_source) => {
+    //   source = _source
+    //   render()
+    // })
 
     return {
       root,
