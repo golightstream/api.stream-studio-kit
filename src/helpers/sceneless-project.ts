@@ -594,7 +594,7 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     getLogo() {
-      return foregroundLogoContainer?.children[0].props.id
+      return foregroundLogoContainer?.children[0]?.props?.id
     },
 
     async removeLogo() {
