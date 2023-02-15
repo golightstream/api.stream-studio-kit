@@ -60,7 +60,13 @@ export const Video2 = {
       const { id } = source || {}
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
+      const [startAnimation, setStartAnimation] = React.useState(false)
+
       console.log('Updated current time', videoRef?.current?.currentTime)
+
+      React.useEffect(() => {
+        setStartAnimation(false)
+      }, [id])
 
       /* A callback function that is called when the video element is created. */
       const handleRect = React.useCallback((node: HTMLVideoElement) => {
@@ -135,21 +141,6 @@ export const Video2 = {
               }
             }, 1000)
 
-            /* This is checking if the user has permission to manage guests. If they do, then it triggers an
-            internal event. */
-            if (hasPermission(role, Permission.ManageGuests)) {
-              triggerInternal(SourceTrigger.trigger, {
-                projectId: CoreContext.state.activeProjectId,
-                role,
-                sourceId: id,
-                doTrigger: true,
-                metadata: {
-                  time: Math.floor(videoRef?.current?.currentTime) || 0,
-                  owner: room?.participantId,
-                },
-              })
-            }
-
             return room?.onData((event, senderId) => {
               // Handle request for time sync.
               if (videoRef?.current?.currentTime) {
@@ -185,16 +176,22 @@ export const Video2 = {
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
-          {src && (
-            <video
-              id={id}
-              ref={handleRect}
-              style={initialProps.style}
-              {...initialProps.props}
-              onLoadedData={onLoadedData}
-              onEnded={onEnded}
-            />
-          )}
+          <div
+            style={{ opacity: startAnimation ? 1 : 0 }}
+            className={`video-transition`}
+          >
+            {src && (
+              <video
+                id={id}
+                ref={handleRect}
+                style={initialProps.style}
+                {...initialProps.props}
+                onLoadedData={onLoadedData}
+                onEnded={onEnded}
+                onCanPlayThrough={() => setStartAnimation(true)}
+              />
+            )}
+          </div>
         </APIKitAnimation>
       )
     }

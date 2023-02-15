@@ -27,6 +27,11 @@ export const Image2 = {
     const Image = ({ source }: { source: any }) => {
       const { src, meta } = source?.value || {}
       const { id } = source || {}
+      const [startAnimation, setStartAnimation] = React.useState(false)
+
+      React.useEffect(() => {
+        setStartAnimation(false)
+      }, [id])
 
       return (
         <APIKitAnimation
@@ -36,9 +41,18 @@ export const Image2 = {
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
-          {src && (
-            <img style={{ ...initialProps?.style, ...meta?.style }} className="image-transition" src={src} />
-          )}
+          <div
+            style={{ opacity: startAnimation ? 1 : 0 }}
+            className={`image-transition`}
+          >
+            {src && (
+              <img
+                style={{ ...initialProps?.style, ...meta?.style }}
+                src={src}
+                onLoad={() => setStartAnimation(true)}
+              />
+            )}
+          </div>
         </APIKitAnimation>
       )
     }
