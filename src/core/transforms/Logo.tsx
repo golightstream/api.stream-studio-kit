@@ -27,6 +27,7 @@ export type LogoSource = {
   value: LogoProps
   // TODO: This shouldn't be necessary
   props: LogoProps
+  sourceType: string
 }
 
 export const Logo = {
