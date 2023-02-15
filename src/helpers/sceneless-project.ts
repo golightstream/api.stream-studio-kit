@@ -51,7 +51,11 @@ import { generateId } from '../logic'
 import { ChatOverlayProps } from '../core/transforms/ChatOverlay'
 
 import LayoutName = Compositor.Layout.LayoutName
-import { defaultStyles, ForegroundLayers } from './database'
+import {
+  defaultStyles,
+  ForegroundLayers,
+  validateEachChildren,
+} from './database'
 
 export type { LayoutName }
 export type { Banner, BannerSource, RoomParticipantSource }
@@ -466,6 +470,15 @@ export const commands = (_project: ScenelessProject) => {
       })
     }
   }
+
+  const ensureBackgroundChildLayersProps = async () => {
+    if (!validateEachChildren(background.children, ['Background'])) {
+      background.children.forEach(async (child) => {
+        await CoreContext.Command.deleteNode({ nodeId: child.id })
+      })
+    }
+  }
+
   const ensureForegroundContainers = async () => {
     const ensureBannerContainer = async () => {
       if (!bannerContainer) {
@@ -481,7 +494,7 @@ export const commands = (_project: ScenelessProject) => {
           foreground.id,
         )
         bannerContainer = foreground?.children?.find(
-          (x) => x.props.id === nodeId,
+          (x) => x.id === nodeId,
         )
         return nodeId
       } else {
@@ -500,7 +513,7 @@ export const commands = (_project: ScenelessProject) => {
         )
 
         foregroundImageIframeContainer = foreground?.children?.find(
-          (x) => x.props.id === nodeId,
+          (x) => x.id === nodeId,
         )
         return nodeId
       } else {
@@ -519,7 +532,7 @@ export const commands = (_project: ScenelessProject) => {
           foreground.id,
         )
         foregroundVideoContainer = foreground?.children?.find(
-          (x) => x.props.id === nodeId,
+          (x) => x.id === nodeId,
         )
         return nodeId
       } else {
@@ -545,7 +558,7 @@ export const commands = (_project: ScenelessProject) => {
           foreground.id,
         )
         foregroundLogoContainer = foreground?.children?.find(
-          (x) => x.props.id === nodeId,
+          (x) => x.id === nodeId,
         )
         return nodeId
       } else {
@@ -1146,7 +1159,7 @@ export const commands = (_project: ScenelessProject) => {
       }
 
       // get all children of the overlay node and update their opacity attributes
-      foregroundImageIframeContainer.children.forEach(({ id, props }) => {
+      foregroundImageIframeContainer?.children.forEach(({ id, props }) => {
         if (props.props.meta?.style?.opacity === 0) {
           const type = props.props.type as keyof typeof defaultStyles
           const extendedDefaultStyles = {
@@ -1640,6 +1653,7 @@ export const commands = (_project: ScenelessProject) => {
   }
   const ensureValid = async () => {
     await ensureRootLayersProps()
+    await ensureBackgroundChildLayersProps()
     await ensureForegroundContainers()
     beforeInit(commands)
   }

@@ -34,6 +34,7 @@ export type OverlaySource = {
   value: OverlayProps
   // TODO: This shouldn't be necessary
   props: OverlayProps
+  sourceType: string
 }
 
 interface ISourceMap {
@@ -148,7 +149,7 @@ export const Overlay = {
       )
 
       const { src, type, meta, loop } = source?.props || {}
-      const { id } = source || {}
+      const { id , sourceType  } = source || {}
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
       console.log('Updated current time', videoRef?.current?.currentTime)
@@ -219,51 +220,51 @@ export const Overlay = {
                 const timePending =
                   videoRef.current.duration - videoRef.current.currentTime
                 trigger('VideoTimeUpdate', {
-                  category: type,
+                  category: sourceType,
                   id: id,
                   time: Math.floor(timePending),
                 })
               }
             }, 1000)
 
-            /* This is checking if the user has permission to manage guests. If they do, then it triggers an
-            internal event. */
-            if (hasPermission(role, Permission.ManageGuests)) {
-              triggerInternal(SourceTrigger.trigger, {
-                projectId: CoreContext.state.activeProjectId,
-                role,
-                sourceId: id,
-                doTrigger: true,
-                metadata: {
-                  time: Math.floor(videoRef?.current?.currentTime) || 0,
-                  owner: room?.participantId,
-                },
-              })
-            }
+            // /* This is checking if the user has permission to manage guests. If they do, then it triggers an
+            // internal event. */
+            // if (hasPermission(role, Permission.ManageGuests)) {
+            //   triggerInternal(SourceTrigger.trigger, {
+            //     projectId: CoreContext.state.activeProjectId,
+            //     role,
+            //     sourceId: id,
+            //     doTrigger: true,
+            //     metadata: {
+            //       time: Math.floor(videoRef?.current?.currentTime) || 0,
+            //       owner: room?.participantId,
+            //     },
+            //   })
+            // }
 
-            return room?.onData((event, senderId) => {
-              // Handle request for time sync.
-              if (videoRef?.current?.currentTime) {
-                /* This is checking if the user has permission to manage guests. If they do, then it triggers an
-                    internal event. */
-                if (
-                  event.type === 'UserJoined' &&
-                  hasPermission(role, Permission.ManageGuests)
-                ) {
-                  triggerInternal(SourceTrigger.trigger, {
-                    projectId: CoreContext.state.activeProjectId,
-                    role,
-                    sourceId: refId,
-                    doTrigger: true,
-                    metadata: {
-                      time: Math.floor(videoRef?.current?.currentTime) || 0,
-                      owner: room?.participantId,
-                      guest: senderId,
-                    },
-                  })
-                }
-              }
-            })
+            // return room?.onData((event, senderId) => {
+            //   // Handle request for time sync.
+            //   if (videoRef?.current?.currentTime) {
+            //     /* This is checking if the user has permission to manage guests. If they do, then it triggers an
+            //         internal event. */
+            //     if (
+            //       event.type === 'UserJoined' &&
+            //       hasPermission(role, Permission.ManageGuests)
+            //     ) {
+            //       triggerInternal(SourceTrigger.trigger, {
+            //         projectId: CoreContext.state.activeProjectId,
+            //         role,
+            //         sourceId: refId,
+            //         doTrigger: true,
+            //         metadata: {
+            //           time: Math.floor(videoRef?.current?.currentTime) || 0,
+            //           owner: room?.participantId,
+            //           guest: senderId,
+            //         },
+            //       })
+            //     }
+            //   }
+            // })
           }
         }
       }, [refId])

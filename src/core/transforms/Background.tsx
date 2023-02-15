@@ -30,6 +30,7 @@ export type BackgroundSource = {
   value: BackgroundProps
   // TODO: This shouldn't be necessary
   props: BackgroundProps
+  sourceType: string
 }
 
 interface ISourceMap {
@@ -85,7 +86,7 @@ export const Background = {
       )
 
       const { src, type, meta, loop } = source?.props || {}
-      const { id } = source || {}
+      const { id, sourceType } = source || {}
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
       console.log('Updated current time', videoRef?.current?.currentTime)
@@ -156,7 +157,7 @@ export const Background = {
                 const timePending =
                   videoRef.current.duration - videoRef.current.currentTime
                 trigger('VideoTimeUpdate', {
-                  category: type,
+                  category: sourceType,
                   id: id,
                   time: Math.floor(timePending),
                 })
