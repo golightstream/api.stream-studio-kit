@@ -5,35 +5,31 @@
 import ReactDOM from 'react-dom'
 import React, { useEffect } from 'react'
 import { Compositor } from '../namespaces'
-// import {
-//   OverlayProps,
-//   OverlaySource,
-// } from '../sources'
+// import { BackgroundProps, BackgroundSource } from '../sources'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
 import { getProject, getProjectRoom } from '../data'
 import CoreContext from '../context'
 import { InternalEventMap, trigger, triggerInternal } from '../events'
 import { hasPermission, Permission } from '../../helpers/permission'
-import Iframe from './components/Iframe'
 
-export type OverlayProps = {
+export type BackgroundProps = {
   src?: string
-  type?: 'image' | 'video' | 'custom'
+  type?: 'image' | 'video'
   // Opaque to the SDK
   [prop: string]: any
 }
 
-export type Overlay = {
+export type Background = {
   id: string
-  props: OverlayProps
+  props: BackgroundProps
 }
 
-export type OverlaySource = {
+export type BackgroundSource = {
   id: string
-  value: OverlayProps
+  value: BackgroundProps
   // TODO: This shouldn't be necessary
-  props: OverlayProps
+  props: BackgroundProps
 }
 
 interface ISourceMap {
@@ -43,14 +39,14 @@ interface ISourceMap {
 
 const SourceTriggerMap = [
   {
-    sourceType: 'Overlay',
-    trigger: 'OverlayMetadataUpdate',
+    sourceType: 'Background',
+    trigger: 'BackgroundMetadataUpdate',
   },
 ] as ISourceMap[]
 
-export const Overlay = {
-  name: 'LS-Overlay',
-  sourceType: 'Overlay',
+export const Background = {
+  name: 'LS-Background',
+  sourceType: 'Background',
   props: {
     id: {
       type: String,
@@ -65,7 +61,7 @@ export const Overlay = {
   },
   // useSource(sources, props) {
   //   // TODO: Filter source.isActive to ensure we're getting the best match
-  //   return sources.find((x) => x.id === props.overlayId)
+  //   return sources.find((x) => x.id === props.backgroundId)
   // },
   create({ onUpdate, onNewSource, onRemove }, initialProps) {
     onRemove(() => {
@@ -75,72 +71,13 @@ export const Overlay = {
     const root = document.createElement('div')
     const room = getProjectRoom(CoreContext.state.activeProjectId)
     const role = getProject(CoreContext.state.activeProjectId).role
-
-    let source: OverlaySource
     let interval: NodeJS.Timer
-
-    const IFrame = ({
-      source,
-      setStartAnimation,
-    }: {
-      source: OverlaySource
-      setStartAnimation: (value: boolean) => void
-    }) => {
-      const { src, meta, height, width } = source?.props || {}
-      const iframeRef = React.useRef<HTMLIFrameElement>(null)
-
-      useEffect(() => {
-        if (iframeRef.current) {
-          iframeRef.current.style.removeProperty('transformOrigin')
-          iframeRef.current.style.removeProperty('transform')
-        }
-      }, [src])
-
-      const resizeIframe = () => {
-        if (iframeRef.current) {
-          const project = getProject(CoreContext.state.activeProjectId)
-          const root = project.compositor.getRoot()
-          const { x: rootWidth, y: rootHeight } = root.props.size
-          let iframeWidth = iframeRef.current.clientWidth
-          let iframeHeight = iframeRef.current.clientHeight
-
-          let scale
-
-          if (iframeWidth && iframeHeight) {
-            scale = Math.min(rootWidth / iframeWidth, rootHeight / iframeHeight)
-          } else {
-            // It's possible the container will have no size defined (width/height=0)
-            scale = 1
-          }
-
-          iframeRef.current.style.willChange = `transform`
-          // @ts-ignore
-          iframeRef.current.style.transformOrigin = '0 0'
-          iframeRef.current.style.transform = `scale(${scale}) translateZ(0)`
-          setStartAnimation(true)
-        }
-      }
-      return (
-        <React.Fragment>
-          <Iframe
-            key={source.id}
-            url={src}
-            frameBorder={0}
-            iframeRef={iframeRef}
-            height={height}
-            width={width}
-            onLoad={resizeIframe}
-            styles={{ ...meta?.style }}
-          />
-        </React.Fragment>
-      )
-    }
 
     const Video = ({
       source,
       setStartAnimation,
     }: {
-      source: OverlaySource
+      source: BackgroundSource
       setStartAnimation: (value: boolean) => void
     }) => {
       const SourceTrigger = SourceTriggerMap.find(
@@ -182,7 +119,7 @@ export const Overlay = {
       video to the meta time. */
       React.useEffect(() => {
         if (meta && videoRef?.current && refId) {
-          if (hasPermission(role, Permission.ManageSelf)) {
+          if (meta?.time) {
             videoRef.current.currentTime = Number(meta?.time)
           }
         }
@@ -228,42 +165,42 @@ export const Overlay = {
 
             /* This is checking if the user has permission to manage guests. If they do, then it triggers an
             internal event. */
-            if (hasPermission(role, Permission.ManageGuests)) {
-              triggerInternal(SourceTrigger.trigger, {
-                projectId: CoreContext.state.activeProjectId,
-                role,
-                sourceId: id,
-                doTrigger: true,
-                metadata: {
-                  time: Math.floor(videoRef?.current?.currentTime) || 0,
-                  owner: room?.participantId,
-                },
-              })
-            }
+            // if (hasPermission(role, Permission.ManageGuests)) {
+            //   triggerInternal(SourceTrigger.trigger, {
+            //     projectId: CoreContext.state.activeProjectId,
+            //     role,
+            //     sourceId: id,
+            //     doTrigger: true,
+            //     metadata: {
+            //       time: Math.floor(videoRef?.current?.currentTime) || 0,
+            //       owner: room?.participantId,
+            //     },
+            //   })
+            // }
 
-            return room?.onData((event, senderId) => {
-              // Handle request for time sync.
-              if (videoRef?.current?.currentTime) {
-                /* This is checking if the user has permission to manage guests. If they do, then it triggers an
-                    internal event. */
-                if (
-                  event.type === 'UserJoined' &&
-                  hasPermission(role, Permission.ManageGuests)
-                ) {
-                  triggerInternal(SourceTrigger.trigger, {
-                    projectId: CoreContext.state.activeProjectId,
-                    role,
-                    sourceId: refId,
-                    doTrigger: true,
-                    metadata: {
-                      time: Math.floor(videoRef?.current?.currentTime) || 0,
-                      owner: room?.participantId,
-                      guest: senderId,
-                    },
-                  })
-                }
-              }
-            })
+            // return room?.onData((event, senderId) => {
+            //   // Handle request for time sync.
+            //   if (videoRef?.current?.currentTime) {
+            //     /* This is checking if the user has permission to manage guests. If they do, then it triggers an
+            //         internal event. */
+            //     if (
+            //       event.type === 'UserJoined' &&
+            //       hasPermission(role, Permission.ManageGuests)
+            //     ) {
+            //       triggerInternal(SourceTrigger.trigger, {
+            //         projectId: CoreContext.state.activeProjectId,
+            //         role,
+            //         sourceId: refId,
+            //         doTrigger: true,
+            //         metadata: {
+            //           time: Math.floor(videoRef?.current?.currentTime) || 0,
+            //           owner: room?.participantId,
+            //           guest: senderId,
+            //         },
+            //       })
+            //     }
+            //   }
+            // })
           }
         }
       }, [refId])
@@ -289,10 +226,10 @@ export const Overlay = {
       source,
       setStartAnimation,
     }: {
-      source: OverlaySource
+      source: BackgroundSource
       setStartAnimation: (value: boolean) => void
     }) => {
-      const { src, meta } = source?.props || {}
+      const { src, meta, type } = source?.props || {}
       const { id } = source || {}
 
       return (
@@ -311,8 +248,8 @@ export const Overlay = {
       )
     }
 
-    const Overlay = ({ source }: { source: OverlaySource }) => {
-      const { type } = source?.props || {}
+    const Background = ({ source }: { source: BackgroundSource }) => {
+      const { type } = source.props
       const { id } = source || {}
       const [startAnimation, setStartAnimation] = React.useState(false)
       useEffect(() => {
@@ -322,14 +259,14 @@ export const Overlay = {
       return (
         <APIKitAnimation
           id={id}
-          type="overlay"
+          type="background"
           enter={APIKitAnimationTypes.FADE_IN}
           exit={APIKitAnimationTypes.FADE_OUT}
           duration={400}
         >
           <div
             style={{ opacity: startAnimation ? 1 : 0 }}
-            className={`overlayContainer overlay-transition`}
+            className={`backgroundContainer background-transition`}
           >
             {id && type === 'image' && (
               <Image source={source} setStartAnimation={setStartAnimation} />
@@ -337,18 +274,15 @@ export const Overlay = {
             {id && type === 'video' && (
               <Video source={source} setStartAnimation={setStartAnimation} />
             )}
-            {id && type === 'custom' && (
-              <IFrame source={source} setStartAnimation={setStartAnimation} />
-            )}
           </div>
         </APIKitAnimation>
       )
     }
 
-    const render = (source: OverlaySource) =>
+    const render = (source: BackgroundSource) =>
       ReactDOM.render(
         <>
-          <Overlay source={source} />
+          <Background source={source} />
         </>,
         root,
       )
