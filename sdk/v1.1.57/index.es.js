@@ -324,6 +324,7 @@ const CoreContext = {
   compositor: {},
   connectionId: connectionId$1,
   version: version$4,
+  rendererVersion: version$4,
   log: log$1,
   logLevel: null
 };
@@ -56417,6 +56418,17 @@ const startBroadcast = async (payload) => {
     projectId = state.activeProjectId
   } = payload;
   const project = getProject(projectId);
+  if (project.videoApi.project.composition.studioSdk.version !== CoreContext.rendererVersion) {
+    await CoreContext.clients.LiveApi().project.updateProject({
+      composition: {
+        studioSdk: {
+          rendererUrl: void 0,
+          version: CoreContext.rendererVersion
+        }
+      },
+      updateMask: ["composition.studioSdk.version", "composition.studioSdk.rendererUrl"]
+    });
+  }
   await CoreContext.clients.LiveApi().project.startProjectBroadcast({
     collectionId: project.videoApi.project.collectionId,
     projectId: project.videoApi.project.projectId
@@ -59334,7 +59346,9 @@ const createProject = async (request3) => {
       }
     },
     composition: {
-      studioSdk: {}
+      studioSdk: {
+        version: CoreContext.rendererVersion
+      }
     },
     metadata: {},
     webrtc: {
@@ -59476,6 +59490,7 @@ const init = async (settings = {}) => {
     transforms: transforms2 = [],
     sources: sources2 = [],
     defaultTransforms = {},
+    useLatestRenderer = false,
     guestToken
   } = settings;
   const client = new lib$2.ApiStream({
@@ -59503,6 +59518,7 @@ const init = async (settings = {}) => {
   CoreContext.Command = await Promise.resolve().then(function() {
     return commands$1;
   });
+  CoreContext.rendererVersion = useLatestRenderer ? "latest" : CoreContext.version;
   window.__StudioKit = {
     ...CoreContext
   };
