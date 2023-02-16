@@ -5,15 +5,11 @@
 import ReactDOM from 'react-dom'
 import React, { useEffect } from 'react'
 import { Compositor } from '../namespaces'
-// import {
-//   OverlayProps,
-//   OverlaySource,
-// } from '../sources'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
 import { getProject, getProjectRoom } from '../data'
 import CoreContext from '../context'
-import { InternalEventMap, trigger, triggerInternal } from '../events'
+import { trigger } from '../events'
 import { hasPermission, Permission } from '../../helpers/permission'
 import Iframe from './components/Iframe'
 
@@ -37,18 +33,6 @@ export type OverlaySource = {
   sourceType: string
 }
 
-interface ISourceMap {
-  sourceType: string
-  trigger: keyof InternalEventMap
-}
-
-const SourceTriggerMap = [
-  {
-    sourceType: 'Overlay',
-    trigger: 'OverlayMetadataUpdate',
-  },
-] as ISourceMap[]
-
 export const Overlay = {
   name: 'LS-Overlay',
   sourceType: 'Overlay',
@@ -64,10 +48,7 @@ export const Overlay = {
       },
     },
   },
-  // useSource(sources, props) {
-  //   // TODO: Filter source.isActive to ensure we're getting the best match
-  //   return sources.find((x) => x.id === props.overlayId)
-  // },
+
   create({ onUpdate, onNewSource, onRemove }, initialProps) {
     onRemove(() => {
       clearInterval(interval)
@@ -144,12 +125,8 @@ export const Overlay = {
       source: OverlaySource
       setStartAnimation: (value: boolean) => void
     }) => {
-      const SourceTrigger = SourceTriggerMap.find(
-        (x) => x.sourceType === initialProps.sourceType,
-      )
-
       const { src, type, meta, loop } = source?.props || {}
-      const { id , sourceType  } = source || {}
+      const { id, sourceType } = source || {}
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
       console.log('Updated current time', videoRef?.current?.currentTime)
@@ -175,7 +152,9 @@ export const Overlay = {
         if (interval) {
           clearInterval(interval)
         }
-        trigger('VideoEnded', { id: id, category: type })
+        if (hasPermission(role, Permission.UpdateProject)) {
+          trigger('VideoEnded', { id: id, category: type })
+        }
       }, [src])
 
       /* Checking if the video is playing and if the user has permission to manage self and if the guest is
@@ -184,7 +163,9 @@ export const Overlay = {
       React.useEffect(() => {
         if (meta && videoRef?.current && refId) {
           if (hasPermission(role, Permission.ManageSelf)) {
-            videoRef.current.currentTime = Number(meta?.time)
+            if (meta?.time) {
+              videoRef.current.currentTime = Number(meta?.time)
+            }
           }
         }
       }, [meta?.time, refId])
@@ -217,54 +198,17 @@ export const Overlay = {
 
             interval = setInterval(() => {
               if (videoRef.current.duration) {
-                const timePending =
-                  videoRef.current.duration - videoRef.current.currentTime
-                trigger('VideoTimeUpdate', {
-                  category: sourceType,
-                  id: id,
-                  time: Math.floor(timePending),
-                })
+                if (hasPermission(role, Permission.UpdateProject)) {
+                  const timePending =
+                    videoRef.current.duration - videoRef.current.currentTime
+                  trigger('VideoTimeUpdate', {
+                    category: sourceType,
+                    id: id,
+                    time: Math.floor(timePending),
+                  })
+                }
               }
             }, 1000)
-
-            // /* This is checking if the user has permission to manage guests. If they do, then it triggers an
-            // internal event. */
-            // if (hasPermission(role, Permission.ManageGuests)) {
-            //   triggerInternal(SourceTrigger.trigger, {
-            //     projectId: CoreContext.state.activeProjectId,
-            //     role,
-            //     sourceId: id,
-            //     doTrigger: true,
-            //     metadata: {
-            //       time: Math.floor(videoRef?.current?.currentTime) || 0,
-            //       owner: room?.participantId,
-            //     },
-            //   })
-            // }
-
-            // return room?.onData((event, senderId) => {
-            //   // Handle request for time sync.
-            //   if (videoRef?.current?.currentTime) {
-            //     /* This is checking if the user has permission to manage guests. If they do, then it triggers an
-            //         internal event. */
-            //     if (
-            //       event.type === 'UserJoined' &&
-            //       hasPermission(role, Permission.ManageGuests)
-            //     ) {
-            //       triggerInternal(SourceTrigger.trigger, {
-            //         projectId: CoreContext.state.activeProjectId,
-            //         role,
-            //         sourceId: refId,
-            //         doTrigger: true,
-            //         metadata: {
-            //           time: Math.floor(videoRef?.current?.currentTime) || 0,
-            //           owner: room?.participantId,
-            //           guest: senderId,
-            //         },
-            //       })
-            //     }
-            //   }
-            // })
           }
         }
       }, [refId])
@@ -357,11 +301,6 @@ export const Overlay = {
     onUpdate((props) => {
       render({ ...props })
     })
-
-    // onNewSource((_source) => {
-    //   source = _source
-    //   render()
-    // })
 
     return {
       root,
