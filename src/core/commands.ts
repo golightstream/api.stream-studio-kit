@@ -183,7 +183,7 @@ export const recreateLayout = async (payload: {
     })
 
   CoreContext.log.debug('New layout assigned to project:', { layout })
-    
+
   // Trigger event to update state
   await triggerInternal('ProjectChanged', { project: updateResponse.project })
 
@@ -205,9 +205,10 @@ export const recreateLayout = async (payload: {
     internalProject.compositor.getRoot().id,
     props,
   )
-  return toBaseProject(internalProject)
-}
 
+  /** return original project as well as internal project */
+  return { project: toBaseProject(internalProject), internalProject }
+}
 /**
  * Delete a project.
  *

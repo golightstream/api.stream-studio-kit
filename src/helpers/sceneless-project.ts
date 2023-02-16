@@ -254,7 +254,6 @@ export interface Commands {
    * remove the active image overlay
    */
   removeImageOverlay(): Promise<void>
-
   /** Set one participant to "showcase". This participant will expand to fill
    * the space of the stream without affecting the underlying layout.
    */
@@ -1573,6 +1572,8 @@ export const commands = (_project: ScenelessProject) => {
       return commands.getParticipantNode(participantId, type)
         ?.props as ParticipantProps
     },
+
+
     useParticipantState(
       participantId: string,
       cb: (state: ParticipantProps) => void,
@@ -1762,14 +1763,12 @@ export const create = async (
 export const beforeInit = (commands: Commands) => {
   // /** autoPlay last applied video overlay on refresh */
   // const videoOverLay = commands.getVideoOverlay() as string
-
   // if (videoOverLay) {
   //   commands.autoPlayVideoOverlay(videoOverLay, {
   //     muted: true,
   //     autoplay: true,
   //   })
   // }
-
   // /** autoPlay last applied video background on refresh */
   // const backgroundVideo = commands.getBackgroundVideo()
   // if (backgroundVideo) {

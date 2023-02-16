@@ -1,9 +1,8 @@
-import { Compositor, SDK } from '../core'
-import CoreContext, { InternalProject } from '../core/context'
 /* ---------------------------------------------------------------------------------------------
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
+import { Compositor } from '../core'
 export const ForegroundLayers = [
   {
     name: 'ImageIframeOverlayContainer',
@@ -50,16 +49,6 @@ export const defaultStyles = {
   },
 }
 
-// const allowedSourceTypes = [
-//   'Background',
-//   'Banner',
-//   'ChatOverlay',
-//   'Element',
-//   'Overlay',
-//   'Logo',
-//   'Square',
-// ]
-
 export const validateEachChildren = (
   children: Compositor.SceneNode[],
   allowedSourceTypes: string[],
@@ -73,12 +62,25 @@ export const validateEachChildren = (
       isValid = false
     } else {
       if (child.children.length > 0) {
-        isValid = isValid && validateEachChildren(child.children,allowedSourceTypes)
+        isValid =
+          isValid && validateEachChildren(child.children, allowedSourceTypes)
       }
     }
   })
   return isValid
 }
+
+// TODO : Write migration for updating any conflicting node
+
+// const allowedSourceTypes = [
+//   'Background',
+//   'Banner',
+//   'ChatOverlay',
+//   'Element',
+//   'Overlay',
+//   'Logo',
+//   'Square',
+// ]
 
 // const checkIsBackgroundValid = (root: Compositor.SceneNode) => {
 //   const background = root.children.find(
