@@ -210,6 +210,12 @@ const Project = () => {
     })
   }, [])
 
+  // React.useEffect(() => {
+  //   return projectCommands.useLayerState('Background', (props) => {
+  //     console.log(props)
+  //   })
+  // }, [])
+
   React.useEffect(() => studio.compositor.useSources('Banner', setBanners), [])
   // Generate project links
   useEffect(() => {

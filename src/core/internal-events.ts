@@ -219,6 +219,7 @@ subscribeInternal(async (event, payload) => {
       return
     }
 
+    // TODO: remove this code after a while when this version of sdk (1.1.58) is adopted by all users
     case 'BackgroundMetadataUpdate': {
       const { Command } = CoreContext
       const { projectId, metadata, sourceId, doTrigger, role } =
@@ -261,6 +262,7 @@ subscribeInternal(async (event, payload) => {
       return
     }
 
+    // TODO: remove this code after a while when this version of sdk (1.1.58) is adopted by all users
     case 'OverlayMetadataUpdate': {
       const { Command } = CoreContext
       const { projectId, metadata, sourceId, doTrigger, role } =

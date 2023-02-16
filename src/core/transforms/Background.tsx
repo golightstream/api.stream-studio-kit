@@ -7,7 +7,7 @@ import React, { useEffect } from 'react'
 import { Compositor } from '../namespaces'
 import APIKitAnimation from '../../compositor/html/html-animation'
 import { APIKitAnimationTypes } from '../../animation/core/types'
-import { getProject, getProjectRoom } from '../data'
+import { getProject } from '../data'
 import CoreContext from '../context'
 import { trigger } from '../events'
 import { hasPermission, Permission } from '../../helpers/permission'
@@ -47,17 +47,12 @@ export const Background = {
       },
     },
   },
-  // useSource(sources, props) {
-  //   // TODO: Filter source.isActive to ensure we're getting the best match
-  //   return sources.find((x) => x.id === props.backgroundId)
-  // },
-  create({ onUpdate, onNewSource, onRemove }, initialProps) {
+  create({ onUpdate, onRemove }, initialProps) {
     onRemove(() => {
       clearInterval(interval)
     })
 
     const root = document.createElement('div')
-    const room = getProjectRoom(CoreContext.state.activeProjectId)
     const role = getProject(CoreContext.state.activeProjectId).role
     let interval: NodeJS.Timer
 
@@ -131,17 +126,15 @@ export const Background = {
         } else {
           if (videoRef.current) {
             videoRef.current!.src = src
-            if (loop) {
-              videoRef.current.loop = Boolean(loop)
-            }
+            videoRef.current.loop = Boolean(loop)
+
             videoRef.current!.play().catch(() => {
               videoRef.current.muted = true
               videoRef.current.play()
             })
-
-            interval = setInterval(() => {
-              if (videoRef.current.duration) {
-                if (hasPermission(role, Permission.UpdateProject)) {
+            if (hasPermission(role, Permission.UpdateProject)) {
+              interval = setInterval(() => {
+                if (videoRef.current.duration) {
                   const timePending =
                     videoRef.current.duration - videoRef.current.currentTime
                   trigger('VideoTimeUpdate', {
@@ -150,8 +143,8 @@ export const Background = {
                     time: Math.floor(timePending),
                   })
                 }
-              }
-            }, 1000)
+              }, 1000)
+            }
           }
         }
       }, [refId])
