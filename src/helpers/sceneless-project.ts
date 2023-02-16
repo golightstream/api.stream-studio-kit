@@ -1586,6 +1586,26 @@ export const commands = (_project: ScenelessProject) => {
         ?.props as ParticipantProps
     },
 
+    useLayerState<T>(sourceType: string, cb: (state: T) => void): () => void {
+      const sendState = (props: T) => {
+        cb(props)
+      }
+
+      // Watch for changes to the parent children
+      const layerListener = CoreContext.onInternal('NodeChanged', (payload) => {
+        const node = CoreContext.compositor.getNode(payload.nodeId)
+        if (!node) return
+
+        if (node?.props?.sourceType?.toLowerCase() === sourceType?.toLowerCase()) {
+          sendState(node.props.props as T)
+        }
+      })
+
+      return () => {
+        layerListener()
+      }
+    },
+
     useParticipantState(
       participantId: string,
       cb: (state: ParticipantProps) => void,
