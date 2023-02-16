@@ -207,6 +207,12 @@ export interface Commands {
     props: BackgroundProps & HTMLVideoElementAttributes,
   ): Promise<void>
 
+  /* Updating the background video props. */
+  updateBackgroundVideoProps(
+    id: string,
+    props: BackgroundProps & HTMLVideoElementAttributes,
+  ): Promise<void>
+
   getImageOverlay(): string | null
   /**
    * Get the active video overlay
@@ -228,6 +234,10 @@ export interface Commands {
     props: OverlayProps & HTMLVideoElementAttributes,
   ): Promise<void>
 
+  updateVideoOverlayProps(
+    id: string,
+    props: OverlayProps & HTMLVideoElementAttributes,
+  ): Promise<void>
   /**
    * add html overlay
    */
@@ -493,9 +503,7 @@ export const commands = (_project: ScenelessProject) => {
           },
           foreground.id,
         )
-        bannerContainer = foreground?.children?.find(
-          (x) => x.id === nodeId,
-        )
+        bannerContainer = foreground?.children?.find((x) => x.id === nodeId)
         return nodeId
       } else {
         return bannerContainer.id
@@ -710,17 +718,17 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     getBackgroundImage() {
-      const backgroundChild = background.children.filter(
-        (x) => x.props.type === 'image',
+      const backgroundChild = background.children.find(
+        (x) => x.props?.props?.type === 'image',
       )
-      return backgroundChild[0]?.props?.id
+      return backgroundChild?.props?.id
     },
 
     getBackgroundVideo() {
-      const backgroundChild = background.children.filter(
-        (x) => x.props.id === 'video',
+      const backgroundChild = background.children.find(
+        (x) => x.props?.props?.type === 'video',
       )
-      return backgroundChild[0]?.props?.id
+      return backgroundChild?.props?.id
     },
 
     async addLogo(id: string, props: LogoProps) {
@@ -1056,6 +1064,33 @@ export const commands = (_project: ScenelessProject) => {
       }
     },
 
+    async updateVideoOverlayProps(
+      id: string,
+      props: OverlayProps & HTMLVideoElementAttributes,
+    ): Promise<void> {
+      const existingForegroundNode =
+        foregroundVideoContainer?.children?.find((x) => x?.props?.id === id) ||
+        null
+      if (!existingForegroundNode) {
+        return
+      }
+      await CoreContext.Command.updateNode({
+        nodeId: existingForegroundNode?.id,
+        props: {
+          sourceType: 'Overlay',
+          id: id,
+          props: {
+            ...existingForegroundNode?.props?.props,
+            ...props,
+            meta: {
+              style: { ...defaultStyles['video'] },
+              ...props.meta,
+            },
+          },
+        },
+      })
+    },
+
     async addCustomOverlay(id: string, props: OverlayProps): Promise<void> {
       const [existingForegroundNode, ...excessForegroundNode] =
         foregroundImageIframeContainer?.children || ([] as SceneNode[])
@@ -1286,6 +1321,32 @@ export const commands = (_project: ScenelessProject) => {
           },
         })
       }
+    },
+
+    async updateBackgroundVideoProps(
+      id: string,
+      props: BackgroundProps & HTMLVideoElementAttributes,
+    ): Promise<void> {
+      const existingBackgroundNode =
+        background?.children?.find((x) => x?.props?.id === id) || null
+      if (!existingBackgroundNode) {
+        return
+      }
+      await CoreContext.Command.updateNode({
+        nodeId: existingBackgroundNode?.id,
+        props: {
+          sourceType: 'Background',
+          id: id,
+          props: {
+            ...existingBackgroundNode?.props?.props,
+            ...props,
+            meta: {
+              style: { ...defaultStyles['video'] },
+              ...props.meta,
+            },
+          },
+        },
+      })
     },
 
     async removeBackgroundImage(): Promise<void> {
@@ -1699,24 +1760,24 @@ export const create = async (
 }
 
 export const beforeInit = (commands: Commands) => {
-  /** autoPlay last applied video overlay on refresh */
-  const videoOverLay = commands.getVideoOverlay() as string
+  // /** autoPlay last applied video overlay on refresh */
+  // const videoOverLay = commands.getVideoOverlay() as string
 
-  if (videoOverLay) {
-    commands.autoPlayVideoOverlay(videoOverLay, {
-      muted: true,
-      autoplay: true,
-    })
-  }
+  // if (videoOverLay) {
+  //   commands.autoPlayVideoOverlay(videoOverLay, {
+  //     muted: true,
+  //     autoplay: true,
+  //   })
+  // }
 
-  /** autoPlay last applied video background on refresh */
-  const backgroundVideo = commands.getBackgroundVideo()
-  if (backgroundVideo) {
-    commands.autoPlayBackgroundVideo({
-      muted: true,
-      autoplay: true,
-    })
-  }
+  // /** autoPlay last applied video background on refresh */
+  // const backgroundVideo = commands.getBackgroundVideo()
+  // if (backgroundVideo) {
+  //   commands.autoPlayBackgroundVideo({
+  //     muted: true,
+  //     autoplay: true,
+  //   })
+  // }
 }
 /** @private */
 export const createCompositor = async (

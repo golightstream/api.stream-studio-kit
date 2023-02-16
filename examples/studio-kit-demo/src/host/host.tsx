@@ -459,16 +459,16 @@ const Project = () => {
                   })
                 } else {
                   //            projectCommands.setBackgroundVideo(e.target.value)
-                  // projectCommands.setBackgroundVideo(generateId(), {
-                  //   src: e.target.value,
-                  //   loop: true,
-                  // })
-
-                  projectCommands.addCustomOverlay(generateId(), {
-                    src: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
-                    width: 1920,
-                    height: 1080,
+                  projectCommands.setBackgroundVideo(generateId(), {
+                    src: e.target.value,
+                    loop: true,
                   })
+
+                  // projectCommands.addCustomOverlay(generateId(), {
+                  //   src: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
+                  //   width: 1920,
+                  //   height: 1080,
+                  // })
                 }
               }}
             />
@@ -482,10 +482,15 @@ const Project = () => {
             />
             <input
               type="button"
-              defaultValue="Clear"
+              defaultValue="UpdateTime"
               onClick={() => {
+                const random = Math.random() * (25 - 0) + 0
                 const backgroundVideo = projectCommands.getBackgroundMedia()
-                console.log(backgroundVideo)
+                projectCommands.updateBackgroundVideoProps(backgroundVideo, {
+                  meta: {
+                    time: random,
+                  },
+                })
               }}
             />
           </div>
