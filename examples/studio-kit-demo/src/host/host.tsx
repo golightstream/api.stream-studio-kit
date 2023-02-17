@@ -210,11 +210,11 @@ const Project = () => {
     })
   }, [])
 
-  React.useEffect(() => {
-    return projectCommands.useLayerState('Background', (props) => {
-      console.log(props)
-    })
-  }, [])
+  // React.useEffect(() => {
+  //   return projectCommands.useLayerState('Background', (props) => {
+  //     console.log(props)
+  //   })
+  // }, [])
 
   React.useEffect(() => studio.compositor.useSources('Banner', setBanners), [])
   // Generate project links
@@ -465,9 +465,15 @@ const Project = () => {
                   })
                 } else {
                   //            projectCommands.setBackgroundVideo(e.target.value)
-                  projectCommands.setBackgroundVideo(generateId(), {
-                    src: e.target.value,
-                    loop: true,
+                  // projectCommands.setBackgroundVideo(generateId(), {
+                  //   src: e.target.value,
+                  //   loop: true,
+                  // })
+
+                  projectCommands.addCustomOverlay(generateId(), {
+                    src: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
+                    width: 1920,
+                    height: 1080,
                   })
 
                   // projectCommands.addCustomOverlay(generateId(), {
@@ -488,15 +494,10 @@ const Project = () => {
             />
             <input
               type="button"
-              defaultValue="UpdateTime"
+              defaultValue="Clear"
               onClick={() => {
-                const random = Math.random() * (25 - 0) + 0
                 const backgroundVideo = projectCommands.getBackgroundMedia()
-                projectCommands.updateBackgroundVideoProps(backgroundVideo, {
-                  meta: {
-                    time: random,
-                  },
-                })
+                console.log(backgroundVideo)
               }}
             />
           </div>
