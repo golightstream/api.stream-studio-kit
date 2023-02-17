@@ -1586,7 +1586,6 @@ export const commands = (_project: ScenelessProject) => {
         ?.props as ParticipantProps
     },
 
-
     useParticipantState(
       participantId: string,
       cb: (state: ParticipantProps) => void,

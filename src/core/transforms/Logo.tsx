@@ -22,6 +22,12 @@ export type LogoSource = {
   sourceType: string
 }
 
+export type Logo = {
+  id: string
+  props: LogoProps
+}
+
+
 export const Logo = {
   name: 'LS-Logo',
   sourceType: 'Logo',
