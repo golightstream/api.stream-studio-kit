@@ -10,3 +10,4 @@ declare interface Window {
 }
 
 declare module 'react-transition-group'
+declare module 'unist-util-visit'
