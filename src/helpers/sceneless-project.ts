@@ -48,9 +48,8 @@ import { Disposable, SceneNode } from '../core/types'
 import { Track } from 'livekit-client'
 import { Banner, BannerSource, BannerProps } from '../core/sources/Banners'
 import { RoomParticipantSource } from '../core/sources/WebRTC'
-import { generateId } from '../logic'
+import { generateId, findAll, deepEqual, cloneDeep } from '../logic'
 import { ChatOverlayProps } from '../core/transforms/ChatOverlay'
-
 import LayoutName = Compositor.Layout.LayoutName
 import {
   defaultStyles,
@@ -266,6 +265,10 @@ export interface Commands {
    * remove the active image overlay
    */
   removeImageOverlay(): Promise<void>
+
+  /* A generic function that takes a string and a callback function as parameters. The callback
+  function takes a generic type as a parameter. */
+  useLayerState<T>(sourceType: string, cb: (state: T) => void): void
   /** Set one participant to "showcase". This participant will expand to fill
    * the space of the stream without affecting the underlying layout.
    */
@@ -1398,6 +1401,74 @@ export const commands = (_project: ScenelessProject) => {
       }
     },
 
+    /* A function that takes in a sourceType and a callback function. It then creates a shallow copy of
+      the root node and finds all the nodes that have the same sourceType as the one passed in. It then
+      creates a listener for when the node changes, is added, or is removed. When any of these events
+      happen, it will call the callback function with the new state. */
+    useLayerState<T>(sourceType: string, cb: (state: T) => void) {
+      const shallowRoot = cloneDeep(root)
+      let layerNode = findAll(
+        shallowRoot,
+        (x: SceneNode) => x.props.sourceType === sourceType,
+      ) as SceneNode[]
+
+      const sendState = () => {
+        cb((layerNode?.map((l) => l.props) || {}) as T)
+      }
+
+      // Watch for changes to the parent children
+      const layerChangeListener = CoreContext.onInternal(
+        'NodeChanged',
+        (payload) => {
+          const changedLayer = layerNode?.find((l) => l.id === payload.nodeId)
+          if (layerNode?.length && !changedLayer) return
+          const previousLayerNode = layerNode
+          const shallowRoot = cloneDeep(root)
+          layerNode = findAll(
+            shallowRoot,
+            (x: SceneNode) => x?.props?.sourceType === sourceType,
+          )
+          if (!deepEqual(previousLayerNode, layerNode)) {
+            sendState()
+          }
+        },
+      )
+
+      const layerAddListner = CoreContext.onInternal('NodeAdded', (payload) => {
+        const existingLayer = layerNode?.find((l) => l.id === payload.nodeId)
+        if (existingLayer) return
+        const shallowRoot = cloneDeep(root)
+        layerNode = findAll(
+          shallowRoot,
+          (x: SceneNode) => x?.props?.sourceType === sourceType,
+        )
+        const addedLayer = layerNode?.find((l) => l.id === payload.nodeId)
+        if (addedLayer?.props?.sourceType === sourceType) {
+          sendState()
+        }
+      })
+
+      const layerRemoveListner = CoreContext.onInternal(
+        'NodeRemoved',
+        (payload) => {
+          const removedLayer = layerNode?.find((l) => l.id === payload.nodeId)
+          if (!removedLayer) return
+          layerNode = layerNode?.filter((l) => l.id !== payload.nodeId)
+          if (removedLayer?.props?.sourceType === sourceType) {
+            sendState()
+          }
+        },
+      )
+
+      sendState()
+
+      // Return disposable for listener
+      return () => {
+        layerChangeListener()
+        layerAddListner()
+        layerRemoveListner()
+      }
+    },
     setShowcase(participantId: string, type: ParticipantType = 'camera') {
       const node = commands.getParticipantNode(participantId, type)
       return CoreContext.Command.updateNode({
@@ -1729,7 +1800,6 @@ export const commands = (_project: ScenelessProject) => {
     await ensureRootLayersProps()
     await ensureBackgroundChildLayersProps()
     await ensureForegroundContainers()
-    beforeInit(commands)
   }
 
   ensureValid()
@@ -1772,31 +1842,13 @@ export const create = async (
   }) as Promise<ScenelessProject>
 }
 
-export const beforeInit = (commands: Commands) => {
-  // /** autoPlay last applied video overlay on refresh */
-  // const videoOverLay = commands.getVideoOverlay() as string
-  // if (videoOverLay) {
-  //   commands.autoPlayVideoOverlay(videoOverLay, {
-  //     muted: true,
-  //     autoplay: true,
-  //   })
-  // }
-  // /** autoPlay last applied video background on refresh */
-  // const backgroundVideo = commands.getBackgroundVideo()
-  // if (backgroundVideo) {
-  //   commands.autoPlayBackgroundVideo({
-  //     muted: true,
-  //     autoplay: true,
-  //   })
-  // }
-}
 /** @private */
 export const createCompositor = async (
   layoutId: string,
   size: { x: number; y: number },
   settings: ScenelessSettings,
 ) => {
-  const { backgroundImage, layout, layoutProps = {} } = settings
+  const { layout, layoutProps = {} } = settings
 
   // TODO: Batch insert
   const project = await CoreContext.compositor.createProject(

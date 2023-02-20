@@ -8,8 +8,8 @@
  */
 
 import type * as Compositor from './compositor/index'
-import { isArray } from 'lodash-es'
-
+import { isArray, iteratee } from 'lodash-es'
+import visit from 'unist-util-visit'
 // Re-export needed lodash functions to keep them centralized for tree shaking
 export {
   pick,
@@ -27,7 +27,6 @@ export {
 import deepEqual from 'fast-deep-equal'
 
 export { deepEqual }
-
 
 // Note: Not reliable for matters of security
 export const generateId = () => (Math.random() * 1e20).toString(36)
@@ -199,6 +198,54 @@ export const asDuration = (x: string | number | null) => {
   return '0ms'
 }
 
+/**
+ * Find
+ * @param {Node} tree - Root node
+ * @param {string|object|function} [condition] - Condition to match node.
+ */
+export const find = (
+  tree: Compositor.SceneNode,
+  condition: string | object | Function,
+): Compositor.SceneNode => {
+  if (!tree) throw new Error('requires a tree to search')
+  if (!condition) throw new Error('requires a condition')
+
+  const predicate = iteratee(condition)
+  let result: Compositor.SceneNode
+
+  visit(tree, function (node: Compositor.SceneNode) {
+    if (predicate(node)) {
+      result = node
+      return false
+    }
+  })
+
+  return result
+}
+
+/**
+ * Find All
+ * @param {Node} tree - Root node
+ * @param {string|object|function} [condition] - Condition to match node.
+ */
+export const findAll = (
+  tree: Compositor.SceneNode,
+  condition: string | object | Function,
+): Compositor.SceneNode[] => {
+  if (!tree) throw new Error('requires a tree to search')
+  if (!condition) throw new Error('requires a condition')
+
+  const predicate = iteratee(condition)
+  let result: Compositor.SceneNode[] = []
+
+  visit(tree, function (node: Compositor.SceneNode) {
+    if (predicate(node)) {
+      result.push(node)
+    }
+  })
+
+  return result
+}
+
 /** Convert a Map to an array of its values */
 export const values = <T>(map: Map<any, T>) => Array.from(map.values())
-
