@@ -20,36 +20,19 @@ export type OverlayProps = {
   [prop: string]: any
 }
 
-export type Overlay = {
-  id: string
-  props: OverlayProps
-}
-
 export type OverlaySource = {
   id: string
-  value: OverlayProps
-  // TODO: This shouldn't be necessary
-  props: OverlayProps
+  sourceProps: OverlayProps
   sourceType: string
 }
 
 export const Overlay = {
   name: 'LS-Overlay',
   sourceType: 'Overlay',
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-    props: {
-      src: {
-        type: String,
-        required: true,
-      },
-    },
-  },
-
-  create({ onUpdate, onRemove }, initialProps) {
+  create(
+    { onUpdate, onRemove },
+    { sourceProps }: { sourceProps: OverlayProps },
+  ) {
     onRemove(() => {
       clearInterval(interval)
     })
@@ -67,7 +50,7 @@ export const Overlay = {
       source: OverlaySource
       setStartAnimation: (value: boolean) => void
     }) => {
-      const { src, meta, height, width } = source?.props || {}
+      const { src, meta, height, width } = source?.sourceProps || {}
       const iframeRef = React.useRef<HTMLIFrameElement>(null)
 
       useEffect(() => {
@@ -124,7 +107,7 @@ export const Overlay = {
       source: OverlaySource
       setStartAnimation: (value: boolean) => void
     }) => {
-      const { src, type, meta, loop } = source?.props || {}
+      const { src, type, meta, loop } = source?.sourceProps || {}
       const { id, sourceType } = source || {}
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
@@ -216,8 +199,7 @@ export const Overlay = {
             <video
               id={id}
               ref={handleRect}
-              style={{ ...initialProps.style }}
-              {...initialProps.props}
+              style={{ ...sourceProps.meta.style, ...meta.style }}
               onLoadedData={onLoadedData}
               onEnded={onEnded}
               onCanPlayThrough={() => setStartAnimation(true)}
@@ -234,17 +216,14 @@ export const Overlay = {
       source: OverlaySource
       setStartAnimation: (value: boolean) => void
     }) => {
-      const { src, meta } = source?.props || {}
+      const { src, meta } = source?.sourceProps || {}
       const { id } = source || {}
 
       return (
         <React.Fragment key={id}>
           {src && (
             <img
-              style={{
-                ...initialProps?.style,
-                ...meta?.style,
-              }}
+              style={{ ...sourceProps.meta.style, ...meta.style }}
               src={src}
               onLoad={() => setStartAnimation(true)}
             />
@@ -254,7 +233,7 @@ export const Overlay = {
     }
 
     const Overlay = ({ source }: { source: OverlaySource }) => {
-      const { type } = source?.props || {}
+      const { type } = source?.sourceProps || {}
       const { id } = source || {}
       const [startAnimation, setStartAnimation] = React.useState(false)
       useEffect(() => {
