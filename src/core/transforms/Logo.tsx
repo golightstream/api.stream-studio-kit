@@ -17,29 +17,16 @@ export type LogoProps = {
   [prop: string]: any
 }
 
-export type Logo = {
-  id: string
-  props: LogoProps
-}
-
 export type LogoSource = {
   id: string
-  value: LogoProps
-  // TODO: This shouldn't be necessary
-  props: LogoProps
+  sourceProps: LogoProps
   sourceType: string
 }
 
 export const Logo = {
   name: 'LS-Logo',
   sourceType: 'Logo',
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-  },
-  create({ onUpdate }, initialProps) {
+  create({ onUpdate }, { sourceProps }: { sourceProps: LogoProps }) {
     const root = document.createElement('div')
 
     const project = getProject(CoreContext.state.activeProjectId)
@@ -51,7 +38,7 @@ export const Logo = {
     const scale = (px: number) => px * scalar + 'px'
 
     const Logo = ({ source }: { source: LogoSource }) => {
-      const { src, meta } = source?.props || {}
+      const { src, meta } = source?.sourceProps || {}
       const { id } = source || {}
       const [startAnimation, setStartAnimation] = React.useState(false)
 
@@ -70,7 +57,11 @@ export const Logo = {
           duration={400}
         >
           <div
-            style={{ opacity: startAnimation ? 1 : 0, width: '100%', height: '100%' }}
+            style={{
+              opacity: startAnimation ? 1 : 0,
+              width: '100%',
+              height: '100%',
+            }}
             className={`logo-transition`}
           >
             {src && (
@@ -86,7 +77,7 @@ export const Logo = {
                     width: '100%',
                     maxHeight: height ? scale(height) : 'none',
                     maxWidth: width ? scale(width) : 'none',
-                    ...initialProps?.style,
+                    ...sourceProps?.meta?.style,
                     ...meta?.style,
                   }}
                   src={src}
@@ -105,11 +96,6 @@ export const Logo = {
     onUpdate((props) => {
       render({ ...props })
     })
-
-    // onNewSource((_source) => {
-    //   source = _source
-    //   render()
-    // })
 
     return {
       root,

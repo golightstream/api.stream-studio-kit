@@ -636,14 +636,14 @@ export const commands = (_project: ScenelessProject) => {
 
     getImageOverlay(): string | null {
       const foregroundImage = foregroundImageIframeContainer?.children?.find(
-        (x) => x?.props?.props?.type === 'image',
+        (x) => x?.props?.sourceProps?.type === 'image',
       )
       return foregroundImage?.props?.id
     },
 
     getVideoOverlay(): string | null {
       const foregroundVideo = foregroundVideoContainer?.children?.find(
-        (x) => x?.props?.props?.type === 'video',
+        (x) => x?.props?.sourceProps?.type === 'video',
       )
       return foregroundVideo?.props?.id
     },
@@ -718,14 +718,14 @@ export const commands = (_project: ScenelessProject) => {
 
     getBackgroundImage() {
       const backgroundChild = background.children.find(
-        (x) => x.props?.props?.type === 'image',
+        (x) => x.props?.sourceProps?.type === 'image',
       )
       return backgroundChild?.props?.id
     },
 
     getBackgroundVideo() {
       const backgroundChild = background.children.find(
-        (x) => x.props?.props?.type === 'video',
+        (x) => x.props?.sourceProps?.type === 'video',
       )
       return backgroundChild?.props?.id
     },
@@ -745,7 +745,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'Logo',
             id: id,
-            props: {
+            sourceProps: {
               ...props,
               meta: {
                 style: { ...defaultStyles['logo'] },
@@ -760,7 +760,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'Logo',
             id: id,
-            props: {
+            sourceProps: {
               ...props,
               meta: {
                 style: { ...defaultStyles['logo'] },
@@ -939,7 +939,7 @@ export const commands = (_project: ScenelessProject) => {
 
     getCustomOverlay(): string | null {
       const foregroundCustom = foregroundImageIframeContainer?.children?.find(
-        (x) => x?.props?.props?.type === 'custom',
+        (x) => x?.props?.sourceProps?.type === 'custom',
       )
       return foregroundCustom?.props?.id
     },
@@ -963,7 +963,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'Overlay',
             id: id,
-            props: {
+            sourceProps: {
               ...props,
               type: 'image',
               meta: {
@@ -978,7 +978,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'Overlay',
             id: id,
-            props: {
+            sourceProps: {
               ...props,
               type: 'image',
               meta: {
@@ -1006,8 +1006,9 @@ export const commands = (_project: ScenelessProject) => {
       // get all children of the overlay node and update their opacity attributes
       foregroundImageIframeContainer.children.forEach(
         ({ id, props: localProps }) => {
-          if (localProps.props.meta?.style?.opacity !== 0) {
-            const type = localProps.props.type as keyof typeof defaultStyles
+          if (localProps.sourceProps.meta?.style?.opacity !== 0) {
+            const type = localProps.sourceProps
+              .type as keyof typeof defaultStyles
             const extendedDefaultStyles = {
               ...defaultStyles[type],
               opacity: 0,
@@ -1016,8 +1017,8 @@ export const commands = (_project: ScenelessProject) => {
               nodeId: id,
               props: {
                 ...localProps,
-                props: {
-                  ...localProps.props,
+                sourceProps: {
+                  ...localProps.sourceProps,
                   meta: {
                     style: { ...extendedDefaultStyles },
                   },
@@ -1034,7 +1035,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'Overlay',
             id: id,
-            props: {
+            sourceProps: {
               ...props,
               type: 'video',
               meta: {
@@ -1050,7 +1051,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'Overlay',
             id: id,
-            props: {
+            sourceProps: {
               ...props,
               type: 'video',
               meta: {
@@ -1078,8 +1079,8 @@ export const commands = (_project: ScenelessProject) => {
         props: {
           sourceType: 'Overlay',
           id: id,
-          props: {
-            ...existingForegroundNode?.props?.props,
+          sourceProps: {
+            ...existingForegroundNode?.props?.sourceProps,
             ...props,
             meta: {
               style: { ...defaultStyles['video'] },
@@ -1109,7 +1110,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'Overlay',
             id: id,
-            props: {
+            sourceProps: {
               ...props,
               type: 'custom',
               meta: {
@@ -1124,7 +1125,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             sourceType: 'Overlay',
             id: id,
-            props: {
+            sourceProps: {
               ...props,
               type: 'custom',
               meta: {
@@ -1147,7 +1148,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       })
       if (existingForegroundNode) {
-        if (existingForegroundNode.props.props.type === 'custom') {
+        if (existingForegroundNode?.props?.sourceProps?.type === 'custom') {
           await CoreContext.Command.deleteNode({
             nodeId: existingForegroundNode.id,
           })
@@ -1166,7 +1167,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       })
       if (existingForegroundNode) {
-        if (existingForegroundNode.props.props.type === 'image') {
+        if (existingForegroundNode?.props?.sourceProps?.type === 'image') {
           await CoreContext.Command.deleteNode({
             nodeId: existingForegroundNode.id,
           })
@@ -1194,8 +1195,8 @@ export const commands = (_project: ScenelessProject) => {
 
       // get all children of the overlay node and update their opacity attributes
       foregroundImageIframeContainer?.children.forEach(({ id, props }) => {
-        if (props.props.meta?.style?.opacity === 0) {
-          const type = props.props.type as keyof typeof defaultStyles
+        if (props.sourceProps.meta?.style?.opacity === 0) {
+          const type = props.sourceProps.type as keyof typeof defaultStyles
           const extendedDefaultStyles = {
             ...defaultStyles[type],
             opacity: 1,
@@ -1204,8 +1205,8 @@ export const commands = (_project: ScenelessProject) => {
             nodeId: id,
             props: {
               ...props,
-              props: {
-                ...props.props,
+              sourceProps: {
+                ...props.sourceProps,
                 meta: {
                   style: { ...extendedDefaultStyles },
                 },
@@ -1246,7 +1247,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             id: id,
             sourceType: 'Background',
-            props: {
+            sourceProps: {
               ...props,
               type: 'image',
               meta: {
@@ -1262,7 +1263,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             id: id,
             sourceType: 'Background',
-            props: {
+            sourceProps: {
               ...props,
               type: 'image',
               meta: {
@@ -1293,7 +1294,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             id: id,
             sourceType: 'Background',
-            props: {
+            sourceProps: {
               ...props,
               type: 'video',
               meta: {
@@ -1309,7 +1310,7 @@ export const commands = (_project: ScenelessProject) => {
           props: {
             id: id,
             sourceType: 'Background',
-            props: {
+            sourceProps: {
               ...props,
               type: 'video',
               meta: {
@@ -1336,8 +1337,8 @@ export const commands = (_project: ScenelessProject) => {
         props: {
           sourceType: 'Background',
           id: id,
-          props: {
-            ...existingBackgroundNode?.props?.props,
+          sourceProps: {
+            ...existingBackgroundNode?.props?.sourceProps,
             ...props,
             meta: {
               style: { ...defaultStyles['video'] },
@@ -1359,7 +1360,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       })
       if (existingBackgroundNode) {
-        if (existingBackgroundNode.props.props.type === 'image') {
+        if (existingBackgroundNode.props.sourceProps.type === 'image') {
           await CoreContext.Command.deleteNode({
             nodeId: existingBackgroundNode.id,
           })
@@ -1377,7 +1378,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       })
       if (existingBackgroundNode) {
-        if (existingBackgroundNode.props.props.type === 'video') {
+        if (existingBackgroundNode.props.sourceProps.type === 'video') {
           await CoreContext.Command.deleteNode({
             nodeId: existingBackgroundNode.id,
           })

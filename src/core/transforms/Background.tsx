@@ -19,35 +19,19 @@ export type BackgroundProps = {
   [prop: string]: any
 }
 
-export type Background = {
-  id: string
-  props: BackgroundProps
-}
-
 export type BackgroundSource = {
   id: string
-  value: BackgroundProps
-  // TODO: This shouldn't be necessary
-  props: BackgroundProps
+  sourceProps: BackgroundProps
   sourceType: string
 }
 
 export const Background = {
   name: 'LS-Background',
   sourceType: 'Background',
-  props: {
-    id: {
-      type: String,
-      required: true,
-    },
-    props: {
-      src: {
-        type: String,
-        required: true,
-      },
-    },
-  },
-  create({ onUpdate, onRemove }, initialProps) {
+  create(
+    { onUpdate, onRemove },
+    { sourceProps }: { sourceProps: BackgroundProps },
+  ) {
     onRemove(() => {
       clearInterval(interval)
     })
@@ -63,7 +47,7 @@ export const Background = {
       source: BackgroundSource
       setStartAnimation: (value: boolean) => void
     }) => {
-      const { src, type, meta, loop } = source?.props || {}
+      const { src, type, meta, loop } = source?.sourceProps || {}
       const { id, sourceType } = source || {}
       const [refId, setRefId] = React.useState(null)
       const videoRef = React.useRef<HTMLVideoElement>(null)
@@ -155,8 +139,10 @@ export const Background = {
             <video
               id={id}
               ref={handleRect}
-              style={{ ...initialProps.style }}
-              {...initialProps.props}
+              style={{
+                ...sourceProps?.meta?.style,
+                ...meta.style,
+              }}
               onLoadedData={onLoadedData}
               onEnded={onEnded}
               onCanPlayThrough={() => setStartAnimation(true)}
@@ -173,7 +159,7 @@ export const Background = {
       source: BackgroundSource
       setStartAnimation: (value: boolean) => void
     }) => {
-      const { src, meta, type } = source?.props || {}
+      const { src, meta, type } = source?.sourceProps || {}
       const { id } = source || {}
 
       return (
@@ -181,7 +167,7 @@ export const Background = {
           {src && (
             <img
               style={{
-                ...initialProps?.style,
+                ...sourceProps?.meta?.style,
                 ...meta?.style,
               }}
               src={src}
@@ -193,7 +179,7 @@ export const Background = {
     }
 
     const Background = ({ source }: { source: BackgroundSource }) => {
-      const { type } = source.props
+      const { type } = source.sourceProps
       const { id } = source || {}
       const [startAnimation, setStartAnimation] = React.useState(false)
       useEffect(() => {
