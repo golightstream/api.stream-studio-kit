@@ -15,7 +15,6 @@ import Iframe from './components/Iframe'
 
 export type OverlayProps = {
   src?: string
-  type?: 'image' | 'video' | 'custom'
   // Opaque to the SDK
   [prop: string]: any
 }
@@ -202,7 +201,7 @@ export const Overlay = {
               style={{ ...sourceProps.meta.style, ...meta.style }}
               onLoadedData={onLoadedData}
               onEnded={onEnded}
-              onCanPlayThrough={() => setStartAnimation(true)}
+              onCanPlay={() => setStartAnimation(true)}
             />
           )}
         </React.Fragment>
