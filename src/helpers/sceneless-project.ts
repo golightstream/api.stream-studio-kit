@@ -37,9 +37,10 @@
  *
  * @module ScenelessProject
  */
-import { LogoProps } from './../core/sources/Logo'
-import { Background, BackgroundProps } from './../core/sources/Background'
-import { Overlay, OverlayProps } from './../core/sources/Overlays'
+import { LogoProps } from './../core/transforms/Logo'
+import { BackgroundProps } from './../core/transforms/Background'
+import { OverlayProps } from './../core/transforms/Overlay'
+import { Overlay } from '../core/sources/Overlays'
 import { CoreContext } from '../core/context'
 import { getProject, getProjectRoom } from '../core/data'
 import { SDK, Compositor } from '../core/namespaces'
@@ -1573,7 +1574,6 @@ export const commands = (_project: ScenelessProject) => {
       return commands.getParticipantNode(participantId, type)
         ?.props as ParticipantProps
     },
-
 
     useParticipantState(
       participantId: string,

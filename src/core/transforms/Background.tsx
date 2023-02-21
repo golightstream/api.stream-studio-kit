@@ -14,7 +14,6 @@ import { hasPermission, Permission } from '../../helpers/permission'
 
 export type BackgroundProps = {
   src?: string
-  type?: 'image' | 'video'
   // Opaque to the SDK
   [prop: string]: any
 }
@@ -145,7 +144,7 @@ export const Background = {
               }}
               onLoadedData={onLoadedData}
               onEnded={onEnded}
-              onCanPlayThrough={() => setStartAnimation(true)}
+              onCanPlay={() => setStartAnimation(true)}
             />
           )}
         </React.Fragment>

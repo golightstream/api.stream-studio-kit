@@ -12,7 +12,6 @@ import CoreContext from '../context'
 
 export type LogoProps = {
   src?: string
-  type?: 'logo'
   // Opaque to the SDK
   [prop: string]: any
 }
@@ -46,7 +45,12 @@ export const Logo = {
         setStartAnimation(false)
       }, [id])
 
-      const { offsetX = 40, offsetY = 40, height = 135, width = 240 } = props
+      const {
+        offsetX = 40,
+        offsetY = 40,
+        height = 135,
+        width = 240,
+      } = meta?.style || {}
 
       return (
         <APIKitAnimation
