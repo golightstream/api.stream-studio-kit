@@ -30,7 +30,7 @@ export const getRoom = (id: string) => {
   if (!room) return null
 
   const livekit = room.livekitRoom
-  const localParticipant = livekit.localParticipant
+  const localParticipant = livekit?.localParticipant
 
   // @ts-ignore
   window.__StudioRoom = livekit
@@ -469,8 +469,8 @@ export const getRoom = (id: string) => {
         cb(activeSpeakers.map((x) => x.identity))
       }
 
-      room.livekitRoom.on(RoomEvent.ActiveSpeakersChanged, fn)
-      fn(room.livekitRoom.activeSpeakers)
+      room.livekitRoom?.on(RoomEvent.ActiveSpeakersChanged, fn)
+      fn(room.livekitRoom?.activeSpeakers)
       return () => {
         room.livekitRoom?.off(RoomEvent.ActiveSpeakersChanged, fn)
       }
@@ -478,7 +478,7 @@ export const getRoom = (id: string) => {
     sendData: (data, recipientIds) => {
       const encoded = encoder.encode(JSON.stringify(data))
       const participants = recipientIds?.map(
-        (x) => room.livekitRoom.getParticipantByIdentity(x).sid,
+        (x) => room.livekitRoom?.getParticipantByIdentity(x).sid,
       )
       return localParticipant.publishData(
         encoded,
@@ -491,7 +491,7 @@ export const getRoom = (id: string) => {
         const data = JSON.parse(decoder.decode(encoded))
         cb(data, participant?.identity)
       }
-      room.livekitRoom.on(RoomEvent.DataReceived, fn)
+      room.livekitRoom?.on(RoomEvent.DataReceived, fn)
       return () => {
         room.livekitRoom?.off(RoomEvent.DataReceived, fn)
       }
@@ -500,16 +500,16 @@ export const getRoom = (id: string) => {
       return room.connect()
     },
     disconnect: () => {
-      return room.livekitRoom.disconnect()
+      return room.livekitRoom?.disconnect()
     },
     onDisconnected: (cb) => {
-      room.livekitRoom.on(RoomEvent.Disconnected, cb)
+      room.livekitRoom?.on(RoomEvent.Disconnected, cb)
       return () => {
         room.livekitRoom?.off(RoomEvent.DataReceived, cb)
       }
     },
     setAudioOutput: (deviceId: string) => {
-      return room.livekitRoom.switchActiveDevice('audiooutput', deviceId)
+      return room.livekitRoom?.switchActiveDevice('audiooutput', deviceId)
     },
   } as SDK.Room
 

@@ -326,7 +326,7 @@ export const init = async (
           connectionId,
           layoutId,
           updateVersions = {},
-        } = layer.update.requestMetadata
+        } = layer.update?.requestMetadata || {}
         if (CoreContext.connectionId === connectionId) return
 
         const node = layerToNode(layer.update)
