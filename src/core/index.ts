@@ -118,9 +118,11 @@ export const init = async (
     ...CoreContext,
   }
 
-  compositor.registerSource([...Object.values(Sources), ...sources])
-  compositor.registerTransform([...Object.values(Transforms), ...transforms])
-  compositor.registerLayout([...Object.values(Layouts), ...layouts])
+  if (compositor) {
+    compositor.registerSource([...Object.values(Sources), ...sources])
+    compositor.registerTransform([...Object.values(Transforms), ...transforms])
+    compositor.registerLayout([...Object.values(Layouts), ...layouts])
+  }
 
   const guestProject = await client.load(guestToken)
   let initialProject: SDK.Project
