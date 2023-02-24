@@ -80,7 +80,7 @@ export const Overlay = {
           duration={400}
         >
           <div
-            style={{ opacity: startAnimation ? 1 : 0 }}
+            style={{ opacity: startAnimation ? 1 : 0, width: '100%', height: '100%' }}
             className={`image-transition`}
           >
             {meta?.type === 'html-overlay' && (
