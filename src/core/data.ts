@@ -8,6 +8,7 @@ import { Context, SDK, Compositor } from './namespaces'
 import { LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
 import { getRoom } from './webrtc/simple-room'
 import { ProjectBroadcastPhase } from './types'
+import { Permission, hasPermission } from './../helpers/permission';
 
 const { state } = CoreContext
 
@@ -118,19 +119,40 @@ export const hydrateProject = async (
 ) => {
   const metadata = project.metadata || {}
 
+  const updateRequest: LiveApiModel.UpdateProjectRequest = {
+    collectionId: project.collectionId,
+    projectId: project.projectId,    
+    updateMask: [],
+  };
+
+  // only update the sdk version when the user can broadcast (given this version controls the renderer)
+  const canBroadcast = hasPermission(role, Permission.ManageBroadcast);
+  
+  // handle sdk version changing for rendering
+  if (canBroadcast && project.composition.studioSdk.version !== CoreContext.rendererVersion) {
+    updateRequest.composition = {
+      studioSdk: {
+        version: CoreContext.rendererVersion,
+      }
+    } as LiveApiModel.Composition;
+    updateRequest.updateMask.push('composition.studioSdk.version');
+  }
+
+  // handle composition size changing
   if (size) {
-    await CoreContext.clients.LiveApi().project.updateProject({
-      collectionId: project.collectionId,
-      projectId: project.projectId,
-      rendering: {
-        video: {
-          width: size.x,
-          height: size.y,
-          framerate: 30,
-        },
-      },
-      updateMask: ['rendering'],
-    })
+    updateRequest.rendering = {
+      video: {
+        width: size.x,
+        height: size.y,
+        framerate: 30,
+      },      
+    };
+
+    updateRequest.updateMask.push('rendering');
+  }
+
+  if (updateRequest.updateMask.length) {
+    await CoreContext.clients.LiveApi().project.updateProject(updateRequest);
   }
 
   const compositorProject = await layoutToProject(metadata.layoutId, size)
