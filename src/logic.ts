@@ -9,7 +9,7 @@
 
 import type * as Compositor from './compositor/index'
 import { isArray, iteratee } from 'lodash-es'
-import visit from 'unist-util-visit'
+import { visit } from 'unist-util-visit'
 // Re-export needed lodash functions to keep them centralized for tree shaking
 export {
   pick,
@@ -204,7 +204,7 @@ export const asDuration = (x: string | number | null) => {
  * @param {string|object|function} [condition] - Condition to match node.
  */
 export const find = (
-  tree: Compositor.SceneNode,
+  tree: any,
   condition: string | object | Function,
 ): Compositor.SceneNode => {
   if (!tree) throw new Error('requires a tree to search')
@@ -229,7 +229,7 @@ export const find = (
  * @param {string|object|function} [condition] - Condition to match node.
  */
 export const findAll = (
-  tree: Compositor.SceneNode,
+  tree: any,
   condition: string | object | Function,
 ): Compositor.SceneNode[] => {
   if (!tree) throw new Error('requires a tree to search')

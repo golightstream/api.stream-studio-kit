@@ -1434,7 +1434,7 @@ export const commands = (_project: ScenelessProject) => {
         },
       )
 
-      const layerAddListner = CoreContext.onInternal('NodeAdded', (payload) => {
+      const layerAddListener = CoreContext.onInternal('NodeAdded', (payload) => {
         const existingLayer = layerNode?.find((l) => l.id === payload.nodeId)
         if (existingLayer) return
         const shallowRoot = cloneDeep(root)
@@ -1448,7 +1448,7 @@ export const commands = (_project: ScenelessProject) => {
         }
       })
 
-      const layerRemoveListner = CoreContext.onInternal(
+      const layerRemoveListener = CoreContext.onInternal(
         'NodeRemoved',
         (payload) => {
           const removedLayer = layerNode?.find((l) => l.id === payload.nodeId)
@@ -1465,8 +1465,8 @@ export const commands = (_project: ScenelessProject) => {
       // Return disposable for listener
       return () => {
         layerChangeListener()
-        layerAddListner()
-        layerRemoveListner()
+        layerAddListener()
+        layerRemoveListener()
       }
     },
     setShowcase(participantId: string, type: ParticipantType = 'camera') {
