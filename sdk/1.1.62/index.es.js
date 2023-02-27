@@ -50061,19 +50061,32 @@ const toBaseSource = (source2) => {
 };
 const hydrateProject = async (project, role, size) => {
   const metadata = project.metadata || {};
+  const updateRequest = {
+    collectionId: project.collectionId,
+    projectId: project.projectId,
+    updateMask: []
+  };
+  const canBroadcast = hasPermission(role, Permission.ManageBroadcast);
+  if (canBroadcast && project.composition.studioSdk.version !== CoreContext.rendererVersion) {
+    updateRequest.composition = {
+      studioSdk: {
+        version: CoreContext.rendererVersion
+      }
+    };
+    updateRequest.updateMask.push("composition.studioSdk.version");
+  }
   if (size) {
-    await CoreContext.clients.LiveApi().project.updateProject({
-      collectionId: project.collectionId,
-      projectId: project.projectId,
-      rendering: {
-        video: {
-          width: size.x,
-          height: size.y,
-          framerate: 30
-        }
-      },
-      updateMask: ["rendering"]
-    });
+    updateRequest.rendering = {
+      video: {
+        width: size.x,
+        height: size.y,
+        framerate: 30
+      }
+    };
+    updateRequest.updateMask.push("rendering");
+  }
+  if (updateRequest.updateMask.length) {
+    await CoreContext.clients.LiveApi().project.updateProject(updateRequest);
   }
   const compositorProject = await layoutToProject(metadata.layoutId, size);
   return {
@@ -56424,17 +56437,6 @@ const startBroadcast = async (payload) => {
     projectId = state.activeProjectId
   } = payload;
   const project = getProject(projectId);
-  if (project.videoApi.project.composition.studioSdk.version !== CoreContext.rendererVersion) {
-    await CoreContext.clients.LiveApi().project.updateProject({
-      composition: {
-        studioSdk: {
-          rendererUrl: void 0,
-          version: CoreContext.rendererVersion
-        }
-      },
-      updateMask: ["composition.studioSdk.version", "composition.studioSdk.rendererUrl"]
-    });
-  }
   await CoreContext.clients.LiveApi().project.startProjectBroadcast({
     collectionId: project.videoApi.project.collectionId,
     projectId: project.videoApi.project.projectId
