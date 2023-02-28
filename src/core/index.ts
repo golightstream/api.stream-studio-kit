@@ -111,7 +111,7 @@ export const init = async (
   CoreContext.logLevel = logLevel
   CoreContext.Request = await import('./requests')
   CoreContext.Command = await import('./commands')
-  CoreContext.rendererVersion = useLatestRenderer ? 'latest' : CoreContext.version
+  CoreContext.rendererVersion = useLatestRenderer ? 'latest-v2' : CoreContext.version
 
   // Tie context to global scope for debugging purposes
   window.__StudioKit = {

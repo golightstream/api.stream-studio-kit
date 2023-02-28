@@ -42,15 +42,15 @@ jobs:
             node directory-to-kv.js --prefix version/${{ steps.package-version.outputs.current-version }} --source ../../renderer/dist --destination renderer.json
             wrangler kv:bulk put renderer.json --binding=SCENELESS_KV 
 
-      # - uses: cloudflare/wrangler-action@2.0.0
-      #   name: Publish latest
-      #   if: ${{github.ref == 'refs/heads/main' }}
-      #   with:
-      #     apiToken: ${{ secrets.CF_API_TOKEN }}
-      #     accountId: ${{ secrets.CF_ACCOUNT_ID }}
-      #     workingDirectory: './build/hosted-renderer'
-      #     preCommands: |
-      #       npm install
-      #     postCommands: |
-      #       node directory-to-kv.js --prefix version/latest --source ../../renderer/dist --destination renderer.json
-      #       wrangler kv:bulk put renderer.json --binding=SCENELESS_KV 
+      - uses: cloudflare/wrangler-action@2.0.0
+        name: Publish latest
+        if: ${{github.ref == 'refs/heads/main' }}
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
+          accountId: ${{ secrets.CF_ACCOUNT_ID }}
+          workingDirectory: './build/hosted-renderer'
+          preCommands: |
+            npm install
+          postCommands: |
+            node directory-to-kv.js --prefix version/latest-v2 --source ../../renderer/dist --destination renderer.json
+            wrangler kv:bulk put renderer.json --binding=SCENELESS_KV 
