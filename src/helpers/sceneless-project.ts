@@ -147,7 +147,7 @@ export interface Commands {
    */
   autoPlayBackgroundVideo(attributes?: HTMLVideoElementAttributes): void
 
-  removeLogo(): void
+  removeLogo(): Promise<void>
 
   addLogo(id: string, logo: LogoProps): Promise<SDK.SceneNode>
 
@@ -629,7 +629,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       })
       if (existingLogoNode) {
-        await CoreContext.Command.deleteNode({
+        CoreContext.Command.deleteNode({
           nodeId: existingLogoNode.id,
         })
       }
@@ -1837,6 +1837,7 @@ export const createCompositor = async (
       root.id,
     ),
   ])
+
   await project.reorder(root.id, baseLayers)
 
   const foreground = root.children.find((x) => x.props.id === 'foreground')
