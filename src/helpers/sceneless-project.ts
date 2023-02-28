@@ -147,10 +147,21 @@ export interface Commands {
    */
   autoPlayBackgroundVideo(attributes?: HTMLVideoElementAttributes): void
 
+  /**
+   * Remove logo from stream
+   */
   removeLogo(): Promise<void>
 
-  addLogo(id: string, logo: LogoProps): Promise<SDK.SceneNode>
+  /**
+   * Add logo on stream
+   * @param id 
+   * @param logo 
+   */
+  addLogo(id: string, logo: LogoProps): Promise<void>
 
+  /**
+   * Get active logo
+   */
   getLogo(): string
 
   /**
@@ -629,7 +640,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       })
       if (existingLogoNode) {
-        CoreContext.Command.deleteNode({
+        await CoreContext.Command.deleteNode({
           nodeId: existingLogoNode.id,
         })
       }
@@ -741,7 +752,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       })
       if (!existingLogoNode) {
-        return CoreContext.Command.createNode({
+        await CoreContext.Command.createNode({
           parentId: foregroundLogoContainer?.id,
           props: {
             sourceType: 'Logo',
@@ -756,7 +767,7 @@ export const commands = (_project: ScenelessProject) => {
           },
         })
       } else {
-        CoreContext.Command.updateNode({
+        await CoreContext.Command.updateNode({
           nodeId: existingLogoNode.id,
           props: {
             sourceType: 'Logo',
