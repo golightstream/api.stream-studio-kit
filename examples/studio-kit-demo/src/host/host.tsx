@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useEffect, useRef, useState } from 'react'
-import { init, Helpers } from '../../../../'
+import { init, Helpers } from '@api.stream/studio-kit'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from './layout-examples'
@@ -147,7 +147,7 @@ const Project = () => {
   const [banners, setBanners] = React.useState<Banner[]>(
     studio.compositor.getSources('Banner'),
   )
-
+  const [loop, setLoop] = useState(true)
   const [projectedLoaded, setProjectedLoaded] = useState(false)
   // Get custom layout name from metadata we store
   const layout = project.props.layout
@@ -398,6 +398,17 @@ const Project = () => {
                       })
                     }}
                   >
+                    <input
+                      type="checkbox"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        projectCommands.updateVideoOverlayProps(overlay.id, {
+                          loop: !loop,
+                        })
+                        setLoop(!loop)
+                      }}
+                      value="SetLoop"
+                    />
                     <video width="40px" height="50px" src={overlay.url} />
                   </li>
                 ))}
