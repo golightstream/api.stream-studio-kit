@@ -38,8 +38,6 @@ export const Overlay = {
 
     const root = document.createElement('div')
     const role = getProject(CoreContext.state.activeProjectId).role
-
-    let source: OverlaySource
     let interval: NodeJS.Timer
 
     const IFrame = ({
@@ -169,8 +167,6 @@ export const Overlay = {
         } else {
           if (videoRef.current) {
             videoRef.current!.src = src
-            videoRef.current.loop = Boolean(loop)
-
             videoRef.current!.play().catch(() => {
               videoRef.current.muted = true
               videoRef.current.play()
@@ -196,6 +192,7 @@ export const Overlay = {
         <React.Fragment key={id}>
           {src && (
             <video
+              loop={loop}
               id={id}
               ref={handleRect}
               style={{ ...sourceProps.meta.style, ...meta.style }}
