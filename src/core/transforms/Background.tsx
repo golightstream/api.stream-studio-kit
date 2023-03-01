@@ -109,8 +109,6 @@ export const Background = {
         } else {
           if (videoRef.current) {
             videoRef.current!.src = src
-            videoRef.current.loop = Boolean(loop)
-
             videoRef.current!.play().catch(() => {
               videoRef.current.muted = true
               videoRef.current.play()
@@ -136,6 +134,7 @@ export const Background = {
         <React.Fragment key={id}>
           {src && (
             <video
+              loop={loop}
               id={id}
               ref={handleRect}
               style={{
