@@ -50,7 +50,6 @@ export const RoomParticipant = {
     removeSource,
     updateSource,
     getSource,
-    modifySourceValue,
   }) {
     CoreContext.on('RoomJoined', ({ room }) => {
       let listeners = {} as { [id: string]: Function }
