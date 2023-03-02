@@ -149,7 +149,9 @@ export const RoomParticipant = {
       room.useTracks((tracks) => {
         // Get tracks not contained in previousTracks
         const newTracks = tracks.filter(
-          (track) => !previousTracks.some((x) => x.id === track.id),
+          (track) =>
+            !previousTracks.some((x) => x.id === track.id) &&
+            Boolean(track?.mediaStreamTrack),
         )
         // Get previous tracks not contained in current tracks
         const removedTracks = previousTracks.filter(
@@ -162,23 +164,25 @@ export const RoomParticipant = {
         newTracks.forEach((x) => {
           const srcObject = new MediaStream([])
           participantStreams[x.id] = srcObject
-          const { id, participantId, type } = room.getTrack(x.id)
-
-          const source = {
-            id,
-            isActive: true,
-            value: srcObject,
-            props: {
-              id,
-              trackId: id,
-              participantId,
-              isMuted: x.isMuted,
-              type,
-            },
-          } as Compositor.Source.NewSource
+          const { id, participantId, type, mediaStreamTrack } = room.getTrack(
+            x.id,
+          )
 
           // Add each new track as a source
-          addSource(source)
+          if (mediaStreamTrack) {
+            addSource({
+              id,
+              isActive: true,
+              value: srcObject,
+              props: {
+                id,
+                trackId: id,
+                participantId,
+                isMuted: x.isMuted,
+                type,
+              },
+            } as Compositor.Source.NewSource)
+          }
         })
 
         // Dispose of the old tracks
