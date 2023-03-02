@@ -3,14 +3,12 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import ReactDOM from 'react-dom'
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useLayoutEffect, useState, useEffect, useRef } from 'react'
 import { isMatch } from 'lodash-es'
-import { useEffect, useRef } from 'react'
 import { CoreContext } from '../context'
 import { Compositor } from '../namespaces'
 import { RoomParticipantSource } from '../sources'
 import { getProject, getProjectRoom } from '../data'
-import { updateMediaStreamTracks } from '../../helpers/webrtc'
 
 type Props = {
   volume: number
@@ -49,7 +47,6 @@ export const RoomParticipant = {
 
     let source: any
     let props = initialProps
-    let mediaSource = new MediaStream([])
 
     const getSize = (
       width: number,
@@ -78,7 +75,7 @@ export const RoomParticipant = {
 
       const { volume = 1, isHidden = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
-      
+
       /* It's checking if the participant is the local participant. */
       const isSelf =
         source?.id === room?.participantId ||
@@ -100,34 +97,20 @@ export const RoomParticipant = {
           })
         })
 
-        /*  It's a hack to get around the fact that we're using a MediaStreamTrack as a source,
-            but the video element requires a MediaStream. */
-        if (source?.value instanceof MediaStreamTrack) {
-          if (mediaSource) {
-            updateMediaStreamTracks(mediaSource, {
-              video: source?.value,
-              audio: source?.props?.microphone?.mediaStreamTrack,
-            })
-          }
-        } else {
-          mediaSource = source?.value
-        }
-
-        if (mediaSource && mediaSource !== ref.current.srcObject) {
-          ref.current.srcObject = mediaSource
+        if (source?.value && source?.value !== ref.current.srcObject) {
+          ref.current.srcObject = source?.value
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
-      }, [ref.current, source?.value, source?.props?.microphone])
+      }, [ref.current, source?.value])
 
       useEffect(() => {
         if (!props && ref.current) {
-          mediaSource = null
+          // mediaSource = null
           ref.current.srcObject = null
           ref.current = null
         }
       }, [props])
-
 
       useLayoutEffect(() => {
         if (!ref.current) return
