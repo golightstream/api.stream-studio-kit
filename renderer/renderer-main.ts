@@ -30,7 +30,7 @@ const run = async () => {
   await project.joinRoom()
 
   sdk.render({
-    containerEl: document.getElementById('root'),
+    containerEl: document.getElementById('root') as HTMLElement,
     projectId: project.id,
     dragAndDrop: false,
   })
