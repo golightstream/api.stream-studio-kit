@@ -106,7 +106,6 @@ export const RoomParticipant = {
 
       useEffect(() => {
         if (!props && ref.current) {
-          // mediaSource = null
           ref.current.srcObject = null
           ref.current = null
         }
