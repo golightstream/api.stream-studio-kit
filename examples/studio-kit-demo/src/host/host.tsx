@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { init, Helpers } from '@api.stream/studio-kit'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
@@ -15,6 +15,11 @@ import ReCAPTCHA from 'react-google-recaptcha'
 import axios from 'axios'
 import { nanoid } from 'nanoid'
 import { Banner } from '../../../../types/src/helpers/sceneless-project'
+import { MediadataProps, MediaHeader, MediaRow } from './components/tile'
+import { BackgroundProps } from '../../../../types/src/core/transforms/Background'
+import { OverlayProps } from '../../../../types/src/core/transforms/Overlay'
+import { backgrounds, logos, overlays, videooverlays } from './data'
+import { LogoProps } from '../../../../types/src/core/transforms/Logo'
 
 const { ScenelessProject } = Helpers
 const { useStudio } = Helpers.React
@@ -142,54 +147,21 @@ const Project = () => {
   const [previewUrl, setPreviewUrl] = useState('')
   const [guestUrl, setGuestUrl] = useState('')
   const [isLive, setIsLive] = useState(false)
-  const [selectedVideo, setSelectedVideo] = useState(null)
-  const [selectedImage, setSelectedImage] = useState(null)
   const [banners, setBanners] = React.useState<Banner[]>(
     studio.compositor.getSources('Banner'),
   )
-  const [loop, setLoop] = useState(true)
-  const [projectedLoaded, setProjectedLoaded] = useState(false)
   // Get custom layout name from metadata we store
   const layout = project.props.layout
-  const background = projectCommands.getBackgroundMedia()
-  const overlay = projectCommands.getImageOverlay()
+  const [background, setBackground] = useState(
+    projectCommands.getBackgroundMedia(),
+  )
+  const [logo, setLogo] = useState(projectCommands.getLogo())
+  const [overlay, setOverlay] = useState(projectCommands.getImageOverlay())
+  const [videoOverlay, setVideoOverlay] = useState(
+    projectCommands.getVideoOverlay(),
+  )
 
-  const overlays = [
-    {
-      id: '123',
-      url: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
-    },
-    {
-      id: '124',
-      url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
-    },
-  ]
 
-  const logos = [
-    {
-      id: '128',
-      url: 'https://www.pngmart.com/files/12/Twitch-Stream-Overlay-PNG-Transparent-Picture.png',
-    },
-    {
-      id: '129',
-      url: 'https://www.pngmart.com/files/12/Stream-Overlay-Transparent-PNG.png',
-    },
-  ]
-
-  const videooverlays = [
-    {
-      id: '125',
-      url: 'https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4',
-    },
-    {
-      id: '126',
-      url: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
-    },
-    {
-      id: '127',
-      url: 'https://assets.mixkit.co/videos/preview/mixkit-curvy-road-on-a-tree-covered-hill-41537-large.mp4',
-    },
-  ]
 
   // Listen for project events
   useEffect(() => {
@@ -211,15 +183,38 @@ const Project = () => {
   }, [])
 
   React.useEffect(() => {
-    return projectCommands.useLayerState('Background', (props) => {
-      console.log(props)
+    /* A hook that is listening to the state of the layer. */
+    return projectCommands.useLayerState(
+      'Background',
+      (layerProps: BackgroundProps) => {
+        setBackground(layerProps[0]?.id)
+      },
+    )
+  }, [])
+
+  React.useEffect(() => {
+    /* A hook that is listening to the state of the layer. */
+    return projectCommands.useLayerState('Logo', (layerProps: LogoProps) => {
+      setLogo(layerProps[0]?.id)
     })
   }, [])
 
   React.useEffect(() => {
-    return projectCommands.useLayerState('Overlay', (props) => {
-      console.log(props)
-    })
+    return projectCommands.useLayerState(
+      'Overlay',
+      (layerProps: OverlayProps) => {
+        /* Finding the image overlay and video overlay. */
+        const imageOverlay = layerProps.find(
+          (l: any) => l?.sourceProps?.type === 'image',
+        )
+        const videoOverlay = layerProps.find(
+          (l: any) => l?.sourceProps?.type === 'video',
+        )
+        /* Setting the image overlay and video overlay. */
+        setOverlay(imageOverlay?.id)
+        setVideoOverlay(videoOverlay?.id)
+      },
+    )
   }, [])
 
   React.useEffect(() => studio.compositor.useSources('Banner', setBanners), [])
@@ -237,6 +232,45 @@ const Project = () => {
     })
   }, [renderContainer.current])
 
+  const handleOverlayClick = (data: MediadataProps, type: string) => {
+    switch (type) {
+      case 'image':
+        data.id === overlay
+          ? projectCommands.removeImageOverlay()
+          : projectCommands.addImageOverlay(data.id, { src: data.url })
+        break
+      case 'video':
+        data.id === videoOverlay
+          ? projectCommands.removeVideoOverlay()
+          : projectCommands.addVideoOverlay(data.id, { src: data.url })
+        break
+    }
+  }
+
+  const handleBackgroundClick = (data: MediadataProps, type: string) => {
+    switch (type) {
+      case 'image':
+        data.id === background
+          ? projectCommands.removeBackgroundImage()
+          : projectCommands.setBackgroundImage(data.id, { src: data.url })
+        break
+      case 'video':
+        data.id === background
+          ? projectCommands.removeBackgroundVideo()
+          : projectCommands.setBackgroundVideo(data.id, { src: data.url })
+        break
+    }
+  }
+
+  const handleLogoClick = (data: MediadataProps, type: string) => {
+    switch (type) {
+      case 'image':
+        data.id === logo
+          ? projectCommands.removeLogo()
+          : projectCommands.addLogo(data.id, { src: data.url })
+        break
+    }
+  }
   function randomIntFromInterval(min: number, max: number) {
     // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min)
@@ -260,194 +294,126 @@ const Project = () => {
           </a>
         </div>
       </div>
-      <div className={Style.column} style={{ width: 316, display: 'flex' }}>
-        <label>RTMP Url</label>
-        <input
-          type="text"
-          defaultValue={rtmpUrl}
-          onChange={(e) => {
-            setRtmpUrl(e.target.value)
-          }}
-        />
-        <label>Stream Key</label>
-        <input
-          type="text"
-          defaultValue={streamKey}
-          onChange={(e) => {
-            setStreamKey(e.target.value)
-          }}
-        />
-        <div
-          className={Style.row}
-          style={{ width: '100%', justifyContent: 'flex-end', marginTop: 5 }}
-        >
-          {!isLive ? (
-            <button
-              onClick={async () => {
-                await Command.setDestination({
-                  projectId: project.id,
-                  rtmpKey: streamKey,
-                  rtmpUrl,
-                })
-                Command.startBroadcast({
-                  projectId: project.id,
-                })
-              }}
-            >
-              Go Live
-            </button>
-          ) : (
-            <button
-              onClick={() => {
-                Command.stopBroadcast({
-                  projectId: project.id,
-                })
-              }}
-            >
-              End broadcast
-            </button>
-          )}
+      <div style={{ display: 'flex' }}>
+        <div className={Style.column} style={{ width: 316, display: 'flex' }}>
+          <label>RTMP Url</label>
+          <input
+            type="text"
+            defaultValue={rtmpUrl}
+            onChange={(e) => {
+              setRtmpUrl(e.target.value)
+            }}
+          />
+          <label>Stream Key</label>
+          <input
+            type="text"
+            defaultValue={streamKey}
+            onChange={(e) => {
+              setStreamKey(e.target.value)
+            }}
+          />
+          <div
+            className={Style.row}
+            style={{ width: '100%', justifyContent: 'flex-end', marginTop: 5 }}
+          >
+            {!isLive ? (
+              <button
+                onClick={async () => {
+                  await Command.setDestination({
+                    projectId: project.id,
+                    rtmpKey: streamKey,
+                    rtmpUrl,
+                  })
+                  Command.startBroadcast({
+                    projectId: project.id,
+                  })
+                }}
+              >
+                Go Live
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  Command.stopBroadcast({
+                    projectId: project.id,
+                  })
+                }}
+              >
+                End broadcast
+              </button>
+            )}
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              marginLeft: '20%',
+              marginTop: '-2%',
+              position: 'absolute',
+            }}
+          ></div>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            marginLeft: '20%',
-            marginTop: '-2%',
-            position: 'absolute',
-          }}
-        >
+        <div style={{ display: 'flex', gap: '20px', marginLeft: '50px' }}>
           <div>
-            <span>
-              Overlays
-              <ul style={{ listStyle: 'none' }}>
-                {overlays.map((overlay) => (
-                  <li
-                    key={overlay.id}
-                    onClick={() => {
-                      //   if (selectedImage !== overlay.id) {
-                      setSelectedImage(overlay.id)
-                      projectCommands.addImageOverlay(overlay.id, {
-                        src: overlay.url,
-                      })
-                      // } else {
-                      //   projectCommands.removeImageOverlay2()
-                      //   setSelectedImage(null)
-                      // }
-                    }}
-                  >
-                    <img width="40px" height="50px" src={overlay.url} />
-                  </li>
-                ))}
-              </ul>
+            <MediaHeader title="Banners" />
+            <div className={Style.column}>
               <input
                 type="button"
-                value="Remove Image Overlay"
-                onClick={() => {
-                  projectCommands.removeImageOverlay()
+                value="Add Banner"
+                onClick={(e) => {
+                  projectCommands.addBanner({
+                    bodyText: `hey hey hey ${Date.now()}`,
+                  })
                 }}
               />
+            </div>
+            <div className={Style.column}>
               <input
                 type="button"
-                value="Remove Video Overlay"
-                onClick={() => {
-                  projectCommands.removeVideoOverlay()
+                value="Set Banner"
+                onClick={(e) => {
+                  const randomIndex = randomIntFromInterval(
+                    0,
+                    banners.length - 1,
+                  )
+                  projectCommands.setActiveBanner(banners[randomIndex].id)
                 }}
               />
-              <input
-                type="button"
-                value="Remove Custom Overlay"
-                onClick={() => {
-                  projectCommands.removeCustomOverlay()
-                }}
-              />
-              <input
-                type="button"
-                value="Get Image Overlay"
-                onClick={() => {
-                  console.log(projectCommands.getImageOverlay())
-                }}
-              />
-              <input
-                type="button"
-                value="Get Video Overlay"
-                onClick={() => {
-                  console.log(projectCommands.getVideoOverlay())
-                }}
-              />
-              <input
-                type="button"
-                value="Get Custom Overlay"
-                onClick={() => {
-                  console.log(projectCommands.getCustomOverlay())
-                }}
-              />
-            </span>
+            </div>
           </div>
-          <div>
-            <span>
-              Video clips
-              <ul style={{ listStyle: 'none' }}>
-                {videooverlays.map((overlay) => (
-                  <li
-                    key={overlay.id}
-                    onClick={() => {
-                      setSelectedVideo(overlay.id)
-                      projectCommands.addVideoOverlay(overlay.id, {
-                        src: overlay.url,
-                        loop: true,
-                      })
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        projectCommands.updateVideoOverlayProps(overlay.id, {
-                          loop: !loop,
-                        })
-                        setLoop(!loop)
-                      }}
-                      value="SetLoop"
-                    />
-                    <video width="40px" height="50px" src={overlay.url} />
-                  </li>
-                ))}
-              </ul>
-            </span>
+          <div className={Style.column}>
+            <MediaHeader title="Chat Overlays" />
+            <input
+              type="button"
+              value="Add chat Banner"
+              onClick={(e) => {
+                projectCommands.addChatOverlay(generateId(), {
+                  message: JSON.parse(
+                    '[{"type":"text","text":"is now live! Streaming Mobile Legends: Bang Bang: My Stream "},{"type":"emoticon","text":"SirUwU","data":{"type":"direct","url":"https://static-cdn.jtvnw.net/emoticons/v2/301544927/default/light/2.0"}},{"type":"text","text":" Hey hey hey!!! this is going live "},{"type":"emoticon","text":"WutFace","data":{"type":"direct","url":"https://static-cdn.jtvnw.net/emoticons/v2/28087/default/light/2.0"}},{"type":"text","text":" , so lets go"}]',
+                  ),
+                  username: 'Maddygoround',
+                  metadata: {
+                    platform: 'twitch',
+                    variant: 0,
+                    avatar:
+                      'https://inf2userdata0wus.blob.core.windows.net/content/62cc383fec1b480054cc2fde/resources/video/EchoBG.mp4/medium.jpg',
+                  },
+                })
+              }}
+            />
           </div>
-          <div>
-            <span>
-              Logos
-              <ul style={{ listStyle: 'none' }}>
-                {logos.map((logo) => (
-                  <li
-                    key={logo.id}
-                    onClick={() => {
-                      setSelectedImage(logo.id)
-                      projectCommands.addLogo(logo.id, {
-                        src: logo.url,
-                      })
-                    }}
-                  >
-                    <img width="40px" height="50px" src={logo.url} />
-                  </li>
-                ))}
-                <input
-                  type="button"
-                  value="Remove Logo"
-                  onClick={() => {
-                    projectCommands.removeLogo()
-                  }}
-                />
-                <input
-                  type="button"
-                  value="Get Logo"
-                  onClick={() => {
-                    console.log(projectCommands.getLogo())
-                  }}
-                />
-              </ul>
-            </span>
+          <div className={Style.column}>
+            <MediaHeader title="Custom Overlays" />
+            <input
+              type="button"
+              value="Add Custom Overlay"
+              onClick={(e) => {
+                projectCommands.addCustomOverlay(generateId(), {
+                  src: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
+                  width: 1920,
+                  height: 1080,
+                })
+              }}
+            />
           </div>
         </div>
       </div>
@@ -469,100 +435,6 @@ const Project = () => {
           className={Style.column}
           style={{ marginLeft: 14, marginBottom: 14 }}
         >
-          <div className={Style.column}>
-            <label>Background URL</label>
-            <input
-              type="text"
-              defaultValue={background}
-              onChange={(e) => {
-                if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(e.target.value)) {
-                  //          projectCommands.setBackgroundImage(e.target.value)
-                  projectCommands.setBackgroundImage(generateId(), {
-                    src: e.target.value,
-                  })
-                } else {
-                  //            projectCommands.setBackgroundVideo(e.target.value)
-                  // projectCommands.setBackgroundVideo(generateId(), {
-                  //   src: e.target.value,
-                  //   loop: true,
-                  // })
-
-                  projectCommands.addCustomOverlay(generateId(), {
-                    src: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
-                    width: 1920,
-                    height: 1080,
-                  })
-
-                  // projectCommands.addCustomOverlay(generateId(), {
-                  //   src: 'https://rainmaker.gg/overlay/609c76dcae6381152444d16d5709fe62/12',
-                  //   width: 1920,
-                  //   height: 1080,
-                  // })
-                }
-              }}
-            />
-            <input
-              type="button"
-              defaultValue="Remove Background"
-              onClick={() => {
-                const backgroundVideo = projectCommands.removeBackgroundImage()
-                console.log(backgroundVideo)
-              }}
-            />
-            <input
-              type="button"
-              defaultValue="Clear"
-              onClick={() => {
-                const backgroundVideo = projectCommands.getBackgroundMedia()
-                console.log(backgroundVideo)
-              }}
-            />
-          </div>
-          <div className={Style.column}>
-            <label>CHat Overlay</label>
-            <input
-              type="button"
-              defaultValue={background}
-              onClick={(e) => {
-                projectCommands.addChatOverlay(generateId(), {
-                  message: JSON.parse(
-                    '[{"type":"text","text":"is now live! Streaming Mobile Legends: Bang Bang: My Stream "},{"type":"emoticon","text":"SirUwU","data":{"type":"direct","url":"https://static-cdn.jtvnw.net/emoticons/v2/301544927/default/light/2.0"}},{"type":"text","text":" Hey hey hey!!! this is going live "},{"type":"emoticon","text":"WutFace","data":{"type":"direct","url":"https://static-cdn.jtvnw.net/emoticons/v2/28087/default/light/2.0"}},{"type":"text","text":" , so lets go"}]',
-                  ),
-                  username: 'Maddygoround',
-                  metadata: {
-                    platform: 'twitch',
-                    variant: 0,
-                    avatar:
-                      'https://inf2userdata0wus.blob.core.windows.net/content/62cc383fec1b480054cc2fde/resources/video/EchoBG.mp4/medium.jpg',
-                  },
-                })
-              }}
-            />
-          </div>
-
-          <div className={Style.column}>
-            <label>Add Banner</label>
-            <input
-              type="button"
-              defaultValue={background}
-              onClick={(e) => {
-                projectCommands.addBanner({
-                  bodyText: `hey hey hey ${Date.now()}`,
-                })
-              }}
-            />
-          </div>
-          <div className={Style.column}>
-            <label>Set Banner</label>
-            <input
-              type="button"
-              defaultValue={background}
-              onClick={(e) => {
-                const randomIndex = randomIntFromInterval(0, banners.length - 1)
-                projectCommands.setActiveBanner(banners[randomIndex].id)
-              }}
-            />
-          </div>
           <div className={Style.column}>
             <label>Layout</label>
             <select
@@ -602,6 +474,35 @@ const Project = () => {
         </div>
         <div style={{ marginLeft: 14 }}>
           <Chat />
+        </div>
+        <div style={{ marginLeft: 14 }}>
+          <MediaHeader title="Logos" />
+          <MediaRow
+            data={logos}
+            type="image"
+            handleClick={handleLogoClick}
+            selected={Boolean(overlay)}
+          />
+          <MediaHeader title="Backgrounds" />
+          <MediaRow
+            data={backgrounds}
+            handleClick={handleBackgroundClick}
+            selected={Boolean(background)}
+          />
+          <MediaHeader title="Video Overlays" />
+          <MediaRow
+            selected={Boolean(videoOverlay)}
+            data={videooverlays}
+            type="video"
+            handleClick={handleOverlayClick}
+          />
+          <MediaHeader title="Image Overlays" />
+          <MediaRow
+            data={overlays}
+            type="image"
+            handleClick={handleOverlayClick}
+            selected={Boolean(overlay)}
+          />
         </div>
       </div>
       <div className={Style.column}>
