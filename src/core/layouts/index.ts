@@ -55,7 +55,7 @@ export const Column = {
       right: defaultMargin,
       top: defaultMargin,
       bottom: defaultMargin,
-      between: defaultMargin,
+      between: cover ? 8 : defaultMargin,
       ...margin,
     }
 
@@ -132,7 +132,7 @@ export const Row = {
       right: defaultMargin,
       top: defaultMargin,
       bottom: defaultMargin,
-      between: defaultMargin,
+      between: cover ? 8 : defaultMargin,
       ...margin,
     }
 
@@ -253,7 +253,7 @@ export const Grid = {
             right: margin,
             left: 0,
             bottom: 0,
-            between: margin,
+            between: cover ? 8 : margin,
           },
         },
         children: row.map((index: number) => children[index]),
