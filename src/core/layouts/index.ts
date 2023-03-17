@@ -476,11 +476,7 @@ const getWideGrid = (numChildren = 0) => {
       ]
     }
     case 7: {
-      return [
-        [0, 1, 2],
-        [3, 4],
-        [5, 6],
-      ]
+      return [[0, 1, 2], [3, 4, 5], [6]]
     }
     case 8: {
       return [
