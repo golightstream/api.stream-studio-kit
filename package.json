@@ -96,5 +96,8 @@
   },
   "env": {
     "NODE_ENV": "prod"
+  },
+  "resolutions": {
+    "livekit-client": "0.15.2"
   }
 }
