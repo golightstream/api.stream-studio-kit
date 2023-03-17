@@ -122,7 +122,7 @@ export const Row = {
       align = 'center',
       cover = false,
       margin = {},
-      dimensions = 16 / 9,
+      dimensions,
       maxWidth = 1,
       reverse = false,
     } = props
@@ -140,12 +140,12 @@ export const Row = {
     const innerWidth = size.x - margin.left - margin.right
     const totalMarginBetween = margin.between * ((children.length || 1) - 1)
 
-    const itemWidth = Math.min(
+    const itemHeight = innerHeight
+    let itemWidth = Math.min(
       (innerWidth - totalMarginBetween) / (children.length || 1),
-      innerHeight * dimensions,
+      dimensions ? innerHeight * dimensions : innerWidth,
       maxWidth * size.x,
     )
-    const itemHeight = itemWidth / dimensions
 
     return html.node`
       <div style=${{
@@ -179,7 +179,6 @@ export const Row = {
                 display: 'flex',
                 height: cover ? '100%' : itemHeight + 'px',
                 width: itemWidth + 'px',
-                aspectRatio: dimensions,
                 marginRight:
                   i === children.length - 1 ? 0 : margin.between + 'px',
                 flexGrow: 0,
@@ -206,18 +205,23 @@ export const Grid = {
   name: 'Grid',
   layout: ({ props = {}, children, size }: LayoutArgs) => {
     let {
-      dimensions = 16 / 9,
+      dimensions,
       numPerRow,
       margin,
       cover = false,
       maxWidth,
+      between,
     } = props
+
     const defaultMargin =
       children.length === 0 || cover
         ? 0
-        : Math.min(size.y / children.length / 10, 30)
+        : between || Math.min(size.y / children.length / 10, 30)
+
     margin = margin ?? defaultMargin
     const isTall = size.x < size.y
+
+    between = typeof between === 'number' ? between : margin
 
     let rows = [] as Array<number[]>
     if (numPerRow) {
@@ -228,8 +232,9 @@ export const Grid = {
         : getWideGrid(children.length)
     }
 
-    const rowHeight = (size.y - margin) / rows.length
-    const rowWidth = size.x - margin
+    const rowHeight =
+      (size.y - (margin * 2 + between * (rows.length - 1))) / rows.length
+    const rowWidth = size.x - margin * 2
 
     return html.node`
     <div style=${{
@@ -238,8 +243,8 @@ export const Grid = {
       height: '100%',
       flexDirection: 'column',
       justifyContent: 'center',
-      paddingLeft: margin + 'px',
-      paddingBottom: margin + 'px',
+      padding: margin + 'px',
+      gap: between + 'px',
       flexGrow: 0,
     }}>${rows.map((row, i) =>
       Row.layout({
@@ -249,11 +254,11 @@ export const Grid = {
           cover,
           maxWidth: maxWidth || 1 / (rows[0].length || 1),
           margin: {
-            top: margin,
-            right: margin,
+            top: 0,
+            right: 0,
             left: 0,
             bottom: 0,
-            between: margin,
+            between,
           },
         },
         children: row.map((index: number) => children[index]),
