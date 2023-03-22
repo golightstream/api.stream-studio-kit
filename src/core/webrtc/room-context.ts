@@ -2,24 +2,25 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import {
-  connect,
-  ParticipantEvent,
-  Room,
-  RoomEvent,
-  Participant,
-  DataPacket_Kind,
-  ConnectOptions,
-  AudioTrack,
-  RoomState,
-  RemoteParticipant,
-} from 'livekit-client'
-import { ApiStream, LiveKitUtils } from '@api.stream/sdk'
 import * as LiveKitServer from '@api.stream/livekit-server-sdk'
+import { ApiStream, LiveKitUtils } from '@api.stream/sdk'
 import decode from 'jwt-decode'
-import { log, CoreContext } from '../context'
-import { Role } from '../types'
+import {
+  AudioTrack,
+  ConnectionState,
+  DataPacket_Kind,
+  LogLevel,
+  Participant,
+  ParticipantEvent,
+  RemoteParticipant,
+  Room,
+  RoomConnectOptions,
+  RoomEvent,
+  setLogLevel,
+  VideoPresets,
+} from 'livekit-client'
 import { hasPermission, Permission } from '../../helpers/permission'
+import { CoreContext, log } from '../context'
 export * as Livekit from 'livekit-client'
 
 /**
@@ -140,7 +141,7 @@ export interface LSRoomContext {
    * Must be done before connecting in order to do admin actions.
    */
   bindApiClient: (client: ApiStream) => void
-  connect: (options?: ConnectOptions) => Promise<Room>
+  connect: (options?: RoomConnectOptions) => Promise<void>
   /**
    * Array of chat messages in ascending chronological order
    */
@@ -366,6 +367,18 @@ export class RoomContext implements LSRoomContext {
     token: string,
     manager: IRoomsManager,
   ) {
+    let logLevel = CoreContext.logLevel.toLowerCase() as keyof typeof LogLevel
+    setLogLevel(logLevel)
+    this.livekitRoom = new Room({
+      // automatically manage subscribed video quality
+      // adaptiveStream: true,
+      // optimize publishing bandwidth and CPU for published tracks
+      dynacast: true,
+      // default capture settings
+      videoCaptureDefaults: {
+        resolution: VideoPresets.h720.resolution,
+      },
+    })
     this._baseUrl = baseUrl
     this._connectListeners = []
     this._roomEventListenerRegistry = {}
@@ -465,8 +478,6 @@ export class RoomContext implements LSRoomContext {
       this._updateParticipants,
     )
     this.subscribeToRoomEvent(RoomEvent.Disconnected, () => {
-      this.livekitRoom.removeAllListeners()
-      this.livekitRoom = null
       this._updateParticipants()
     })
 
@@ -549,7 +560,7 @@ export class RoomContext implements LSRoomContext {
   private _updateParticipants() {
     if (
       !this.livekitRoom ||
-      this.livekitRoom.state === RoomState.Disconnected
+      this.livekitRoom.state === ConnectionState.Disconnected
     ) {
       this.participants = []
       return
@@ -676,17 +687,14 @@ export class RoomContext implements LSRoomContext {
    * connect to livekit webrtc room
    * @param {string} identity unique user name to be displayed to other users
    */
-  async connect(options: ConnectOptions = {}) {
+  async connect(options: RoomConnectOptions = {}) {
     try {
-      if (this.livekitRoom && this.livekitRoom.state === 'connected') {
-        return this.livekitRoom
-      }
-      if (this.isConnecting) return null
+      if (this.livekitRoom.state === 'connected') return
+      if (this.isConnecting) return
       this.isConnecting = true
 
       // Fetch token
-      this.livekitRoom = await connect(`wss://${this._baseUrl}`, this._jwt, {
-        logLevel: CoreContext.logLevel as any,
+      await this.livekitRoom.connect(`wss://${this._baseUrl}`, this._jwt, {
         ...options,
       })
 
@@ -727,7 +735,6 @@ export class RoomContext implements LSRoomContext {
       } else {
         log.debug('Room: Not an admin')
       }
-      return this.livekitRoom
     } catch (err) {
       this.isConnecting = false
       // TODO: handle error
