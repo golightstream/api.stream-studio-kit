@@ -140,12 +140,16 @@ export const Row = {
     const innerWidth = size.x - margin.left - margin.right
     const totalMarginBetween = margin.between * ((children.length || 1) - 1)
 
-    const itemHeight = innerHeight
+    let itemHeight = innerHeight
     let itemWidth = Math.min(
       (innerWidth - totalMarginBetween) / (children.length || 1),
       dimensions ? innerHeight * dimensions : innerWidth,
       maxWidth * size.x,
     )
+
+    if (dimensions) {
+      itemHeight = itemWidth / dimensions
+    }
 
     return html.node`
       <div style=${{
