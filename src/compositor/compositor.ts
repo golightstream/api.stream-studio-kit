@@ -177,7 +177,7 @@ export type Disposable = () => void
 
 let compositor: CompositorInstance
 export const start = (settings: Settings): CompositorInstance => {
-  if (compositor) return
+  if (compositor) return compositor
   const { dbAdapter, transformSettings = {}, sourceSettings = {} } = settings
 
   type ProjectDbMap = { [id: string]: DB }
