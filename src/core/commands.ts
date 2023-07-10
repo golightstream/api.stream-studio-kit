@@ -48,6 +48,7 @@ import { CoreContext } from './context'
 import decode from 'jwt-decode'
 import { Props } from './types'
 import { SDK } from './namespaces'
+import { LiveApiModel } from '@api.stream/sdk'
 import { webrtcManager } from './webrtc'
 import { getRoom } from './webrtc/simple-room'
 import { trigger, triggerInternal } from './events'
@@ -86,6 +87,159 @@ export const updateUserProps = async (payload: {
   await triggerInternal('UserChanged', response.collection)
   return
 }
+
+/**
+ * Create a source
+ *
+ * @category Source
+ */
+export const createSource = async (payload: {
+  projectId: string
+  displayName?: string
+}) => {
+  const collectionId = getUser().id
+
+  const { source } = await CoreContext.clients.LiveApi()
+    .source
+    .createSource({
+      metadata: {},
+      collectionId,
+      address: {
+        rtmpPush: {
+          enabled: true,
+        },
+      },
+      preview: {
+        webrtc: {
+          enabled: true,
+          displayName: payload.displayName || 'RTMP Source',
+        },
+      },
+    })
+
+  // Trigger event to update state
+  await triggerInternal('SourceAdded', source)
+
+  // Add source to project
+
+  const response = await CoreContext.clients.LiveApi()
+    .source
+    .addSourceToProject({
+      collectionId,
+      projectId: payload.projectId,
+      sourceId: source.sourceId,
+    })
+
+  await triggerInternal('ProjectSourceAdded', {
+    projectId: response.project.projectId,
+    source,
+  })
+
+  return source
+}
+
+/**
+ * Get all sources in the collection
+ *
+ * @category Source
+ */
+const getSources = async () => {
+  const collectionId = getUser().id
+
+  const { sources } = await CoreContext.clients.LiveApi()
+    .source
+    .getSources({ collectionId })
+
+  return sources
+}
+
+const getSource = async (payload: { sourceId: string }) => {
+  const collectionId = getUser().id
+
+  const { source } = await CoreContext.clients.LiveApi()
+    .source
+    .getSource({
+      collectionId,
+      sourceId: payload.sourceId,
+    })
+
+  return source
+}
+
+
+/**
+ * Update a source metadata and/or displayName
+ *
+ * @category Source
+ */
+export const updateSource = async (payload: {
+  sourceId: string
+  metadata?: any
+  displayName?: string
+}) => {
+  const collectionId = getUser().id
+  let updateMask: string[] = []
+  let updateProps: Partial<LiveApiModel.UpdateSourceRequest> = {}
+  if (payload.metadata) {
+    updateMask.push('metadata')
+    updateProps.metadata = payload.metadata
+  }
+  if (payload.displayName) {
+    updateMask.push('preview.webrtc.displayName')
+    updateProps = {
+      ...updateProps,
+      preview: {
+        webrtc: {
+          displayName: payload.displayName,
+        }
+      }
+    }
+  }
+  const { source } = await CoreContext.clients.LiveApi()
+    .source
+    .updateSource({
+      collectionId,
+      updateMask,
+      sourceId: payload.sourceId,
+      ...updateProps,
+    })
+
+  // Trigger event to update state
+  await triggerInternal('SourceChanged', source)
+
+  return source
+}
+
+
+/**
+ * Delete a source
+ *
+ * @category Source
+ */
+export const deleteSource = async (payload: { projectId: string, sourceId: string, force?: boolean }) => {
+  const collectionId = getUser().id
+  const removeRes = await CoreContext.clients.LiveApi()
+    .source
+    .removeSourceFromProject({
+      collectionId,
+      projectId: payload.projectId,
+      sourceId: payload.sourceId,
+    })
+
+  await triggerInternal('ProjectSourceRemoved', {
+    projectId: payload.projectId,
+    sourceId: payload.sourceId,
+  })
+
+  const response = await CoreContext.clients
+    .LiveApi()
+    .source
+    .deleteSource({ sourceId: payload.sourceId, collectionId })
+
+  await triggerInternal('SourceRemoved', payload.sourceId)
+  return response
+}
+
 
 /**
  * Create a project with optional metadata.

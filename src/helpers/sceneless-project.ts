@@ -443,6 +443,14 @@ export interface Commands {
    * Use the latest value of an arbitrary property on the project (`project.props{}`)
    */
   useProp(props: string, cb: (val: any) => void): void
+  /**
+   * Add a source TEMPORARY
+   */
+  createSource: typeof CoreContext.Command.createSource
+  /**
+   * Remove a source TEMPORARY
+   */
+  deleteSource: typeof CoreContext.Command.deleteSource
 }
 
 /**
@@ -1794,6 +1802,12 @@ export const commands = (_project: ScenelessProject) => {
           cb(payload.project.props[prop])
         }
       })
+    },
+    createSource(payload) {
+      return CoreContext.Command.createSource(payload)
+    },
+    deleteSource(payload) {
+      return CoreContext.Command.deleteSource(payload)
     },
   }
   const ensureValid = async () => {

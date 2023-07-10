@@ -99,7 +99,7 @@ export type AppState = {
   user: InternalUser
   projects: InternalProject[]
   // TODO: InternalSources[]
-  sources: any[]
+  sources: InternalSource[]
   activeProjectId: string
   accessToken?: string
 }

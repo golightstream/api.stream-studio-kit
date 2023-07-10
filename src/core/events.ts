@@ -277,6 +277,30 @@ export interface ExternalEventMap {
     source: SDK.Source['id']
   }
 
+  /**
+   * @category Source
+   */
+  ProjectSourceAdded: {
+    source: SDK.Source
+    projectId: string
+  }
+
+  /**
+   * @category Source
+   */
+  ProjectSourceRemoved: {
+    sourceId: string
+    projectId: string
+  }
+
+  /**
+   * @category Source
+   */
+  ProjectSourceChanged: {
+    source: SDK.Source
+    projectId: string
+  }
+
   /* This is a custom event that is triggered by the video player when the video time updates. */
   VideoTimeUpdate: {
     id: string

@@ -137,6 +137,7 @@ const Login = (props: {
 
 const Project = () => {
   const { studio, project, room, projectCommands } = useStudio()
+  const [sources, setSources] = useState(project.sources)
   const renderContainer = useRef()
   const destination = project.destinations[0]
   const destinationAddress = destination?.address.rtmpPush
@@ -164,6 +165,17 @@ const Project = () => {
 
 
   // Listen for project events
+  React.useEffect(() => {
+    return project.subscribe((event, payload) => {
+      if (event === 'ProjectSourceAdded') {
+        setSources([...sources, payload.source])
+      } else if (event === 'ProjectSourceRemoved') {
+        setSources(sources.filter((s) => s.id !== payload.sourceId))
+      }
+    })
+  })
+
+
   useEffect(() => {
     return project.subscribe((event, payload) => {
       if (event === 'BroadcastStarted') {
@@ -414,6 +426,40 @@ const Project = () => {
                 })
               }}
             />
+          </div>
+          <div>
+            <MediaHeader title="Sources" />
+            <div className={Style.column}>
+              <input
+                type="button"
+                value="Add RTMP Source"
+                onClick={(e) => {
+                  projectCommands.createSource({
+                    projectId: project.id,
+                    displayName: `RTMP source: ${Math.ceil(Math.random() * 10000)}`,
+                  })
+                }}
+              />
+            </div>
+            <div className={Style.column}>
+              {sources.map((source) => {
+                return (
+                  <div key={source.id}>
+                    <div>id: {source.id}</div>
+                    <input
+                      type="button"
+                      value="Remove"
+                      onClick={(e) => {
+                        projectCommands.deleteSource({
+                          sourceId: source.id,
+                          projectId: project.id,
+                        })
+                      }}
+                    />
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>

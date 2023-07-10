@@ -174,8 +174,17 @@ subscribeInternal(async (event, payload) => {
      */
     case 'SourceAdded': {
       // Update internal state
+      const source = payload as InternalEventMap['SourceAdded']
 
       // Emit public event
+
+      trigger('SourceAdded', {
+        source: {
+          id: source.sourceId,
+          props: source.metadata,
+          address: source.address,
+        }
+      })
 
       return
     }
@@ -192,6 +201,40 @@ subscribeInternal(async (event, payload) => {
       // Emit public event
 
       return
+    }
+    case 'ProjectSourceAdded': {
+      const { projectId, source } = payload as InternalEventMap['ProjectSourceAdded']
+      const internalProject = getProject(projectId)
+      if (!internalProject) return 
+
+      // Update internal state
+      internalProject.videoApi.project.sources.push(source)
+
+      // Emit public event
+      trigger('ProjectSourceAdded', {
+        source: {
+          id: source.sourceId,
+          address: source.address,
+          props: source.metadata ?? {},
+        },
+        projectId,
+      })
+      return
+    }
+    case 'ProjectSourceRemoved': {
+      const { projectId, sourceId } = payload as InternalEventMap['ProjectSourceRemoved']
+      const internalProject = getProject(projectId)
+      if (!internalProject) return 
+      // Update internal state
+      internalProject.videoApi.project.sources = internalProject.videoApi.project.sources.filter((source) =>
+        source.sourceId !== sourceId
+      )
+
+      // Emit public event
+      trigger('ProjectSourceRemoved', {
+        sourceId,
+        projectId,
+      })
     }
     /**
      * Node
