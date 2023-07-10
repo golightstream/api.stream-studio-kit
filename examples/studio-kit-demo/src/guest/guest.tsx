@@ -16,7 +16,7 @@ const { useStudio } = Helpers.React
 const DEFAULT_GUEST_NAME = 'Guest-' + Math.floor(Math.random() * 1e4)
 
 const Project = () => {
-  const { studio, project, room } = useStudio()
+  const { studio, project, room, projectCommands } = useStudio()
   const renderContainer = useRef()
   const [isLive, setIsLive] = useState(false)
 
@@ -62,7 +62,7 @@ const Project = () => {
             marginTop: 12,
           }}
         >
-          <ControlPanel />
+          <ControlPanel room={room} projectCommands={projectCommands} />
         </div>
       </div>
     </div>
