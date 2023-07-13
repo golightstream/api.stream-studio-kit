@@ -199,6 +199,7 @@ export type Source = {
    */
   id: string
   address: LiveApiModel.SourceAddress
+  preview?: LiveApiModel.PreviewAddress | undefined;
   /**
    * Field to store arbitrary data. Not used by the SDK.
    */

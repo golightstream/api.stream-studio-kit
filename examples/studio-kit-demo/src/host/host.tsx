@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { init, Helpers } from '@api.stream/studio-kit'
+import { init, Helpers, SDK } from '@api.stream/studio-kit'
 import { Participants } from '../shared/participant'
 import { ControlPanel, DeviceSelection } from '../shared/control-panel'
 import { DEFAULT_LAYOUT, getLayout, layouts } from './layout-examples'
@@ -168,6 +168,7 @@ const Project = () => {
   React.useEffect(() => {
     return project.subscribe((event, payload) => {
       if (event === 'ProjectSourceAdded') {
+        console.log('new source', payload.source)
         setSources([...sources, payload.source])
       } else if (event === 'ProjectSourceRemoved') {
         setSources(sources.filter((s) => s.id !== payload.sourceId))
@@ -445,15 +446,43 @@ const Project = () => {
               {sources.map((source) => {
                 return (
                   <div key={source.id}>
-                    <div>id: {source.id}</div>
+                    <div>id: {source.id}, participantId: {source.preview?.webrtc?.participantId}</div>
+                    <div>url: {source.address.rtmpPush.baseUrl}   key: {source.address.rtmpPush.key}</div>
                     <input
                       type="button"
-                      value="Remove"
+                      value="Delete"
                       onClick={(e) => {
                         projectCommands.deleteSource({
                           sourceId: source.id,
                           projectId: project.id,
                         })
+                      }}
+                    />
+                    <input
+                      type="button"
+                      value="Add to stream"
+                      onClick={(e) => {
+                        projectCommands.addRTMPSource(
+                          source.id,
+                          {},
+                        )
+                      }}
+                    />
+                    <input
+                      type="button"
+                      value="Remove from stream"
+                      onClick={(e) => {
+                        projectCommands.removeRTMPSource(
+                          source.id,
+                        )
+                      }}
+                    />
+                    <input
+                      type="button"
+                      value="Log renderer url"
+                      onClick={async (e) => {
+                        const link = await studio.createPreviewLink({ projectId: project.id })
+                        console.log('preview link: ', link)
                       }}
                     />
                   </div>
@@ -658,6 +687,7 @@ export const HostView = () => {
   useEffect(() => {
     if (!projectCommands || !room) return
     // Prune non-existent participants from the project
+    console.log('participants: ', room.getParticipants())
     projectCommands.pruneParticipants()
   }, [projectCommands, room])
 

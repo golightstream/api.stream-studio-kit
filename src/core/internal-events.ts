@@ -215,6 +215,7 @@ subscribeInternal(async (event, payload) => {
         source: {
           id: source.sourceId,
           address: source.address,
+          preview: source.preview,
           props: source.metadata ?? {},
         },
         projectId,
