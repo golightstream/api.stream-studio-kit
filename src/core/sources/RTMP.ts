@@ -35,7 +35,10 @@ type TEngineEvent = IEngineSourceConnect | IEngineSourceDisconnect | IEngineStat
 class EngineWebsocket {
   private ws: WebSocket | null = null;
   private readonly sources = new Set<string>();
-  constructor(private readonly onUpdate: (sources: Set<string>) => void) {
+  constructor(
+    private readonly connectSource: (id: string) => Promise<void>,
+    private readonly disconnectSource: (id: string) => Promise<void>,
+  ) {
   }
 
   public connect(): void {
@@ -71,24 +74,32 @@ class EngineWebsocket {
         for (const src of payload.payload.sources) {
           if (src.connected) {
             this.sources.add(src.id)
+            this.connectSource(src.id)
           }
         }
       } else if (payload.name === 'source.disconnect') {
         console.info('[Engine]: source disconnect', payload.payload.id)
         this.sources.delete(payload.payload.id)
+        this.disconnectSource(payload.payload.id)
       } else if (payload.name === 'source.connect') {
         console.info('[Engine]: source connect', payload.payload.id)
         this.sources.add(payload.payload.id)
+        this.connectSource(payload.payload.id)
       }
-      this.onUpdate(this.sources)
     } catch (e) {
       console.error('unable to handle message: ', e)
     }
   }
 }
 
-function setupEngineWebsocket(onUpdate: (sources: Set<string>) => void) {
-  return new EngineWebsocket(onUpdate)
+function setupEngineWebsocket(
+  connectSource: (id: string) => Promise<void>,
+  disconnectSource: (id: string) => Promise<void>,
+) {
+  return new EngineWebsocket(
+    connectSource,
+    disconnectSource,
+  )
 }
 
 const lookupDevice = (devices: MediaDeviceInfo[], src: string): { videoDevice: MediaDeviceInfo; audioDevice: MediaDeviceInfo | null } | null => {
@@ -102,9 +113,7 @@ const lookupDevice = (devices: MediaDeviceInfo[], src: string): { videoDevice: M
   if (videoDevice) {
     if (videoDevice.label === 'Logitech BRIO (046d:085e)') {
       const audio = devices.find(device => /*(device.groupId === videoDevice.groupId) &&*/(device.kind === 'audioinput') && device.label === 'Loopback Audio 2 (Virtual)');
-
       return { videoDevice, audioDevice: audio! };
-
     }
 
     if (videoDevice.label === 'OBS Virtual Camera (m-de:vice)') {
@@ -117,6 +126,47 @@ const lookupDevice = (devices: MediaDeviceInfo[], src: string): { videoDevice: M
   }
 
   return null;
+}
+
+const connectDevice = async (id: string) => {
+  const srcObject = new MediaStream([])
+  const devs = await navigator.mediaDevices.enumerateDevices()
+
+  const devices = lookupDevice(devs, id)
+  if (devices) {
+    const constraints: MediaStreamConstraints = {
+      video: {
+        width: 999999,
+        height: 999999,
+        deviceId: { exact: devices.videoDevice.deviceId },
+      },
+    }
+
+    if (devices.audioDevice) {
+      constraints.audio = {
+        autoGainControl: false,
+        channelCount: 2,
+        echoCancellation: false,
+        latency: 0,
+        noiseSuppression: false,
+        sampleRate: 128000,
+        sampleSize: 16,
+
+        deviceId: {
+          exact: devices.audioDevice.deviceId,
+        },
+      }
+    }
+    const stream = await navigator.mediaDevices.getUserMedia(constraints)
+    if (stream) {
+      return stream
+    } else {
+      console.warn(`No stream found for source ${id}.`)
+    }
+
+  } else {
+    console.warn(`No device found for source ${id}.`)
+  }
 }
 
 export type RTMPSource = {
@@ -138,6 +188,8 @@ export type RTMPSource = {
   }
 }
 
+
+
 export const RTMP = {
   type: 'RTMP',
   valueType: MediaStream,
@@ -153,134 +205,113 @@ export const RTMP = {
     updateSource,
     getSource,
   }) {
+    let listeners: { [id: string]: Function } = {}
+    let previousTracks: SDK.Track[] = []
+    let rtmpSourceStreams: { [id: string]: MediaStream } = {}
+
     let engineSocket: EngineWebsocket
-    let previousSources: SDK.Source[] = []
-    const update = (sources: SDK.Source[]) => {
+    let previousRTMPSources: SDK.Source[] = []
+
+    const updateRTMPSources = (sources: SDK.Source[]) => {
       // Get diffs
       const newSources = sources.filter((source) => {
-        return !previousSources.some((s) => s.id === source.id)
+        return !previousRTMPSources.some((s) => s.id === source.id)
       })
 
-      const removedSources = previousSources.filter((source) => {
+      const removedSources = previousRTMPSources.filter((source) => {
         return !sources.some((s) => s.id === source.id)
       })
 
-      // Remove sources
-      previousSources.forEach((s) => {
-        removeSource(s.id)
-      })
+      previousRTMPSources = sources
 
-      const project = toBaseProject(getProject(CoreContext.state.activeProjectId))
       // Add sources
       newSources.forEach(async (s) => {
         const srcObject = new MediaStream([])
-        if (project.role === SDK.Role.ROLE_RENDERER)  {
-          // TODO: use RTMP sturr
-          const srcObject = new MediaStream([])
-          const devs = await navigator.mediaDevices.enumerateDevices()
+        rtmpSourceStreams[s.id] = srcObject
 
-          // Or something like this ¯\_(ツ)_/¯
-          const devices = lookupDevice(devs, s.id)
-          if (devices) {
-            const constraints: MediaStreamConstraints = {
-              video: {
-                width: 999999,
-                height: 999999,
-                deviceId: { exact: devices.videoDevice.deviceId },
-              },
-            }
+        const videoTracks = srcObject.getVideoTracks()
 
-            if (devices.audioDevice) {
-              constraints.audio = {
-                autoGainControl: false,
-                channelCount: 2,
-                echoCancellation: false,
-                latency: 0,
-                noiseSuppression: false,
-                sampleRate: 128000,
-                sampleSize: 16,
-
-                deviceId: {
-                  exact: devices.audioDevice.deviceId,
-                },
-              }
-            }
-            const stream = await navigator.mediaDevices.getUserMedia(constraints)
-            if (stream) {
-              return addSource({
-                id: s.id,
-                isActive: true,
-                value: stream,
-                props: {
-                  id: s.id,
-                  isMuted: false,
-                  participantId: s.id,
-                  type: 'rtmp',
-                  videoEnabled: true,
-                  audioEnabled: true,
-                  displayName: s.id,
-                },
-              } as Compositor.Source.NewSource)
-            }
-          } 
-          // TODO: add source with blank shit
-          addSource({
+        addSource({
+          id: s.id,
+          isActive: true,
+          value: srcObject,
+          props: {
             id: s.id,
-            isActive: true,
-            value: srcObject,
-            props: {
-              id: s.id,
-              participantId: s.id,
-              isMuted: false,
-              type: 'rtmp',
-              audioEnabled: false,
-              videoEnabled: false,
-              displayName: s.id,
-            }
-          })
-          return
-        }
-        else {
-          addSource({
-            id: s.id,
-            isActive: true,
-            value: srcObject,
-            props: {
-              id: s.id,
-              participantId: s.id,
-              isMuted: false,
-              type: 'rtmp',
-              videoEnabled: false,
-              audioEnabled: false,
-              displayName: s.id,
-            }
-          })
-          // TODO: use WebRTC
-        }
+            isMuted: false,
+            participantId: s.id,
+            type: 'rtmp',
+            videoEnabled: Boolean(videoTracks.length),
+            audioEnabled: true,
+            displayName: s.id,
+          },
+        } as Compositor.Source.NewSource)
+
+      })
+
+      // Remove sources
+      removedSources.forEach((s) => {
+        removeSource(s.id)
       })
 
     }
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      update(project.sources)
+      updateRTMPSources(project.sources)
       if (project.role === SDK.Role.ROLE_RENDERER) {
-        // TODO: some actual stuff
         if (!engineSocket) {
-          engineSocket =  setupEngineWebsocket((sources) => { sources.forEach((s) => console.log(s)) })
+          engineSocket =  setupEngineWebsocket(
+            async function connectSource (id) {
+              const srcObject = rtmpSourceStreams[id]
+              const project = toBaseProject(getProject(projectId))
+
+              const deviceStream = await connectDevice(id)
+              const source = getSource(id)
+
+              if (source && deviceStream) {
+                const audioTrack = deviceStream.getAudioTracks()[0]
+                const videoTrack = deviceStream.getVideoTracks()[0]
+
+                updateMediaStreamTracks(srcObject, {
+                  video: videoTrack,
+                  audio: audioTrack,
+                })
+
+                updateSource(id, {
+                  videoEnabled: Boolean(videoTrack),
+                  audioEnabled: Boolean(audioTrack),
+                  displayName: `RTMP Source ${id}`,
+                  mirrored: false,
+                  external: true,
+                })
+              }
+
+            },
+            async function disconnectSource (id) {
+              const project = toBaseProject(getProject(projectId))
+              const source = project.sources.find((s) => s.id === id)
+              const stream = rtmpSourceStreams[id]
+              const tracks = stream?.getTracks()
+              tracks.forEach((track) => {
+                rtmpSourceStreams[id].removeTrack(track)
+              })
+            },
+          )
           engineSocket.connect()
         }
+      } else {
+        // TODO: handle WebRTC preview
       }
     })
 
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      update(project?.sources)
+      updateRTMPSources(project?.sources)
     })
 
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      update(project?.sources)
+      updateRTMPSources(project?.sources)
     })
   }
 } as Compositor.Source.SourceDeclaration

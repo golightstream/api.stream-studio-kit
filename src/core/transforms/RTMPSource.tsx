@@ -151,7 +151,7 @@ export const RTMPSource = {
               opacity: hasVideo ? '0' : '1',
             }}
           >
-            {source && (
+            {Boolean(source) && (
               <div
                 style={{
                   borderRadius: '50%',
