@@ -60,7 +60,6 @@ export const RTMPSource = {
       props: Props,
       source: Sources.RTMPSource
     }) => {
-      console.log('source: ', source)
       const ref = useRef<HTMLVideoElement>()
       const { volume = 1, isHidden = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
