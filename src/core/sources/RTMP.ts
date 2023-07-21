@@ -39,6 +39,8 @@ class EngineWebsocket {
     private readonly connectSource: (id: string) => Promise<void>,
     private readonly disconnectSource: (id: string) => Promise<void>,
   ) {
+    this.connect = this.connect.bind(this)
+    this.handleMessage = this.handleMessage.bind(this)
   }
 
   public connect(): void {
@@ -73,8 +75,10 @@ class EngineWebsocket {
         console.info('[Engine]: state', payload.payload)
         for (const src of payload.payload.sources) {
           if (src.connected) {
-            this.sources.add(src.id)
-            this.connectSource(src.id)
+            if (!this.sources.has(src.id)) {
+              this.sources.add(src.id)
+              this.connectSource(src.id)
+            }
           }
         }
       } else if (payload.name === 'source.disconnect') {
@@ -232,7 +236,7 @@ export const RTMP = {
         const videoTracks = srcObject.getVideoTracks()
 
         addSource({
-          id: s.id,
+          id: `rtmp-${s.id}`,
           isActive: true,
           value: srcObject,
           props: {
@@ -250,7 +254,7 @@ export const RTMP = {
 
       // Remove sources
       removedSources.forEach((s) => {
-        removeSource(s.id)
+        removeSource(`rtmp-${s.id}`)
       })
 
     }
@@ -266,7 +270,7 @@ export const RTMP = {
               const project = toBaseProject(getProject(projectId))
 
               const deviceStream = await connectDevice(id)
-              const source = getSource(id)
+              const source = getSource(`rtmp-${id}`)
 
               if (source && deviceStream) {
                 const audioTrack = deviceStream.getAudioTracks()[0]
@@ -277,7 +281,7 @@ export const RTMP = {
                   audio: audioTrack,
                 })
 
-                updateSource(id, {
+                updateSource(`rtmp-${id}`, {
                   videoEnabled: Boolean(videoTrack),
                   audioEnabled: Boolean(audioTrack),
                   displayName: `RTMP Source ${id}`,
