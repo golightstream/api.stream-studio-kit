@@ -1562,7 +1562,7 @@ export const commands = (_project: ScenelessProject) => {
       await CoreContext.Command.createNode({
         props: {
           name: 'RTMP',
-          sourceType: 'RTMPSource',
+          sourceType: 'RTMP',
           sourceProps: {
             type,
             id,

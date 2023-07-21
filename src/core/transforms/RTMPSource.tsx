@@ -19,7 +19,7 @@ type Props = {
 
 export const RTMPSource = {
   name: 'LS-RTMP-Source',
-  sourceType: 'RTMPSource',
+  sourceType: 'RTMP',
   props: {
   },
   useSource(sources, props) {
