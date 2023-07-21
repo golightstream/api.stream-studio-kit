@@ -93,6 +93,7 @@ export const Logo = {
                   src={src}
                   onLoad={() => setStartAnimation(true)}
                 />
+                <span>This is logo</span>
               </div>
             )}
           </div>
