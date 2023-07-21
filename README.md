@@ -1,7 +1,7 @@
 <img src="https://github.com/golightstream/api.stream-sdk/blob/main/build/logo-light.png?raw=true#gh-dark-mode-only" alt="API.stream" width="250" style="margin-bottom: 25px"/>
 <img src="https://github.com/golightstream/api.stream-sdk/blob/main/build/logo-dark.png?raw=true#gh-light-mode-only" alt="API.stream" width="250" style="margin-bottom: 25px"/>
 
-# Studio Kit
+# Studio Kit1
 
 A browser-based JavaScript SDK for <a target="_blank" href="https://api.stream/">API.stream</a>.
 
