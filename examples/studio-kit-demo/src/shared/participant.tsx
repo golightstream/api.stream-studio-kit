@@ -222,7 +222,7 @@ const HostControls = ({
 
   // Get the initial props in case the participant is on stream
   const projectParticipant = useMemo(
-    () => projectCommands.getParticipantState(id, type),
+    () => projectCommands?.getParticipantState(id, type),
     [],
   )
 
@@ -235,7 +235,7 @@ const HostControls = ({
   // Monitor whether the participant has been removed from the stream
   //  from some other means (e.g. dragged off canvas by host)
   useEffect(() => {
-    return projectCommands.useParticipantState(
+    return projectCommands?.useParticipantState(
       id,
       (x:any) => {
         setOnStream(Boolean(x))
@@ -248,7 +248,7 @@ const HostControls = ({
   //  participant/type is active
   useEffect(
     () =>
-      projectCommands.useShowcase((showcase:any) => {
+      projectCommands?.useShowcase((showcase:any) => {
         setIsShowcase(showcase.participantId === id && showcase.type === type)
       }),
 
@@ -283,9 +283,9 @@ const HostControls = ({
             onChange={(e) => {
               const checked = e.target.checked
               if (checked) {
-                projectCommands.addParticipant(id, { isMuted, volume }, type)
+                projectCommands?.addParticipant(id, { isMuted, volume }, type)
               } else {
-                projectCommands.removeParticipant(id, type)
+                projectCommands?.removeParticipant(id, type)
               }
               setOnStream(checked)
             }}
@@ -318,9 +318,9 @@ const HostControls = ({
             checked={isShowcase}
             onChange={() => {
               if (isShowcase) {
-                projectCommands.setShowcase(null)
+                projectCommands?.setShowcase(null)
               } else {
-                projectCommands.setShowcase(id, type)
+                projectCommands?.setShowcase(id, type)
               }
             }}
           />
@@ -339,12 +339,12 @@ const HostControls = ({
               style={{ opacity: isMuted ? 0.4 : 1 }}
               onChange={(e) => {
                 const value = Number(e.target.value)
-                projectCommands.setParticipantVolume(id, value)
+                projectCommands?.setParticipantVolume(id, value)
                 setVolume(value)
 
                 // Unmute when user changes the volume slider
                 if (isMuted) {
-                  projectCommands.setParticipantMuted(id, false)
+                  projectCommands?.setParticipantMuted(id, false)
                   setIsMuted(false)
                 }
               }}
@@ -355,7 +355,7 @@ const HostControls = ({
               checked={!isMuted}
               onChange={(e) => {
                 const checked = e.target.checked
-                projectCommands.setParticipantMuted(id, !checked)
+                projectCommands?.setParticipantMuted(id, !checked)
                 setIsMuted(!checked)
               }}
             />
