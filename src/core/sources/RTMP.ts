@@ -100,6 +100,7 @@ function setupEngineWebsocket(
   connectSource: (id: string) => Promise<void>,
   disconnectSource: (id: string) => Promise<void>,
 ) {
+  console.log('Setting up engine websocket')
   return new EngineWebsocket(
     connectSource,
     disconnectSource,
@@ -217,6 +218,7 @@ export const RTMP = {
     let previousRTMPSources: SDK.Source[] = []
 
     const updateRTMPSources = (sources: SDK.Source[]) => {
+      console.log('begin updateRTMPSources function')
       // Get diffs
       const newSources = sources.filter((source) => {
         return !previousRTMPSources.some((s) => s.id === source.id)
@@ -226,15 +228,20 @@ export const RTMP = {
         return !sources.some((s) => s.id === source.id)
       })
 
+      console.log('number of new sources: ', newSources.length)
+      console.log('number of removed sources: ', removedSources.length)
+
       previousRTMPSources = sources
 
       // Add sources
       newSources.forEach(async (s) => {
+        console.log('new source: ', s.id)
         const srcObject = new MediaStream([])
         rtmpSourceStreams[s.id] = srcObject
 
         const videoTracks = srcObject.getVideoTracks()
 
+        console.log('adding source: ', s.id)
         addSource({
           id: `rtmp-${s.id}`,
           isActive: true,
@@ -254,6 +261,7 @@ export const RTMP = {
 
       // Remove sources
       removedSources.forEach((s) => {
+        console.log('removing source: ', s.id)
         removeSource(`rtmp-${s.id}`)
       })
 
@@ -263,9 +271,12 @@ export const RTMP = {
       const project = toBaseProject(getProject(projectId))
       updateRTMPSources(project.sources)
       if (project.role === SDK.Role.ROLE_RENDERER) {
+        console.log('Role === ROLE_RENDERER')
         if (!engineSocket) {
+          console.log('Engine Socket does not exist')
           engineSocket =  setupEngineWebsocket(
             async function connectSource (id) {
+              console.log(`Begin connect source function for id ${id}`)
               const srcObject = rtmpSourceStreams[id]
               const project = toBaseProject(getProject(projectId))
 
@@ -273,6 +284,7 @@ export const RTMP = {
               const source = getSource(`rtmp-${id}`)
 
               if (source && deviceStream) {
+                console.log('if (source && deviceStream)')
                 const audioTrack = deviceStream.getAudioTracks()[0]
                 const videoTrack = deviceStream.getVideoTracks()[0]
 
@@ -281,6 +293,12 @@ export const RTMP = {
                   audio: audioTrack,
                 })
 
+                console.log('new src tracks: ', {
+                  video: srcObject.getVideoTracks(),
+                  audio: srcObject.getVideoTracks(),
+                })
+
+                console.log('updating source: ', id)
                 updateSource(`rtmp-${id}`, {
                   videoEnabled: Boolean(videoTrack),
                   audioEnabled: Boolean(audioTrack),
@@ -292,11 +310,13 @@ export const RTMP = {
 
             },
             async function disconnectSource (id) {
+              console.log(`begin disconnectSource function for id ${id}`)
               const project = toBaseProject(getProject(projectId))
               const source = project.sources.find((s) => s.id === id)
               const stream = rtmpSourceStreams[id]
               const tracks = stream?.getTracks()
               tracks.forEach((track) => {
+                console.log('removing track: ', track.id)
                 rtmpSourceStreams[id].removeTrack(track)
               })
             },
@@ -309,11 +329,13 @@ export const RTMP = {
     })
 
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
+      console.log('Project source added: ', source)
       const project = toBaseProject(getProject(projectId))
       updateRTMPSources(project?.sources)
     })
 
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
+      console.log('Project source removed: ', sourceId)
       const project = toBaseProject(getProject(projectId))
       updateRTMPSources(project?.sources)
     })
