@@ -5,7 +5,9 @@
 
 name: Publish renderer without publishing package
 on:
-  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
 
 jobs:
   deploy:
@@ -20,7 +22,7 @@ jobs:
         uses: martinbeentjes/npm-get-version-action@main
 
       - name: Build Studio Kit
-        if: endsWith(steps.package-version.outputs.current-version, 'beta')
+        if: endsWith(steps.package-version.outputs.current-version, 'test')
         run: |
           npm ci
           npm run build
@@ -28,7 +30,7 @@ jobs:
 
       - uses: cloudflare/wrangler-action@2.0.0
         name: Publish Release
-        if: endsWith(steps.package-version.outputs.current-version, 'beta')
+        if: endsWith(steps.package-version.outputs.current-version, 'test')
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
