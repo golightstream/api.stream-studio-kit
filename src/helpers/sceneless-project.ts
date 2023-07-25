@@ -1587,7 +1587,7 @@ export const commands = (_project: ScenelessProject) => {
           (x) =>
             x.props.sourceProps?.id === id &&
             x.props.sourceProps?.type === type &&
-            x.props.sourceType === 'RTMPSource',
+            x.props.sourceType === 'RTMP',
         )
         .forEach((x) => {
           CoreContext.Command.deleteNode({
