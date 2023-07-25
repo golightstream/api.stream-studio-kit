@@ -6,9 +6,6 @@
 name: Publish renderer without publishing package
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'mahendra/conditional-build'
 
 jobs:
   deploy:
