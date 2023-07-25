@@ -210,11 +210,16 @@ export const RTMP = {
     getSource,
   }) {
     let listeners: { [id: string]: Function } = {}
-    let previousTracks: SDK.Track[] = []
-    let rtmpSourceStreams: { [id: string]: MediaStream } = {}
 
     let engineSocket: EngineWebsocket
+    // Updated by engine socket events
+    let rtmpSourceStreams: { [id: string]: MediaStream } = {}
+
+    let previousTracks: SDK.Track[] = []
+    // Updated by corecontext events
     let previousRTMPSources: SDK.Source[] = []
+
+    let room: SDK.Room
 
     const updateRTMPSources = (sources: SDK.Source[]) => {
       // Get diffs
@@ -259,10 +264,13 @@ export const RTMP = {
 
     }
 
+    let previousRoom: SDK.Room
+
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
       const project = toBaseProject(getProject(projectId))
       updateRTMPSources(project.sources)
       if (project.role === SDK.Role.ROLE_RENDERER) {
+        // Listen for engine socket events
         if (!engineSocket) {
           engineSocket =  setupEngineWebsocket(
             async function connectSource (id) {
@@ -304,7 +312,130 @@ export const RTMP = {
           engineSocket.connect()
         }
       } else {
-        // TODO: handle WebRTC preview
+      }
+    })
+
+    CoreContext.on('RoomJoined', ({ projectId, room }) => {
+      const project = toBaseProject(getProject(projectId))
+      if (project.role !== SDK.Role.ROLE_RENDERER) {
+        let previousParticipants = [] as SDK.Participant[]
+        /*  Updating the source of the camera. 
+            Adding multi camera support
+         */
+        const updatePreviewStreams = () => {
+          previousTracks
+            .filter((p) => p?.type === 'screen_share' && p?.isExternal === true)
+            .forEach((track) => {
+              if (track.type === 'screen_share') {
+                const srcObject = rtmpSourceStreams[track.participantId]
+                const participant = room.getParticipant(track.participantId)
+                // only do anything if it is for an RTMP source
+                if (previousRTMPSources.some((source) => source.id === participant.id)) {
+                  const videoTrack = room.getTrack(track.id)
+                  const source = getSource(`rtmp-${participant?.id}`)
+                  if (source) {
+                    const audioTrack = room.getTrack(
+                      participant?.meta[track.id]?.microphone,
+                    )
+                    updateMediaStreamTracks(srcObject, {
+                      video: videoTrack?.mediaStreamTrack,
+                      audio: audioTrack?.mediaStreamTrack
+                    })
+
+                    updateSource(`rtmp-${participant?.id}`, {
+                      videoEnabled: Boolean(videoTrack && !videoTrack.isMuted),
+                      audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
+                      displayName: participant?.meta[participant.id]?.displayName ||
+                      'RTMP Source',
+                      mirrored: participant?.meta[track.id]?.isMirrored,
+                      external: track?.isExternal,
+                    })
+                  }
+                }
+              }
+            })
+
+          // Update existing participants' tracks
+          previousParticipants
+            .forEach((x) => {
+              const source = getSource(`rtmp-${x.id}`)
+              if (!source) {
+                return
+              }
+              const srcObject = rtmpSourceStreams[x.id]
+              const videoId = x.trackIds.find((trackId) => {
+                const track = room.getTrack(trackId)
+                return track?.type === 'screen_share' && !track?.isExternal
+              })
+              const audioId = x.trackIds.find((x) => {
+                const track = room.getTrack(x)
+                return track?.type === 'microphone' && !track?.isExternal
+              })
+
+              const videoTrack = room.getTrack(videoId)
+              const audioTrack = room.getTrack(audioId)
+
+              // replace tracks on existing mediaSTream
+              updateMediaStreamTracks(srcObject, {
+                video: videoTrack?.mediaStreamTrack,
+                audio: audioTrack?.mediaStreamTrack,
+              })
+              updateSource(source.id, {
+                videoEnabled: Boolean(videoTrack && !videoTrack.isMuted),
+                audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
+                displayName: x.displayName,
+                mirrored: x?.meta?.isMirrored,
+              })
+            })
+        }
+
+        // listen for changes to available tracks
+        room.useTracks((tracks) => {
+          // Filter for those that are rtmp
+          const rtmpTracks = tracks
+            .filter((t) =>
+              previousRTMPSources.some((s) => s.id === t.participantId)
+            )
+            .filter((t) => ['screen_share', 'microphone'].includes(t.type))
+
+          // get tracks not contained in previous tracks
+          const newTracks = rtmpTracks.filter((track) =>
+            !previousTracks.some((x) => x.id === track.id) &&
+            Boolean(track?.mediaStreamTrack)
+          )
+
+          // get previous tracks not contained in current tracks
+          const removedTracks = previousTracks.filter(
+            (t) => !rtmpTracks.some((x) => x.id === t.id)
+          )
+
+          // Filter out racks that have a mediaStreamTrack
+          previousTracks = rtmpTracks.filter((t) => Boolean(t?.mediaStreamTrack))
+
+          newTracks.forEach((track) => {
+            if (track.type === 'screen_share' && track.mediaStreamTrack.kind === 'video') {
+              const srcObject = rtmpSourceStreams[track.participantId]
+              const audioTrack = previousTracks.find((t) => {
+                return t.participantId === track.participantId &&
+                  t.mediaStreamTrack.kind === 'audio'
+              })
+              updateMediaStreamTracks(srcObject, {
+                video: track?.mediaStreamTrack,
+                audio: audioTrack?.mediaStreamTrack,
+              })
+              updateSource(`rtmp-${track.participantId}`, {
+                videoEnabled: Boolean(track && !track?.isMuted),
+                audioEnabled: Boolean(audioTrack && !audioTrack?.isMuted),
+              })
+            }
+          })
+
+          removedTracks.forEach((track) => {
+            rtmpSourceStreams[track.participantId].removeTrack(track.mediaStreamTrack)
+          })
+
+          updatePreviewStreams()
+        })
       }
     })
 
