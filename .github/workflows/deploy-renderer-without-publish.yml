@@ -5,9 +5,8 @@
 
 name: Publish renderer without publishing package
 on:
-  push:
-    branches:
-      - mahendra/conditional-build
+  workflow_dispatch:
+    
   pull_request:
     types:
       - opened
