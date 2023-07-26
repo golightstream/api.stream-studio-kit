@@ -11,16 +11,21 @@ const { Room } = Helpers
 const { useStudio } = Helpers.React
 
 
-export const Participants = ({room , projectCommands ,studio} : {room:any,projectCommands:Helpers.ScenelessProject.Commands ,studio:any}) => {
+export const Participants = ({room , projectCommands ,studio} : {room:SDK.Room ,projectCommands:Helpers.ScenelessProject.Commands ,studio:any}) => {
 
   const { isHost } = useContext(AppContext)
+  const { project } = useStudio()
   const [participants, setParticipants] = useState<SDK.Participant[]>([])
 
   // Listen for room participants
   useEffect(() => {
     if (!room) return
-    return room.useParticipants((participants:any) => {
-      setParticipants(participants)
+    return room.useParticipants((participants) => {
+      const sourceIds = project.sources.map((s) => s.id)
+      setParticipants(
+        participants
+          .filter((p) => sourceIds.some((id) => id === p.id))
+      )
       // Prune non-existent guests from the project
       if (isHost) projectCommands.pruneParticipants()
     })
