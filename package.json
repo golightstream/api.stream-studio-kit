@@ -42,7 +42,7 @@
     "prepare": "npm run build",
     "dev:renderer": "cd ./renderer && vite --config ./renderer.vite.config.ts",
     "add-license": "npx license-check-and-add add -f build/license-header.json",
-    "build": "npm run add-license && tsc -p ./tsconfig.json --declaration --skipLibCheck --emitDeclarationOnly --jsx react --esModuleInterop --outDir types && vite build",
+    "build": "node build.js",
     "publish-docs": "npm-run-all --parallel publish-docs:sdk publish-docs:renderer publish-docs:docs publish-docs:demo",
     "publish-docs:demo": "cd examples/studio-kit-demo && npm install && vite build --emptyOutDir --outDir ../../docs/example/$npm_package_version --base=/studiokit/example/ && rm -f ../../docs/example/latest && ln -sr ../../docs/example/$npm_package_version ../../docs/example/latest",
     "publish-docs:renderer": "cd ./renderer && npm install && vite --config ./renderer.vite.config.ts build --emptyOutDir --outDir ./docs/renderer/$npm_package_version --base=/studiokit/renderer/$npm_package_version/ && rm -f ../docs/renderer/latest && ln -sr ../docs/renderer/$npm_package_version ../docs/renderer/latest",
@@ -50,7 +50,7 @@
     "publish-docs:docs": "typedoc --options ./typedoc.json --out ./docs/docs/$npm_package_version && rm -f ./docs/docs/latest && ln -sr ./docs/docs/$npm_package_version ./docs/docs/latest",
     "watch": "concurrently --kill-others \"vite build --watch\" \"tsc-watch -p ./tsconfig.json --declaration --skipLibCheck --emitDeclarationOnly --jsx react --esModuleInterop --outDir types\"",
     "watch:types": "tsc-watch -p ./tsconfig.json --declaration --skipLibCheck --emitDeclarationOnly --jsx react --esModuleInterop --outDir types",
-    "build:renderer": "cd ./renderer && npm install && vite --config ./renderer.vite.config.ts build --emptyOutDir --outDir ./renderer/dist/ --base=/studiokit/renderer/$npm_package_version/"
+    "build:renderer": "cd ./renderer && node buildRenderer.js"
   },
   "dependencies": {
     "@api.stream/livekit-server-sdk": "^0.5.7",
