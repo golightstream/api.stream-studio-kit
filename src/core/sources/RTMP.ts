@@ -332,9 +332,10 @@ export const RTMP = {
                   const videoTrack = room.getTrack(track.id)
                   const source = getSource(`rtmp-${participant?.id}`)
                   if (source) {
-                    const audioTrack = room.getTrack(
-                      participant?.meta[track.id]?.microphone,
-                    )
+                    const audioTrack = room.getTracks()
+                      .find((track) => {
+                        return track.participantId === participant.id && track.mediaStreamTrack.kind === 'audio'
+                      })
                     updateMediaStreamTracks(srcObject, {
                       video: videoTrack?.mediaStreamTrack,
                       audio: audioTrack?.mediaStreamTrack
@@ -351,37 +352,6 @@ export const RTMP = {
               }
             })
 
-          // Update existing participants' tracks
-          previousParticipants
-            .forEach((x) => {
-              const source = getSource(`rtmp-${x.id}`)
-              if (!source) {
-                return
-              }
-              const srcObject = rtmpSourceStreams[x.id]
-              const videoId = x.trackIds.find((trackId) => {
-                const track = room.getTrack(trackId)
-                return track?.type === 'screen_share' && !track?.isExternal
-              })
-              const audioId = x.trackIds.find((x) => {
-                const track = room.getTrack(x)
-                return track?.type === 'microphone' && !track?.isExternal
-              })
-
-              const videoTrack = room.getTrack(videoId)
-              const audioTrack = room.getTrack(audioId)
-
-              // replace tracks on existing mediaSTream
-              updateMediaStreamTracks(srcObject, {
-                video: videoTrack?.mediaStreamTrack,
-                audio: audioTrack?.mediaStreamTrack,
-              })
-              updateSource(source.id, {
-                videoEnabled: Boolean(videoTrack && !videoTrack.isMuted),
-                audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
-                mirrored: x?.meta?.isMirrored,
-              })
-            })
         }
 
         // listen for changes to available tracks
@@ -391,7 +361,7 @@ export const RTMP = {
             .filter((t) =>
               previousRTMPSources.some((s) => s.id === t.participantId)
             )
-            .filter((t) => ['screen_share', 'microphone'].includes(t.type))
+            .filter((t) => ['screen_share'].includes(t.type))
 
           // get tracks not contained in previous tracks
           const newTracks = rtmpTracks.filter((track) =>
@@ -412,7 +382,7 @@ export const RTMP = {
               const srcObject = rtmpSourceStreams[track.participantId]
               const audioTrack = previousTracks.find((t) => {
                 return t.participantId === track.participantId &&
-                  t.mediaStreamTrack.kind === 'audio'
+                  t.mediaStreamTrack?.kind === 'audio'
               })
               updateMediaStreamTracks(srcObject, {
                 video: track?.mediaStreamTrack,
