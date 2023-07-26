@@ -477,14 +477,6 @@ const Project = () => {
                         )
                       }}
                     />
-                    <input
-                      type="button"
-                      value="Log renderer url"
-                      onClick={async (e) => {
-                        const link = await studio.createPreviewLink({ projectId: project.id })
-                        console.log('preview link: ', link)
-                      }}
-                    />
                   </div>
                 )
               })}
