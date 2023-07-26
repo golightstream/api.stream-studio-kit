@@ -11,7 +11,7 @@ const { Room } = Helpers
 const { useStudio } = Helpers.React
 
 
-export const Participants = ({room , projectCommands ,studio} : {room:any,projectCommands:any ,studio:any}) => {
+export const Participants = ({room , projectCommands ,studio} : {room:any,projectCommands:Helpers.ScenelessProject.Commands ,studio:any}) => {
 
   const { isHost } = useContext(AppContext)
   const [participants, setParticipants] = useState<SDK.Participant[]>([])
@@ -43,7 +43,7 @@ export const Participants = ({room , projectCommands ,studio} : {room:any,projec
 type ParticipantProps = {
   participant: SDK.Participant
   room?: any
-  projectCommands?:any
+  projectCommands?: Helpers.ScenelessProject.Commands
   studio?: any
 }
 export const ParticipantCamera = ({
@@ -218,6 +218,7 @@ const HostControls = ({
   projectCommands,
   room
 }: ParticipantProps & { type: 'screen' | 'camera' }) => {
+  const { project } = useStudio()
   const { id } = participant
 
   // Get the initial props in case the participant is on stream
@@ -283,9 +284,17 @@ const HostControls = ({
             onChange={(e) => {
               const checked = e.target.checked
               if (checked) {
-                projectCommands?.addParticipant(id, { isMuted, volume }, type)
+                if (project.sources.some((source) => source.id === id)) {
+                  projectCommands?.addRTMPSource(id, {})
+                } else {
+                  projectCommands?.addParticipant(id, { isMuted, volume }, type)
+                }
               } else {
-                projectCommands?.removeParticipant(id, type)
+                if (project.sources.some((source) => source.id === id)) {
+                  projectCommands?.removeRTMPSource(id)
+                } else {
+                  projectCommands?.removeParticipant(id, type)
+                }
               }
               setOnStream(checked)
             }}
