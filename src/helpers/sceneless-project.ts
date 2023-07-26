@@ -1887,6 +1887,19 @@ export const commands = (_project: ScenelessProject) => {
       return CoreContext.Command.createSource(payload)
     },
     deleteSource(payload) {
+      const type = 'rtmp'
+      content.children
+        .filter(
+          (x) =>
+            x.props.sourceProps?.id === payload.sourceId &&
+            x.props.sourceProps?.type === type &&
+            x.props.sourceType === 'RTMP',
+        )
+        .forEach((x) => {
+          CoreContext.Command.deleteNode({
+            nodeId: x.id,
+          })
+        })
       return CoreContext.Command.deleteSource(payload)
     },
   }
