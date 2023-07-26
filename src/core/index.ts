@@ -57,6 +57,7 @@ export type AdvancedSettings = {
   transforms?: Compositor.Transform.TransformDeclaration[]
   defaultTransforms?: Compositor.Transform.DefaultTransformMap
   useLatestRenderer?: boolean
+  rendererVersion?: string
 }
 
 let initResult: SDK.Studio
@@ -86,7 +87,9 @@ export const init = async (
     defaultTransforms = {},
     useLatestRenderer = false,
     guestToken,
+    rendererVersion
   } = settings
+
   const client = new ApiStream({
     sdkVersion: CoreContext.version,
     env: env,
@@ -111,7 +114,7 @@ export const init = async (
   CoreContext.logLevel = logLevel
   CoreContext.Request = await import('./requests')
   CoreContext.Command = await import('./commands')
-  CoreContext.rendererVersion = useLatestRenderer ? 'latest-v2' : CoreContext.version
+  CoreContext.rendererVersion = useLatestRenderer ? 'latest-v2' : rendererVersion || CoreContext.version
 
   // Tie context to global scope for debugging purposes
   window.__StudioKit = {

@@ -7,7 +7,9 @@ import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { babel } from '@rollup/plugin-babel'
 import packageJSON from '../package.json'
+const parseCommandLineArgsToJSON  = require('../args');
 
+const args = parseCommandLineArgsToJSON()
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -18,7 +20,7 @@ export default defineConfig({
     }),
   ],
   define: {
-    SDK_VERSION: JSON.stringify(packageJSON.version),
+    SDK_VERSION: args.sdkversion ? JSON.stringify(args.sdkversion)  : JSON.stringify(packageJSON.version),
   },
   resolve: {},
   root: '../',
@@ -31,3 +33,7 @@ export default defineConfig({
     sourcemap: true,
   },
 })
+
+
+
+
