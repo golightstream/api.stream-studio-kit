@@ -251,7 +251,6 @@ export const RTMP = {
             type: 'rtmp',
             videoEnabled: Boolean(videoTracks.length),
             audioEnabled: true,
-            displayName: s.id,
           },
         } as Compositor.Source.NewSource)
 
@@ -292,7 +291,6 @@ export const RTMP = {
                 updateSource(`rtmp-${id}`, {
                   videoEnabled: Boolean(videoTrack),
                   audioEnabled: Boolean(audioTrack),
-                  displayName: `RTMP Source ${id}`,
                   mirrored: false,
                   external: true,
                 })
@@ -345,8 +343,6 @@ export const RTMP = {
                     updateSource(`rtmp-${participant?.id}`, {
                       videoEnabled: Boolean(videoTrack && !videoTrack.isMuted),
                       audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
-                      displayName: participant?.meta[participant.id]?.displayName ||
-                      'RTMP Source',
                       mirrored: participant?.meta[track.id]?.isMirrored,
                       external: track?.isExternal,
                     })
@@ -383,7 +379,6 @@ export const RTMP = {
               updateSource(source.id, {
                 videoEnabled: Boolean(videoTrack && !videoTrack.isMuted),
                 audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
-                displayName: x.displayName,
                 mirrored: x?.meta?.isMirrored,
               })
             })

@@ -197,7 +197,7 @@ export const RTMPSource = {
               }}
             />
           </div>
-          {source?.props.displayName && (
+          {Boolean(source?.props.displayName) && (
             <div
               className="NameBannerContainer"
               style={{
