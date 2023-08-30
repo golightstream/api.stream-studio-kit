@@ -543,7 +543,8 @@ type CompositorContext = {
 const scenelessProjectDragCheck = (node: SceneNode) => {
   return (
     node.props.name === 'Participant' ||
-    node.props.sourceType === 'RoomParticipant'
+    node.props.sourceType === 'RoomParticipant' ||
+    node.props.sourceType === 'RTMP'
   )
 }
 
