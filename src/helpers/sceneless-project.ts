@@ -288,6 +288,21 @@ export interface Commands {
   ): Disposable
 
   /**
+   * @private
+   * Get the node associated with an RTMP Source
+   */
+  getRTMPNode(
+    id: string,
+  ): Compositor.SceneNode
+
+  /**
+   * Use the RTMP nodes that are on currently on stage.
+   */
+  useRTMPNodes(
+    cb: (nodes: Compositor.SceneNode[]) => void
+  ): Disposable
+
+  /**
    * Add an RTMP Source to the canvas
    */
   addRTMPSource(
@@ -1532,6 +1547,48 @@ export const commands = (_project: ScenelessProject) => {
         if (payload.nodeId !== content.id) return
         sendState()
       })
+    },
+
+    getRTMPNode(id: string) {
+      return content.children.find(
+        (x) =>
+          x.props.sourceProps?.id === id && x.props.sourceProps?.type === 'rtmp',
+      )
+    },
+
+    useRTMPNodes(cb) {
+      let nodeIds: string[] = []
+      const sendState = () => {
+        const nodes = content.children.filter((n) => n.props?.sourceProps?.type === 'rtmp')
+        nodeIds = nodes.map(n => n.id)
+        return cb(nodes)
+      }
+
+      sendState()
+
+      const nodeAddedListener = CoreContext.onInternal(
+        'NodeAdded',
+        (payload) => {
+          const node = _project.scene.get(payload.nodeId)
+          if (node?.props?.sourceProps?.type === 'rtmp') {
+            sendState()
+          }
+        }
+      )
+
+      const nodeRemovedListener = CoreContext.onInternal(
+        'NodeRemoved',
+        (payload) => {
+          if (nodeIds.indexOf(payload.nodeId) !== -1) {
+            sendState()
+          }
+        }
+      )
+
+      return () => {
+        nodeAddedListener()
+        nodeRemovedListener()
+      }
     },
 
     async addRTMPSource(
