@@ -342,7 +342,7 @@ export const RTMP = {
                     })
 
                     updateSource(`rtmp-${participant?.id}`, {
-                      videoEnabled: Boolean(videoTrack && !videoTrack.isMuted),
+                      videoEnabled: Boolean(videoTrack?.mediaStreamTrack && !videoTrack.isMuted),
                       audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
                       mirrored: participant?.meta[track.id]?.isMirrored,
                       external: track?.isExternal,
@@ -377,6 +377,28 @@ export const RTMP = {
           // Filter out racks that have a mediaStreamTrack
           previousTracks = rtmpTracks.filter((t) => Boolean(t?.mediaStreamTrack))
 
+          removedTracks.forEach((track) => {
+            const { participantId } = track
+            const srcObject = rtmpSourceStreams[track.participantId]
+
+            if (track.mediaStreamTrack.kind === 'video') {
+              updateMediaStreamTracks(srcObject, {
+                video: null,
+              })
+              updateSource(`rtmp-${track.participantId}`, {
+                videoEnabled: false,
+              })
+            }
+            if (track.mediaStreamTrack.kind === 'audio') {
+              updateMediaStreamTracks(srcObject, {
+                audio: null,
+              })
+              updateSource(`rtmp-${track.participantId}`, {
+                audioEnabled: false,
+              })
+            }
+          })
+
           newTracks.forEach((track) => {
             if (track.type === 'screen_share' && track.mediaStreamTrack.kind === 'video') {
               const srcObject = rtmpSourceStreams[track.participantId]
@@ -395,9 +417,6 @@ export const RTMP = {
             }
           })
 
-          removedTracks.forEach((track) => {
-            rtmpSourceStreams[track.participantId].removeTrack(track.mediaStreamTrack)
-          })
 
           updatePreviewStreams()
         })
