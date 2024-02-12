@@ -38,7 +38,7 @@ export const Overlay = {
 
     const root = document.createElement('div')
     const role = getProject(CoreContext.state.activeProjectId).role
-    let interval: NodeJS.Timer
+    let interval: NodeJS.Timeout
 
     const IFrame = ({
       source,

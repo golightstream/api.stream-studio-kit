@@ -151,7 +151,6 @@ const connectDevice = async (id: string) => {
         autoGainControl: false,
         channelCount: 2,
         echoCancellation: false,
-        latency: 0,
         noiseSuppression: false,
         sampleRate: 128000,
         sampleSize: 16,

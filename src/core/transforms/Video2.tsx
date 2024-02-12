@@ -50,7 +50,7 @@ export const Video2 = {
     const role = getProject(CoreContext.state.activeProjectId).role
 
     let source: any
-    let interval: NodeJS.Timer
+    let interval: NodeJS.Timeout
 
     const Video = ({ source }: { source: any }) => {
       const SourceTrigger = SourceTriggerMap.find(
