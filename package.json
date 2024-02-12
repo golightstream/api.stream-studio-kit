@@ -1,6 +1,6 @@
 {
   "name": "@api.stream/studio-kit",
-  "version": "2.1.11",
+  "version": "3.0.0",
   "description": "Client SDK for building studio experiences with API.stream",
   "license": "MIT",
   "private": false,
@@ -38,11 +38,12 @@
     "types"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run deps && vite",
     "prepare": "npm run build",
     "dev:renderer": "cd ./renderer && vite --config ./renderer.vite.config.ts",
     "add-license": "npx license-check-and-add add -f build/license-header.json",
     "build": "node build.js",
+    "deps": "npx npm-check-updates -i --format group",
     "publish-docs": "npm-run-all --parallel publish-docs:sdk publish-docs:renderer publish-docs:docs publish-docs:demo",
     "publish-docs:demo": "cd examples/studio-kit-demo && npm install && vite build --emptyOutDir --outDir ../../docs/example/$npm_package_version --base=/studiokit/example/ && rm -f ../../docs/example/latest && ln -sr ../../docs/example/$npm_package_version ../../docs/example/latest",
     "publish-docs:renderer": "cd ./renderer && npm install && vite --config ./renderer.vite.config.ts build --emptyOutDir --outDir ./docs/renderer/$npm_package_version --base=/studiokit/renderer/$npm_package_version/ && rm -f ../docs/renderer/latest && ln -sr ../docs/renderer/$npm_package_version ../docs/renderer/latest",
@@ -53,46 +54,46 @@
     "build:renderer": "cd ./renderer && node buildRenderer.js"
   },
   "dependencies": {
-    "@api.stream/livekit-server-sdk": "^0.5.7",
+    "@api.stream/livekit-server-sdk": "^1.1.3",
     "@api.stream/sdk": "^1.0.23",
     "csx": "^10.0.2",
     "fast-deep-equal": "^3.1.3",
     "heresy": "^1.0.4",
-    "jwt-decode": "^3.1.2",
+    "jwt-decode": "^4.0.0",
     "lighterhtml": "^4.2.0",
     "livekit-client": "^1.7.0",
     "lodash-es": "^4.17.21",
-    "loglevel": "^1.8.0",
-    "long": "^5.2.0",
-    "react-transition-group": "^4.4.2",
+    "loglevel": "^1.9.1",
+    "long": "^5.2.3",
+    "react-transition-group": "^4.4.5",
     "to-style": "^1.3.3",
-    "unist-util-visit": "^4.1.2"
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
-    "@rollup/plugin-babel": "^5.3.0",
-    "@types/lodash-es": "^4.17.5",
-    "@types/node": "^16.11.7",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "@types/react-transition-group": "^4.4.5",
-    "@vitejs/plugin-react": "^1.0.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^20.11.17",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.19",
+    "@types/react-transition-group": "^4.4.10",
+    "@vitejs/plugin-react": "^4.2.1",
     "babel-plugin-wildcard": "^7.0.0",
-    "concurrently": "^6.2.0",
+    "concurrently": "^8.2.2",
     "copyfiles": "^2.4.1",
-    "csstype": "^3.0.8",
-    "license-check-and-add": "^4.0.3",
+    "csstype": "^3.1.3",
+    "license-check-and-add": "^4.0.5",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.2.1",
-    "rollup-plugin-polyfill-node": "^0.7.0",
-    "tsc-alias": "^1.3.7",
-    "tsc-watch": "^4.5.0",
-    "typedoc": "^0.22.10",
-    "typescript": "^4.5.2",
-    "vite": "^2.7.12"
+    "prettier": "^3.2.5",
+    "rollup-plugin-polyfill-node": "^0.13.0",
+    "tsc-alias": "^1.8.8",
+    "tsc-watch": "^6.0.4",
+    "typedoc": "^0.25.8",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.1"
   },
   "peerDependencies": {
-    "react": ">=17.0.2",
-    "react-dom": ">=17.0.2"
+    "react": ">=18.2.0",
+    "react-dom": ">=18.2.0"
   },
   "env": {
     "NODE_ENV": "prod"

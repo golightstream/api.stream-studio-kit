@@ -4,7 +4,7 @@
  * -------------------------------------------------------------------------------------------- */
 import * as LiveKitServer from '@api.stream/livekit-server-sdk'
 import { ApiStream, LiveKitUtils } from '@api.stream/sdk'
-import decode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import {
   AudioTrack,
   ConnectionState,
@@ -511,7 +511,7 @@ export class RoomContext implements LSRoomContext {
   }
 
   get isAdmin(): boolean {
-    const tokenData: object = decode(this._jwt)
+    const tokenData: object = jwtDecode(this._jwt)
     // @ts-ignore
     return tokenData.video.roomAdmin
   }

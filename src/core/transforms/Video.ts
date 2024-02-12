@@ -27,7 +27,7 @@ export const Video = {
 
     const el = document.createElement('video')
 
-    let interval: NodeJS.Timer
+    let interval: NodeJS.Timeout
 
     onUpdate(
       ({ attributes = {}, fields = {}, sourceProps = {}, id }: Props) => {
