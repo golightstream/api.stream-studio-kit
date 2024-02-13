@@ -7,24 +7,15 @@
  *  that produce no side effects (pure functions)
  */
 
-import type * as Compositor from './compositor/index'
+import deepEqual from 'fast-deep-equal'
 import { isArray, iteratee } from 'lodash-es'
 import { visit } from 'unist-util-visit'
+import type * as Compositor from './compositor/index'
 // Re-export needed lodash functions to keep them centralized for tree shaking
 export {
-  pick,
-  pull,
-  omit,
-  isEqual,
-  cloneDeep,
-  sortBy,
-  debounce,
-  camelCase,
-  kebabCase,
-  isArray,
-  every,
+  camelCase, cloneDeep, debounce, every, isArray, isEqual, kebabCase, omit, pick,
+  pull, sortBy
 } from 'lodash-es'
-import deepEqual from 'fast-deep-equal'
 
 export { deepEqual }
 
@@ -245,6 +236,89 @@ export const findAll = (
   })
 
   return result
+}
+
+export const lookupDevice = (
+  devices: MediaDeviceInfo[],
+  src: string,
+): {
+  videoDevice: MediaDeviceInfo
+  audioDevice: MediaDeviceInfo | null
+} | null => {
+  const videoDevice = devices.find(
+    (device) => device.label === src && device.kind === 'videoinput',
+  )
+  const audioDevice = devices.find(
+    (device) =>
+      device.label === `Monitor of ${src}` && device.kind === 'audioinput',
+  )
+  if (videoDevice && audioDevice) {
+    return { videoDevice, audioDevice }
+  }
+
+  // Handle a standard browser context for testing locally.
+  if (videoDevice) {
+    if (videoDevice.label === 'Logitech BRIO (046d:085e)') {
+      const audio = devices.find(
+        (device) =>
+          /*(device.groupId === videoDevice.groupId) &&*/ device.kind ===
+            'audioinput' && device.label === 'Loopback Audio 2 (Virtual)',
+      )
+      return { videoDevice, audioDevice: audio! }
+    }
+
+    if (videoDevice.label === 'OBS Virtual Camera (m-de:vice)') {
+      const audio = devices.find(
+        (device) =>
+          /*(device.groupId === videoDevice.groupId) &&*/ device.kind ===
+            'audioinput' && device.label === 'Loopback Audio (Virtual)',
+      )
+
+      return { videoDevice, audioDevice: audio! }
+    }
+
+    return { videoDevice, audioDevice: null }
+  }
+
+  return null
+}
+
+export const connectDevice = async (id: string) => {
+  const devs = await navigator.mediaDevices.enumerateDevices()
+
+  const devices = lookupDevice(devs, id)
+  if (devices) {
+    const constraints: MediaStreamConstraints = {
+      video: {
+        width: 999999,
+        height: 999999,
+        deviceId: { exact: devices.videoDevice.deviceId },
+      },
+    }
+
+    if (devices.audioDevice) {
+      constraints.audio = {
+        autoGainControl: false,
+        channelCount: 2,
+        echoCancellation: false,
+        latency: 0,
+        noiseSuppression: false,
+        sampleRate: 128000,
+        sampleSize: 16,
+        deviceId: {
+          exact: devices.audioDevice.deviceId,
+        },
+      }
+    }
+    const stream = await navigator.mediaDevices.getUserMedia(constraints)
+    if (stream) {
+      return stream
+    } else {
+      console.warn(`No stream found for source ${id}.`)
+    }
+  } else {
+    console.warn(`No device found for source ${id}.`)
+  }
 }
 
 /** Convert a Map to an array of its values */

@@ -519,7 +519,7 @@ const Project = () => {
                     },
                     address: {
                       rtmpPull: {
-                        url: 'rtmp://ingest.stream.horse/apistream/CV9CN5o773',
+                        url: 'rtmp://ingest.stream.horse/apistream/87DpunrtXg',
                       },
                     },
                   })
@@ -702,6 +702,7 @@ export const HostView = () => {
     init({
       env: config.env,
       logLevel: config.logLevel,
+      rendererVersion : '2.1.11-test',
     })
       .then(setStudio)
       .catch((e) => {

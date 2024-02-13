@@ -2,30 +2,32 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { CoreContext, setAppState, log } from './context'
-import { omit, toDataNode, toSceneTree } from '../logic'
-import { ApiStream, LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
-import { compositorAdapter, latestUpdateVersion } from './compositor-adapter'
+import { ApiStream, LayoutApiModel, LiveApiModel } from '@api.stream/sdk'
 import config from '../../config'
-import * as Transforms from './transforms/index'
+import { omit, toDataNode, toSceneTree } from '../logic'
+import { compositorAdapter, latestUpdateVersion } from './compositor-adapter'
+import { CoreContext, log, setAppState } from './context'
+import './internal-events'
 import * as Layouts from './layouts/index'
 import * as Sources from './sources/index'
 import { prepareInternalEvents } from './internal-events'
+import * as Transforms from './transforms/index'
 
 // Register default scene components
+import { render } from '../helpers/compositor'
+import { EngineWebsocket } from '../helpers/engine-socket'
 import {
-  getAccessTokenData,
   getBaseUser,
   getProject,
   getProjectByLayoutId,
   hydrateProject,
   layerToNode,
+  toBaseProject
 } from './data'
-import { render } from '../helpers/compositor'
-
-export * from './namespaces'
 import { Compositor, SDK } from './namespaces'
 import { GuestOptions, LogLevel } from './types'
+
+export * from './namespaces'
 
 const BroadcastPhase = LiveApiModel.ProjectBroadcastPhase
 
@@ -61,6 +63,7 @@ export type AdvancedSettings = {
 }
 
 let initResult: SDK.Studio
+let engineSocket: EngineWebsocket
 /**
  * Create a singleton {@link Studio} instance to serve as the root for
  * all SDK functionality.
@@ -75,7 +78,6 @@ export const init = async (
   // Default env to prod
   const env = settings.env || 'prod'
   const logLevel: LogLevel = settings.logLevel || 'Warn'
-
   // Update log levels
   const livekitLogger = log.getLogger('livekit')
   livekitLogger.setLevel(logLevel as any)
@@ -89,7 +91,7 @@ export const init = async (
     defaultTransforms = {},
     useLatestRenderer = false,
     guestToken,
-    rendererVersion
+    rendererVersion,
   } = settings
 
   const client = new ApiStream({
@@ -116,7 +118,9 @@ export const init = async (
   CoreContext.logLevel = logLevel
   CoreContext.Request = await import('./requests')
   CoreContext.Command = await import('./commands')
-  CoreContext.rendererVersion = useLatestRenderer ? 'latest-v2' : rendererVersion || CoreContext.version
+  CoreContext.rendererVersion = useLatestRenderer
+    ? 'latest-v2'
+    : rendererVersion || CoreContext.version
 
   // Tie context to global scope for debugging purposes
   window.__StudioKit = {
@@ -500,6 +504,37 @@ export const init = async (
   }
 }
 
+CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
+  const project = toBaseProject(getProject(projectId))
+  if (project.role === SDK.Role.ROLE_RENDERER) {
+    log.info('Connecting to engine websocket...')
+    if (engineSocket) {
+      log.info('Disconnecting existing engine websocket...')
+      engineSocket.disconnect()
+      engineSocket = null
+    }
+    if (!engineSocket) {
+      log.info('Creating new engine websocket...')
+      engineSocket = setupEngineWebsocket(
+        async function connectSource(id) {
+          triggerInternal('SourceConnected', id)
+        },
+        async function disconnectSource(id) {
+          triggerInternal('SourceDisconnected', id)
+        },
+      )
+      engineSocket.connect()
+    }
+  }
+})
+
+function setupEngineWebsocket(
+  connectSource: (id: string) => Promise<void>,
+  disconnectSource: (id: string) => Promise<void>,
+) {
+  return new EngineWebsocket(connectSource, disconnectSource)
+}
+
 /**
  * Register the access token and make API request to gather user data.
  */
@@ -543,7 +578,7 @@ const load = async (
   // TODO : Enable this when the migration work is fully done
 
   // if (result.projects.length) {
-      /** Migrate Layout is exported from ./helpers/database.ts */
+  /** Migrate Layout is exported from ./helpers/database.ts */
   //   const { internalProject } = await migrateLayout(
   //     result.projects[0].id,
   //     result.projects[0]?.compositor?.getRoot(),

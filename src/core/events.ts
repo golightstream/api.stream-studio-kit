@@ -313,6 +313,8 @@ export interface InternalEventMap {
   SourceAdded: LiveApiModel.Source
   SourceChanged: LiveApiModel.Source
   SourceRemoved: LiveApiModel.Source['sourceId']
+  SourceConnected : LiveApiModel.Source['sourceId']
+  SourceDisconnected : LiveApiModel.Source['sourceId']
   NodeAdded: {
     projectId: LiveApiModel.Project['projectId']
     nodeId: SDK.SceneNode['id']
