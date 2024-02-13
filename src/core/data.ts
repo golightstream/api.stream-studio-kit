@@ -105,6 +105,7 @@ export const toBaseSource = (source: InternalSource): SDK.Source => {
   return {
     id: source.sourceId,
     address: source.address,
+    preview: source.preview,
     props: source.metadata?.props || {},
   }
 }
@@ -286,6 +287,10 @@ export const getUser = () => {
     throw new Error('User not loaded')
   }
   return user
+}
+
+export const getSources = () => {
+  return state.sources
 }
 
 export const getProject = (id: string) => {
