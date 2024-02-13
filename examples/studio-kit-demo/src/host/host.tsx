@@ -162,8 +162,6 @@ const Project = () => {
     projectCommands.getVideoOverlay(),
   )
 
-
-
   // Listen for project events
   React.useEffect(() => {
     return project.subscribe((event, payload) => {
@@ -171,11 +169,19 @@ const Project = () => {
         console.log('new source', payload.source)
         setSources([...sources, payload.source])
       } else if (event === 'ProjectSourceRemoved') {
+        const source = sources.find((s) => s.id === payload.sourceId)
         setSources(sources.filter((s) => s.id !== payload.sourceId))
+        switch(source.props.type){
+          case 'integration':
+            projectCommands.removeGameSource(payload.sourceId)
+            break;
+          default:
+            projectCommands.removeRTMPSource(payload.sourceId)
+            break;
+        }
       }
     })
   })
-
 
   useEffect(() => {
     return project.subscribe((event, payload) => {
@@ -437,49 +443,129 @@ const Project = () => {
                 onClick={(e) => {
                   projectCommands.createSource({
                     projectId: project.id,
-                    displayName: `RTMP source: ${Math.ceil(Math.random() * 10000)}`,
+                    displayName: `RTMP source: ${Math.ceil(
+                      Math.random() * 10000,
+                    )}`,
+                    address: {
+                      rtmpPush: {
+                        enabled: true,
+                      },
+                    },
                   })
                 }}
               />
             </div>
             <div className={Style.column}>
-              {sources.map((source) => {
-                return (
-                  <div key={source.id}>
-                    <div>id: {source.id}, participantId: {source.preview?.webrtc?.participantId}</div>
-                    <div>url: {source.address.rtmpPush.baseUrl}   key: {source.address.rtmpPush.key}</div>
-                    <input
-                      type="button"
-                      value="Delete"
-                      onClick={(e) => {
-                        projectCommands.deleteSource({
-                          sourceId: source.id,
-                          projectId: project.id,
-                        })
-                      }}
-                    />
-                    <input
-                      type="button"
-                      value="Add to stream"
-                      onClick={(e) => {
-                        projectCommands.addRTMPSource(
-                          source.id,
-                          {},
-                        )
-                      }}
-                    />
-                    <input
-                      type="button"
-                      value="Remove from stream"
-                      onClick={(e) => {
-                        projectCommands.removeRTMPSource(
-                          source.id,
-                        )
-                      }}
-                    />
-                  </div>
-                )
-              })}
+              {sources
+                .filter((source) => source.props.type !== 'integration')
+                .map((source) => {
+                  return (
+                    <div key={source.id}>
+                      <div>
+                        id: {source.id}, participantId:{' '}
+                        {source.preview?.webrtc?.participantId}
+                      </div>
+                      <div>
+                        url: {source.address.rtmpPush.baseUrl} key:{' '}
+                        {source.address.rtmpPush.key}
+                      </div>
+                      <input
+                        type="button"
+                        value="Delete"
+                        onClick={(e) => {
+                          projectCommands.deleteSource({
+                            sourceId: source.id,
+                            projectId: project.id,
+                            type : 'rtmp'
+                          })
+                        }}
+                      />
+                      <input
+                        type="button"
+                        value="Add to stream"
+                        onClick={(e) => {
+                          projectCommands.addRTMPSource(source.id, {})
+                        }}
+                      />
+                      <input
+                        type="button"
+                        value="Remove from stream"
+                        onClick={(e) => {
+                          projectCommands.removeRTMPSource(source.id)
+                        }}
+                      />
+                    </div>
+                  )
+                })}
+            </div>
+          </div>
+
+          <div>
+            <MediaHeader title="Sources" />
+            <div className={Style.column}>
+              <input
+                type="button"
+                value="Add Game Source"
+                onClick={(e) => {
+                  projectCommands.createSource({
+                    projectId: project.id,
+                    displayName: `Game source: ${Math.ceil(
+                      Math.random() * 10000,
+                    )}`,
+                    metadata: {
+                      props: {
+                        type: 'integration',
+                      },
+                    },
+                    address: {
+                      rtmpPull: {
+                        url: 'rtmp://ingest.stream.horse/apistream/CV9CN5o773',
+                      },
+                    },
+                  })
+                }}
+              />
+            </div>
+            <div className={Style.column}>
+              {sources
+                .filter((source) => source.props.type === 'integration')
+                .map((source) => {
+                  return (
+                    <div key={source.id}>
+                      <div>
+                        id: {source.id}, participantId:{' '}
+                        {source.preview?.webrtc?.participantId}
+                      </div>
+                      <div>
+                        url: {source.address?.rtmpPull?.url}
+                      </div>
+                      <input
+                        type="button"
+                        value="Delete"
+                        onClick={(e) => {
+                          projectCommands.deleteSource({
+                            sourceId: source.id,
+                            projectId: project.id,  
+                          })
+                        }}
+                      />
+                      <input
+                        type="button"
+                        value="Add to stream"
+                        onClick={(e) => {
+                          projectCommands.addGameSource(source.id, {})
+                        }}
+                      />
+                      <input
+                        type="button"
+                        value="Remove from stream"
+                        onClick={(e) => {
+                          projectCommands.removeGameSource(source.id)
+                        }}
+                      />
+                    </div>
+                  )
+                })}
             </div>
           </div>
         </div>

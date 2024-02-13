@@ -96,23 +96,23 @@ export const updateUserProps = async (payload: {
 export const createSource = async (payload: {
   projectId: string
   displayName?: string
+  address? : Partial<LiveApiModel.SourceAddress>
+  metadata?: any
 }) => {
   const collectionId = getUser().id
 
-  const { source } = await CoreContext.clients.LiveApi().source.createSource({
-    metadata: {},
-    collectionId,
-    address: {
-      rtmpPush: {
-        enabled: true,
+  const { source } = await CoreContext.clients.LiveApi()
+    .source
+    .createSource({
+      metadata: payload.metadata || {},
+      collectionId,
+      address: payload.address,
+      preview: {
+        webrtc: {
+          enabled: true,
+          displayName: payload.displayName || 'RTMP Source',
+        },
       },
-    },
-    preview: {
-      webrtc: {
-        enabled: true,
-        displayName: payload.displayName || 'RTMP Source',
-      },
-    },
   })
 
   // Trigger event to update state

@@ -10,31 +10,34 @@ import { toBaseProject, getProject } from '../data'
 type SourceDeclaration = Compositor.Source.SourceDeclaration
 
 interface IEngineState {
-	name: 'state';
-	payload: {
-		destinations: { id: string; connected: string }[];
-		sources: { id: string; connected: string }[];
-	};
+  name: 'state'
+  payload: {
+    destinations: { id: string; connected: string }[]
+    sources: { id: string; connected: string }[]
+  }
 }
 
 interface IEngineSourceConnect {
-	name: 'source.connect';
-	payload: {
-		id: string;
-	};
+  name: 'source.connect'
+  payload: {
+    id: string
+  }
 }
 
 interface IEngineSourceDisconnect {
-	name: 'source.disconnect';
-	payload: {
-		id: string;
-	};
+  name: 'source.disconnect'
+  payload: {
+    id: string
+  }
 }
 
-type TEngineEvent = IEngineSourceConnect | IEngineSourceDisconnect | IEngineState;
+type TEngineEvent =
+  | IEngineSourceConnect
+  | IEngineSourceDisconnect
+  | IEngineState
 class EngineWebsocket {
-  private ws: WebSocket | null = null;
-  private readonly sources = new Set<string>();
+  private ws: WebSocket | null = null
+  private readonly sources = new Set<string>()
   constructor(
     private readonly connectSource: (id: string) => Promise<void>,
     private readonly disconnectSource: (id: string) => Promise<void>,
@@ -52,18 +55,20 @@ class EngineWebsocket {
       console.error('Unable to connect to websocket', err)
     })
 
-		this.ws.addEventListener('close', () => {
-			this.ws?.removeEventListener('message', handler);
+    this.ws.addEventListener('close', () => {
+      this.ws?.removeEventListener('message', handler)
 
-			try {
-				this.ws?.close();
-				this.ws = null;
-			} catch (e) { /* */ }
+      try {
+        this.ws?.close()
+        this.ws = null
+      } catch (e) {
+        /* */
+      }
 
-			setTimeout(() => {
-				this.connect();
-			}, 1000);
-		});
+      setTimeout(() => {
+        this.connect()
+      }, 1000)
+    })
   }
 
   private handleMessage(e: MessageEvent<string>): void {
@@ -100,36 +105,52 @@ function setupEngineWebsocket(
   connectSource: (id: string) => Promise<void>,
   disconnectSource: (id: string) => Promise<void>,
 ) {
-  return new EngineWebsocket(
-    connectSource,
-    disconnectSource,
-  )
+  return new EngineWebsocket(connectSource, disconnectSource)
 }
 
-const lookupDevice = (devices: MediaDeviceInfo[], src: string): { videoDevice: MediaDeviceInfo; audioDevice: MediaDeviceInfo | null } | null => {
-  const videoDevice = devices.find(device => device.label === src && device.kind === 'videoinput');
-  const audioDevice = devices.find(device => (device.label === `Monitor of ${src}`) && (device.kind === 'audioinput'));
+const lookupDevice = (
+  devices: MediaDeviceInfo[],
+  src: string,
+): {
+  videoDevice: MediaDeviceInfo
+  audioDevice: MediaDeviceInfo | null
+} | null => {
+  const videoDevice = devices.find(
+    (device) => device.label === src && device.kind === 'videoinput',
+  )
+  const audioDevice = devices.find(
+    (device) =>
+      device.label === `Monitor of ${src}` && device.kind === 'audioinput',
+  )
   if (videoDevice && audioDevice) {
-    return { videoDevice, audioDevice };
+    return { videoDevice, audioDevice }
   }
 
   // Handle a standard browser context for testing locally.
   if (videoDevice) {
     if (videoDevice.label === 'Logitech BRIO (046d:085e)') {
-      const audio = devices.find(device => /*(device.groupId === videoDevice.groupId) &&*/(device.kind === 'audioinput') && device.label === 'Loopback Audio 2 (Virtual)');
-      return { videoDevice, audioDevice: audio! };
+      const audio = devices.find(
+        (device) =>
+          /*(device.groupId === videoDevice.groupId) &&*/ device.kind ===
+            'audioinput' && device.label === 'Loopback Audio 2 (Virtual)',
+      )
+      return { videoDevice, audioDevice: audio! }
     }
 
     if (videoDevice.label === 'OBS Virtual Camera (m-de:vice)') {
-      const audio = devices.find(device => /*(device.groupId === videoDevice.groupId) &&*/(device.kind === 'audioinput') && device.label === 'Loopback Audio (Virtual)');
+      const audio = devices.find(
+        (device) =>
+          /*(device.groupId === videoDevice.groupId) &&*/ device.kind ===
+            'audioinput' && device.label === 'Loopback Audio (Virtual)',
+      )
 
-      return { videoDevice, audioDevice: audio! };
+      return { videoDevice, audioDevice: audio! }
     }
 
-    return { videoDevice, audioDevice: null };
+    return { videoDevice, audioDevice: null }
   }
 
-  return null;
+  return null
 }
 
 const connectDevice = async (id: string) => {
@@ -168,7 +189,6 @@ const connectDevice = async (id: string) => {
     } else {
       console.warn(`No stream found for source ${id}.`)
     }
-
   } else {
     console.warn(`No device found for source ${id}.`)
   }
@@ -193,8 +213,6 @@ export type RTMPSource = {
   }
 }
 
-
-
 export const RTMP = {
   type: 'RTMP',
   valueType: MediaStream,
@@ -204,12 +222,7 @@ export const RTMP = {
     videoEnabled: {},
     audioEnabled: {},
   },
-  init({
-    addSource,
-    removeSource,
-    updateSource,
-    getSource,
-  }) {
+  init({ addSource, removeSource, updateSource, getSource }) {
     let listeners: { [id: string]: Function } = {}
 
     let engineSocket: EngineWebsocket
@@ -254,26 +267,24 @@ export const RTMP = {
             audioEnabled: true,
           },
         } as Compositor.Source.NewSource)
-
       })
 
       // Remove sources
       removedSources.forEach((s) => {
         removeSource(`rtmp-${s.id}`)
       })
-
     }
 
     let previousRoom: SDK.Room
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      updateRTMPSources(project.sources)
+      updateRTMPSources(project.sources.filter((s) => s.props.type !== 'integration'))
       if (project.role === SDK.Role.ROLE_RENDERER) {
         // Listen for engine socket events
         if (!engineSocket) {
-          engineSocket =  setupEngineWebsocket(
-            async function connectSource (id) {
+          engineSocket = setupEngineWebsocket(
+            async function connectSource(id) {
               const srcObject = rtmpSourceStreams[id]
               const project = toBaseProject(getProject(projectId))
 
@@ -296,9 +307,8 @@ export const RTMP = {
                   external: true,
                 })
               }
-
             },
-            async function disconnectSource (id) {
+            async function disconnectSource(id) {
               const project = toBaseProject(getProject(projectId))
               const source = project.sources.find((s) => s.id === id)
               const stream = rtmpSourceStreams[id]
@@ -329,21 +339,29 @@ export const RTMP = {
                 const srcObject = rtmpSourceStreams[track.participantId]
                 const participant = room.getParticipant(track.participantId)
                 // only do anything if it is for an RTMP source
-                if (previousRTMPSources.some((source) => source.id === participant.id)) {
+                if (
+                  previousRTMPSources.some(
+                    (source) => source.id === participant.id,
+                  )
+                ) {
                   const videoTrack = room.getTrack(track.id)
                   const source = getSource(`rtmp-${participant?.id}`)
                   if (source) {
-                    const audioTrack = room.getTracks()
-                      .find((track) => {
-                        return track.participantId === participant.id && track.mediaStreamTrack.kind === 'audio'
-                      })
+                    const audioTrack = room.getTracks().find((track) => {
+                      return (
+                        track.participantId === participant.id &&
+                        track.mediaStreamTrack.kind === 'audio'
+                      )
+                    })
                     updateMediaStreamTracks(srcObject, {
                       video: videoTrack?.mediaStreamTrack,
-                      audio: audioTrack?.mediaStreamTrack
+                      audio: audioTrack?.mediaStreamTrack,
                     })
 
                     updateSource(`rtmp-${participant?.id}`, {
-                      videoEnabled: Boolean(videoTrack?.mediaStreamTrack && !videoTrack.isMuted),
+                      videoEnabled: Boolean(
+                        videoTrack?.mediaStreamTrack && !videoTrack.isMuted,
+                      ),
                       audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
                       mirrored: participant?.meta[track.id]?.isMirrored,
                       external: track?.isExternal,
@@ -352,7 +370,6 @@ export const RTMP = {
                 }
               }
             })
-
         }
 
         // listen for changes to available tracks
@@ -360,23 +377,26 @@ export const RTMP = {
           // Filter for those that are rtmp
           const rtmpTracks = tracks
             .filter((t) =>
-              previousRTMPSources.some((s) => s.id === t.participantId)
+              previousRTMPSources.some((s) => s.id === t.participantId),
             )
             .filter((t) => ['screen_share'].includes(t.type))
 
           // get tracks not contained in previous tracks
-          const newTracks = rtmpTracks.filter((track) =>
-            !previousTracks.some((x) => x.id === track.id) &&
-            Boolean(track?.mediaStreamTrack)
+          const newTracks = rtmpTracks.filter(
+            (track) =>
+              !previousTracks.some((x) => x.id === track.id) &&
+              Boolean(track?.mediaStreamTrack),
           )
 
           // get previous tracks not contained in current tracks
           const removedTracks = previousTracks.filter(
-            (t) => !rtmpTracks.some((x) => x.id === t.id)
+            (t) => !rtmpTracks.some((x) => x.id === t.id),
           )
 
           // Filter out racks that have a mediaStreamTrack
-          previousTracks = rtmpTracks.filter((t) => Boolean(t?.mediaStreamTrack))
+          previousTracks = rtmpTracks.filter((t) =>
+            Boolean(t?.mediaStreamTrack),
+          )
 
           removedTracks.forEach((track) => {
             const { participantId } = track
@@ -401,11 +421,16 @@ export const RTMP = {
           })
 
           newTracks.forEach((track) => {
-            if (track.type === 'screen_share' && track.mediaStreamTrack.kind === 'video') {
+            if (
+              track.type === 'screen_share' &&
+              track.mediaStreamTrack.kind === 'video'
+            ) {
               const srcObject = rtmpSourceStreams[track.participantId]
               const audioTrack = previousTracks.find((t) => {
-                return t.participantId === track.participantId &&
+                return (
+                  t.participantId === track.participantId &&
                   t.mediaStreamTrack?.kind === 'audio'
+                )
               })
               updateMediaStreamTracks(srcObject, {
                 video: track?.mediaStreamTrack,
@@ -418,20 +443,19 @@ export const RTMP = {
             }
           })
 
-
           updatePreviewStreams()
         })
       }
     })
 
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
-      const project = toBaseProject(getProject(projectId))
-      updateRTMPSources(project?.sources)
+        const project = toBaseProject(getProject(projectId))
+        updateRTMPSources(project.sources.filter((s) => s.props.type !== 'integration'))
     })
 
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
-      const project = toBaseProject(getProject(projectId))
-      updateRTMPSources(project?.sources)
+        const project = toBaseProject(getProject(projectId))
+        updateRTMPSources(project.sources.filter((s) => s.props.type !== 'integration'))
     })
-  }
+  },
 } as Compositor.Source.SourceDeclaration

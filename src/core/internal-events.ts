@@ -9,6 +9,7 @@ import {
   layoutToProject,
   toBaseDestination,
   toBaseProject,
+  toBaseSource,
 } from './data'
 import { InternalEventMap, subscribeInternal, trigger } from './events'
 import { SDK } from './namespaces'
