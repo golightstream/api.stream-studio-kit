@@ -11,6 +11,7 @@
  * 
  * @module Helpers
  */
+export * as React from './react'
 export * as ScenelessProject from './sceneless-project'
 export * as Callback from './callbacks'
 export * as Room from './webrtc'
