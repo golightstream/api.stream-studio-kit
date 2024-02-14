@@ -476,7 +476,6 @@ const Project = () => {
                           projectCommands.deleteSource({
                             sourceId: source.id,
                             projectId: project.id,
-                            type : 'rtmp'
                           })
                         }}
                       />

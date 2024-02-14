@@ -87,17 +87,14 @@ export const Game = {
     }
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
-      log.info('ActiveProjectChanged')
       const project = toBaseProject(getProject(projectId))
       const sources = project.sources.filter(
         (s) => s.props.type === 'integration',
       )
-      log.info('Available sources', sources)
       updateGameSources(sources)
     })
 
     CoreContext.onInternal('SourceConnected', async (id) => {
-      log.info('SourceConnected', id)
       const srcObject = gameSourceStreams[id]
       const deviceStream = await connectDevice(id)
       const source = getSource(`game-${id}`)
@@ -121,16 +118,14 @@ export const Game = {
     })
 
     CoreContext.onInternal('SourceDisconnected', (id) => {
-      log.info('SourceDisconnected', id)
       const stream = gameSourceStreams[id]
       const tracks = stream?.getTracks()
       tracks.forEach((track) => {
-        gameSourceStreams[id].removeTrack(track)
+        gameSourceStreams[id]?.removeTrack(track)
       })
     })
 
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
-      log.info('ProjectSourceAdded', source, projectId)
       const project = toBaseProject(getProject(projectId))
       updateGameSources(
         project.sources.filter((s) => s?.props?.type === 'integration'),
@@ -138,7 +133,6 @@ export const Game = {
     })
 
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
-      log.info('ProjectSourceRemoved', sourceId, projectId)
       const project = toBaseProject(getProject(projectId))
       updateGameSources(
         project.sources.filter((s) => s?.props?.type === 'integration'),

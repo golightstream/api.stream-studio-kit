@@ -139,7 +139,6 @@ export const loadUser = async (size?: {
     collection = collections[0]
   }
 
-  log.info('Subscribing to collection', collection.collectionId)
   await CoreContext.clients
     .LiveApi()
     .subscribeToCollection(collection.collectionId)

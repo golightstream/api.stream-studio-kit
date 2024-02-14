@@ -6,8 +6,5 @@ export * from './WebRTC'
 export * from './Banners'
 
 // TODO: remove this sources after a while when this version of sdk (1.1.58) is adopted by all users
-export * from './Overlays'
-export * from './Background'
-export * from './Logo'
 export * from './RTMP'
 export * from './Game'
