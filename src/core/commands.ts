@@ -96,23 +96,21 @@ export const updateUserProps = async (payload: {
 export const createSource = async (payload: {
   projectId: string
   displayName?: string
-  address? : Partial<LiveApiModel.SourceAddress>
+  address?: Partial<LiveApiModel.SourceAddress>
   metadata?: any
 }) => {
   const collectionId = getUser().id
 
-  const { source } = await CoreContext.clients.LiveApi()
-    .source
-    .createSource({
-      metadata: payload.metadata || {},
-      collectionId,
-      address: payload.address,
-      preview: {
-        webrtc: {
-          enabled: true,
-          displayName: payload.displayName || 'RTMP Source',
-        },
+  const { source } = await CoreContext.clients.LiveApi().source.createSource({
+    metadata: payload.metadata || {},
+    collectionId,
+    address: payload.address,
+    preview: {
+      webrtc: {
+        enabled: true,
+        displayName: payload.displayName || 'RTMP Source',
       },
+    },
   })
 
   // Trigger event to update state
@@ -472,17 +470,25 @@ export const setActiveProject = async (payload: {
         currentProject.videoApi.project.collectionId,
         currentProject.videoApi.project.projectId,
       )
+    await CoreContext.clients
+      .LiveApi()
+      .unsubscribeFromCollection(currentProject.videoApi.project.collectionId)
   }
-
+  
   await CoreContext.clients
     .LayoutApi()
     .subscribeToLayout(project.layoutApi.layoutId)
+
   await CoreContext.clients
     .LiveApi()
     .subscribeToProject(
       project.videoApi.project.collectionId,
       project.videoApi.project.projectId,
     )
+
+  await CoreContext.clients
+    .LiveApi()
+    .subscribeToCollection(project.videoApi.project.collectionId)
 
   // Asynchronously ensure latest project state
   CoreContext.clients

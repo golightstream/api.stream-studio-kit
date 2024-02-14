@@ -2,6 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
+import { CoreContext, log } from './context'
 import {
   getBaseUser,
   getProject,
@@ -13,8 +14,6 @@ import {
 } from './data'
 import { InternalEventMap, subscribeInternal, trigger } from './events'
 import { SDK } from './namespaces'
-import { CoreContext, log } from './context'
-import { OverlaySource } from './sources'
 
 const { state } = CoreContext
 
@@ -182,11 +181,7 @@ export const prepareInternalEvents = () => {
         // Emit public event
 
         trigger('SourceAdded', {
-          source: {
-            id: source.sourceId,
-            props: source.metadata,
-            address: source.address,
-          },
+          source: toBaseSource(source),
         })
 
         return
@@ -216,12 +211,7 @@ export const prepareInternalEvents = () => {
 
         // Emit public event
         trigger('ProjectSourceAdded', {
-          source: {
-            id: source.sourceId,
-            address: source.address,
-            preview: source.preview,
-            props: source.metadata ?? {},
-          },
+          source: toBaseSource(source),
           projectId,
         })
         return
@@ -265,105 +255,6 @@ export const prepareInternalEvents = () => {
         // Update internal state
 
         // Emit public event
-
-        return
-      }
-
-      // TODO: remove this code after a while when this version of sdk (1.1.58) is adopted by all users
-      case 'BackgroundMetadataUpdate': {
-        const { Command } = CoreContext
-        const { projectId, metadata, sourceId, doTrigger, role } =
-          payload as InternalEventMap['BackgroundMetadataUpdate']
-        if (role === 'ROLE_HOST' || role === 'ROLE_COHOST') {
-          const internalProject = getProject(projectId)
-          if (!internalProject) return
-          if (internalProject.props.background.id !== sourceId) {
-            return
-          }
-          let source = internalProject?.props?.background
-          if (source) {
-            source = {
-              ...source,
-              props: {
-                ...source.props,
-                meta: {
-                  ...source.props.meta,
-                  ...metadata,
-                },
-              },
-            }
-            if (doTrigger) {
-              Command.updateProjectProps({
-                projectId,
-                props: {
-                  background: source,
-                },
-              })
-            } else {
-              Command.updateProjectPropsWithoutTrigger({
-                projectId,
-                props: {
-                  background: source,
-                },
-              })
-            }
-          }
-        }
-        return
-      }
-
-      // TODO: remove this code after a while when this version of sdk (1.1.58) is adopted by all users
-      case 'OverlayMetadataUpdate': {
-        const { Command } = CoreContext
-        const { projectId, metadata, sourceId, doTrigger, role } =
-          payload as InternalEventMap['OverlayMetadataUpdate']
-        if (role === 'ROLE_HOST' || role === 'ROLE_COHOST') {
-          const internalProject = getProject(projectId)
-          if (!internalProject) return
-          let source = internalProject.props.overlays.find(
-            (x: OverlaySource) => x.id === sourceId,
-          )
-          if (source) {
-            source = {
-              ...source,
-              props: {
-                ...source.props,
-                meta: {
-                  ...source.props.meta,
-                  ...metadata,
-                },
-              },
-            }
-
-            const overlayIndex = internalProject.props.overlays.findIndex(
-              (x: OverlaySource) => x.id === sourceId,
-            )
-
-            if (overlayIndex > -1) {
-              const shallowOverlays = JSON.parse(
-                JSON.stringify(internalProject?.props?.overlays),
-              )
-
-              shallowOverlays.splice(overlayIndex, 1, source)
-
-              if (doTrigger) {
-                Command.updateProjectProps({
-                  projectId,
-                  props: {
-                    overlays: shallowOverlays,
-                  },
-                })
-              } else {
-                Command.updateProjectPropsWithoutTrigger({
-                  projectId,
-                  props: {
-                    overlays: shallowOverlays,
-                  },
-                })
-              }
-            }
-          }
-        }
 
         return
       }

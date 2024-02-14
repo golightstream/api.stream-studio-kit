@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { CoreContext, InternalSource } from './context'
+import { CoreContext, InternalSource,log } from './context'
 import { toSceneTree } from '../logic'
 import { Context, SDK, Compositor } from './namespaces'
 import { LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
@@ -35,7 +35,6 @@ export const toBaseProject = (
 ): SDK.Project => {
   const { compositor, videoApi, props = {}, role } = project
   const { destinations, encoding, rendering, sources } = videoApi.project
-
   const scene = {
     get: compositor.get,
     getRoot: compositor.getRoot,

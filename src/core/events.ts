@@ -327,19 +327,4 @@ export interface InternalEventMap {
     projectId: LiveApiModel.Project['projectId']
     nodeId: SDK.SceneNode['id']
   }
-  // TODO: remove this code after a while when this version of sdk (1.1.58) is adopted by all users
-  OverlayMetadataUpdate: {
-    projectId: LiveApiModel.Project['projectId']
-    metadata: LiveApiModel.Project['metadata']
-    sourceId: LiveApiModel.Source['sourceId']
-    role: SDK.Role
-    doTrigger: boolean
-  }
-  BackgroundMetadataUpdate: {
-    projectId: LiveApiModel.Project['projectId']
-    metadata: LiveApiModel.Project['metadata']
-    sourceId: LiveApiModel.Source['sourceId']
-    role: SDK.Role
-    doTrigger: boolean
-  }
 }

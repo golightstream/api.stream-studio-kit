@@ -37,25 +37,24 @@
  *
  * @module ScenelessProject
  */
-import { LogoProps } from './../core/transforms/Logo'
-import { BackgroundProps } from './../core/transforms/Background'
-import { OverlayProps } from './../core/transforms/Overlay'
-import { Overlay } from '../core/sources/Overlays'
+import { Track } from 'livekit-client'
 import { CoreContext } from '../core/context'
 import { getProject, getProjectRoom } from '../core/data'
-import { SDK, Compositor } from '../core/namespaces'
-import { Disposable, SceneNode } from '../core/types'
-import { Track } from 'livekit-client'
-import { Banner, BannerSource, BannerProps } from '../core/sources/Banners'
+import { Compositor, SDK } from '../core/namespaces'
+import { Banner, BannerProps, BannerSource } from '../core/sources/Banners'
 import { RoomParticipantSource } from '../core/sources/WebRTC'
-import { generateId, findAll, deepEqual, cloneDeep } from '../logic'
 import { ChatOverlayProps } from '../core/transforms/ChatOverlay'
-import LayoutName = Compositor.Layout.LayoutName
+import { Disposable, SceneNode } from '../core/types'
+import { cloneDeep, deepEqual, findAll, generateId } from '../logic'
+import { BackgroundProps } from './../core/transforms/Background'
+import { LogoProps } from './../core/transforms/Logo'
+import { OverlayProps } from './../core/transforms/Overlay'
 import {
   defaultStyles,
   ForegroundLayers,
-  validateEachChildren,
+  validateEachChildren
 } from './database'
+import LayoutName = Compositor.Layout.LayoutName
 
 export type { LayoutName }
 export type { Banner, BannerSource, RoomParticipantSource }
@@ -123,10 +122,6 @@ export interface Commands {
    * Get all banners stored on the project
    */
   getBanners(): Banner[]
-  /**
-   * Get all banners stored on the project
-   */
-  getOverlays(): Overlay[]
 
   /**
    * Get all participants in the project
@@ -663,11 +658,6 @@ export const commands = (_project: ScenelessProject) => {
     getBanners() {
       return (getProject(_project.id).props?.banners || []) as Banner[]
     },
-
-    getOverlays() {
-      return (getProject(_project.id).props.overlays || []) as Overlay[]
-    },
-
     getParticipants() {
       return content.children.filter((node) => {
         if (node.props.sourceType !== 'RoomParticipant') return false
