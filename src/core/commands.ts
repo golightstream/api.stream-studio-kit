@@ -408,14 +408,6 @@ export const updateProjectProps = async (payload: {
   await triggerInternal('ProjectChanged', { project: response.project })
   return
 }
-/**
- * @deprecated Use updateProjectProps
- */
-export const updateProjectMeta = (payload: {
-  projectId: SDK.Project['id']
-  /** Arbitrary metadata to associate with this project */
-  meta?: Props
-}) => updateProjectProps({ projectId: payload.projectId, props: payload.meta })
 
 /**
  * @private Use updateProjectProps without internaltriggers
@@ -799,15 +791,12 @@ export const addDestination = async (payload: {
   rtmpKey: string
   enabled: boolean
   props?: Props
-  /** @deprecated Use `props` */
-  metadata?: Props
 }) => {
   const {
     rtmpUrl,
     rtmpKey,
     enabled,
     projectId = state.activeProjectId,
-    metadata = {},
     props = {},
   } = payload
   const project = getProject(projectId)
@@ -826,10 +815,7 @@ export const addDestination = async (payload: {
       address,
       enabled,
       metadata: {
-        props: {
-          ...metadata,
-          ...props,
-        },
+        props,
       },
     })
 
@@ -943,19 +929,6 @@ export const updateDestinationProps = async (payload: {
   await triggerInternal('DestinationChanged', response.destination)
   return
 }
-/**
- * @deprecated Use updateDestinationProps
- */
-export const updateDestinationMeta = (payload: {
-  projectId: string
-  destinationId: string
-  metadata?: Props
-}) =>
-  updateDestinationProps({
-    projectId: payload.projectId,
-    destinationId: payload.destinationId,
-    props: payload.metadata,
-  })
 
 /**
  * Enable or disable an existing {@link Destination} on the project.
@@ -986,14 +959,6 @@ export const setDestinationEnabled = async (payload: {
 
   // Trigger event to update state
   await triggerInternal('DestinationChanged', response.destination)
-
-  const event = enabled ? 'DestinationEnabled' : 'DestinationDisabled'
-  /** @deprecated Use DestinationChanged */
-  trigger(event, {
-    projectId,
-    destinationId,
-  })
-  return
 }
 
 /**
@@ -1046,12 +1011,4 @@ export const setDestination = async (payload: {
     // Trigger event to update state
     await triggerInternal('DestinationAdded', response.destination)
   }
-
-  /** @deprecated */
-  trigger('DestinationSet', {
-    projectId,
-    rtmpUrl,
-    rtmpKey,
-  })
-  return
 }

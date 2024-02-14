@@ -784,12 +784,6 @@ export type CompositorSettings = {
    */
   dragAndDrop?: boolean
   /**
-   * @deprecated - Use onElementDoubleClick()
-   * Indicates whether the compositor should allow the user to
-   * double-click on an element to make it fill the canvas.
-   */
-  dblClickShowcase?: boolean
-  /**
    * Determine whether a node is a candidate for dragging.
    */
   checkDragTarget?: (node: SceneNode) => boolean

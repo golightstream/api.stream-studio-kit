@@ -5,7 +5,7 @@
 import { updateMediaStreamTracks } from '../../helpers/webrtc'
 import { CoreContext } from '../context'
 import { Compositor, SDK } from '../namespaces'
-import { toBaseProject, getProject, getProjectRoom } from '../data'
+import { toBaseProject, getProject } from '../data'
 
 type SourceDeclaration = Compositor.Source.SourceDeclaration
 
