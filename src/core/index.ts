@@ -227,8 +227,8 @@ export const init = async (
       }
       case EventSubType.EVENT_SUB_TYPE_REMOVE: {
         triggerInternal('ProjectSourceRemoved', {
-          projectId: event.add.projectId,
-          sourceId: event.add.sourceId,
+          projectId: event.remove.projectId,
+          sourceId: event.remove.sourceId,
         })
         return
       }
