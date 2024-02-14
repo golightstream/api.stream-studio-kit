@@ -231,10 +231,6 @@ const ElementTree = (props: { nodeId: string }) => {
     : {}
 
   useEffect(() => {
-    const onDoubleClick = isDragTarget
-      ? () => onElementDoubleClick(node)
-      : () => {}
-
     if (transformRef.current && element) {
       transformRef.current.appendChild(element.root)
       Object.assign(transformRef.current.style, {
@@ -440,7 +436,6 @@ export const render = (settings: CompositorSettings) => {
     containerEl,
     projectId,
     dragAndDrop = false,
-    dblClickShowcase = dragAndDrop,
     checkDragTarget = scenelessProjectDragCheck,
     checkDropTarget = scenelessProjectDropCheck,
   } = settings
@@ -449,9 +444,7 @@ export const render = (settings: CompositorSettings) => {
 
   loadDragImage()
 
-  const onElementDoubleClick =
-    settings.onElementDoubleClick ||
-    (dblClickShowcase && scenelessProjectDoubleClick(project))
+  const onElementDoubleClick = settings.onElementDoubleClick ?? (() => {})
 
   if (!containerEl || !project) return
 

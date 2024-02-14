@@ -243,19 +243,9 @@ export const init = async (
         return
       }
       case EventSubType.EVENT_SUB_TYPE_UPDATE: {
-        const { projectId, updateMask, project } = event.update
+        const { project } = event.update
         const existingProject = getProject(project.projectId)
         if (!existingProject) return
-
-        if (updateMask.includes('metadata')) {
-          /**
-           * @deprecated Use ProjectChanged
-           */
-          trigger('ProjectMetaUpdated', {
-            projectId,
-            meta: project.metadata,
-          })
-        }
 
         triggerInternal('ProjectChanged', {
           project,

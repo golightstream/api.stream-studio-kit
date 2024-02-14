@@ -15,9 +15,3 @@ export * as React from './react'
 export * as ScenelessProject from './sceneless-project'
 export * as Callback from './callbacks'
 export * as Room from './webrtc'
-
-/**
- * @private
- * @deprecated Use {@link Studio.render} instead
- */
-export * as Compositor from './compositor'

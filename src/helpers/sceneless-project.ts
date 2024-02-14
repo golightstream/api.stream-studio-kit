@@ -359,22 +359,9 @@ export interface Commands {
     type?: ParticipantType,
   ): Promise<void>
   /**
-   * @private
-   * @deprecated Use addParticipant() with parameter `type`
-   */
-  addParticipantScreenshare(
-    participantId: string,
-    props: Partial<ParticipantProps>,
-  ): Promise<void>
-  /**
    * Remove a stream participant from the stream canvas.
    */
   removeParticipant(participantId: string, type: ParticipantType): void
-  /**
-   * @private
-   * @deprecated Use removeParticipant() with parameter `type`
-   */
-  removeParticipantScreenshare(participantId: string): void
   /**
    * @private
    * Get the node associated with a room participant
@@ -1765,12 +1752,6 @@ export const commands = (_project: ScenelessProject) => {
         addingCache[type].delete(participantId)
       })
     },
-    addParticipantScreenshare(
-      participantId: string,
-      props: Partial<ParticipantProps> = {},
-    ) {
-      return commands.addParticipant(participantId, props, 'screen')
-    },
     removeParticipant(participantId: string, type: ParticipantType = 'camera') {
       content.children
         .filter(
@@ -1784,9 +1765,6 @@ export const commands = (_project: ScenelessProject) => {
             nodeId: x.id,
           })
         })
-    },
-    removeParticipantScreenshare(participantId: string) {
-      return commands.removeParticipant(participantId, 'screen')
     },
     getParticipantNode(id: string, type: ParticipantType = 'camera') {
       return content.children.find(

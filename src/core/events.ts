@@ -153,15 +153,6 @@ export interface ExternalEventMap {
   }
   /**
    * @category Project
-   * @private
-   * @deprecated Use ProjectChanged
-   */
-  ProjectMetaUpdated: {
-    projectId: SDK.Project['id']
-    meta: SDK.Props
-  }
-  /**
-   * @category Project
    */
   ProjectChanged: {
     project: SDK.Project
@@ -229,34 +220,6 @@ export interface ExternalEventMap {
   DestinationRemoved: {
     projectId: SDK.Project['id']
     destinationId: SDK.Destination['id']
-  }
-  /**
-   * @category Destination
-   * @private
-   * @deprecated Use DestinationChanged
-   */
-  DestinationEnabled: {
-    projectId: SDK.Project['id']
-    destinationId: SDK.Destination['id']
-  }
-  /**
-   * @category Destination
-   * @private
-   * @deprecated Use DestinationChanged
-   */
-  DestinationDisabled: {
-    projectId: SDK.Project['id']
-    destinationId: SDK.Destination['id']
-  }
-  /**
-   * @category Destination
-   * @private
-   * @deprecated Use ProjectChanged
-   */
-  DestinationSet: {
-    projectId: SDK.Project['id']
-    rtmpUrl: string
-    rtmpKey: string
   }
   /**
    * @category Source
