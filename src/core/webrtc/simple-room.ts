@@ -60,7 +60,7 @@ export const getRoom = (id: string) => {
     const participants = room.participants
     const guestParticipantMetadata = room.guestParticipantMetadata
     const tracks = participants.flatMap((participant: Participant) =>
-      participant.getTracks().map((pub) => ({
+      participant.getTrackPublications().map((pub) => ({
         ...pub,
         participant,
       })),
@@ -183,7 +183,7 @@ export const getRoom = (id: string) => {
   }
 
   const setTrackEnabled = (id: string, enabled: boolean) => {
-    const track = localParticipant.getTracks().find((x) => {
+    const track = localParticipant.getTrackPublications().find((x) => {
       return x.trackSid === id
     })
     if (track) {
@@ -219,9 +219,11 @@ export const getRoom = (id: string) => {
       let published: LocalTrackPublication[]
 
       try {
-        const existingWebcams = localParticipant.getTracks().filter((x) => {
-          return x?.source === Track.Source.Camera
-        })
+        const existingWebcams = localParticipant
+          .getTrackPublications()
+          .filter((x) => {
+            return x?.source === Track.Source.Camera
+          })
 
         const existingPrimaryWebCam = existingWebcams.find((x) => {
           const track = getTrack(x?.trackSid)
@@ -239,13 +241,13 @@ export const getRoom = (id: string) => {
             },
           },
         })
-        
+
         if (existingPrimaryWebCam?.isMuted) {
           tracks.forEach((x) => {
             x.mute()
           })
         }
-        
+
         published = await Promise.all(
           tracks.map((x) => localParticipant.publishTrack(x)),
         )
@@ -271,14 +273,16 @@ export const getRoom = (id: string) => {
       let published: LocalTrackPublication[]
 
       try {
-        const existingMicroPhones = localParticipant.getTracks().filter((x) => {
-          return x.source === Track.Source.Microphone
-        })
+        const existingMicroPhones = localParticipant
+          .getTrackPublications()
+          .filter((x) => {
+            return x.source === Track.Source.Microphone
+          })
 
-         const existingPrimaryMicrophone = existingMicroPhones.find((x) => {
-           const track = getTrack(x?.trackSid)
-           return !track.isExternal
-         })
+        const existingPrimaryMicrophone = existingMicroPhones.find((x) => {
+          const track = getTrack(x?.trackSid)
+          return !track.isExternal
+        })
 
         const tracks = await localParticipant.createTracks({
           audio: options || true,
@@ -314,9 +318,11 @@ export const getRoom = (id: string) => {
         audio: options || true,
       })
 
-      const audioTracks = localParticipant.getTracks().filter((track) => {
-        return track.source === Track.Source.Microphone
-      })
+      const audioTracks = localParticipant
+        .getTrackPublications()
+        .filter((track) => {
+          return track.source === Track.Source.Microphone
+        })
 
       const inUseTrack = audioTracks.find((x) => {
         const track = getTrack(x?.trackSid)
@@ -353,7 +359,7 @@ export const getRoom = (id: string) => {
         },
       })
 
-      const inUseTrack = localParticipant.getTracks().find((x) => {
+      const inUseTrack = localParticipant.getTrackPublications().find((x) => {
         return (
           x?.source === Track.Source.Camera &&
           x?.track?.mediaStreamTrack?.getSettings()?.deviceId ===
@@ -408,10 +414,7 @@ export const getRoom = (id: string) => {
         }),
       )
       localParticipant.setMetadata(data)
-      return await localParticipant.publishData(
-        encoded,
-        DataPacket_Kind.RELIABLE,
-      )
+      return await localParticipant.publishData(encoded, { reliable: true })
     },
     setParticipantMetadata: (id, meta) => {
       return room.updateParticipant(id, meta)
@@ -475,16 +478,15 @@ export const getRoom = (id: string) => {
         room.livekitRoom?.off(RoomEvent.ActiveSpeakersChanged, fn)
       }
     },
-    sendData: (data, recipientIds) => {
+    sendData: (data, recipientIds = []) => {
       const encoded = encoder.encode(JSON.stringify(data))
       const participants = recipientIds
-        ?.map((x) => room.livekitRoom?.getParticipantByIdentity(x)?.sid)
+        ?.map((x) => room.livekitRoom?.getParticipantByIdentity(x))
         .filter(Boolean)
-      return localParticipant.publishData(
-        encoded,
-        DataPacket_Kind.RELIABLE,
-        participants,
-      )
+      return localParticipant.publishData(encoded, {
+        reliable: true,
+        destinationIdentities: participants.map((x) => x.identity),
+      })
     },
     onData: (cb) => {
       const fn = (encoded: any, participant: Participant) => {

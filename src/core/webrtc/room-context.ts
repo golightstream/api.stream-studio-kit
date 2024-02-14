@@ -403,13 +403,12 @@ export class RoomContext implements LSRoomContext {
       (
         payload: Uint8Array,
         participant: Participant,
-        kind: DataPacket_Kind,
       ) => {
         const strData = decoder.decode(payload)
         const data: DataObject = JSON.parse(strData)
         switch (data.type) {
           case DataType.ChatMessage: {
-            return this._appendChat(payload, participant, kind)
+            return this._appendChat(payload, participant)
           }
 
           /* Updating the participant metadata. */
@@ -565,7 +564,7 @@ export class RoomContext implements LSRoomContext {
       this.participants = []
       return
     } else {
-      const remotes = Array.from(this.livekitRoom.participants.values())
+      const remotes = Array.from(this.livekitRoom.remoteParticipants.values())
       const parts = [this.livekitRoom.localParticipant] as Participant[]
       parts.push(...remotes)
 
@@ -602,7 +601,7 @@ export class RoomContext implements LSRoomContext {
   muteTrackAsAdmin(trackSid: string, mute: boolean = true) {
     if (this._admin) {
       const participant = this.participants.find((p) =>
-        [...p.audioTracks.values(), ...p.videoTracks.values()].find(
+        [...p.audioTrackPublications.values(), ...p.videoTrackPublications.values()].find(
           (pub) => pub.trackSid === trackSid,
         ),
       )
@@ -625,7 +624,6 @@ export class RoomContext implements LSRoomContext {
   private _appendChat(
     payload: Uint8Array,
     participant: Participant,
-    kind: DataPacket_Kind,
   ) {
     const strData = decoder.decode(payload)
     const data: ChatDataObject = JSON.parse(strData)
@@ -711,7 +709,7 @@ export class RoomContext implements LSRoomContext {
 
       // Bind registered eventws to the localParticipant
       Object.values(ParticipantEvent).forEach((eventName) => {
-        this.livekitRoom.localParticipant.on(eventName, (...args: any[]) => {
+        this.livekitRoom.localParticipant.on(eventName as any, (...args: any[]) => {
           this._localParticipantEventListenerRegistry[eventName].forEach(
             (cb) => {
               cb(...args)
@@ -827,24 +825,27 @@ export class RoomContext implements LSRoomContext {
       ) as RemoteParticipant[]
 
       return this.livekitRoom.localParticipant
-        .publishData(encodedData, DataPacket_Kind.RELIABLE, participants)
+        .publishData(encodedData, {
+          reliable: true,
+          destinationIdentities: participants.map(x => x.identity)
+        })
         .then(() => {
           // TODO trigger event
           this._appendChat(
             encodedData,
             this.livekitRoom.localParticipant,
-            DataPacket_Kind.RELIABLE,
           )
         })
     } else {
       return this.livekitRoom.localParticipant
-        .publishData(encodedData, DataPacket_Kind.RELIABLE)
+        .publishData(encodedData, {
+          reliable: true,
+        })
         .then(() => {
           // TODO trigger event
           this._appendChat(
             encodedData,
             this.livekitRoom.localParticipant,
-            DataPacket_Kind.RELIABLE,
           )
         })
     }

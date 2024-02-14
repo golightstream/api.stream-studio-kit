@@ -61,7 +61,7 @@
     "heresy": "^1.0.4",
     "jwt-decode": "^4.0.0",
     "lighterhtml": "^4.2.0",
-    "livekit-client": "^1.7.0",
+    "livekit-client": "^2.0.1",
     "lodash-es": "^4.17.21",
     "loglevel": "^1.9.1",
     "long": "^5.2.3",
