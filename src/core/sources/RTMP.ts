@@ -86,7 +86,9 @@ export const RTMP = {
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      updateRTMPSources(project.sources.filter((s) => s.props.type !== 'integration'))
+      updateRTMPSources(
+        project.sources.filter((s) => s.props.type !== 'integration'),
+      )
     })
 
     CoreContext.on('RoomJoined', ({ projectId, room }) => {
@@ -214,44 +216,52 @@ export const RTMP = {
     })
 
     CoreContext.onInternal('SourceConnected', async (id) => {
-      const srcObject = rtmpSourceStreams[id]
-      const deviceStream = await connectDevice(id)
-      const source = getSource(`rtmp-${id}`)
+      const stream = rtmpSourceStreams[id]
+      if (stream) {
+        const deviceStream = await connectDevice(id)
+        const source = getSource(`rtmp-${id}`)
 
-      if (source && deviceStream) {
-        const audioTrack = deviceStream.getAudioTracks()[0]
-        const videoTrack = deviceStream.getVideoTracks()[0]
+        if (source && deviceStream) {
+          const audioTrack = deviceStream.getAudioTracks()[0]
+          const videoTrack = deviceStream.getVideoTracks()[0]
 
-        updateMediaStreamTracks(srcObject, {
-          video: videoTrack,
-          audio: audioTrack,
-        })
+          updateMediaStreamTracks(stream, {
+            video: videoTrack,
+            audio: audioTrack,
+          })
 
-        updateSource(`rtmp-${id}`, {
-          videoEnabled: Boolean(videoTrack),
-          audioEnabled: Boolean(audioTrack),
-          mirrored: false,
-          external: true,
-        })
+          updateSource(`rtmp-${id}`, {
+            videoEnabled: Boolean(videoTrack),
+            audioEnabled: Boolean(audioTrack),
+            mirrored: false,
+            external: true,
+          })
+        }
       }
     })
 
     CoreContext.onInternal('SourceDisconnected', (id) => {
       const stream = rtmpSourceStreams[id]
-      const tracks = stream?.getTracks()
-      tracks.forEach((track) => {
-        rtmpSourceStreams[id]?.removeTrack(track)
-      })
+      if (stream) {
+        const tracks = stream?.getTracks()
+        tracks.forEach((track) => {
+          rtmpSourceStreams[id]?.removeTrack(track)
+        })
+      }
     })
 
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
-        const project = toBaseProject(getProject(projectId))
-        updateRTMPSources(project.sources.filter((s) => s.props.type !== 'integration'))
+      const project = toBaseProject(getProject(projectId))
+      updateRTMPSources(
+        project.sources.filter((s) => s.props.type !== 'integration'),
+      )
     })
 
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
-        const project = toBaseProject(getProject(projectId))
-        updateRTMPSources(project.sources.filter((s) => s.props.type !== 'integration'))
+      const project = toBaseProject(getProject(projectId))
+      updateRTMPSources(
+        project.sources.filter((s) => s.props.type !== 'integration'),
+      )
     })
   },
 } as Compositor.Source.SourceDeclaration

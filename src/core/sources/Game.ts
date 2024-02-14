@@ -8,7 +8,7 @@
  * -------------------------------------------------------------------------------------------- */
 import { updateMediaStreamTracks } from '../../helpers/webrtc'
 import { connectDevice } from '../../logic'
-import { CoreContext, log } from '../context'
+import { CoreContext } from '../context'
 import { getProject, toBaseProject } from '../data'
 import { Compositor, SDK } from '../namespaces'
 
@@ -95,34 +95,38 @@ export const Game = {
     })
 
     CoreContext.onInternal('SourceConnected', async (id) => {
-      const srcObject = gameSourceStreams[id]
-      const deviceStream = await connectDevice(id)
-      const source = getSource(`game-${id}`)
+      const stream = gameSourceStreams[id]
+      if (stream) {
+        const deviceStream = await connectDevice(id)
+        const source = getSource(`game-${id}`)
 
-      if (source && deviceStream) {
-        const audioTrack = deviceStream.getAudioTracks()[0]
-        const videoTrack = deviceStream.getVideoTracks()[0]
+        if (source && deviceStream) {
+          const audioTrack = deviceStream.getAudioTracks()[0]
+          const videoTrack = deviceStream.getVideoTracks()[0]
 
-        updateMediaStreamTracks(srcObject, {
-          video: videoTrack,
-          audio: audioTrack,
-        })
+          updateMediaStreamTracks(stream, {
+            video: videoTrack,
+            audio: audioTrack,
+          })
 
-        updateSource(`game-${id}`, {
-          videoEnabled: Boolean(videoTrack),
-          audioEnabled: Boolean(audioTrack),
-          mirrored: false,
-          external: true,
-        })
+          updateSource(`game-${id}`, {
+            videoEnabled: Boolean(videoTrack),
+            audioEnabled: Boolean(audioTrack),
+            mirrored: false,
+            external: true,
+          })
+        }
       }
     })
 
     CoreContext.onInternal('SourceDisconnected', (id) => {
       const stream = gameSourceStreams[id]
-      const tracks = stream?.getTracks()
-      tracks.forEach((track) => {
-        gameSourceStreams[id]?.removeTrack(track)
-      })
+      if (stream) {
+        const tracks = stream?.getTracks()
+        tracks.forEach((track) => {
+          gameSourceStreams[id]?.removeTrack(track)
+        })
+      }
     })
 
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
