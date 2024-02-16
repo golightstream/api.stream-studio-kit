@@ -511,9 +511,9 @@ const Project = () => {
                 projectCommands.setLayout(layout, props)
 
                 // Store our custom layout configuration by name
-                studio.Command.updateProjectMeta({
+                studio.Command.updateProjectProps({
                   projectId: project.id,
-                  meta: {
+                  props: {
                     layout: e.target.value,
                   },
                 })
