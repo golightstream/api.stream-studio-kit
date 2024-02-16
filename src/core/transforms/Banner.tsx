@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import React, { useEffect, useState } from 'react'
 import { Compositor } from '../namespaces'
 import { BannerSource } from '../sources/Banners'
@@ -82,25 +82,20 @@ export const Banner = {
             }}
           >
             {headerText && (
-              <div
-                className="Banner-header"
-                style={{ marginBottom: 6 }}
-              >
+              <div className="Banner-header" style={{ marginBottom: 6 }}>
                 {headerText}
               </div>
             )}
-            {bodyText && (
-              <div className="Banner-body">
-                {bodyText}
-              </div>
-            )}
+            {bodyText && <div className="Banner-body">{bodyText}</div>}
           </div>
         </div>
       )
     }
 
+    const _root = createRoot(root)
+
     const render = () =>
-      ReactDOM.render(
+      _root.render(
         <>
           {/* Preserve previous source for animation out */}
           {previousSource && previousSource.id !== latestSource.id && (
@@ -116,7 +111,6 @@ export const Banner = {
             latestSource={latestSource}
           />
         </>,
-        root,
       )
 
     onUpdate(() => {

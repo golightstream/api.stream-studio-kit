@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import React from 'react'
 import { CoreContext } from '../context'
 import { getProject, getProjectRoom } from '../data'
@@ -177,7 +177,11 @@ export const Video2 = {
           duration={400}
         >
           <div
-            style={{ opacity: startAnimation ? 1 : 0, width: '100%', height: '100%' }}
+            style={{
+              opacity: startAnimation ? 1 : 0,
+              width: '100%',
+              height: '100%',
+            }}
             className={`video-transition`}
           >
             {src && (
@@ -196,7 +200,8 @@ export const Video2 = {
       )
     }
 
-    const render = () => ReactDOM.render(<Video source={source} />, root)
+    const _root = createRoot(root)
+    const render = () => _root.render(<Video source={source} />)
 
     onUpdate(() => {
       render()

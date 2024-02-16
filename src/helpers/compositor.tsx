@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { swapItems } from '../logic'
 import { getProject } from '../core/data'
 import { CoreContext, log, InternalProject } from '../core/context'
@@ -502,8 +502,9 @@ export const render = (settings: CompositorSettings) => {
     render()
   }
 
+  const _root = createRoot(wrapperEl)
   const render = () => {
-    ReactDOM.render(
+    _root.render(
       <CompositorProvider
         project={project}
         interactive={dragAndDrop}
@@ -517,7 +518,6 @@ export const render = (settings: CompositorSettings) => {
           }}
         />
       </CompositorProvider>,
-      wrapperEl,
     )
   }
 
@@ -969,26 +969,26 @@ const themes = {
 
       .NameBanner[data-size="4"] {
         padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(
-      40 + 20,
-    )} !important;
+          40 + 20,
+        )} !important;
         font-size: ${scale(34)} !important;
       }
       .NameBanner[data-size="3"] {
         padding: ${scale(16)} ${scale(40)} ${scale(16)} ${scale(
-      40 + 20,
-    )} !important;
+          40 + 20,
+        )} !important;
         font-size: ${scale(34)} !important;
       }
       .NameBanner[data-size="2"] {
         padding: ${scale(12)} ${scale(24)} ${scale(12)} ${scale(
-      24 + 20,
-    )} !important;
+          24 + 20,
+        )} !important;
         font-size: ${scale(24)} !important;
       }
       .NameBanner[data-size="1"], .NameBanner[data-size="0"] {
         padding: ${scale(12)} ${scale(16)} ${scale(12)} ${scale(
-      16 + 20,
-    )} !important;
+          16 + 20,
+        )} !important;
         font-size: ${scale(18)} !important;
       }
       .NameBanner[data-size="0"] {

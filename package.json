@@ -1,6 +1,6 @@
 {
   "name": "@api.stream/studio-kit",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Client SDK for building studio experiences with API.stream",
   "license": "MIT",
   "private": false,
@@ -90,7 +90,8 @@
     "tsc-watch": "^6.0.4",
     "typedoc": "^0.25.8",
     "typescript": "^5.3.3",
-    "vite": "^5.1.2"
+    "vite": "^5.1.2",
+    "vite-plugin-node-polyfills": "^0.21.0"
   },
   "peerDependencies": {
     "react": ">=18.2.0",

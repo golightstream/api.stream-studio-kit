@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import React, { useLayoutEffect, useState, useEffect, useRef } from 'react'
 import { isMatch } from 'lodash-es'
 import { CoreContext } from '../context'
@@ -20,8 +20,7 @@ type Props = {
 export const RTMPSource = {
   name: 'LS-RTMP-Source',
   sourceType: 'RTMP',
-  props: {
-  },
+  props: {},
   useSource(sources, props) {
     return sources.find((x) => isMatch(x.props, props.sourceProps))
   },
@@ -57,7 +56,7 @@ export const RTMPSource = {
       props,
       source,
     }: {
-      props: Props,
+      props: Props
       source: Sources.RTMPSource
     }) => {
       const ref = useRef<HTMLVideoElement>()
@@ -83,14 +82,12 @@ export const RTMPSource = {
         }
       }, [ref.current, source?.value])
 
-
       useEffect(() => {
         if (!props && ref.current) {
           ref.current.srcObject = null
           ref.current = null
         }
       }, [props])
-
 
       useLayoutEffect(() => {
         if (!ref.current) return
@@ -236,10 +233,12 @@ export const RTMPSource = {
           )}
         </div>
       )
-    };
+    }
+
+    const _root = createRoot(root)
 
     const render = () =>
-      ReactDOM.render(<RTMPLayer source={source} props={props} />, root)
+      _root.render(<RTMPLayer source={source} props={props} />)
 
     onUpdate((_props) => {
       props = _props

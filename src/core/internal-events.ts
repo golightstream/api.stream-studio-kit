@@ -25,346 +25,352 @@ const { state } = CoreContext
  * are used to control the flow of data through hooks such as `useProject()`.
  */
 
-subscribeInternal(async (event, payload) => {
-  switch (event) {
-    /**
-     * User
-     */
-    case 'UserChanged': {
-      const { metadata } = payload as InternalEventMap['UserChanged']
+export const prepareInternalEvents = () => {
+  subscribeInternal(async (event, payload) => {
+    switch (event) {
+      /**
+       * User
+       */
+      case 'UserChanged': {
+        const { metadata } = payload as InternalEventMap['UserChanged']
 
-      // Update internal state
-      state.user.metadata = metadata || {}
-      state.user.props = metadata?.props || {}
+        // Update internal state
+        state.user.metadata = metadata || {}
+        state.user.props = metadata?.props || {}
 
-      // Emit public event
-      trigger('UserChanged', {
-        user: getBaseUser(),
-      })
-      return
-    }
-    /**
-     * Project
-     */
-    case 'ActiveProjectChanged': {
-      const { projectId } = payload as InternalEventMap['ActiveProjectChanged']
-
-      // Update internal state
-      state.activeProjectId = projectId
-
-      // Emit public event
-      trigger('ActiveProjectChanged', {
-        projectId,
-      })
-      return
-    }
-    case 'ProjectAdded': {
-      const project = payload as InternalEventMap['ProjectAdded']
-      const internalProject = await hydrateProject(
-        project,
-        'ROLE_HOST' as SDK.Role,
-      )
-      const baseProject = toBaseProject(internalProject)
-
-      // Update internal state
-      state.projects = [...state.projects, internalProject]
-
-      // Emit public event
-      trigger('ProjectAdded', { project: baseProject })
-      return
-    }
-    case 'ProjectRemoved': {
-      const { projectId } = payload as InternalEventMap['ProjectRemoved']
-
-      // Update internal state
-      state.projects = state.projects.filter((x) => x.id !== projectId)
-
-      // Emit public event
-      trigger('ProjectRemoved', { projectId })
-      return
-    }
-    case 'ProjectChanged': {
-      const { project, phase, broadcastId } =
-        payload as InternalEventMap['ProjectChanged']
-      const internalProject = getProject(project.projectId)
-      if (!internalProject) return
-
-      // Update internal state
-      if (phase) {
-        internalProject.videoApi.phase = phase
+        // Emit public event
+        trigger('UserChanged', {
+          user: getBaseUser(),
+        })
+        return
       }
-      if (typeof broadcastId !== 'undefined') {
-        internalProject.videoApi.broadcastId = broadcastId
+      /**
+       * Project
+       */
+      case 'ActiveProjectChanged': {
+        const { projectId } =
+          payload as InternalEventMap['ActiveProjectChanged']
+
+        // Update internal state
+        state.activeProjectId = projectId
+
+        // Emit public event
+        trigger('ActiveProjectChanged', {
+          projectId,
+        })
+        return
       }
-      const newLayoutId = project.metadata?.layoutId
-      if (newLayoutId !== internalProject.layoutApi.layoutId) {
-        internalProject.layoutApi.layoutId = project.metadata?.layoutId
-        internalProject.compositor = await layoutToProject(newLayoutId)
-      }
-      internalProject.videoApi.project = project
-      internalProject.props = project.metadata?.props ?? {}
-
-      // Emit public event
-      trigger('ProjectChanged', {
-        project: toBaseProject(internalProject),
-      })
-      return
-    }
-    /**
-     * Destination
-     */
-    case 'DestinationAdded': {
-      const { projectId } = payload as InternalEventMap['DestinationAdded']
-      const internalProject = getProject(projectId)
-      if (!internalProject) return
-
-      // Update internal state
-      internalProject.videoApi.project.destinations.push(payload)
-
-      // Emit public event
-      trigger('DestinationAdded', {
-        projectId,
-        destination: toBaseDestination(payload),
-      })
-      return
-    }
-    case 'DestinationRemoved': {
-      const { projectId, destinationId } =
-        payload as InternalEventMap['DestinationRemoved']
-      const internalProject = getProject(projectId)
-      if (!internalProject) return
-
-      // Update internal state
-      internalProject.videoApi.project.destinations =
-        internalProject.videoApi.project.destinations.filter(
-          (x) => x.destinationId !== destinationId,
+      case 'ProjectAdded': {
+        const project = payload as InternalEventMap['ProjectAdded']
+        const internalProject = await hydrateProject(
+          project,
+          'ROLE_HOST' as SDK.Role,
         )
+        const baseProject = toBaseProject(internalProject)
 
-      // Emit public event
-      trigger('DestinationRemoved', { projectId, destinationId })
-      return
-    }
-    case 'DestinationChanged': {
-      const destination = payload as InternalEventMap['DestinationChanged']
-      const { projectId, destinationId } = destination
-      const internalProject = getProject(projectId)
-      if (!internalProject) return
+        // Update internal state
+        state.projects = [...state.projects, internalProject]
 
-      const internalDestination =
-        internalProject.videoApi.project.destinations.find(
-          (x) => x.destinationId === destinationId,
-        )
-      if (!internalDestination) return
+        // Emit public event
+        trigger('ProjectAdded', { project: baseProject })
+        return
+      }
+      case 'ProjectRemoved': {
+        const { projectId } = payload as InternalEventMap['ProjectRemoved']
 
-      // Update internal state
-      Object.assign(internalDestination, destination)
+        // Update internal state
+        state.projects = state.projects.filter((x) => x.id !== projectId)
 
-      // Emit public event
-      trigger('DestinationChanged', {
-        projectId,
-        destination: toBaseDestination(internalDestination),
-      })
-      return
-    }
-    /**
+        // Emit public event
+        trigger('ProjectRemoved', { projectId })
+        return
+      }
+      case 'ProjectChanged': {
+        const { project, phase, broadcastId } =
+          payload as InternalEventMap['ProjectChanged']
+        const internalProject = getProject(project.projectId)
+        if (!internalProject) return
+
+        // Update internal state
+        if (phase) {
+          internalProject.videoApi.phase = phase
+        }
+        if (typeof broadcastId !== 'undefined') {
+          internalProject.videoApi.broadcastId = broadcastId
+        }
+        const newLayoutId = project.metadata?.layoutId
+        if (newLayoutId !== internalProject.layoutApi.layoutId) {
+          internalProject.layoutApi.layoutId = project.metadata?.layoutId
+          internalProject.compositor = await layoutToProject(newLayoutId)
+        }
+        internalProject.videoApi.project = project
+        internalProject.props = project.metadata?.props ?? {}
+
+        // Emit public event
+        trigger('ProjectChanged', {
+          project: toBaseProject(internalProject),
+        })
+        return
+      }
+      /**
+       * Destination
+       */
+      case 'DestinationAdded': {
+        const { projectId } = payload as InternalEventMap['DestinationAdded']
+        const internalProject = getProject(projectId)
+        if (!internalProject) return
+
+        // Update internal state
+        internalProject.videoApi.project.destinations.push(payload)
+
+        // Emit public event
+        trigger('DestinationAdded', {
+          projectId,
+          destination: toBaseDestination(payload),
+        })
+        return
+      }
+      case 'DestinationRemoved': {
+        const { projectId, destinationId } =
+          payload as InternalEventMap['DestinationRemoved']
+        const internalProject = getProject(projectId)
+        if (!internalProject) return
+
+        // Update internal state
+        internalProject.videoApi.project.destinations =
+          internalProject.videoApi.project.destinations.filter(
+            (x) => x.destinationId !== destinationId,
+          )
+
+        // Emit public event
+        trigger('DestinationRemoved', { projectId, destinationId })
+        return
+      }
+      case 'DestinationChanged': {
+        const destination = payload as InternalEventMap['DestinationChanged']
+        const { projectId, destinationId } = destination
+        const internalProject = getProject(projectId)
+        if (!internalProject) return
+
+        const internalDestination =
+          internalProject.videoApi.project.destinations.find(
+            (x) => x.destinationId === destinationId,
+          )
+        if (!internalDestination) return
+
+        // Update internal state
+        Object.assign(internalDestination, destination)
+
+        // Emit public event
+        trigger('DestinationChanged', {
+          projectId,
+          destination: toBaseDestination(internalDestination),
+        })
+        return
+      }
+      /**
      * Source
       // TODO: Add to state.sources
       // TODO: Add sources to User model returned to the user
       // TODO: Update state.projects[].videoApi.sources with the full source?
      */
-    case 'SourceAdded': {
-      // Update internal state
-      const source = payload as InternalEventMap['SourceAdded']
+      case 'SourceAdded': {
+        // Update internal state
+        const source = payload as InternalEventMap['SourceAdded']
 
-      // Emit public event
+        // Emit public event
 
-      trigger('SourceAdded', {
-        source: {
-          id: source.sourceId,
-          props: source.metadata,
-          address: source.address,
-        }
-      })
+        trigger('SourceAdded', {
+          source: {
+            id: source.sourceId,
+            props: source.metadata,
+            address: source.address,
+          },
+        })
 
-      return
-    }
-    case 'SourceRemoved': {
-      // Update internal state
-
-      // Emit public event
-
-      return
-    }
-    case 'SourceChanged': {
-      // Update internal state
-
-      // Emit public event
-
-      return
-    }
-    case 'ProjectSourceAdded': {
-      const { projectId, source } = payload as InternalEventMap['ProjectSourceAdded']
-      const internalProject = getProject(projectId)
-      if (!internalProject) return 
-
-      // Update internal state
-      internalProject.videoApi.project.sources.push(source)
-
-      // Emit public event
-      trigger('ProjectSourceAdded', {
-        source: {
-          id: source.sourceId,
-          address: source.address,
-          preview: source.preview,
-          props: source.metadata ?? {},
-        },
-        projectId,
-      })
-      return
-    }
-    case 'ProjectSourceRemoved': {
-      const { projectId, sourceId } = payload as InternalEventMap['ProjectSourceRemoved']
-      const internalProject = getProject(projectId)
-      if (!internalProject) return 
-      // Update internal state
-      internalProject.videoApi.project.sources = internalProject.videoApi.project.sources.filter((source) =>
-        source.sourceId !== sourceId
-      )
-
-      // Emit public event
-      trigger('ProjectSourceRemoved', {
-        sourceId,
-        projectId,
-      })
-    }
-    /**
-     * Node
-     * TODO: Make sure this doesn't conflict with commands
-     */
-    case 'NodeAdded': {
-      // Update internal state
-
-      // Emit public event
-
-      return
-    }
-    case 'NodeRemoved': {
-      // Update internal state
-
-      // Emit public event
-
-      return
-    }
-    case 'NodeChanged': {
-      // Update internal state
-
-      // Emit public event
-
-      return
-    }
-
-    // TODO: remove this code after a while when this version of sdk (1.1.58) is adopted by all users
-    case 'BackgroundMetadataUpdate': {
-      const { Command } = CoreContext
-      const { projectId, metadata, sourceId, doTrigger, role } =
-        payload as InternalEventMap['BackgroundMetadataUpdate']
-      if (role === 'ROLE_HOST' || role === 'ROLE_COHOST') {
-        const internalProject = getProject(projectId)
-        if (!internalProject) return
-        if (internalProject.props.background.id !== sourceId) {
-          return
-        }
-        let source = internalProject?.props?.background
-        if (source) {
-          source = {
-            ...source,
-            props: {
-              ...source.props,
-              meta: {
-                ...source.props.meta,
-                ...metadata,
-              },
-            },
-          }
-          if (doTrigger) {
-            Command.updateProjectProps({
-              projectId,
-              props: {
-                background: source,
-              },
-            })
-          } else {
-            Command.updateProjectPropsWithoutTrigger({
-              projectId,
-              props: {
-                background: source,
-              },
-            })
-          }
-        }
+        return
       }
-      return
-    }
+      case 'SourceRemoved': {
+        // Update internal state
 
-    // TODO: remove this code after a while when this version of sdk (1.1.58) is adopted by all users
-    case 'OverlayMetadataUpdate': {
-      const { Command } = CoreContext
-      const { projectId, metadata, sourceId, doTrigger, role } =
-        payload as InternalEventMap['OverlayMetadataUpdate']
-      if (role === 'ROLE_HOST' || role === 'ROLE_COHOST') {
+        // Emit public event
+
+        return
+      }
+      case 'SourceChanged': {
+        // Update internal state
+
+        // Emit public event
+
+        return
+      }
+      case 'ProjectSourceAdded': {
+        const { projectId, source } =
+          payload as InternalEventMap['ProjectSourceAdded']
         const internalProject = getProject(projectId)
         if (!internalProject) return
-        let source = internalProject.props.overlays.find(
-          (x: OverlaySource) => x.id === sourceId,
-        )
-        if (source) {
-          source = {
-            ...source,
-            props: {
-              ...source.props,
-              meta: {
-                ...source.props.meta,
-                ...metadata,
-              },
-            },
-          }
 
-          const overlayIndex = internalProject.props.overlays.findIndex(
-            (x: OverlaySource) => x.id === sourceId,
+        // Update internal state
+        internalProject.videoApi.project.sources.push(source)
+
+        // Emit public event
+        trigger('ProjectSourceAdded', {
+          source: {
+            id: source.sourceId,
+            address: source.address,
+            preview: source.preview,
+            props: source.metadata ?? {},
+          },
+          projectId,
+        })
+        return
+      }
+      case 'ProjectSourceRemoved': {
+        const { projectId, sourceId } =
+          payload as InternalEventMap['ProjectSourceRemoved']
+        const internalProject = getProject(projectId)
+        if (!internalProject) return
+        // Update internal state
+        internalProject.videoApi.project.sources =
+          internalProject.videoApi.project.sources.filter(
+            (source) => source.sourceId !== sourceId,
           )
 
-          if (overlayIndex > -1) {
-            const shallowOverlays = JSON.parse(
-              JSON.stringify(internalProject?.props?.overlays),
-            )
+        // Emit public event
+        trigger('ProjectSourceRemoved', {
+          sourceId,
+          projectId,
+        })
+      }
+      /**
+       * Node
+       * TODO: Make sure this doesn't conflict with commands
+       */
+      case 'NodeAdded': {
+        // Update internal state
 
-            shallowOverlays.splice(overlayIndex, 1, source)
+        // Emit public event
 
+        return
+      }
+      case 'NodeRemoved': {
+        // Update internal state
+
+        // Emit public event
+
+        return
+      }
+      case 'NodeChanged': {
+        // Update internal state
+
+        // Emit public event
+
+        return
+      }
+
+      // TODO: remove this code after a while when this version of sdk (1.1.58) is adopted by all users
+      case 'BackgroundMetadataUpdate': {
+        const { Command } = CoreContext
+        const { projectId, metadata, sourceId, doTrigger, role } =
+          payload as InternalEventMap['BackgroundMetadataUpdate']
+        if (role === 'ROLE_HOST' || role === 'ROLE_COHOST') {
+          const internalProject = getProject(projectId)
+          if (!internalProject) return
+          if (internalProject.props.background.id !== sourceId) {
+            return
+          }
+          let source = internalProject?.props?.background
+          if (source) {
+            source = {
+              ...source,
+              props: {
+                ...source.props,
+                meta: {
+                  ...source.props.meta,
+                  ...metadata,
+                },
+              },
+            }
             if (doTrigger) {
               Command.updateProjectProps({
                 projectId,
                 props: {
-                  overlays: shallowOverlays,
+                  background: source,
                 },
               })
             } else {
               Command.updateProjectPropsWithoutTrigger({
                 projectId,
                 props: {
-                  overlays: shallowOverlays,
+                  background: source,
                 },
               })
             }
           }
         }
+        return
       }
 
-      return
-    }
-  }
-})
+      // TODO: remove this code after a while when this version of sdk (1.1.58) is adopted by all users
+      case 'OverlayMetadataUpdate': {
+        const { Command } = CoreContext
+        const { projectId, metadata, sourceId, doTrigger, role } =
+          payload as InternalEventMap['OverlayMetadataUpdate']
+        if (role === 'ROLE_HOST' || role === 'ROLE_COHOST') {
+          const internalProject = getProject(projectId)
+          if (!internalProject) return
+          let source = internalProject.props.overlays.find(
+            (x: OverlaySource) => x.id === sourceId,
+          )
+          if (source) {
+            source = {
+              ...source,
+              props: {
+                ...source.props,
+                meta: {
+                  ...source.props.meta,
+                  ...metadata,
+                },
+              },
+            }
 
-subscribeInternal(() => log.debug({ nextState: { ...state } }))
+            const overlayIndex = internalProject.props.overlays.findIndex(
+              (x: OverlaySource) => x.id === sourceId,
+            )
+
+            if (overlayIndex > -1) {
+              const shallowOverlays = JSON.parse(
+                JSON.stringify(internalProject?.props?.overlays),
+              )
+
+              shallowOverlays.splice(overlayIndex, 1, source)
+
+              if (doTrigger) {
+                Command.updateProjectProps({
+                  projectId,
+                  props: {
+                    overlays: shallowOverlays,
+                  },
+                })
+              } else {
+                Command.updateProjectPropsWithoutTrigger({
+                  projectId,
+                  props: {
+                    overlays: shallowOverlays,
+                  },
+                })
+              }
+            }
+          }
+        }
+
+        return
+      }
+    }
+  })
+
+  subscribeInternal(() => log.debug({ nextState: { ...state } }))
+}
 
 type ModelName = 'User' | 'Project' | 'Source' | 'Destination' | 'Node'
 type Models = {

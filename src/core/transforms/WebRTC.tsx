@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import React, { useLayoutEffect, useState, useEffect, useRef } from 'react'
 import { isMatch } from 'lodash-es'
 import { CoreContext } from '../context'
@@ -258,8 +258,9 @@ export const RoomParticipant = {
       )
     }
 
+    const _root = createRoot(root)
     const render = () =>
-      ReactDOM.render(<Participant source={source} props={props} />, root)
+      _root.render(<Participant source={source} props={props} />)
 
     onUpdate((_props) => {
       props = _props
