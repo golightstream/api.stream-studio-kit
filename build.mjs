@@ -2,8 +2,8 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-const { exec } = require('child_process');
-const parseCommandLineArgsToJSON  = require('./args');
+import { exec } from 'child_process'
+import parseCommandLineArgsToJSON from './args.mjs'
 
 const args = parseCommandLineArgsToJSON()
 

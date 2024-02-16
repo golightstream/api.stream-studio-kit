@@ -2,7 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-module.exports = function parseCommandLineArgsToJSON() {
+export default function parseCommandLineArgsToJSON() {
   const args = process.argv.slice(2);
   const jsonArgs = { sdkversion : null };
 

@@ -6,7 +6,7 @@ import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { babel } from '@rollup/plugin-babel'
 import packageJSON from './package.json'
-const parseCommandLineArgsToJSON  = require('./args');
+import parseCommandLineArgsToJSON from './args.mjs'
 // import polyfillNode from 'rollup-plugin-polyfill-node'
 
 // https://vitejs.dev/config/
@@ -21,7 +21,9 @@ export default defineConfig({
     }),
   ],
   define: {
-    SDK_VERSION: args.sdkversion ? JSON.stringify(args.sdkversion)  : JSON.stringify(packageJSON.version),
+    SDK_VERSION: args.sdkversion
+      ? JSON.stringify(args.sdkversion)
+      : JSON.stringify(packageJSON.version),
   },
   resolve: {},
   root: './',

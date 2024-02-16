@@ -1,6 +1,6 @@
 {
   "name": "@api.stream/studio-kit",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Client SDK for building studio experiences with API.stream",
   "license": "MIT",
   "private": false,
@@ -24,12 +24,13 @@
   },
   "homepage": "https://api.stream",
   "main": "./dist/index.umd.js",
-  "module": "./dist/index.es.js",
+  "module": "./dist/index.js",
+  "type": "module",
   "types": "./types/src/index.d.ts",
   "sideEffects": false,
   "exports": {
     ".": {
-      "import": "./dist/index.es.js",
+      "import": "./dist/index.js",
       "require": "./dist/index.umd.js"
     }
   },
@@ -42,7 +43,7 @@
     "prepare": "npm run build",
     "dev:renderer": "cd ./renderer && vite --config ./renderer.vite.config.ts",
     "add-license": "npx license-check-and-add add -f build/license-header.json",
-    "build": "node build.js",
+    "build": "node build.mjs",
     "deps": "npx npm-check-updates -i --format group",
     "publish-docs": "npm-run-all --parallel publish-docs:sdk publish-docs:renderer publish-docs:docs publish-docs:demo",
     "publish-docs:demo": "cd examples/studio-kit-demo && npm install && vite build --emptyOutDir --outDir ../../docs/example/$npm_package_version --base=/studiokit/example/ && rm -f ../../docs/example/latest && ln -sr ../../docs/example/$npm_package_version ../../docs/example/latest",
