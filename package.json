@@ -52,7 +52,7 @@
     "publish-docs:docs": "typedoc --options ./typedoc.json --out ./docs/docs/$npm_package_version && rm -f ./docs/docs/latest && ln -sr ./docs/docs/$npm_package_version ./docs/docs/latest",
     "watch": "concurrently --kill-others \"vite build --watch\" \"tsc-watch -p ./tsconfig.json --declaration --skipLibCheck --emitDeclarationOnly --jsx react --esModuleInterop --outDir types\"",
     "watch:types": "tsc-watch -p ./tsconfig.json --declaration --skipLibCheck --emitDeclarationOnly --jsx react --esModuleInterop --outDir types",
-    "build:renderer": "cd ./renderer && node buildRenderer.js"
+    "build:renderer": "cd ./renderer && node buildRenderer.mjs"
   },
   "dependencies": {
     "@api.stream/livekit-server-sdk": "^1.1.3",
