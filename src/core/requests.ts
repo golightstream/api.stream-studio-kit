@@ -9,17 +9,16 @@
  * Not every external request is represented here. In some cases
  *  it is simpler to use the API SDK client interface directly.
  */
+import { LiveApiModel } from '@api.stream/sdk'
+import { Helpers } from '.'
 import {
   CoreContext,
   InternalProject,
   InternalSource,
-  InternalUser,
-  log
+  InternalUser
 } from './context'
 import { getAccessTokenData, getProject, getUser, hydrateProject } from './data'
-import { Helpers } from '.'
 import { Props, Role } from './types'
-import { LiveApiModel } from '@api.stream/sdk'
 
 export const createProject = async (request: {
   settings?: { [prop: string]: any }

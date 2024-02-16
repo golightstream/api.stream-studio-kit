@@ -2,13 +2,13 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { CoreContext, InternalSource,log } from './context'
+import { LayoutApiModel, LiveApiModel } from '@api.stream/sdk'
 import { toSceneTree } from '../logic'
-import { Context, SDK, Compositor } from './namespaces'
-import { LiveApiModel, LayoutApiModel } from '@api.stream/sdk'
-import { getRoom } from './webrtc/simple-room'
+import { Permission, hasPermission } from './../helpers/permission'
+import { CoreContext, InternalSource } from './context'
+import { Compositor, Context, SDK } from './namespaces'
 import { ProjectBroadcastPhase } from './types'
-import { Permission, hasPermission } from './../helpers/permission';
+import { getRoom } from './webrtc/simple-room'
 
 const { state } = CoreContext
 
