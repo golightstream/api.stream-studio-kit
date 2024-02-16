@@ -43,6 +43,7 @@ export const Game = {
   init({ addSource, removeSource, updateSource, getSource }) {
     // Updated by engine socket events
     let gameSourceStreams: { [id: string]: MediaStream } = {}
+    let previousTracks: SDK.Track[] = []
     // Updated by corecontext events
     let previousGameSources: SDK.Source[] = []
 
@@ -85,6 +86,125 @@ export const Game = {
         removeSource(`game-${s.id}`)
       })
     }
+
+    CoreContext.on('RoomJoined', ({ projectId, room }) => {
+      const project = toBaseProject(getProject(projectId))
+      if (project.role !== SDK.Role.ROLE_RENDERER) {
+        const updatePreviewStreams = () => {
+          previousTracks
+            .filter((p) => p?.type === 'screen_share' && p?.isExternal === true)
+            .forEach((track) => {
+              if (track.type === 'screen_share') {
+                const srcObject = gameSourceStreams[track.participantId]
+                const participant = room.getParticipant(track.participantId)
+                // only do anything if it is for an Game source
+                const isGameSource = previousGameSources.some(
+                  (source) => source.id === participant.id,
+                )
+                if (isGameSource) {
+                  const videoTrack = room.getTrack(track.id)
+                  const source = getSource(`game-${participant?.id}`)
+                  if (source) {
+                    const audioTrack = room.getTracks().find((track) => {
+                      return (
+                        track.participantId === participant.id &&
+                        track.mediaStreamTrack.kind === 'audio'
+                      )
+                    })
+                    updateMediaStreamTracks(srcObject, {
+                      video: videoTrack?.mediaStreamTrack,
+                      audio: audioTrack?.mediaStreamTrack,
+                    })
+
+                    updateSource(`game-${participant?.id}`, {
+                      videoEnabled: Boolean(
+                        videoTrack?.mediaStreamTrack && !videoTrack.isMuted,
+                      ),
+                      audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
+                      mirrored: participant?.meta[track.id]?.isMirrored,
+                      external: track?.isExternal,
+                    })
+                  }
+                }
+              }
+            })
+        }
+
+        // listen for changes to available tracks
+        room.useTracks((tracks) => {
+          // Filter for those that are game-source
+          const gameSourceTracks = tracks
+            .filter((t) =>
+              previousGameSources.some((s) => s.id === t.participantId),
+            )
+            .filter((t) => ['screen_share'].includes(t.type))
+
+          // get tracks not contained in previous tracks
+          const newTracks = gameSourceTracks.filter(
+            (track) =>
+              !previousTracks.some((x) => x.id === track.id) &&
+              Boolean(track?.mediaStreamTrack),
+          )
+
+          // get previous tracks not contained in current tracks
+          const removedTracks = previousTracks.filter(
+            (t) => !gameSourceTracks.some((x) => x.id === t.id),
+          )
+
+          // Filter out racks that have a mediaStreamTrack
+          previousTracks = gameSourceTracks.filter((t) =>
+            Boolean(t?.mediaStreamTrack),
+          )
+
+          removedTracks.forEach((track) => {
+            const { participantId } = track
+            const srcObject = gameSourceStreams[participantId]
+
+            if (track.mediaStreamTrack.kind === 'video') {
+              updateMediaStreamTracks(srcObject, {
+                video: null,
+              })
+              updateSource(`game-${participantId}`, {
+                videoEnabled: false,
+              })
+            }
+            if (track.mediaStreamTrack.kind === 'audio') {
+              updateMediaStreamTracks(srcObject, {
+                audio: null,
+              })
+              updateSource(`game-${participantId}`, {
+                audioEnabled: false,
+              })
+            }
+          })
+
+          newTracks.forEach((track) => {
+            if (
+              track.type === 'screen_share' &&
+              track.mediaStreamTrack.kind === 'video'
+            ) {
+              const srcObject = gameSourceStreams[track.participantId]
+              const audioTrack = previousTracks.find((t) => {
+                return (
+                  t.participantId === track.participantId &&
+                  t.mediaStreamTrack?.kind === 'audio'
+                )
+              })
+              updateMediaStreamTracks(srcObject, {
+                video: track?.mediaStreamTrack,
+                audio: audioTrack?.mediaStreamTrack,
+              })
+              updateSource(`game-${track.participantId}`, {
+                videoEnabled: Boolean(track && !track?.isMuted),
+                audioEnabled: Boolean(audioTrack && !audioTrack?.isMuted),
+              })
+            }
+          })
+
+          updatePreviewStreams()
+        })
+      }
+    })
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
       const project = toBaseProject(getProject(projectId))
