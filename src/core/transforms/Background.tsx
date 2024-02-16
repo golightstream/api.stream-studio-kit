@@ -2,15 +2,15 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import ReactDOM from 'react-dom'
 import React, { useEffect } from 'react'
-import { Compositor } from '../namespaces'
-import APIKitAnimation from '../../compositor/html/html-animation'
+import { createRoot } from 'react-dom/client'
 import { APIKitAnimationTypes } from '../../animation/core/types'
-import { getProject } from '../data'
-import CoreContext from '../context'
-import { trigger } from '../events'
+import APIKitAnimation from '../../compositor/html/html-animation'
 import { hasPermission, Permission } from '../../helpers/permission'
+import CoreContext from '../context'
+import { getProject } from '../data'
+import { trigger } from '../events'
+import { Compositor } from '../namespaces'
 
 export type BackgroundProps = {
   src?: string
@@ -207,12 +207,12 @@ export const Background = {
       )
     }
 
+    const _root = createRoot(root)
     const render = (source: BackgroundSource) =>
-      ReactDOM.render(
+      _root.render(
         <>
           <Background source={source} />
         </>,
-        root,
       )
 
     onUpdate((props) => {

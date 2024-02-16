@@ -10,7 +10,7 @@ import config from '../../config'
 import * as Transforms from './transforms/index'
 import * as Layouts from './layouts/index'
 import * as Sources from './sources/index'
-import './internal-events'
+import { prepareInternalEvents } from './internal-events'
 
 // Register default scene components
 import {
@@ -69,6 +69,8 @@ export const init = async (
   settings: Settings & AdvancedSettings = {},
 ): Promise<SDK.Studio> => {
   if (initResult) return initResult
+
+  prepareInternalEvents()
 
   // Default env to prod
   const env = settings.env || 'prod'

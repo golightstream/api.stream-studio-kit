@@ -5,6 +5,7 @@
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { babel } from '@rollup/plugin-babel'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import packageJSON from './package.json'
 import parseCommandLineArgsToJSON from './args.mjs'
 // import polyfillNode from 'rollup-plugin-polyfill-node'
@@ -18,6 +19,12 @@ export default defineConfig({
       exclude: './node_modules/**',
       babelHelpers: 'bundled',
       extensions: ['.ts', '.tsx'],
+    }),
+    nodePolyfills({
+      // Whether to polyfill specific globals.
+      globals: {
+        Buffer: true, // can also be 'build', 'dev', or false
+      },
     }),
   ],
   define: {
