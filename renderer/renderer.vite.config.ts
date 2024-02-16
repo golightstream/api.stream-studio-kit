@@ -7,7 +7,7 @@ import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { babel } from '@rollup/plugin-babel'
 import packageJSON from '../package.json'
-const parseCommandLineArgsToJSON  = require('../args');
+import parseCommandLineArgsToJSON from '../args.mjs'
 
 const args = parseCommandLineArgsToJSON()
 // https://vitejs.dev/config/
