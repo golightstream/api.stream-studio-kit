@@ -195,7 +195,7 @@ subscribeInternal(async (event, payload) => {
 
       return
     }
-    case 'SourceUpdated': {
+    case 'SourceChanged': {
       // Update internal state
 
       // Emit public event
@@ -255,7 +255,7 @@ subscribeInternal(async (event, payload) => {
 
       return
     }
-    case 'NodeUpdated': {
+    case 'NodeChanged': {
       // Update internal state
 
       // Emit public event
