@@ -8,9 +8,9 @@ import { omit, toDataNode, toSceneTree } from '../logic'
 import { compositorAdapter, latestUpdateVersion } from './compositor-adapter'
 import { CoreContext, log, setAppState } from './context'
 import './internal-events'
+import { prepareInternalEvents } from './internal-events'
 import * as Layouts from './layouts/index'
 import * as Sources from './sources/index'
-import { prepareInternalEvents } from './internal-events'
 import * as Transforms from './transforms/index'
 
 // Register default scene components
