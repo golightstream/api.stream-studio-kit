@@ -4,8 +4,9 @@
  * -------------------------------------------------------------------------------------------- */
 
 import { resolve } from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig, PluginOption } from 'vite'
 import { babel } from '@rollup/plugin-babel'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import packageJSON from '../package.json'
 import parseCommandLineArgsToJSON from '../args.mjs'
 
@@ -17,7 +18,12 @@ export default defineConfig({
       exclude: '../node_modules/**',
       babelHelpers: 'bundled',
       extensions: ['.ts', '.tsx'],
-    }),
+    }) as PluginOption,
+    nodePolyfills({
+      globals:{
+        Buffer: true,
+      },
+    }) as PluginOption,
   ],
   define: {
     SDK_VERSION: args.sdkversion ? JSON.stringify(args.sdkversion)  : JSON.stringify(packageJSON.version),
