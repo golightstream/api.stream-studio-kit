@@ -301,6 +301,7 @@ export const connectDevice = async (id: string) => {
         autoGainControl: false,
         channelCount: 2,
         echoCancellation: false,
+        // @ts-ignore: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints/latency
         latency: 0,
         noiseSuppression: false,
         sampleRate: 128000,

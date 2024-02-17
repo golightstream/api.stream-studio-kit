@@ -171,13 +171,13 @@ const Project = () => {
       } else if (event === 'ProjectSourceRemoved') {
         const source = sources.find((s) => s.id === payload.sourceId)
         setSources(sources.filter((s) => s.id !== payload.sourceId))
-        switch(source.props.type){
+        switch (source.props.type) {
           case 'integration':
             projectCommands.removeGameSource(payload.sourceId)
-            break;
+            break
           default:
             projectCommands.removeRTMPSource(payload.sourceId)
-            break;
+            break
         }
       }
     })
@@ -244,12 +244,14 @@ const Project = () => {
   }, [])
 
   useEffect(() => {
-    studio.render({
-      containerEl: renderContainer.current,
-      projectId: project.id,
-      dragAndDrop: true,
-    })
-  }, [renderContainer.current])
+    if (project.id) {
+      studio.render({
+        containerEl: renderContainer.current,
+        projectId: project.id,
+        dragAndDrop: true,
+      })
+    }
+  }, [project.id])
 
   const handleOverlayClick = (data: MediadataProps, type: string) => {
     switch (type) {
@@ -535,16 +537,14 @@ const Project = () => {
                         id: {source.id}, participantId:{' '}
                         {source.preview?.webrtc?.participantId}
                       </div>
-                      <div>
-                        url: {source.address?.rtmpPull?.url}
-                      </div>
+                      <div>url: {source.address?.rtmpPull?.url}</div>
                       <input
                         type="button"
                         value="Delete"
                         onClick={(e) => {
                           projectCommands.deleteSource({
                             sourceId: source.id,
-                            projectId: project.id,  
+                            projectId: project.id,
                           })
                         }}
                       />
@@ -701,7 +701,7 @@ export const HostView = () => {
     init({
       env: config.env,
       logLevel: config.logLevel,
-      rendererVersion : '2.1.11-test',
+      rendererVersion: '3.0.4-test',
     })
       .then(setStudio)
       .catch((e) => {

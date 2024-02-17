@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import React from 'react'
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { HostView } from './host/host'
 import { AppProvider } from './shared/context'
 import { Helpers } from '../../../'
@@ -12,6 +12,17 @@ import './index.css'
 import '../Font.ttf'
 
 const StudioProvider = Helpers.React.StudioProvider
+let container : HTMLElement= null;
+
+document.addEventListener('DOMContentLoaded', function(event) {
+  if (!container) {
+    container = document.getElementById('root') as HTMLElement;
+    const root = createRoot(container)
+    root.render(
+      <Content />
+    );
+  }
+});
 
 const Content = () => {
   return (
@@ -34,4 +45,4 @@ const Content = () => {
   )
 }
 
-ReactDOM.render(<Content />, document.getElementById('root'))
+// root.render(<Content />)
