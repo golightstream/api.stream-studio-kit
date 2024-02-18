@@ -2,9 +2,8 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { InternalEventMap } from '../core/events'
-import { Disposable, Room } from '../core/types'
-import type { NodeId, PropsDefinition, SceneNode } from './compositor'
+import { Disposable } from '../core/types'
+import type { PropsDefinition, SceneNode } from './compositor'
 import type { Source } from './sources'
 
 // TODO: Make this generic to HTML/Canvas when canvas compositing is supported
@@ -29,7 +28,6 @@ export type TransformElement = TransformElementBase & {
   role: string
   nodeId: string
   sourceType: string
-  proxySource: string
   transformName: string
   // The source currently in use by the element
   source?: Source

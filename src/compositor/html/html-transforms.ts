@@ -7,12 +7,12 @@ import type { CompositorBase, Disposable, SceneNode } from '../compositor'
 import { SourceManager } from '../sources'
 import {
   Filter,
-  runFilters,
   TransformDeclaration,
   TransformElement,
   TransformMap,
   TransformRegister,
   TransformSettings,
+  runFilters,
 } from '../transforms'
 
 const createDefault: TransformDeclaration['create'] = () => {
@@ -96,7 +96,7 @@ export const init = (
     if (!transform.useSource) return
 
     const node = compositor.getNode(nodeId)
-     const elementSourceType = element.proxySource ? element.proxySource : element.sourceType;
+     const elementSourceType = element.sourceType;
     const sources = sourceManager.getSources(elementSourceType) 
     const source = transform.useSource(sources, node.props)
     const previousValue = element.sourceValue
@@ -151,7 +151,7 @@ export const init = (
     if (nodeElementIndex[node.id]) return nodeElementIndex[node.id]
 
     const { props = {} } = node
-    const { sourceType , proxySource } = props
+    const { sourceType  } = props
 
     if (!sourceType) return null
 
@@ -197,7 +197,6 @@ export const init = (
         },
         node.props,
       ),
-      proxySource,
       sourceType,
       nodeId: node.id,
       transformName: transform.name,
@@ -208,7 +207,7 @@ export const init = (
 
     // Update indexes
     nodeElementIndex[node.id] = result
-    const elementSourceType = proxySource ? proxySource : sourceType;
+    const elementSourceType = sourceType;
     elementSourceTypeIndex[elementSourceType] = [
       ...(elementSourceTypeIndex[elementSourceType] || []),
       result,
@@ -232,7 +231,7 @@ export const init = (
 
           // Update indexes
           delete nodeElementIndex[node.id]
-          const elementSourceType = proxySource ? proxySource : sourceType
+          const elementSourceType = sourceType
           elementSourceTypeIndex[elementSourceType] = elementSourceTypeIndex[
             elementSourceType
           ].filter((x) => x !== nodeElementIndex[node.id])
