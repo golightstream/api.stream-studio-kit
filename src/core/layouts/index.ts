@@ -2,9 +2,8 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { Compositor } from '../namespaces'
 import { html } from 'lighterhtml'
-import { asSize } from '../../../src/logic'
+import { Compositor } from '../namespaces'
 
 type LayoutArgs = Compositor.Layout.LayoutArgs
 type LayoutDeclaration = Compositor.Layout.LayoutDeclaration
