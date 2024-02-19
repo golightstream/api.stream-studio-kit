@@ -2,13 +2,13 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import ReactDOM from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import React, { useLayoutEffect, useState, useEffect, useRef } from 'react'
 import { isMatch } from 'lodash-es'
 import { CoreContext } from '../context'
 import { Compositor } from '../namespaces'
 import * as Sources from '../sources'
-import { getProject, getProjectRoom, toBaseProject } from '../data'
+import { getProject } from '../data'
 
 type Props = {
   volume: number
@@ -29,7 +29,6 @@ export const GameSource = {
     const root = document.createElement('div')
     // TODO: Transforms should not rely on external state
     const project = getProject(CoreContext.state.activeProjectId)
-    const room = getProjectRoom(CoreContext.state.activeProjectId)
     Object.assign(root.style, {
       position: 'relative',
     })
@@ -238,8 +237,11 @@ export const GameSource = {
       )
     };
 
+  
+    const _root = createRoot(root)
+
     const render = () =>
-      ReactDOM.render(<GameSourceLayer source={source} props={props} />, root)
+      _root.render(<GameSourceLayer source={source} props={props} />)
 
     onUpdate((_props) => {
       props = _props
