@@ -2,6 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
+import { babel } from '@rollup/plugin-babel'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -13,6 +14,11 @@ const args = parseCommandLineArgsToJSON()
 
 export default defineConfig({
   plugins: [
+    babel({
+      exclude: './node_modules/**',
+      babelHelpers: 'bundled',
+      extensions: ['.ts', '.tsx'],
+    }),
     nodePolyfills({
       // Whether to polyfill specific globals.
       globals: {

@@ -3,8 +3,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { resolve } from 'path'
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig, PluginOption } from 'vite'
+import react from '@vitejs/plugin-react-swc'
 import { babel } from '@rollup/plugin-babel'
 
 // https://vitejs.dev/config/
@@ -15,7 +15,7 @@ export default defineConfig({
       exclude: './node_modules/**',
       babelHelpers: 'bundled',
       extensions: ['.ts', '.tsx'],
-    }),
+    }) as PluginOption,
   ],
   resolve: {
     alias: {
