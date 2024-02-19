@@ -5,20 +5,14 @@
 
 import { resolve } from 'path'
 import { defineConfig, PluginOption } from 'vite'
-import { babel } from '@rollup/plugin-babel'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import packageJSON from '../package.json'
 import parseCommandLineArgsToJSON from '../args.mjs'
+import packageJSON from '../package.json'
 
 const args = parseCommandLineArgsToJSON()
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    babel({
-      exclude: '../node_modules/**',
-      babelHelpers: 'bundled',
-      extensions: ['.ts', '.tsx'],
-    }) as PluginOption,
     nodePolyfills({
       globals:{
         Buffer: true,

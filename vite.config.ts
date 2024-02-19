@@ -4,22 +4,15 @@
  * -------------------------------------------------------------------------------------------- */
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
-import { babel } from '@rollup/plugin-babel'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
-import packageJSON from './package.json'
 import parseCommandLineArgsToJSON from './args.mjs'
-// import polyfillNode from 'rollup-plugin-polyfill-node'
+import packageJSON from './package.json'
 
 // https://vitejs.dev/config/
 const args = parseCommandLineArgsToJSON()
 
 export default defineConfig({
   plugins: [
-    babel({
-      exclude: './node_modules/**',
-      babelHelpers: 'bundled',
-      extensions: ['.ts', '.tsx'],
-    }),
     nodePolyfills({
       // Whether to polyfill specific globals.
       globals: {

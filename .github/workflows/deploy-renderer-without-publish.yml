@@ -24,6 +24,8 @@ jobs:
 
       - name: Build Studio Kit
         run: |
+          node -v
+          npm -v
           npm ci
           npm run build -- --sdkversion=${{ steps.package-version.outputs.current-version }}-test
           npm run build:renderer -- --sdkversion=${{ steps.package-version.outputs.current-version }}-test
