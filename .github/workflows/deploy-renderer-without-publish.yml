@@ -9,6 +9,10 @@ on:
     
   pull_request:
     types: [opened, synchronize, reopened]
+  
+  push:
+    branches:
+      - mahendra/cleanup-vite
 
 jobs:
   deploy:
