@@ -44,5 +44,3 @@ const Content = () => {
     </div>
   )
 }
-
-// root.render(<Content />)
