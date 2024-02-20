@@ -97,12 +97,12 @@ export const createSource = async (payload: {
   projectId: string
   displayName?: string
   address?: Partial<LiveApiModel.SourceAddress>
-  metadata?: any
+  props?: any
 }) => {
   const collectionId = getUser().id
 
   const { source } = await CoreContext.clients.LiveApi().source.createSource({
-    metadata: payload.metadata || {},
+    metadata: { props: payload.props || {} },
     collectionId,
     address: payload.address,
     preview: {
