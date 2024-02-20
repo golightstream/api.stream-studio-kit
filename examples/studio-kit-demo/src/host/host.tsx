@@ -513,10 +513,8 @@ const Project = () => {
                     displayName: `Game source: ${Math.ceil(
                       Math.random() * 10000,
                     )}`,
-                    metadata: {
-                      props: {
-                        type: 'integration',
-                      },
+                    props: {
+                      type: 'integration',
                     },
                     address: {
                       rtmpPull: {
