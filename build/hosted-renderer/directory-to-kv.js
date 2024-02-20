@@ -27,7 +27,7 @@ try {
 const readFiles = (rootPath, dir = '') => {
   const files = readdirSync(join(rootPath, dir));
   let found = [];
-  
+
   files.forEach((file) => {
     if (statSync(`${rootPath}${dir}/${file}`).isDirectory()) {
       found = found.concat(readFiles(rootPath, `${dir}/${file}`));
@@ -35,7 +35,7 @@ const readFiles = (rootPath, dir = '') => {
       found.push(join(dir, '/', file));
     }
   });
-  
+
   return found;
 };
 
@@ -47,10 +47,17 @@ const files = readFiles(input);
 
 for (const [index, path] of files.entries()) {
   const f = readFileSync(join(input, path));
-  
+
+  const indexHtml = path.includes('index.html')
+    ? isBinary(null, f)
+      ? f.toString('base64')
+      : f.toString()
+        .replace(/\/studiokit\/renderer\/[0-9.]+\//g, `/studiokit/renderer/${argv.sdkversion}/`)
+    : undefined;
+
   append(`${JSON.stringify({
     key: `${argv.prefix}${path}`,
-    value: isBinary(null, f) ? f.toString('base64') : f.toString(),
+    value: indexHtml ?? (isBinary(null, f) ? f.toString('base64') : f.toString()),
     base64: isBinary(null, f),
   })}${index === files.length - 1 ? '' : ','}`);
 }
