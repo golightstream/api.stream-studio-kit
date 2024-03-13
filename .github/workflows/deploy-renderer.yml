@@ -7,7 +7,7 @@ name: Publish renderer
 on:
   push:
     branches:
-      - mahendra/dynamic-renderer-version
+      - main
     tags:
       - v3.*
 
@@ -31,7 +31,7 @@ jobs:
 
       - uses: cloudflare/wrangler-action@2.0.0
         name: Publish Release
-        # if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
@@ -39,12 +39,12 @@ jobs:
           preCommands: |
             npm install
           postCommands: |
-            node directory-to-kv.js --prefix version/${{ steps.package-version.outputs.current-version }} --source ../../renderer/dist --destination renderer.json --sdkversion=${{ steps.package-version.outputs.current-version }}
+            node directory-to-kv.js --prefix version/${{ steps.package-version.outputs.current-version }} --source ../../renderer/dist --destination renderer.json
             wrangler kv:bulk put renderer.json --binding=SCENELESS_KV 
 
       - uses: cloudflare/wrangler-action@2.0.0
         name: Publish latest
-        # if: ${{github.ref == 'refs/heads/main' }}
+        if: ${{github.ref == 'refs/heads/main' }}
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
@@ -52,5 +52,5 @@ jobs:
           preCommands: |
             npm install
           postCommands: |
-            node directory-to-kv.js --prefix version/latest-v2 --source ../../renderer/dist --destination renderer.json --sdkversion=latest-v2
+            node directory-to-kv.js --prefix version/latest-v2 --source ../../renderer/dist --destination renderer.json
             wrangler kv:bulk put renderer.json --binding=SCENELESS_KV 
