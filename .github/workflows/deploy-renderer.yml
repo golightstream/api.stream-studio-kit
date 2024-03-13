@@ -7,9 +7,9 @@ name: Publish renderer
 on:
   push:
     branches:
-      - main
+      - mahendra/dynamic-renderer-version
     tags:
-    - v3.*
+      - v3.*
 
 jobs:
   deploy:
