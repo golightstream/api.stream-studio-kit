@@ -20,8 +20,7 @@ type Props = {
 export const GameSource = {
   name: 'LS-Game-Source',
   sourceType: 'Game',
-  props: {
-  },
+  props: {},
   useSource(sources, props) {
     return sources.find((x) => isMatch(x.props, props.sourceProps))
   },
@@ -56,7 +55,7 @@ export const GameSource = {
       props,
       source,
     }: {
-      props: Props,
+      props: Props
       source: Sources.GameSource
     }) => {
       const ref = useRef<HTMLVideoElement>()
@@ -82,14 +81,12 @@ export const GameSource = {
         }
       }, [ref.current, source?.value])
 
-
       useEffect(() => {
         if (!props && ref.current) {
           ref.current.srcObject = null
           ref.current = null
         }
       }, [props])
-
 
       useLayoutEffect(() => {
         if (!ref.current) return
@@ -235,9 +232,8 @@ export const GameSource = {
           )}
         </div>
       )
-    };
+    }
 
-  
     const _root = createRoot(root)
 
     const render = () =>

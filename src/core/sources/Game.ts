@@ -208,9 +208,7 @@ export const Game = {
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      const sources = project.sources.filter(
-        (s) => s.address?.dynamic?.id,
-      )
+      const sources = project.sources.filter((s) => s.address?.dynamic?.id)
       updateGameSources(sources)
     })
 
@@ -251,16 +249,12 @@ export const Game = {
 
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      updateGameSources(
-        project.sources.filter((s) => s.address?.dynamic?.id),
-      )
+      updateGameSources(project.sources.filter((s) => s.address?.dynamic?.id))
     })
 
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      updateGameSources(
-        project.sources.filter((s) => s.address?.dynamic?.id),
-      )
+      updateGameSources(project.sources.filter((s) => s.address?.dynamic?.id))
     })
   },
 } as Compositor.Source.SourceDeclaration
