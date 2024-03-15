@@ -694,7 +694,7 @@ export const HostView = () => {
     init({
       env: config.env,
       logLevel: config.logLevel,
-      rendererVersion: '3.0.4-test',
+      rendererVersion: '3.0.7-test',
     })
       .then(setStudio)
       .catch((e) => {

@@ -208,10 +208,8 @@ export const Game = {
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      const sources = project.sources.filter(
-        (s) => s.props.type === 'integration',
-      )
-      updateGameSources(sources)
+      const consoleSource = project.sources.find((s) => s.address?.dynamic?.id === 'console-integration')
+      updateGameSources([consoleSource])
     })
 
     CoreContext.onInternal('SourceConnected', async (id) => {
@@ -250,17 +248,17 @@ export const Game = {
     })
 
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
-      const project = toBaseProject(getProject(projectId))
-      updateGameSources(
-        project.sources.filter((s) => s.address?.dynamic?.id),
-      )
+      if(source.address?.dynamic?.id === 'console-integration') {
+        const project = toBaseProject(getProject(projectId))
+        const addedSource = project.sources.find((s) => s.id === source.id)
+        updateGameSources([addedSource])
+      }
     })
 
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      updateGameSources(
-        project.sources.filter((s) => s.address?.dynamic?.id),
-      )
+      const source = project.sources.find((s) => s.id === sourceId)
+      updateGameSources([source])
     })
   },
 } as Compositor.Source.SourceDeclaration

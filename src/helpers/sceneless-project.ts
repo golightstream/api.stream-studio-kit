@@ -2067,7 +2067,7 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
     createGameSource(payload) {
-      const exisitingGameSource = getProject(_project.id).videoApi.project.sources.find((source) => source.address.dynamic.id === 'console-integration')
+      const exisitingGameSource = getProject(_project.id).videoApi.project.sources.find((source) => source.address?.dynamic?.id === 'console-integration')
       if(!exisitingGameSource) {
         return CoreContext.Command.createSource({
           projectId,
