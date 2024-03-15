@@ -52,7 +52,7 @@ import { OverlayProps } from './../core/transforms/Overlay'
 import {
   defaultStyles,
   ForegroundLayers,
-  validateEachChildren
+  validateEachChildren,
 } from './database'
 import LayoutName = Compositor.Layout.LayoutName
 import { LiveApiModel } from '@api.stream/sdk'
@@ -76,17 +76,21 @@ export type HTMLVideoElementAttributes = {
 
 type CreateSourceProps = {
   displayName: string
-  address:  Partial<LiveApiModel.Source['address']>
+  address: Partial<LiveApiModel.Source['address']>
   props?: any
 }
 
 type GenerateGameSourceProps<T extends LiveApiModel.Source> = {
   displayName: string
-  address: T['address'] extends { dynamic: LiveApiModel.Source['address']['dynamic'] } ? { dynamic: { id: 'console-integration' }} : never;
+  address: T['address'] extends {
+    dynamic: LiveApiModel.Source['address']['dynamic']
+  }
+    ? { dynamic: { id: 'console-integration' } }
+    : never
   props?: any
 }
 
-type CreateGameSourceProps = GenerateGameSourceProps<LiveApiModel.Source>;
+type CreateGameSourceProps = GenerateGameSourceProps<LiveApiModel.Source>
 
 // Local cache to track participants being added
 const addingCache = {
@@ -504,7 +508,7 @@ export interface Commands {
   /**
    * Set the active layout and associated layoutProps
    */
-  createGameSource(props: CreateGameSourceProps) : Promise<LiveApiModel.Source>
+  createGameSource(props: CreateGameSourceProps): Promise<LiveApiModel.Source>
 }
 
 /**
@@ -1775,7 +1779,7 @@ export const commands = (_project: ScenelessProject) => {
           })
         })
     },
-    
+
     async addParticipantTrack(
       trackId: string,
       props: Partial<ParticipantProps> = {
@@ -2067,14 +2071,18 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
     createGameSource(payload) {
-      const exisitingGameSource = getProject(_project.id).videoApi.project.sources.find((source) => source.address?.dynamic?.id === 'console-integration')
-      if(!exisitingGameSource) {
+      const exisitingGameSource = getProject(
+        _project.id,
+      ).videoApi.project.sources.find(
+        (source) => source.address?.dynamic?.id === 'console-integration',
+      )
+      if (!exisitingGameSource) {
         return CoreContext.Command.createSource({
           projectId,
           ...payload,
         })
       }
-    }
+    },
   }
   const ensureValid = async () => {
     await ensureRootLayersProps()
