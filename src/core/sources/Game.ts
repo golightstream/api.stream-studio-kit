@@ -252,14 +252,14 @@ export const Game = {
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
       const project = toBaseProject(getProject(projectId))
       updateGameSources(
-        project.sources.filter((s) => s?.props?.type === 'integration'),
+        project.sources.filter((s) => s.address?.dynamic?.id),
       )
     })
 
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
       const project = toBaseProject(getProject(projectId))
       updateGameSources(
-        project.sources.filter((s) => s?.props?.type === 'integration'),
+        project.sources.filter((s) => s.address?.dynamic?.id),
       )
     })
   },

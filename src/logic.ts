@@ -322,5 +322,11 @@ export const connectDevice = async (id: string) => {
   }
 }
 
+declare type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+export declare type DeepPartial<T> = T extends Builtin ? T : T extends Array<infer U> ? Array<DeepPartial<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>> : T extends {} ? {
+  [K in keyof T]?: DeepPartial<T[K]>;
+} : Partial<T>;
+
+
 /** Convert a Map to an array of its values */
 export const values = <T>(map: Map<any, T>) => Array.from(map.values())

@@ -52,6 +52,7 @@ import { LiveApiModel } from '@api.stream/sdk'
 import { webrtcManager } from './webrtc'
 import { getRoom } from './webrtc/simple-room'
 import { trigger, triggerInternal } from './events'
+import { DeepPartial } from '../logic'
 
 const { state } = CoreContext
 
@@ -474,7 +475,7 @@ export const setActiveProject = async (payload: {
       .LiveApi()
       .unsubscribeFromCollection(currentProject.videoApi.project.collectionId)
   }
-  
+
   await CoreContext.clients
     .LayoutApi()
     .subscribeToLayout(project.layoutApi.layoutId)
@@ -760,13 +761,15 @@ export const reorderNodes = async (payload: {
  *
  * @category Broadcast
  */
-export const startBroadcast = async (payload: { projectId?: string }) => {
-  const { projectId = state.activeProjectId } = payload
+
+export const startBroadcast = async (payload: { projectId?: string, dynamicSources?: DeepPartial<LiveApiModel.StartProjectBroadcastRequest['dynamicSources']> }) => {
+  const { projectId = state.activeProjectId, dynamicSources } = payload
   const project = getProject(projectId)
 
   await CoreContext.clients.LiveApi().project.startProjectBroadcast({
     collectionId: project.videoApi.project.collectionId,
     projectId: project.videoApi.project.projectId,
+   ...(dynamicSources && {...dynamicSources})
   })
   // Event is handled on receiving end of VideoAPI
 }

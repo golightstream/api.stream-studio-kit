@@ -1,6 +1,6 @@
 {
   "name": "@api.stream/studio-kit",
-  "version": "3.0.6",
+  "version": "3.0.7",
   "description": "Client SDK for building studio experiences with API.stream",
   "license": "MIT",
   "private": false,
@@ -56,13 +56,13 @@
   },
   "dependencies": {
     "@api.stream/livekit-server-sdk": "^1.1.3",
-    "@api.stream/sdk": "^1.0.25",
+    "@api.stream/sdk": "^1.0.26",
     "csx": "^10.0.2",
     "fast-deep-equal": "^3.1.3",
     "heresy": "^1.0.4",
     "jwt-decode": "^4.0.0",
     "lighterhtml": "^4.2.0",
-    "livekit-client": "^2.0.1",
+    "livekit-client": "^2.0.7",
     "lodash-es": "^4.17.21",
     "loglevel": "^1.9.1",
     "long": "^5.2.3",

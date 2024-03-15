@@ -252,15 +252,15 @@ export const RTMP = {
 
     CoreContext.on('ProjectSourceAdded', ({ source, projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      updateRTMPSources(
-        project.sources.filter((s) => s.props.type !== 'integration'),
-      )
+      const sources = project.sources.filter((s) => !s.address?.dynamic?.id)
+      updateRTMPSources(sources)
     })
 
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
       const project = toBaseProject(getProject(projectId))
+      const sources = project.sources.filter((s) => !s.address?.dynamic?.id)
       updateRTMPSources(
-        project.sources.filter((s) => s.props.type !== 'integration'),
+        sources
       )
     })
   },

@@ -55,6 +55,7 @@ import {
   validateEachChildren
 } from './database'
 import LayoutName = Compositor.Layout.LayoutName
+import { LiveApiModel } from '@api.stream/sdk'
 
 export type { LayoutName }
 export type { Banner, BannerSource, RoomParticipantSource }
@@ -72,6 +73,20 @@ export type HTMLVideoElementAttributes = {
   playsinline?: boolean
   disablepictureinpicture?: boolean
 }
+
+type CreateSourceProps = {
+  displayName: string
+  address:  Partial<LiveApiModel.Source['address']>
+  props?: any
+}
+
+type GenerateGameSourceProps<T extends LiveApiModel.Source> = {
+  displayName: string
+  address: T['address'] extends { dynamic: LiveApiModel.Source['address']['dynamic'] } ? { dynamic: { id: 'console-integration' }} : never;
+  props?: any
+}
+
+type CreateGameSourceProps = GenerateGameSourceProps<LiveApiModel.Source>;
 
 // Local cache to track participants being added
 const addingCache = {
@@ -480,11 +495,16 @@ export interface Commands {
   /**
    * Add a source TEMPORARY
    */
-  createSource: typeof CoreContext.Command.createSource
+  createSource(props: CreateSourceProps): Promise<LiveApiModel.Source>
   /**
    * Remove a source TEMPORARY
    */
-  deleteSource: typeof CoreContext.Command.deleteSource
+  deleteSource(sourceId: string): void
+
+  /**
+   * Set the active layout and associated layoutProps
+   */
+  createGameSource(props: CreateGameSourceProps) : Promise<LiveApiModel.Source>
 }
 
 /**
@@ -2035,11 +2055,26 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
     createSource(payload) {
-      return CoreContext.Command.createSource(payload)
+      return CoreContext.Command.createSource({
+        projectId,
+        ...payload,
+      })
     },
-    deleteSource(payload) {
-      return CoreContext.Command.deleteSource(payload)
+    deleteSource(sourceId) {
+      return CoreContext.Command.deleteSource({
+        projectId,
+        sourceId,
+      })
     },
+    createGameSource(payload) {
+      const exisitingGameSource = getProject(_project.id).videoApi.project.sources.find((source) => source.address.dynamic.id === 'console-integration')
+      if(!exisitingGameSource) {
+        return CoreContext.Command.createSource({
+          projectId,
+          ...payload,
+        })
+      }
+    }
   }
   const ensureValid = async () => {
     await ensureRootLayersProps()

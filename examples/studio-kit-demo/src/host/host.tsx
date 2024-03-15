@@ -171,13 +171,10 @@ const Project = () => {
       } else if (event === 'ProjectSourceRemoved') {
         const source = sources.find((s) => s.id === payload.sourceId)
         setSources(sources.filter((s) => s.id !== payload.sourceId))
-        switch (source.props.type) {
-          case 'integration':
-            projectCommands.removeGameSource(payload.sourceId)
-            break
-          default:
-            projectCommands.removeRTMPSource(payload.sourceId)
-            break
+        if (source.address?.dynamic?.id === 'console-integration') {
+          projectCommands.removeGameSource(payload.sourceId)
+        } else {
+          projectCommands.removeRTMPSource(payload.sourceId)
         }
       }
     })
@@ -347,6 +344,13 @@ const Project = () => {
                   })
                   Command.startBroadcast({
                     projectId: project.id,
+                    dynamicSources: {
+                      'console-integration': {
+                        rtmpPull: {
+                          url: 'rtmp://ingest.stream.horse/apistream/g4mp1ZBJHY'
+                        },
+                      },
+                    }
                   })
                 }}
               >
@@ -444,7 +448,6 @@ const Project = () => {
                 value="Add RTMP Source"
                 onClick={(e) => {
                   projectCommands.createSource({
-                    projectId: project.id,
                     displayName: `RTMP source: ${Math.ceil(
                       Math.random() * 10000,
                     )}`,
@@ -459,7 +462,7 @@ const Project = () => {
             </div>
             <div className={Style.column}>
               {sources
-                .filter((source) => source.props.type !== 'integration')
+                .filter((source) => !source.address.dynamic)
                 .map((source) => {
                   return (
                     <div key={source.id}>
@@ -475,10 +478,7 @@ const Project = () => {
                         type="button"
                         value="Delete"
                         onClick={(e) => {
-                          projectCommands.deleteSource({
-                            sourceId: source.id,
-                            projectId: project.id,
-                          })
+                          projectCommands.deleteSource(source.id)
                         }}
                       />
                       <input
@@ -508,26 +508,24 @@ const Project = () => {
                 type="button"
                 value="Add Game Source"
                 onClick={(e) => {
-                  projectCommands.createSource({
-                    projectId: project.id,
+
+                  projectCommands.createGameSource({
                     displayName: `Game source: ${Math.ceil(
                       Math.random() * 10000,
                     )}`,
-                    props: {
-                      type: 'integration',
-                    },
                     address: {
-                      rtmpPull: {
-                        url: 'rtmp://ingest.stream.horse/apistream/87DpunrtXg',
-                      },
-                    },
+                      dynamic: {
+                        id: 'console-integration'
+                      }
+                    }
                   })
+
                 }}
               />
             </div>
             <div className={Style.column}>
               {sources
-                .filter((source) => source.props.type === 'integration')
+                .filter((source) => source.address?.dynamic?.id === 'console-integration')
                 .map((source) => {
                   return (
                     <div key={source.id}>
@@ -540,10 +538,7 @@ const Project = () => {
                         type="button"
                         value="Delete"
                         onClick={(e) => {
-                          projectCommands.deleteSource({
-                            sourceId: source.id,
-                            projectId: project.id,
-                          })
+                          projectCommands.deleteSource(source.id)
                         }}
                       />
                       <input
