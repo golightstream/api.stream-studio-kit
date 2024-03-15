@@ -86,9 +86,8 @@ export const RTMP = {
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
       const project = toBaseProject(getProject(projectId))
-      updateRTMPSources(
-        project.sources.filter((s) => s.props.type !== 'integration'),
-      )
+      const sources = project.sources.filter((s) => !s.address?.dynamic?.id)
+      updateRTMPSources(sources)
     })
 
     CoreContext.on('RoomJoined', ({ projectId, room }) => {
@@ -259,9 +258,7 @@ export const RTMP = {
     CoreContext.on('ProjectSourceRemoved', ({ sourceId, projectId }) => {
       const project = toBaseProject(getProject(projectId))
       const sources = project.sources.filter((s) => !s.address?.dynamic?.id)
-      updateRTMPSources(
-        sources
-      )
+      updateRTMPSources(sources)
     })
   },
 } as Compositor.Source.SourceDeclaration
