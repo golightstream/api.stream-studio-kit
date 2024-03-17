@@ -36,7 +36,13 @@ export const RTMP = {
     videoEnabled: {},
     audioEnabled: {},
   },
-  init({ addSource, removeSource, updateSource, getSource }) {
+  init({
+    addSource,
+    removeSource,
+    updateSource,
+    getSource,
+    modifySourceValue,
+  }) {
     // Updated by engine socket events
     let rtmpSourceStreams: { [id: string]: MediaStream } = {}
 
@@ -239,12 +245,19 @@ export const RTMP = {
       }
     })
 
-    CoreContext.onInternal('SourceDisconnected', (id) => {
+    CoreContext.onInternal('SourceDisconnected', async (id) => {
       const stream = rtmpSourceStreams[id]
       if (stream) {
         const tracks = stream?.getTracks()
         tracks.forEach((track) => {
           rtmpSourceStreams[id]?.removeTrack(track)
+        })
+
+        updateSource(`rtmp-${id}`, {
+          videoEnabled: false,
+          audioEnabled: false,
+          mirrored: false,
+          external: true,
         })
       }
     })
