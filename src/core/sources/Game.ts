@@ -244,6 +244,13 @@ export const Game = {
         tracks.forEach((track) => {
           gameSourceStreams[id]?.removeTrack(track)
         })
+
+        updateSource(`game-${id}`, {
+          videoEnabled: false,
+          audioEnabled: false,
+          mirrored: false,
+          external: true,
+        })
       }
     })
 
