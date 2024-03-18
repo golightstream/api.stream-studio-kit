@@ -75,18 +75,18 @@ export type HTMLVideoElementAttributes = {
 }
 
 type CreateSourceProps = {
-  displayName: string
-  address: Partial<LiveApiModel.Source['address']>
+  displayName?: string
+  address?: Partial<LiveApiModel.Source['address']>
   props?: any
 }
 
 type GenerateGameSourceProps<T extends LiveApiModel.Source> = {
-  displayName: string
   address: T['address'] extends {
     dynamic: LiveApiModel.Source['address']['dynamic']
   }
     ? { dynamic: { id: 'console-integration' } }
     : never
+  displayName?: string
   props?: any
 }
 
