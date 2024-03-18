@@ -40,8 +40,7 @@ export const RTMP = {
     addSource,
     removeSource,
     updateSource,
-    getSource,
-    modifySourceValue,
+    getSource
   }) {
     // Updated by engine socket events
     let rtmpSourceStreams: { [id: string]: MediaStream } = {}
