@@ -499,7 +499,7 @@ export interface Commands {
   /**
    * Add a source TEMPORARY
    */
-  createSource(props: CreateSourceProps): Promise<LiveApiModel.Source>
+  createSource(props?: CreateSourceProps): Promise<LiveApiModel.Source>
   /**
    * Remove a source TEMPORARY
    */
