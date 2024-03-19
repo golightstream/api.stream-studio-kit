@@ -18,8 +18,6 @@ export type RTMPSource = {
     displayName?: string
     videoEnabled?: boolean
     audioEnabled?: boolean
-    mirrored?: boolean
-    external?: boolean
     participantId?: string
     trackId?: string
     rtmpUrl?: string
@@ -134,8 +132,6 @@ export const RTMP = {
                         videoTrack?.mediaStreamTrack && !videoTrack.isMuted,
                       ),
                       audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
-                      mirrored: participant?.meta[track.id]?.isMirrored,
-                      external: track?.isExternal,
                     })
                   }
                 }
@@ -237,8 +233,6 @@ export const RTMP = {
           updateSource(`rtmp-${id}`, {
             videoEnabled: Boolean(videoTrack),
             audioEnabled: Boolean(audioTrack),
-            mirrored: false,
-            external: true,
           })
         }
       }
@@ -255,8 +249,6 @@ export const RTMP = {
         updateSource(`rtmp-${id}`, {
           videoEnabled: false,
           audioEnabled: false,
-          mirrored: false,
-          external: true,
         })
       }
     })
