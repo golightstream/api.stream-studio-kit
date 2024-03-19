@@ -506,7 +506,7 @@ export interface Commands {
   deleteSource(sourceId: string): void
 
   /**
-   * Set the active layout and associated layoutProps
+   * Add a source for type "console-integration"
    */
   createGameSource(props: CreateGameSourceProps): Promise<LiveApiModel.Source>
 }

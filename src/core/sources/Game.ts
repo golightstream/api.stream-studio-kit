@@ -22,8 +22,6 @@ export type GameSource = {
     displayName?: string
     videoEnabled?: boolean
     audioEnabled?: boolean
-    mirrored?: boolean
-    external?: boolean
     participantId?: string
     trackId?: string
     rtmpUrl?: string
@@ -121,8 +119,6 @@ export const Game = {
                         videoTrack?.mediaStreamTrack && !videoTrack.isMuted,
                       ),
                       audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
-                      mirrored: participant?.meta[track.id]?.isMirrored,
-                      external: track?.isExternal,
                     })
                   }
                 }
@@ -230,8 +226,6 @@ export const Game = {
           updateSource(`game-${id}`, {
             videoEnabled: Boolean(videoTrack),
             audioEnabled: Boolean(audioTrack),
-            mirrored: false,
-            external: true,
           })
         }
       }
@@ -248,8 +242,6 @@ export const Game = {
         updateSource(`game-${id}`, {
           videoEnabled: false,
           audioEnabled: false,
-          mirrored: false,
-          external: true,
         })
       }
     })
