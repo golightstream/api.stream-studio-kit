@@ -169,10 +169,7 @@ export const GameSource = {
               position: 'relative',
               display: 'flex',
               height: '100%',
-              width: '100%',
-              ...(Boolean(source?.props?.mirrored) && {
-                transform: 'scaleX(-1)',
-              }),
+              width: '100%'
             }}
           >
             <video

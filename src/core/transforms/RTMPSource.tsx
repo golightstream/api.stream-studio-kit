@@ -171,9 +171,6 @@ export const RTMPSource = {
               display: 'flex',
               height: '100%',
               width: '100%',
-              ...(Boolean(source?.props?.mirrored) && {
-                transform: 'scaleX(-1)',
-              }),
             }}
           >
             <video
