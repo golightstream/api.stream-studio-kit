@@ -56,6 +56,7 @@ export const toBaseProject = (
     broadcastPhase,
     role,
     broadcastId,
+    layoutId: project.layoutApi.layoutId,
     isLive: [
       ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_RUNNING,
       ProjectBroadcastPhase.PROJECT_BROADCAST_PHASE_STOPPING,

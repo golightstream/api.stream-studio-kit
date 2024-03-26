@@ -2,6 +2,7 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
+import { log } from '../context'
 import { Compositor } from '../namespaces'
 
 type Props = {
@@ -15,7 +16,7 @@ type Props = {
 export const Element = {
   name: 'Element',
   sourceType: 'Element',
-  create({ onUpdate }, { tagName }) {
+  create({ onUpdate }, { tagName = 'div' }) {
     const el = document.createElement(tagName)
 
     onUpdate(({ tagName, attributes = {}, fields = {} }: Props) => {
@@ -31,8 +32,16 @@ export const Element = {
         })
       }
 
-      Object.keys(fields).forEach((field) => {
-        Object.assign(el[field as keyof HTMLElement], fields[field])
+      Object.keys(fields).forEach((field: keyof HTMLElement) => {
+        try {
+          if (typeof el[field] === 'object') {
+            Object.assign(el[field], fields[field])
+          } else {
+            el[field] = fields[field]
+          }
+        } catch (e) {
+          log.warn('Cannot assign field to element', { field })
+        }
       })
     })
 
