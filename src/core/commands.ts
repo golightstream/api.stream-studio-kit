@@ -251,13 +251,15 @@ export const createProject = async (
     props?: Props
     /** Pixel dimenions of the canvas (default: `{ x: 1280, y: 720 }`) */
     size?: { x: number; y: number }
+    type?: 'sceneless' | 'freeform'
   } = {},
 ) => {
-  const { props = {}, size, settings = {} } = payload
+  const { props = {}, size, settings = {}, type } = payload
   const response = await CoreContext.Request.createProject({
     settings,
     props,
     size,
+    type,
   })
 
   // Trigger event to update state

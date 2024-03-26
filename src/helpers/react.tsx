@@ -134,7 +134,7 @@ try {
 export const StudioProvider = ({
   children,
 }: {
-  children: React.ReactChild
+  children: React.ReactNode
 }) => {
   const [room, setRoom] = useState<SDK.Room>()
   const [project, setProject] = useState<SDK.Project>()
