@@ -83,7 +83,7 @@ export const createProject = async (request: {
   createProjectResponse.project = projectResponse.project
   createProjectResponse.project.metadata = metadata
 
-  return createProjectResponse
+  return { project: createProjectResponse.project, layout }
 }
 
 export const deleteProject = async (request: { projectId: string }) => {
@@ -144,9 +144,9 @@ export const loadUser = async (size?: {
 
   // Take the Vapi Project and hydrate it with Compositor and Lapi project details
   const projects = await Promise.all(
-    collection.projects.filter((p) => Boolean(p.metadata?.layoutId)).map((project) =>
-      hydrateProject(project, 'ROLE_HOST' as Role, size),
-    ),
+    collection.projects
+      .filter((p) => Boolean(p.metadata?.layoutId))
+      .map((project) => hydrateProject(project, 'ROLE_HOST' as Role, size)),
   )
 
   return {

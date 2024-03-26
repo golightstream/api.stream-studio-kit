@@ -129,6 +129,10 @@ export interface Project {
    */
   broadcastId?: string
   /**
+   * The project's associated layout ID.
+   */
+  layoutId: string
+  /**
    * Phase of the project's broadcast.
    */
   broadcastPhase: ProjectBroadcastPhase
