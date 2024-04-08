@@ -7,7 +7,7 @@ name: Publish renderer
 on:
   push:
     branches:
-      - mahendra/fix-build-renderer
+      - main
     tags:
       - v3.*
 
@@ -31,7 +31,7 @@ jobs:
 
       - uses: cloudflare/wrangler-action@2.0.0
         name: Publish Release
-        # if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
@@ -44,7 +44,7 @@ jobs:
 
       - uses: cloudflare/wrangler-action@2.0.0
         name: Publish latest
-        # if: ${{github.ref == 'refs/heads/main' }}
+        if: ${{github.ref == 'refs/heads/main' }}
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
