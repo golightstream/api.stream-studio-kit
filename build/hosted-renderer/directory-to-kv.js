@@ -47,12 +47,12 @@ const files = readFiles(input);
 
 for (const [index, path] of files.entries()) {
   const f = readFileSync(join(input, path));
-
+  const sdkVersion = argv.prefix.split("/")[1]
   const indexHtml = path.includes('index.html')
     ? isBinary(null, f)
       ? f.toString('base64')
       : f.toString()
-        .replace(/\/studiokit\/renderer\/[0-9.]+\//g, `/studiokit/renderer/${argv.sdkversion}/`)
+        .replace(/\/studiokit\/renderer\/[0-9.]+\//g, `/studiokit/renderer/${sdkVersion}/`)
     : undefined;
 
   append(`${JSON.stringify({
