@@ -769,14 +769,14 @@ export const startBroadcast = async (payload: {
   >
   props?: Props
 }) => {
-  const { projectId = state.activeProjectId, dynamicSources,props } = payload
+  const { projectId = state.activeProjectId, dynamicSources, props } = payload
   const project = getProject(projectId)
 
   await CoreContext.clients.LiveApi().project.startProjectBroadcast({
     collectionId: project.videoApi.project.collectionId,
     projectId: project.videoApi.project.projectId,
     ...(dynamicSources && { dynamicSources }),
-    ...(props && { triggerMetadata: { ...props } })
+    ...(props && { triggerMetadata: { ...props } }),
   })
   // Event is handled on receiving end of VideoAPI
 }
