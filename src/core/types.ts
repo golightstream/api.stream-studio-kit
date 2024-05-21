@@ -203,7 +203,7 @@ export type Source = {
    */
   id: string
   address: LiveApiModel.SourceAddress
-  preview?: LiveApiModel.PreviewAddress | undefined;
+  preview?: LiveApiModel.PreviewAddress | undefined
   /**
    * Field to store arbitrary data. Not used by the SDK.
    */
@@ -307,7 +307,7 @@ import VideoCaptureOptions = Livekit.VideoCaptureOptions
 import VideoResolution = Livekit.VideoResolution
 import AudioCaptureOptions = Livekit.AudioCaptureOptions
 import ScreenShareCaptureOptions = Livekit.ScreenShareCaptureOptions
-import { ChatOverlayProps } from './transforms/ChatOverlay'
+import { ReactNode } from 'react'
 
 export type { ChatObject, ConnectionQuality, TrackSource }
 
@@ -786,7 +786,7 @@ export type CompositorSettings = {
    * _Note: If the user's access token does not grant permissions for
    * updating a project, it may result in issues._
    */
-  dragAndDrop?: boolean
+  interactive?: boolean
   /**
    * Determine whether a node is a candidate for dragging.
    */
@@ -801,6 +801,29 @@ export type CompositorSettings = {
    * Handle double click of a valid drag target.
    */
   onElementDoubleClick?: (node: SceneNode) => boolean
+  onPresetPreview?: (props: {
+    preset: string
+    node: SceneNode
+    setLocalState: (props: SceneNode['props']) => void
+  }) => void
+  onPresetSelect?: (props: { preset: string; node: SceneNode }) => void
+  getNodePresetsOverlay?: (
+    node: SceneNode,
+    projectProps: Record<string, any>,
+  ) =>
+    | {
+        name: string
+        position: {
+          left?: string | number
+          right?: string | number
+          top?: string | number
+          bottom?: string | number
+          width?: string | number
+          height?: string | number
+        }
+      }[]
+    | undefined
+  // ItemHoverOverlay?: (props: { node: SceneNode }) => ReactNode
 }
 
 /**
