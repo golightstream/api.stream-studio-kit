@@ -3,14 +3,17 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { html } from 'lighterhtml'
-import { Compositor } from '../namespaces'
+import { CSSProperties } from 'react'
+import { LayoutDeclaration } from '../../compositor/layouts'
 
-type LayoutArgs = Compositor.Layout.LayoutArgs
-type LayoutDeclaration = Compositor.Layout.LayoutDeclaration
-
+type LayoutFreeProps = {
+  size: { x: string; y: string }
+  position: { x: string; y: string }
+  opacity: number
+}
 export const Free = {
   name: 'Free',
-  layout: ({ props, children, size }: LayoutArgs) => {
+  layout: ({ props, children, size }) => {
     return children.reduce((acc, x) => {
       const {
         size = { x: '100%', y: '100%' },
@@ -34,11 +37,26 @@ export const Free = {
       }
     }, {})
   },
-} as LayoutDeclaration
+} as LayoutDeclaration<LayoutFreeProps>
 
+type LayoutColumnProps = {
+  cover?: boolean
+  justify?: CSSProperties['justifyContent']
+  align?: CSSProperties['alignItems']
+  useGrid?: boolean
+  reverse?: boolean
+  dimensions?: number
+  margin?: {
+    left?: number
+    right?: number
+    top?: number
+    bottom?: number
+    between?: number
+  }
+}
 export const Column = {
   name: 'Column',
-  layout: ({ props = {}, children, size }: LayoutArgs) => {
+  layout: ({ props = {}, children, size }) => {
     let {
       justify = 'center',
       align = 'center',
@@ -111,11 +129,27 @@ export const Column = {
       </div>
     `
   },
-} as LayoutDeclaration
+} as LayoutDeclaration<LayoutColumnProps>
 
+type LayoutRowProps = {
+  cover?: boolean
+  justify?: CSSProperties['justifyContent']
+  align?: CSSProperties['alignItems']
+  useGrid?: boolean
+  reverse?: boolean
+  dimensions?: number
+  maxWidth?: number
+  margin?: {
+    left?: number
+    right?: number
+    top?: number
+    bottom?: number
+    between?: number
+  }
+}
 export const Row = {
   name: 'Row',
-  layout: ({ props = {}, children, size }: LayoutArgs) => {
+  layout: ({ props = {}, children, size }) => {
     let {
       justify = 'center',
       align = 'center',
@@ -192,7 +226,16 @@ export const Row = {
       </div>
     `
   },
-} as LayoutDeclaration
+} as LayoutDeclaration<LayoutRowProps>
+
+type LayoutGridProps = {
+  cover?: boolean
+  dimensions?: number
+  numPerRow?: number
+  maxWidth?: number
+  margin?: number
+  between?: number
+}
 
 const toMatrix = <T>(arr: T[], width: number) => {
   return arr.reduce(
@@ -206,7 +249,7 @@ const toMatrix = <T>(arr: T[], width: number) => {
 
 export const Grid = {
   name: 'Grid',
-  layout: ({ props = {}, children, size }: LayoutArgs) => {
+  layout: ({ props = {}, children, size }) => {
     let {
       dimensions,
       numPerRow,
@@ -272,16 +315,28 @@ export const Grid = {
       }),
     )}</div>`
   },
+} as LayoutDeclaration<LayoutGridProps>
+
+type LayoutPresentationProps = {
+  cover?: boolean
+  margin?: number
+  barWidth?: number
+  barOrientation?: 'vertical' | 'horizontal'
+  presentationDimensions?: number
+  viewerDimensions?: number
+  justifyViewers?: CSSProperties['justifyContent']
+  useGrid?: boolean
+  reverse?: boolean
 }
 
 export const Presentation = {
   name: 'Presentation',
-  layout: ({ props = {}, children, size }: LayoutArgs) => {
+  layout: ({ props = {}, children, size }) => {
     let {
       margin,
       cover = false,
       barWidth = 0.2,
-      barPosition = 'side',
+      barOrientation = 'vertical',
       presentationDimensions = 16 / 9,
       viewerDimensions = 16 / 9,
       justifyViewers = 'center',
@@ -289,7 +344,7 @@ export const Presentation = {
       reverse = false,
     } = props
     const barWidthPx =
-      barPosition === 'side' ? size.x * barWidth : size.y * barWidth
+      barOrientation === 'vertical' ? size.x * barWidth : size.y * barWidth
     const presentation = children[0]
     const viewers = children.filter((x) => x !== presentation)
     const defaultMargin = children.length <= 1 ? 0 : Math.min(size.x / 80, 30)
@@ -302,7 +357,7 @@ export const Presentation = {
 
     const mainSize = { ...size }
     if (hasSidebar) {
-      if (barPosition === 'side') {
+      if (barOrientation === 'vertical') {
         mainSize.x = size.x - barWidthPx
         mainSize.y = mainSize.x / presentationDimensions
       } else {
@@ -320,7 +375,7 @@ export const Presentation = {
         ...(cover ? { maxWidth: 1 } : { margin }),
       }
     } else {
-      Bar = barPosition === 'side' ? Column.layout : Row.layout
+      Bar = barOrientation === 'vertical' ? Column.layout : Row.layout
       barProps = {
         margin: {
           top: margin,
@@ -336,19 +391,19 @@ export const Presentation = {
     }
 
     const barDirection =
-      barPosition === 'side'
+      barOrientation === 'vertical'
         ? reverse
           ? 'left'
           : 'right'
         : reverse
-        ? 'top'
-        : 'bottom'
+          ? 'top'
+          : 'bottom'
 
     return html.node`
       <div style=${{
         display: 'flex',
         flexDirection:
-          (barPosition === 'side' ? 'row' : 'column') +
+          (barOrientation === 'vertical' ? 'row' : 'column') +
           (reverse ? '-reverse' : ''),
         justifyContent: 'space-around',
         alignItems: 'center',
@@ -366,37 +421,39 @@ export const Presentation = {
             flexGrow: 1,
           }}>
             <div data-node-id=${presentation.id} .data=${{
-            dimensions: presentationDimensions,
-            borderRadius: cover ? 0 : 5,
-            entryTransition: {
-              delay: 0,
-              offset: { x: 0, y: 1000 },
-              scale: { x: 0.5, y: 0.5 },
-              opacity: 0,
-            },
-            exitTransition: {
-              offset: { x: 0, y: 1000 },
-              scale: { x: 2, y: 2 },
-              opacity: 0,
-            },
-          }} style=${{
-            width: '100%',
-            height: '100%',
-            ...(cover
-              ? {
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width:
-                    useGrid && hasSidebar ? 100 - barWidth * 100 + '%' : '100%',
-                  height: '100%',
-                }
-              : {}),
-          }} />
+              dimensions: presentationDimensions,
+              borderRadius: cover ? 0 : 5,
+              entryTransition: {
+                delay: 0,
+                offset: { x: 0, y: 1000 },
+                scale: { x: 0.5, y: 0.5 },
+                opacity: 0,
+              },
+              exitTransition: {
+                offset: { x: 0, y: 1000 },
+                scale: { x: 2, y: 2 },
+                opacity: 0,
+              },
+            }} style=${{
+              width: '100%',
+              height: '100%',
+              ...(cover
+                ? {
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width:
+                      useGrid && hasSidebar
+                        ? 100 - barWidth * 100 + '%'
+                        : '100%',
+                    height: '100%',
+                  }
+                : {}),
+            }} />
           </div>`
         }
         ${html.node`<div style=${{
-          ...(barPosition === 'side'
+          ...(barOrientation === 'vertical'
             ? {
                 maxWidth: barWidth * 100 + '%',
                 height: '100%',
@@ -411,7 +468,7 @@ export const Presentation = {
             props: barProps,
             children: viewers,
             size:
-              barPosition === 'side'
+              barOrientation === 'vertical'
                 ? { x: barWidthPx, y: size.y }
                 : { x: size.x, y: barWidthPx },
           })
@@ -419,11 +476,12 @@ export const Presentation = {
       </div>
     `
   },
-} as LayoutDeclaration
+} as LayoutDeclaration<LayoutPresentationProps>
 
+type LayoutLayeredProps = {}
 export const Layered = {
   name: 'Layered',
-  layout: ({ props = {}, children, size }: LayoutArgs) => {
+  layout: ({ props = {}, children, size }) => {
     return html.node`<div style=${{
       width: '100%',
       height: '100%',
@@ -440,7 +498,16 @@ export const Layered = {
       )}
     </div>`
   },
-} as LayoutDeclaration
+} as LayoutDeclaration<LayoutLayeredProps>
+
+export type LayoutProps = {
+  Free: LayoutFreeProps
+  Column: LayoutColumnProps
+  Row: LayoutRowProps
+  Grid: LayoutGridProps
+  Presentation: LayoutPresentationProps
+  Layered: LayoutLayeredProps
+}
 
 /**
  * Grid helpers
