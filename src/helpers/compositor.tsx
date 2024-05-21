@@ -2,7 +2,14 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, {
+  PropsWithChildren,
+  ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import { createRoot } from 'react-dom/client'
 import { swapItems } from '../logic'
 import { getProject } from '../core/data'
@@ -116,20 +123,36 @@ const ElementTree = (props: { nodeId: string }) => {
   const rootRef = useRef<HTMLDivElement>()
   const {
     project,
-    interactive = true,
+    interactive,
+    draggingNodeId,
     onElementDoubleClick,
-    checkIsDragTarget,
-    checkIsDropTarget,
+    checkDragTarget,
+    checkDropTarget,
+    getNodePresetsOverlay,
+    onPresetPreview,
+    onPresetSelect,
+    setDraggingNodeId,
+    // ItemHoverOverlay,
   } = useContext(CompositorContext)
   const { nodeId } = props
   const node = project.compositor.get(nodeId)
   if (!node) return null
 
   const element = CoreContext.compositor.getElement(node)
-  const layout = node.props.layout || 'Row'
+  const [localState, setLocalState] = useState({})
+  const nodeProps = {
+    ...node.props,
+    ...localState,
+  } as SceneNode['props']
 
-  const isDragTarget = interactive && checkIsDragTarget(node)
-  const isDropTarget = interactive && checkIsDropTarget(node)
+  const layout = nodeProps.layout || 'Row'
+
+  const isDragTarget = (interactive && checkDragTarget?.(node)) ?? false
+  const isDropTarget = (interactive && checkDropTarget?.(node)) ?? false
+
+  const presetsOverlay = getNodePresetsOverlay?.(node, project.props)
+
+  let isDraggingChild = node.children.some((x) => x.id === draggingNodeId)
 
   let layoutDragHandlers = isDropTarget
     ? ({
@@ -144,7 +167,7 @@ const ElementTree = (props: { nodeId: string }) => {
             e,
           )
         },
-        onDragOver: (e: React.DragEvent) => {
+        onDragEnter: (e: React.DragEvent) => {
           e.preventDefault()
           e.stopPropagation()
           rootRef.current?.toggleAttribute(
@@ -183,6 +206,7 @@ const ElementTree = (props: { nodeId: string }) => {
         ondragstart: (e) => {
           isDragging.current = true
           wrapperEl.toggleAttribute('data-dragging', true)
+          setDraggingNodeId(node.id)
           log.debug('Compositor: Dragging', node.id)
           foundDropTarget = false
           e.dataTransfer.setData('text/plain', node.id)
@@ -198,6 +222,7 @@ const ElementTree = (props: { nodeId: string }) => {
             log.info('Compositor: No drop target - deleting node', node)
             CoreContext.Command.deleteNode({ nodeId: node.id })
           }
+          setDraggingNodeId(null)
           wrapperEl.toggleAttribute('data-dragging', true)
           log.debug('Compositor: DragEnd', e)
           rootRef.current?.toggleAttribute('data-drag-target-active', false)
@@ -210,7 +235,7 @@ const ElementTree = (props: { nodeId: string }) => {
           // @ts-ignore
           window.__dragging = false
         },
-        ondragover: (e) => {
+        ondragenter: (e) => {
           e.preventDefault()
           e.stopPropagation()
           if (isDragging.current) return
@@ -244,14 +269,14 @@ const ElementTree = (props: { nodeId: string }) => {
         width: '100%',
         height: '100%',
         position: 'relative',
-        ...(node.props.style || {}),
+        ...(nodeProps.style || {}),
       })
     }
   }, [transformRef.current, element])
 
   useEffect(() => {
     const onDoubleClick = isDragTarget
-      ? () => onElementDoubleClick(node)
+      ? () => onElementDoubleClick?.(node)
       : () => {}
 
     if (interactiveRef.current) {
@@ -269,7 +294,7 @@ const ElementTree = (props: { nodeId: string }) => {
 
   const layoutProps = {
     layout,
-    ...(node.props.layoutProps ?? {}),
+    ...(nodeProps.layoutProps ?? {}),
   }
 
   return (
@@ -286,11 +311,51 @@ const ElementTree = (props: { nodeId: string }) => {
       {...layoutDragHandlers}
       style={{
         position: 'relative',
-        width: node.props.size?.x || '100%',
-        height: node.props.size?.y || '100%',
+        width: nodeProps.size?.x || '100%',
+        height: nodeProps.size?.y || '100%',
         pointerEvents: 'none',
       }}
     >
+      <div
+        className="layout-preset-zones"
+        style={{
+          height: '100%',
+          width: '100%',
+          position: 'absolute',
+          zIndex: 4,
+          pointerEvents: 'none',
+          transition: 'opacity 300ms ease',
+        }}
+      >
+        {presetsOverlay?.map(({ name, position }) => (
+          <div
+            key={name}
+            data-drag-target
+            style={{
+              position: 'absolute',
+              background: 'rgba(0,0,0,0.5)',
+              outline: '2px solid rgba(255,255,255,0.5)',
+              pointerEvents: isDraggingChild ? 'all' : 'none',
+              opacity: isDraggingChild ? 1 : 0,
+              transition: !isDraggingChild ? '' : 'opacity 500ms ease 200ms',
+              ...position,
+            }}
+            onDragEnter={() => {
+              onPresetPreview?.({
+                node,
+                preset: name,
+                setLocalState,
+              })
+            }}
+            onDragLeave={() => {
+              setLocalState({})
+            }}
+            onDrop={() => {
+              onPresetSelect?.({ node, preset: name })
+            }}
+          ></div>
+        ))}
+      </div>
       <div
         className="interactive-overlay"
         ref={interactiveRef}
@@ -300,7 +365,13 @@ const ElementTree = (props: { nodeId: string }) => {
           position: 'absolute',
           zIndex: 2,
         }}
-      ></div>
+      >
+        {/* {ItemHoverOverlay && (
+          <div className="interactive-overlay-hover">
+            <ItemHoverOverlay node={node} />
+          </div>
+        )} */}
+      </div>
       <div
         className="item-element"
         style={{
@@ -435,7 +506,7 @@ export const render = (settings: CompositorSettings) => {
   const {
     containerEl,
     projectId,
-    dragAndDrop = false,
+    interactive = false,
     checkDragTarget = scenelessProjectDragCheck,
     checkDropTarget = scenelessProjectDropCheck,
   } = settings
@@ -443,8 +514,6 @@ export const render = (settings: CompositorSettings) => {
   CoreContext.clients.LayoutApi().subscribeToLayout(project.layoutApi.layoutId)
 
   loadDragImage()
-
-  const onElementDoubleClick = settings.onElementDoubleClick ?? (() => {})
 
   if (!containerEl || !project) return
 
@@ -507,10 +576,10 @@ export const render = (settings: CompositorSettings) => {
     _root.render(
       <CompositorProvider
         project={project}
-        interactive={dragAndDrop}
-        onElementDoubleClick={onElementDoubleClick}
-        checkIsDropTarget={checkDropTarget}
-        checkIsDragTarget={checkDragTarget}
+        interactive={interactive}
+        checkDragTarget={checkDragTarget}
+        checkDropTarget={checkDropTarget}
+        {...settings}
       >
         <Root
           setStyle={(CSS: string) => {
@@ -522,14 +591,6 @@ export const render = (settings: CompositorSettings) => {
   }
 
   setScale()
-}
-
-type CompositorContext = {
-  interactive: boolean
-  project: InternalProject
-  checkIsDragTarget: (node: SceneNode) => boolean
-  checkIsDropTarget: (node: SceneNode) => boolean
-  onElementDoubleClick: (node: SceneNode) => void
 }
 
 /** This is a default check based on legacy behavior */
@@ -546,46 +607,32 @@ const scenelessProjectDropCheck = (node: SceneNode) => {
   return node.props.name === 'Content'
 }
 
-/** This is a default based on legacy behavior */
-const scenelessProjectDoubleClick =
-  (project: InternalProject) => (node: SceneNode) => {
-    const content = project.compositor.nodes.find(
-      (x) => x.props.name === 'Content',
-    )
-    if (content) {
-      const showcase = content.props.layoutProps?.showcase
-      CoreContext.Command.updateNode({
-        nodeId: content.id,
-        props: {
-          layoutProps: {
-            ...content.props.layoutProps,
-            showcase: showcase === node.id ? null : node.id,
-          },
-        },
-      })
-    }
+type CompositorContext = {
+  project: InternalProject
+  draggingNodeId: string | null
+  setDraggingNodeId: (id: string) => void
+} & CompositorSettings
+
+export const CompositorContext = React.createContext<CompositorContext | null>(
+  null,
+)
+
+const CompositorProvider = ({
+  children,
+  ...props
+}: PropsWithChildren<
+  CompositorSettings & {
+    project: InternalProject
   }
+>) => {
+  const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null)
 
-/** This is a default based on legacy behavior */
-const scenelessProjectCSS = (project: InternalProject) => (CSS: string) => {}
-
-export const CompositorContext = React.createContext<CompositorContext>({
-  interactive: false,
-  project: null,
-  checkIsDragTarget: () => false,
-  checkIsDropTarget: () => false,
-  onElementDoubleClick: () => {},
-})
-
-type ContextProps = CompositorContext & {
-  children: React.ReactChild
-}
-
-const CompositorProvider = ({ children, ...props }: ContextProps) => {
   return (
     <CompositorContext.Provider
       value={{
         ...props,
+        draggingNodeId,
+        setDraggingNodeId,
       }}
     >
       {children}
@@ -620,6 +667,16 @@ video {
   width: 100%;
   font-size: 28px;
   position: absolute;
+}
+
+.interactive-overlay .interactive-overlay-hover {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.interactive-overlay:hover .interactive-overlay-hover {
+  opacity: 1;
+  pointer-events: all;
 }
 
 ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .NameBanner {
