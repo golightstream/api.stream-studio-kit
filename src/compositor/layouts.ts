@@ -3,10 +3,10 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { DataNode, SceneNode } from './compositor'
+import type { LayoutProps } from '../core/layouts/index'
 import * as CSS from 'csstype'
 
-// TODO: Make this generic to HTML/Canvas when canvas compositing is supported
-type LayoutProps = Partial<DataNode['props']>
+export { LayoutProps }
 
 // A string representation of percent/px (e.g. 100px/10%), or a number (px)
 type Size = { x: string | number; y: string | number }
@@ -27,8 +27,8 @@ export type LayoutChild = HTMLElement & {
   data: ChildPosition
 }
 
-export type LayoutArgs = {
-  props: LayoutProps
+export type LayoutArgs<T extends Record<string, any> = {}> = {
+  props: T
   children: SceneNode[]
   size: { x: number; y: number }
 }
@@ -51,11 +51,11 @@ export type ChildPositionIndex = {
 
 export type LayoutResult = ChildPositionIndex | HTMLElement
 
-export type LayoutDefinition = ({
+export type LayoutDefinition<T extends Record<string, any> = {}> = ({
   props,
   children,
   size,
-}: LayoutArgs) => LayoutResult
+}: LayoutArgs<T>) => LayoutResult
 
 export type LayoutMap = {
   [name: string]: LayoutDeclaration
@@ -71,12 +71,12 @@ export type LayoutName =
   | 'Layered'
   | string
 
-export type LayoutDeclaration = {
+export type LayoutDeclaration<T extends Record<string, any> = {}> = {
   name: LayoutName
-  props?: any
-  layout: LayoutDefinition
+  props?: T
+  layout: LayoutDefinition<T>
 }
 
-export type LayoutRegister = (
-  declaration: LayoutDeclaration | LayoutDeclaration[],
+export type LayoutRegister<T extends Record<string, any> = {}> = (
+  declaration: LayoutDeclaration<T> | LayoutDeclaration<T>[],
 ) => void

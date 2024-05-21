@@ -8,6 +8,7 @@ export * as Helpers from '../helpers/index'
 export * as Compositor from '../compositor/index'
 export * as Events from './events'
 export * as SDK from './types'
+export * as Layouts from './layouts/index'
 
 /** @private */
 export * as Room from './webrtc/index'

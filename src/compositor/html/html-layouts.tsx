@@ -661,7 +661,12 @@ export const layoutChildren = ({
   props = {},
   children,
   size,
-}: LayoutArgs & { id: string }): ChildPositionIndex => {
+}: {
+  id: string
+  props: any
+  children: SceneNode[]
+  size: { x: number; y: number }
+}): ChildPositionIndex => {
   const layoutArgs = {
     props,
     children,
