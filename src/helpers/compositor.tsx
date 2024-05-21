@@ -121,8 +121,9 @@ const ElementTree = (props: { nodeId: string }) => {
   const interactiveRef = useRef<HTMLDivElement>()
   const transformRef = useRef<HTMLDivElement>()
   const rootRef = useRef<HTMLDivElement>()
+  const [presetPreviewTimeout, setPresetPreviewTimeout] = useState<number>()
   const {
-    project,
+    projectId,
     interactive,
     draggingNodeId,
     onElementDoubleClick,
@@ -135,6 +136,7 @@ const ElementTree = (props: { nodeId: string }) => {
     // ItemHoverOverlay,
   } = useContext(CompositorContext)
   const { nodeId } = props
+  const project = getProject(projectId)
   const node = project.compositor.get(nodeId)
   if (!node) return null
 
@@ -330,25 +332,41 @@ const ElementTree = (props: { nodeId: string }) => {
         {presetsOverlay?.map(({ name, position }) => (
           <div
             key={name}
+            className="layout-preset-zone"
             data-drag-target
             style={{
               position: 'absolute',
-              background: 'rgba(0,0,0,0.5)',
-              outline: '2px solid rgba(255,255,255,0.5)',
+              background: 'rgba(0,0,0,0.6)',
+              outline: '3px solid rgba(255,255,255,0.3)',
               pointerEvents: isDraggingChild ? 'all' : 'none',
               opacity: isDraggingChild ? 1 : 0,
-              transition: !isDraggingChild ? '' : 'opacity 500ms ease 200ms',
+              transition: isDraggingChild
+                ? 'opacity 500ms ease 200ms, transform 150ms ease'
+                : '',
               ...position,
             }}
-            onDragEnter={() => {
-              onPresetPreview?.({
-                node,
-                preset: name,
-                setLocalState,
-              })
+            onDragEnter={(e) => {
+              e.currentTarget.toggleAttribute(
+                'data-preset-drag-target-active',
+                true,
+              )
+              const timeout = window.setTimeout(() => {
+                onPresetPreview?.({
+                  node,
+                  preset: name,
+                  setLocalState,
+                })
+              }, 750)
+              setPresetPreviewTimeout(timeout)
             }}
-            onDragLeave={() => {
+            onDragLeave={(e) => {
+              e.currentTarget.toggleAttribute(
+                'data-preset-drag-target-active',
+                false,
+              )
               setLocalState({})
+              window.clearTimeout(presetPreviewTimeout)
+              setPresetPreviewTimeout(undefined)
             }}
             onDrop={() => {
               onPresetSelect?.({ node, preset: name })
@@ -405,8 +423,9 @@ const useForceUpdate = () => {
 }
 
 const Root = (props: { setStyle: (CSS: string) => void }) => {
-  const { project } = useContext(CompositorContext)
   const [tree, setTree] = useState<SceneNode>(null)
+  const { projectId } = useContext(CompositorContext)
+  const project = getProject(projectId)
 
   useEffect(() => {
     // Build the entire tree
@@ -575,7 +594,6 @@ export const render = (settings: CompositorSettings) => {
   const render = () => {
     _root.render(
       <CompositorProvider
-        project={project}
         interactive={interactive}
         checkDragTarget={checkDragTarget}
         checkDropTarget={checkDropTarget}
@@ -608,7 +626,6 @@ const scenelessProjectDropCheck = (node: SceneNode) => {
 }
 
 type CompositorContext = {
-  project: InternalProject
   draggingNodeId: string | null
   setDraggingNodeId: (id: string) => void
 } & CompositorSettings
@@ -620,11 +637,7 @@ export const CompositorContext = React.createContext<CompositorContext | null>(
 const CompositorProvider = ({
   children,
   ...props
-}: PropsWithChildren<
-  CompositorSettings & {
-    project: InternalProject
-  }
->) => {
+}: PropsWithChildren<CompositorSettings>) => {
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null)
 
   return (
@@ -677,6 +690,10 @@ video {
 .interactive-overlay:hover .interactive-overlay-hover {
   opacity: 1;
   pointer-events: all;
+}
+
+.layout-preset-zone[data-preset-drag-target-active] {
+  transform: scale(1.1);
 }
 
 ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .NameBanner {
