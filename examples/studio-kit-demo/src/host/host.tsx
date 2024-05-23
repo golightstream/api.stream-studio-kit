@@ -171,7 +171,7 @@ const Project = () => {
       } else if (event === 'ProjectSourceRemoved') {
         const source = sources.find((s) => s.id === payload.sourceId)
         setSources(sources.filter((s) => s.id !== payload.sourceId))
-        if (source.address?.dynamic?.id === 'console-integration') {
+        if (source.address?.dynamic?.id === 'integration') {
           projectCommands.removeGameSource(payload.sourceId)
         } else {
           projectCommands.removeRTMPSource(payload.sourceId)
@@ -345,7 +345,7 @@ const Project = () => {
                   Command.startBroadcast({
                     projectId: project.id,
                     dynamicSources: {
-                      'console-integration': {
+                      'integration': {
                         rtmpPull: {
                           url: 'rtmp://ingest.stream.horse/apistream/g4mp1ZBJHY'
                         },
@@ -515,7 +515,7 @@ const Project = () => {
                     )}`,
                     address: {
                       dynamic: {
-                        id: 'console-integration'
+                        id: 'integration'
                       }
                     }
                   })
@@ -525,7 +525,7 @@ const Project = () => {
             </div>
             <div className={Style.column}>
               {sources
-                .filter((source) => source.address?.dynamic?.id === 'console-integration')
+                .filter((source) => source.address?.dynamic?.id === 'integration')
                 .map((source) => {
                   return (
                     <div key={source.id}>
