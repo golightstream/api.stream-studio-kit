@@ -84,7 +84,7 @@ type GenerateGameSourceProps<T extends LiveApiModel.Source> = {
   address: T['address'] extends {
     dynamic: LiveApiModel.Source['address']['dynamic']
   }
-    ? { dynamic: { id: 'console-integration' } }
+    ? { dynamic: { id: 'integration' } }
     : never
   displayName?: string
   props?: any
@@ -506,7 +506,7 @@ export interface Commands {
   deleteSource(sourceId: string): void
 
   /**
-   * Add a source for type "console-integration"
+   * Add a source for type "integration"
    */
   createGameSource(props: CreateGameSourceProps): Promise<LiveApiModel.Source>
 }
@@ -2074,7 +2074,7 @@ export const commands = (_project: ScenelessProject) => {
       const exisitingGameSource = getProject(
         _project.id,
       ).videoApi.project.sources.find(
-        (source) => source.address?.dynamic?.id === 'console-integration',
+        (source) => source.address?.dynamic?.id === 'integration',
       )
       if (!exisitingGameSource) {
         return CoreContext.Command.createSource({
