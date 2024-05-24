@@ -577,13 +577,14 @@ export class Layout extends HTMLElement {
         transitionDelay: asDuration(0),
         transitionDuration: asDuration(duration),
         transitionProperty: TRANSITION_FIELDS,
-        transitionTimingFunction: data.exitTransition.timingFn ?? 'ease',
+        transitionTimingFunction:
+          childEl.data.exitTransition.timingFn ?? 'ease',
         transform: `translate3d(calc(${asSize(
-          data.exitTransition.offset?.x ?? 0,
-        )}), calc( ${asSize(data.exitTransition.offset?.y ?? 0)}), 0) scaleX(${
-          data.exitTransition.scale?.x ?? 1
-        }) scaleY(${data.exitTransition.scale?.y ?? 1})`,
-        opacity: data.exitTransition.opacity ?? 0,
+          childEl.data.exitTransition.offset?.x ?? 0,
+        )}), calc( ${asSize(childEl.data.exitTransition.offset?.y ?? 0)}), 0) scaleX(${
+          childEl.data.exitTransition.scale?.x ?? 1
+        }) scaleY(${childEl.data.exitTransition.scale?.y ?? 1})`,
+        opacity: childEl.data.exitTransition.opacity ?? 0,
       } as CSS.StandardProperties)
 
       childEl.removed = true

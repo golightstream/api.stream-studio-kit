@@ -15,7 +15,7 @@ type Position = { x: string | number; y: string | number }
 // Any valid CSS duration unit (ms/s, etc)
 type Duration = string | number
 
-type Transition = {
+export type Transition = {
   delay?: Duration
   offset?: Position
   scale?: { x?: number; y?: number }
