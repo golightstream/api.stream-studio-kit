@@ -4,7 +4,7 @@
  * -------------------------------------------------------------------------------------------- */
 import { html } from 'lighterhtml'
 import { CSSProperties } from 'react'
-import { LayoutDeclaration } from '../../compositor/layouts'
+import { LayoutDeclaration, Transition } from '../../compositor/layouts'
 
 type LayoutFreeProps = {
   size: { x: string; y: string }
@@ -53,6 +53,8 @@ type LayoutColumnProps = {
     bottom?: number
     between?: number
   }
+  entryTransition?: (i: number) => Transition
+  exitTransition?: (i: number) => Transition
 }
 export const Column = {
   name: 'Column',
@@ -64,6 +66,8 @@ export const Column = {
       margin = {},
       dimensions = 16 / 9,
       reverse = false,
+      entryTransition = () => ({}),
+      exitTransition = () => ({}),
     } = props
     const defaultMargin = cover ? 0 : Math.min(size.y / 6, 12)
 
@@ -108,11 +112,13 @@ export const Column = {
               offset: { x: 0, y: '100%' },
               scale: { x: 0.8, y: 0.8 },
               opacity: 0,
+              ...entryTransition(i),
             },
             exitTransition: {
               offset: { x: 0, y: 1000 },
               scale: { x: 0.8, y: 0.8 },
               opacity: 0,
+              ...exitTransition(i),
             },
             borderRadius: cover ? 0 : 5,
           }} style=${{
@@ -146,6 +152,8 @@ type LayoutRowProps = {
     bottom?: number
     between?: number
   }
+  entryTransition?: (i: number) => Transition
+  exitTransition?: (i: number) => Transition
 }
 export const Row = {
   name: 'Row',
@@ -158,6 +166,8 @@ export const Row = {
       dimensions,
       maxWidth = 1,
       reverse = false,
+      entryTransition = () => ({}),
+      exitTransition = () => ({}),
     } = props
     const defaultMargin = cover ? 0 : Math.min(size.y / 6, 12)
     margin = {
@@ -205,11 +215,13 @@ export const Row = {
                   offset: { x: 0, y: '100%' },
                   scale: { x: 0.8, y: 0.8 },
                   opacity: 0,
+                  ...entryTransition(i),
                 },
                 exitTransition: {
                   offset: { x: 0, y: 1000 },
                   scale: { x: 0.8, y: 0.8 },
                   opacity: 0,
+                  ...exitTransition(i),
                 },
                 borderRadius: cover ? 0 : 5,
               }} style=${{
@@ -387,6 +399,24 @@ export const Presentation = {
         dimensions: viewerDimensions,
         justify: justifyViewers,
         align: 'flex-end',
+        entryTransition: () => ({
+          offset:
+            barOrientation === 'vertical'
+              ? {
+                  x: reverse ? '-100%' : '100%',
+                  y: 0,
+                }
+              : { x: 0, y: reverse ? '-100%' : '100%' },
+        }),
+        exitTransition: () => ({
+          offset:
+            barOrientation === 'vertical'
+              ? {
+                  x: reverse ? -1000 : 1000,
+                  y: 0,
+                }
+              : { x: 0, y: reverse ? -1000 : 1000 },
+        }),
       }
     }
 
