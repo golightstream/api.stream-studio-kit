@@ -40,13 +40,13 @@ export class EngineWebsocket {
   }
 
   private getConnectionString() {
-		if (!('apistreamCompositor' in window)) {
-			return 'ws://127.0.0.1:8000';
-		}
+    if (!('apistreamCompositor' in window)) {
+      return 'ws://127.0.0.1:8000'
+    }
 
-		const { eventsConfig } = (window as any).apistreamCompositor;
-		return `ws${eventsConfig.secure ? 's' : ''}://${eventsConfig.hostname}:${eventsConfig.port}${eventsConfig.token ? `?token=${eventsConfig.token}` : ''}`;
-	}
+    const { eventsConfig } = (window as any).apistreamCompositor
+    return `ws${eventsConfig.secure ? 's' : ''}://${eventsConfig.hostname}:${eventsConfig.port}${eventsConfig.token ? `?token=${eventsConfig.token}` : ''}`
+  }
 
   public connect(): void {
     const handler = this.handleMessage.bind(this)
