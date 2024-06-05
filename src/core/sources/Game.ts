@@ -29,6 +29,9 @@ export type GameSource = {
   }
 }
 
+const getSourceIdFromParticipantId = (participantId: string) =>
+  participantId.replace(/^source-/, '')
+
 export const Game = {
   type: 'Game',
   valueType: MediaStream,
@@ -38,9 +41,14 @@ export const Game = {
     videoEnabled: {},
     audioEnabled: {},
   },
-  init({ addSource, removeSource, updateSource, getSource }) {
+  init({
+    addSource,
+    removeSource,
+    updateSource,
+    getSource,
+    modifySourceValue,
+  }) {
     // Updated by engine socket events
-    let gameSourceStreams: { [id: string]: MediaStream } = {}
     let previousTracks: SDK.Track[] = []
     // Updated by corecontext events
     let previousGameSources: SDK.Source[] = []
@@ -60,18 +68,16 @@ export const Game = {
       // Add sources
       newSources.forEach(async (s) => {
         const srcObject = new MediaStream([])
-        gameSourceStreams[s.id] = srcObject
-
         const videoTracks = srcObject.getVideoTracks()
 
         addSource({
-          id: `game-${s.id}`,
+          id: `game-${s.preview?.webrtc?.participantId}`,
           isActive: true,
           value: srcObject,
           props: {
-            id: s.id,
+            id: s.preview?.webrtc?.participantId,
             isMuted: false,
-            participantId: s.id,
+            participantId: s.preview?.webrtc?.participantId,
             type: 'game',
             videoEnabled: Boolean(videoTracks.length),
             audioEnabled: true,
@@ -81,7 +87,7 @@ export const Game = {
 
       // Remove sources
       removedSources.forEach((s) => {
-        removeSource(`game-${s.id}`)
+        removeSource(`game-${s.preview?.webrtc?.participantId}`)
       })
     }
 
@@ -90,14 +96,13 @@ export const Game = {
       if (project.role !== SDK.Role.ROLE_RENDERER) {
         const updatePreviewStreams = () => {
           previousTracks
-            .filter((p) => p?.type === 'screen_share' && p?.isExternal === true)
+            .filter((p) => p?.type === 'camera' && p?.isExternal === true)
             .forEach((track) => {
-              if (track.type === 'screen_share') {
-                const srcObject = gameSourceStreams[track.participantId]
+              if (track.type === 'camera') {
                 const participant = room.getParticipant(track.participantId)
                 // only do anything if it is for an Game source
                 const isGameSource = previousGameSources.some(
-                  (source) => source.id === participant.id,
+                  (source) => source.preview?.webrtc?.participantId === participant.id,
                 )
                 if (isGameSource) {
                   const videoTrack = room.getTrack(track.id)
@@ -109,10 +114,15 @@ export const Game = {
                         track.mediaStreamTrack.kind === 'audio'
                       )
                     })
-                    updateMediaStreamTracks(srcObject, {
-                      video: videoTrack?.mediaStreamTrack,
-                      audio: audioTrack?.mediaStreamTrack,
-                    })
+                    modifySourceValue(
+                      `game-${participant?.id}`,
+                      (srcObject) => {
+                        updateMediaStreamTracks(srcObject, {
+                          video: videoTrack?.mediaStreamTrack,
+                          audio: audioTrack?.mediaStreamTrack,
+                        })
+                      },
+                    )
 
                     updateSource(`game-${participant?.id}`, {
                       videoEnabled: Boolean(
@@ -131,9 +141,11 @@ export const Game = {
           // Filter for those that are game-source
           const gameSourceTracks = tracks
             .filter((t) =>
-              previousGameSources.some((s) => s.id === t.participantId),
+              previousGameSources.some(
+                (s) => s.preview?.webrtc?.participantId === t.participantId,
+              ),
             )
-            .filter((t) => ['screen_share'].includes(t.type))
+            .filter((t) => ['camera'].includes(t.type))
 
           // get tracks not contained in previous tracks
           const newTracks = gameSourceTracks.filter(
@@ -154,19 +166,21 @@ export const Game = {
 
           removedTracks.forEach((track) => {
             const { participantId } = track
-            const srcObject = gameSourceStreams[participantId]
-
             if (track.mediaStreamTrack.kind === 'video') {
-              updateMediaStreamTracks(srcObject, {
-                video: null,
+              modifySourceValue(`game-${participantId}`, (srcObject) => {
+                updateMediaStreamTracks(srcObject, {
+                  video: null,
+                })
               })
               updateSource(`game-${participantId}`, {
                 videoEnabled: false,
               })
             }
             if (track.mediaStreamTrack.kind === 'audio') {
-              updateMediaStreamTracks(srcObject, {
-                audio: null,
+              modifySourceValue(`game-${participantId}`, (srcObject) => {
+                updateMediaStreamTracks(srcObject, {
+                  audio: null,
+                })
               })
               updateSource(`game-${participantId}`, {
                 audioEnabled: false,
@@ -176,20 +190,23 @@ export const Game = {
 
           newTracks.forEach((track) => {
             if (
-              track.type === 'screen_share' &&
+              track.type === 'camera' &&
               track.mediaStreamTrack.kind === 'video'
             ) {
-              const srcObject = gameSourceStreams[track.participantId]
               const audioTrack = previousTracks.find((t) => {
                 return (
                   t.participantId === track.participantId &&
                   t.mediaStreamTrack?.kind === 'audio'
                 )
               })
-              updateMediaStreamTracks(srcObject, {
-                video: track?.mediaStreamTrack,
-                audio: audioTrack?.mediaStreamTrack,
+
+              modifySourceValue(`game-${track.participantId}`, (srcObject) => {
+                updateMediaStreamTracks(srcObject, {
+                  video: track?.mediaStreamTrack,
+                  audio: audioTrack?.mediaStreamTrack,
+                })
               })
+
               updateSource(`game-${track.participantId}`, {
                 videoEnabled: Boolean(track && !track?.isMuted),
                 audioEnabled: Boolean(audioTrack && !audioTrack?.isMuted),
@@ -209,37 +226,35 @@ export const Game = {
     })
 
     CoreContext.onInternal('SourceConnected', async (id) => {
-      const stream = gameSourceStreams[id]
-      if (stream) {
-        const deviceStream = await connectDevice(id)
-        const source = getSource(`game-${id}`)
+      const deviceStream = await connectDevice(id)
+      const source = getSource(`game-source-${id}`)
 
-        if (source && deviceStream) {
-          const audioTrack = deviceStream.getAudioTracks()[0]
-          const videoTrack = deviceStream.getVideoTracks()[0]
-
+      if (source && deviceStream) {
+        const audioTrack = deviceStream.getAudioTracks()[0]
+        const videoTrack = deviceStream.getVideoTracks()[0]
+        modifySourceValue(`game-source-${id}`, (stream) => {
           updateMediaStreamTracks(stream, {
             video: videoTrack,
             audio: audioTrack,
           })
+        })
 
-          updateSource(`game-${id}`, {
-            videoEnabled: Boolean(videoTrack),
-            audioEnabled: Boolean(audioTrack),
-          })
-        }
+        updateSource(`game-source-${id}`, {
+          videoEnabled: Boolean(videoTrack),
+          audioEnabled: Boolean(audioTrack),
+        })
       }
     })
 
     CoreContext.onInternal('SourceDisconnected', (id) => {
-      const stream = gameSourceStreams[id]
+      const stream = <MediaStream>getSource(`game-source-${id}`)?.value
       if (stream) {
         const tracks = stream?.getTracks()
         tracks.forEach((track) => {
-          gameSourceStreams[id]?.removeTrack(track)
+          stream?.removeTrack(track)
         })
 
-        updateSource(`game-${id}`, {
+        updateSource(`game-source-${id}`, {
           videoEnabled: false,
           audioEnabled: false,
         })
