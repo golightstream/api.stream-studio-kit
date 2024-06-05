@@ -128,7 +128,7 @@ export const Game = {
                         videoTrack?.mediaStreamTrack && !videoTrack.isMuted,
                       ),
                       audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
-                      displayName: participant?.displayName || 'Game Source',
+                      displayName: participant.meta?.screenDisplayName || participant?.displayName || 'Game Source',
                     })
                   }
                 }
@@ -215,23 +215,23 @@ export const Game = {
           })
           updatePreviewStreams()
         })
-
-        // Listen for changes to available participants
-        room.useParticipants((participants) => {
-          // Get source participants
-          const sourceParticipants = participants.filter((x) =>
-            x.id.startsWith('source'),
-          )
-          sourceParticipants.forEach((participant) => {
-            const source = getSource(`game-${participant.id}`)
-            if (source) {
-              updateSource(`game-${participant.id}`, {
-                displayName: participant.meta?.screenDisplayName,
-              })
-            }
-          })
-        })
       }
+
+      // Listen for changes to available participants
+      room.useParticipants((participants) => {
+        // Get source participants
+        const sourceParticipants = participants.filter((x) =>
+          x.id.startsWith('source'),
+        )
+        sourceParticipants.forEach((participant) => {
+          const source = getSource(`game-${participant.id}`)
+          if (source) {
+            updateSource(`game-${participant.id}`, {
+              displayName: participant.meta?.screenDisplayName,
+            })
+          }
+        })
+      })
     })
 
     CoreContext.on('ActiveProjectChanged', ({ projectId }) => {
