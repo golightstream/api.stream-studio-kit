@@ -227,7 +227,7 @@ export const Game = {
           const source = getSource(`game-${participant.id}`)
           if (source) {
             updateSource(`game-${participant.id}`, {
-              displayName: participant.meta?.screenDisplayName,
+              displayName: participant.meta?.screenDisplayName || participant?.displayName || 'Game Source',
             })
           }
         })
