@@ -195,16 +195,17 @@ export const RoomParticipant = {
       // Listen for changes to available participants
       room.useParticipants((participants) => {
         // Get participants not contained in previousParticipants
-        const newParticipants = participants.filter(
+        const roomParticipants = participants.filter((x) => !x.id.startsWith('source'));
+        const newParticipants = roomParticipants.filter(
           (participant) =>
             !previousParticipants.some((x) => x.id === participant.id),
         )
         // Get previous participants not contained in current participants
         const removedParticipants = previousParticipants.filter(
-          (participant) => !participants.some((x) => x.id === participant.id),
+          (participant) => !roomParticipants.some((x) => x.id === participant.id),
         )
 
-        previousParticipants = participants
+        previousParticipants = roomParticipants
         newParticipants.forEach((x) => {
           const { id } = x
           const srcObject = new MediaStream([])
