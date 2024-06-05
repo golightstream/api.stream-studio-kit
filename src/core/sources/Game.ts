@@ -72,6 +72,7 @@ export const Game = {
           isActive: true,
           value: srcObject,
           props: {
+            displayName: s.preview?.webrtc?.displayName || s.id,
             id: s.preview?.webrtc?.participantId,
             isMuted: false,
             participantId: s.preview?.webrtc?.participantId,
@@ -99,7 +100,8 @@ export const Game = {
                 const participant = room.getParticipant(track.participantId)
                 // only do anything if it is for an Game source
                 const isGameSource = previousGameSources.some(
-                  (source) => source.preview?.webrtc?.participantId === participant.id,
+                  (source) =>
+                    source.preview?.webrtc?.participantId === participant.id,
                 )
                 if (isGameSource) {
                   const videoTrack = room.getTrack(track.id)
@@ -126,6 +128,7 @@ export const Game = {
                         videoTrack?.mediaStreamTrack && !videoTrack.isMuted,
                       ),
                       audioEnabled: Boolean(audioTrack && !audioTrack.isMuted),
+                      displayName: participant?.displayName || 'Game Source',
                     })
                   }
                 }
@@ -210,8 +213,23 @@ export const Game = {
               })
             }
           })
-
           updatePreviewStreams()
+        })
+
+        // Listen for changes to available participants
+        room.useParticipants((participants) => {
+          // Get source participants
+          const sourceParticipants = participants.filter((x) =>
+            x.id.startsWith('source'),
+          )
+          sourceParticipants.forEach((participant) => {
+            const source = getSource(`game-${participant.id}`)
+            if (source) {
+              updateSource(`game-${participant.id}`, {
+                displayName: participant.meta?.screenDisplayName,
+              })
+            }
+          })
         })
       }
     })
