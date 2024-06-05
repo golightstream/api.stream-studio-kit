@@ -29,9 +29,6 @@ export type GameSource = {
   }
 }
 
-const getSourceIdFromParticipantId = (participantId: string) =>
-  participantId.replace(/^source-/, '')
-
 export const Game = {
   type: 'Game',
   valueType: MediaStream,
