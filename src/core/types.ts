@@ -824,7 +824,6 @@ export type CompositorSettings = {
         }
       }[]
     | undefined
-  // ItemHoverOverlay?: (props: { node: SceneNode }) => ReactNode
 }
 
 /**
