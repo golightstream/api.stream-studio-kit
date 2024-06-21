@@ -134,7 +134,6 @@ const ElementTree = (props: { nodeId: string }) => {
     onPresetPreview,
     onPresetSelect,
     setDraggingNodeId,
-    // ItemHoverOverlay,
   } = useContext(CompositorContext)
   const { nodeId } = props
   const project = getProject(projectId)
@@ -386,11 +385,6 @@ const ElementTree = (props: { nodeId: string }) => {
           zIndex: 2,
         }}
       >
-        {/* {ItemHoverOverlay && (
-          <div className="interactive-overlay-hover">
-            <ItemHoverOverlay node={node} />
-          </div>
-        )} */}
       </div>
       <div
         className="item-element"
