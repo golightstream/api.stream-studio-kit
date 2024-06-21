@@ -47,7 +47,7 @@
  *
  * @module SDK
  */
-import { Command, Events } from './namespaces'
+import { Command, Events, SDK } from './namespaces'
 import * as Compositor from '../compositor/index'
 import { LiveApiModel } from '@api.stream/sdk'
 import { ChatObject } from './webrtc/room-context'
@@ -757,6 +757,7 @@ export interface Studio {
     /** requested duration of token before it expires */
     maxDuration?: number | undefined
   }) => Promise<string>
+  getProject: (id: string) => Project
   /**
    * Load the {@link User} associated with the supplied access token.
    *

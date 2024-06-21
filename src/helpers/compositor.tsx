@@ -7,6 +7,7 @@ import React, {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -215,8 +216,6 @@ const ElementTree = (props: { nodeId: string }) => {
           e.dataTransfer.dropEffect = 'move'
           e.dataTransfer.setDragImage(dragImage, 10, 10)
           rootRef.current?.toggleAttribute('data-drag-target-active', true)
-          // @ts-ignore
-          window.__dragging = true
         },
         ondragend: (e) => {
           isDragging.current = false
@@ -234,8 +233,6 @@ const ElementTree = (props: { nodeId: string }) => {
             x.toggleAttribute('data-layout-drop-target-active', false)
             x.toggleAttribute('data-transform-drop-target-active', false)
           })
-          // @ts-ignore
-          window.__dragging = false
         },
         ondragenter: (e) => {
           e.preventDefault()
@@ -299,6 +296,16 @@ const ElementTree = (props: { nodeId: string }) => {
     ...(nodeProps.layoutProps ?? {}),
   }
 
+  const clearPresetTimeout = useMemo(
+    () => (target: HTMLElement) => {
+      target.toggleAttribute('data-preset-drag-target-active', false)
+      setLocalState({})
+      setPresetPreviewTimeout(undefined)
+      window.clearTimeout(presetPreviewTimeout)
+    },
+    [presetPreviewTimeout, setLocalState],
+  )
+
   return (
     <div
       ref={rootRef}
@@ -360,15 +367,10 @@ const ElementTree = (props: { nodeId: string }) => {
               setPresetPreviewTimeout(timeout)
             }}
             onDragLeave={(e) => {
-              e.currentTarget.toggleAttribute(
-                'data-preset-drag-target-active',
-                false,
-              )
-              setLocalState({})
-              window.clearTimeout(presetPreviewTimeout)
-              setPresetPreviewTimeout(undefined)
+              clearPresetTimeout(e.currentTarget)
             }}
-            onDrop={() => {
+            onDrop={(e) => {
+              clearPresetTimeout(e.currentTarget)
               onPresetSelect?.({ node, preset: name })
             }}
           ></div>

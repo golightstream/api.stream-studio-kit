@@ -85,11 +85,6 @@ let tickOps = {} as {
 }
 const tick = () => {
   nextTick = null
-  // @ts-ignore
-  if (window.__dragging) {
-    nextTick = nextTick || requestAnimationFrame(tick)
-    return
-  }
   const inserted = new Set<string>()
   const removed = new Set<string>()
   const removeFinished = new Set<string>()
