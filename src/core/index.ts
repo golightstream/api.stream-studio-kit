@@ -22,7 +22,7 @@ import {
   getProjectByLayoutId,
   hydrateProject,
   layerToNode,
-  toBaseProject
+  toBaseProject,
 } from './data'
 import { Compositor, SDK } from './namespaces'
 import { GuestOptions, LogLevel } from './types'
@@ -499,6 +499,7 @@ export const init = async (
       return response.accessToken
     },
     initialProject,
+    getProject: (id: string) => toBaseProject(getProject(id)),
     load,
     render,
   }
