@@ -298,9 +298,9 @@ const ElementTree = (props: { nodeId: string }) => {
   const clearPresetTimeout = useMemo(
     () => (target: HTMLElement) => {
       target.toggleAttribute('data-preset-drag-target-active', false)
+      window.clearTimeout(presetPreviewTimeout)
       setLocalState({})
       setPresetPreviewTimeout(undefined)
-      window.clearTimeout(presetPreviewTimeout)
     },
     [presetPreviewTimeout, setLocalState],
   )
