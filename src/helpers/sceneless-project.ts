@@ -49,6 +49,7 @@ import { cloneDeep, deepEqual, findAll, generateId } from '../logic'
 import { BackgroundProps } from './../core/transforms/Background'
 import { LogoProps } from './../core/transforms/Logo'
 import { OverlayProps } from './../core/transforms/Overlay'
+import { AlertOverlayProps } from './../core/transforms/Overlay'
 import {
   defaultStyles,
   ForegroundLayers,
@@ -265,6 +266,14 @@ export interface Commands {
     id: string,
     props: OverlayProps & HTMLVideoElementAttributes,
   ): Promise<void>
+  /**
+   * add html alert overlay
+   */
+  addAlertOverlay(id: string, props: AlertOverlayProps): Promise<void>
+  /**
+   * remove html alert overlay from foreground layer
+   */
+  removeAlertOverlay(): Promise<void>
   /**
    * add html overlay
    */
@@ -535,6 +544,10 @@ export const commands = (_project: ScenelessProject) => {
     (x) => x.props.id === 'logo',
   )
 
+  let foregroundAlert = foreground?.children?.find(
+    (x) => x.props.id === 'alert',
+  )
+
   let foregroundVideoContainer = foreground?.children?.find(
     (x) => x.props.id === 'fg-video',
   )
@@ -609,6 +622,23 @@ export const commands = (_project: ScenelessProject) => {
       }
     }
 
+    const ensureAlert = async () => {
+      if (!foregroundAlert) {
+        const nodeId = await coreProject.compositor.insert(
+          {
+            name: 'Alert',
+            layout: 'Free',
+            id: 'fg-alert',
+          },
+          foreground.id,
+        )
+        foregroundAlert = foreground?.children?.find((x) => x.id === nodeId)
+        return nodeId
+      } else {
+        return foregroundAlert.id
+      }
+    }
+
     const ensureForegroundVideoContainer = async () => {
       if (!foregroundVideoContainer) {
         const nodeId = await coreProject.compositor.insert(
@@ -632,16 +662,9 @@ export const commands = (_project: ScenelessProject) => {
       if (!foregroundLogoContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'Logo',
+            name: 'LogoContainer',
             layout: 'Free',
-            sourceType: 'Logo',
             id: 'logo',
-            style: {
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              position: 'unset',
-            },
           },
           foreground.id,
         )
@@ -658,6 +681,7 @@ export const commands = (_project: ScenelessProject) => {
       const baseForegroundLayers = await Promise.all([
         ensureBannerContainer(),
         ensureForegroundImageAndIframeContainer(),
+        ensureAlert(),
         ensureForegroundVideoContainer(),
         ensureForegroundLogoContainer(),
       ])
@@ -1165,6 +1189,73 @@ export const commands = (_project: ScenelessProject) => {
           },
         },
       })
+    },
+
+    async addAlertOverlay(id: string, props: AlertOverlayProps): Promise<void> {
+      const [existingForegroundNode, ...excessForegroundNode] =
+        foregroundAlert?.children || ([] as SceneNode[])
+      // Delete all except one banner from the project
+      excessForegroundNode.forEach((x) => {
+        CoreContext.Command.deleteNode({
+          nodeId: x.id,
+        })
+      })
+
+      const extendedDefaultStyles = {
+        ...defaultStyles['alert'],
+        ...(foregroundVideoContainer?.children.length && { opacity: 0 }),
+      }
+
+      if (!existingForegroundNode) {
+        await CoreContext.Command.createNode({
+          parentId: foregroundAlert?.id,
+          props: {
+            sourceType: 'Overlay',
+            id: id,
+            sourceProps: {
+              ...props,
+              type: 'alert',
+              meta: {
+                style: { ...extendedDefaultStyles },
+              },
+            },
+          },
+        })
+      } else {
+        await CoreContext.Command.updateNode({
+          nodeId: existingForegroundNode?.id,
+          props: {
+            sourceType: 'Overlay',
+            id: id,
+            sourceProps: {
+              ...props,
+              type: 'alert',
+              meta: {
+                style: { ...extendedDefaultStyles },
+              },
+            },
+          },
+        })
+      }
+    },
+
+    async removeAlertOverlay(): Promise<void> {
+      // find overlay node by id
+      const [existingForegroundNode, ...excessForegroundNode] =
+        foregroundAlert?.children || ([] as SceneNode[])
+      // if overlay exists, remove it
+      excessForegroundNode.forEach((x) => {
+        CoreContext.Command.deleteNode({
+          nodeId: x.id,
+        })
+      })
+      if (existingForegroundNode) {
+        if (existingForegroundNode?.props?.sourceProps?.type === 'alert') {
+          await CoreContext.Command.deleteNode({
+            nodeId: existingForegroundNode.id,
+          })
+        }
+      }
     },
 
     async addCustomOverlay(id: string, props: OverlayProps): Promise<void> {
