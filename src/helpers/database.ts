@@ -18,6 +18,11 @@ export const ForegroundLayers = [
     },
   },
   {
+    name: 'Alert',
+    id: 'fg-alert',
+    layout: 'Free',
+  },
+  {
     name: 'VideoOverlayContainer',
     id: 'fg-video',
     layout: 'Free',
@@ -32,6 +37,13 @@ export const ForegroundLayers = [
 export const defaultStyles = {
   custom: {
     display: 'block',
+  },
+  alert: {
+    display: 'block',
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
   },
   video: {
     height: '100%',

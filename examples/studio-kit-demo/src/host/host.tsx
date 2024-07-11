@@ -245,7 +245,7 @@ const Project = () => {
       studio.render({
         containerEl: renderContainer.current,
         projectId: project.id,
-        dragAndDrop: true,
+        interactive: true,
       })
     }
   }, [project.id])
@@ -655,7 +655,7 @@ const Project = () => {
         <input
           // @ts-ignore
           onClick={(e) => e.target.select()}
-          value={previewUrl}
+          value={previewUrl || ""}
           readOnly={true}
           style={{ width: 630 }}
         />
