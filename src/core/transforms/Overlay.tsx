@@ -68,7 +68,6 @@ export const Overlay = {
     }) => {
       const { src, meta, height, width, settings } = source?.sourceProps || {}
       const iframeRef = React.useRef<HTMLIFrameElement>(null)
-
       const queryParams = React.useMemo(() => {
         return Object.entries(settings)
           .map(e => e.join('='))

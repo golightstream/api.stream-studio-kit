@@ -3,6 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { Compositor } from '../core'
+
 export const ForegroundLayers = [
   {
     name: 'ImageIframeOverlayContainer',
@@ -43,7 +44,6 @@ export const defaultStyles = {
     position: 'absolute',
     top: '50%',
     left: '50%',
-    transform: 'translate(-50%, -50%)',
   },
   video: {
     height: '100%',

@@ -1206,6 +1206,9 @@ export const commands = (_project: ScenelessProject) => {
         ...(foregroundVideoContainer?.children.length && { opacity: 0 }),
       }
 
+      const { x: rootWidth } = root.props.size
+      const scaleTo = (rootWidth ?? 1920) / 1280
+
       if (!existingForegroundNode) {
         await CoreContext.Command.createNode({
           parentId: foregroundAlert?.id,
@@ -1216,7 +1219,10 @@ export const commands = (_project: ScenelessProject) => {
               ...props,
               type: 'alert',
               meta: {
-                style: { ...extendedDefaultStyles },
+                style: {
+                  ...extendedDefaultStyles,
+                  transform: `translate(-50%,-50%) scale(${scaleTo}) translateZ(0)`,
+                },
               },
             },
           },
@@ -1231,7 +1237,10 @@ export const commands = (_project: ScenelessProject) => {
               ...props,
               type: 'alert',
               meta: {
-                style: { ...extendedDefaultStyles },
+                style: {
+                  ...extendedDefaultStyles,
+                  transform: `translate(-50%,-50%) scale(${scaleTo}) translateZ(0)`,
+                },
               },
             },
           },
