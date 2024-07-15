@@ -19,8 +19,8 @@ export const ForegroundLayers = [
     },
   },
   {
-    name: 'Alert',
-    id: 'fg-alert',
+    name: 'AlertContainer',
+    id: 'alert',
     layout: 'Free',
   },
   {
@@ -42,8 +42,11 @@ export const defaultStyles = {
   alert: {
     display: 'block',
     position: 'absolute',
-    top: '50%',
-    left: '50%',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+    margin: 'auto'
   },
   video: {
     height: '100%',
