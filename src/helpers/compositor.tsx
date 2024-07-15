@@ -468,17 +468,15 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
 
   return (
     <div
-      {...{
-        onDrop: (e: React.DragEvent) => {
-          foundDropTarget = true
-          e.preventDefault()
-        },
-        onDragOver: (e: React.DragEvent) => {
-          e.preventDefault()
-        },
-        onDragLeave: (e: React.DragEvent) => {
-          e.preventDefault()
-        },
+      onDrop={(e) => {
+        foundDropTarget = true
+        e.preventDefault()
+      }}
+      onDragOver={(e) => {
+        e.preventDefault()
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault()
       }}
       style={{
         userSelect: 'none',
@@ -612,7 +610,8 @@ const scenelessProjectDragCheck = (node: SceneNode) => {
   return (
     node.props.name === 'Participant' ||
     node.props.sourceType === 'RoomParticipant' ||
-    node.props.sourceType === 'RTMP'
+    node.props.sourceType === 'RTMP' ||
+    node.props.sourceProps?.type === 'alert'
   )
 }
 
