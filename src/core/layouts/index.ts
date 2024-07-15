@@ -10,10 +10,64 @@ type LayoutFreeProps = {
   size: { x: string; y: string }
   position: { x: string; y: string }
   opacity: number
+  type: 'alert'
+  preset: string
+}
+
+const getAlertStyle = (preset: string) => {
+  const width = `${633}px`
+  const height = `${290}px`
+  switch (preset) {
+    case 'center': {
+      return {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        margin: 'auto',
+        width,
+        height,
+      }
+    }
+
+    case 'top-left': {
+      return {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width,
+        height,
+      }
+      break
+    }
+    case 'top-right': {
+      return {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        width,
+        height,
+      }
+      break
+    }
+  }
 }
 export const Free = {
   name: 'Free',
   layout: ({ props, children, size }) => {
+    if (props.type === 'alert') {
+      return html.node`<div style=${{
+        ...getAlertStyle(props.preset),
+      }}>
+        ${children.map(
+          (x, i) =>
+            html.node`<div data-node-id=${x.id} .data=${{}} style=${{
+              ...getAlertStyle(props.preset),
+            }}></div>`,
+        )}
+      </div>`
+    }
     return children.reduce((acc, x) => {
       const {
         size = { x: '100%', y: '100%' },

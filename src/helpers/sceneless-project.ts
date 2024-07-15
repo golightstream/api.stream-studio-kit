@@ -518,6 +518,11 @@ export interface Commands {
    * Add a source for type "integration"
    */
   createGameSource(props: CreateGameSourceProps): Promise<LiveApiModel.Source>
+
+  /**
+   * Add a source for type "integration"
+   */
+  updateLayoutProps(nodeId: string, layoutProps: any): Promise<void>
 }
 
 /**
@@ -544,7 +549,7 @@ export const commands = (_project: ScenelessProject) => {
     (x) => x.props.id === 'logo',
   )
 
-  let foregroundAlert = foreground?.children?.find(
+  let foregroundAlertContainer = foreground?.children?.find(
     (x) => x.props.id === 'alert',
   )
 
@@ -623,19 +628,34 @@ export const commands = (_project: ScenelessProject) => {
     }
 
     const ensureAlert = async () => {
-      if (!foregroundAlert) {
+      if (!foregroundAlertContainer) {
         const nodeId = await coreProject.compositor.insert(
           {
             name: 'AlertContainer',
-            layout: 'Free',
             id: 'alert',
+            layout: 'Free',
+            layoutProps: {
+              type: 'alert',
+              preset: 'center',
+            },
           },
           foreground.id,
         )
-        foregroundAlert = foreground?.children?.find((x) => x.id === nodeId)
+        foregroundAlertContainer = foreground?.children?.find(
+          (x) => x.id === nodeId,
+        )
         return nodeId
       } else {
-        return foregroundAlert.id
+        await coreProject.compositor.update(foregroundAlertContainer.id, {
+          name: 'AlertContainer',
+          id: 'alert',
+          layout: 'Free',
+          layoutProps: {
+            type: 'alert',
+            preset: 'center',
+          },
+        })
+        return foregroundAlertContainer.id
       }
     }
 
@@ -715,6 +735,15 @@ export const commands = (_project: ScenelessProject) => {
 
     getLogo() {
       return foregroundLogoContainer?.children[0]?.props?.id
+    },
+
+    async updateLayoutProps(nodeId: string, layoutProps: any) {
+      await coreProject.compositor.update(nodeId, {
+        layoutProps: {
+          type: 'alert',
+          ...layoutProps,
+        },
+      })
     },
 
     async removeLogo() {
@@ -1193,7 +1222,7 @@ export const commands = (_project: ScenelessProject) => {
 
     async addAlertOverlay(id: string, props: AlertOverlayProps): Promise<void> {
       const [existingForegroundNode, ...excessForegroundNode] =
-        foregroundAlert?.children || ([] as SceneNode[])
+        foregroundAlertContainer?.children || ([] as SceneNode[])
       // Delete all except one banner from the project
       excessForegroundNode.forEach((x) => {
         CoreContext.Command.deleteNode({
@@ -1211,7 +1240,7 @@ export const commands = (_project: ScenelessProject) => {
 
       if (!existingForegroundNode) {
         await CoreContext.Command.createNode({
-          parentId: foregroundAlert?.id,
+          parentId: foregroundAlertContainer?.id,
           props: {
             sourceType: 'Overlay',
             id: id,
@@ -1251,7 +1280,7 @@ export const commands = (_project: ScenelessProject) => {
     async removeAlertOverlay(): Promise<void> {
       // find overlay node by id
       const [existingForegroundNode, ...excessForegroundNode] =
-        foregroundAlert?.children || ([] as SceneNode[])
+        foregroundAlertContainer?.children || ([] as SceneNode[])
       // if overlay exists, remove it
       excessForegroundNode.forEach((x) => {
         CoreContext.Command.deleteNode({
@@ -1649,8 +1678,8 @@ export const commands = (_project: ScenelessProject) => {
       cb: (state: { participantId: string; type: ParticipantType }) => void,
     ) {
       const sendState = () => {
-        const nodeId = content.props.layoutProps.showcase
-        const node = content.children.find((x) => x.id === nodeId)
+        const nodeId = content?.props.layoutProps.showcase
+        const node = content?.children.find((x) => x.id === nodeId)
         if (!node)
           return cb({
             participantId: null,
@@ -1667,7 +1696,7 @@ export const commands = (_project: ScenelessProject) => {
 
       // Watch for changes to the parent children
       return CoreContext.onInternal('NodeChanged', (payload) => {
-        if (payload.nodeId !== content.id) return
+        if (payload.nodeId !== content?.id) return
         sendState()
       })
     },
@@ -1932,7 +1961,7 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     removeParticipantTrack(trackId: string, type: ParticipantType = 'camera') {
-      content.children
+      content?.children
         .filter(
           (x) =>
             x.props.sourceProps?.id === trackId &&
@@ -1993,7 +2022,7 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
     removeParticipant(participantId: string, type: ParticipantType = 'camera') {
-      content.children
+      content?.children
         .filter(
           (x) =>
             x.props.sourceProps?.id === participantId &&
@@ -2007,7 +2036,7 @@ export const commands = (_project: ScenelessProject) => {
         })
     },
     getParticipantNode(id: string, type: ParticipantType = 'camera') {
-      return content.children.find(
+      return content?.children.find(
         (x) =>
           x.props.sourceProps?.id === id && x.props.sourceProps?.type === type,
       )
@@ -2033,7 +2062,7 @@ export const commands = (_project: ScenelessProject) => {
 
       // Watch for changes to the parent children
       const childListener = CoreContext.onInternal('NodeChanged', (payload) => {
-        if (payload.nodeId !== content.id) return
+        if (payload.nodeId !== content?.id) return
         const previous = participantNode
         participantNode = commands.getParticipantNode(participantId, type)
         if (previous !== participantNode) {
@@ -2094,7 +2123,7 @@ export const commands = (_project: ScenelessProject) => {
       const room = getProjectRoom(projectId)
       if (!room) return
 
-      content.children
+      content?.children
         .filter((node) => {
           if (node.props.sourceType !== 'RoomParticipant') return false
           const nodeSourceType = node.props.sourceProps?.type
@@ -2184,13 +2213,13 @@ export const commands = (_project: ScenelessProject) => {
       }
     },
   }
-  const ensureValid = async () => {
-    await ensureRootLayersProps()
-    await ensureBackgroundChildLayersProps()
-    await ensureForegroundContainers()
-  }
+  // const ensureValid = async () => {
+  //   await ensureRootLayersProps()
+  //   await ensureBackgroundChildLayersProps()
+  //   await ensureForegroundContainers()
+  // }
 
-  ensureValid()
+  // ensureValid()
 
   return commands
 }
@@ -2261,24 +2290,24 @@ export const createCompositor = async (
 
   // Create the base nodes for sceneless workflow
   const baseLayers = await Promise.all([
-    project.insert(
-      {
-        name: 'Background',
-        id: 'bg',
-        layout: 'Layered',
-      },
-      root.id,
-    ),
+    // project.insert(
+    //   {
+    //     name: 'Background',
+    //     id: 'bg',
+    //     layout: 'Layered',
+    //   },
+    //   root.id,
+    // ),
 
-    project.insert(
-      {
-        id: 'content',
-        name: 'Content',
-        layout,
-        layoutProps,
-      },
-      root.id,
-    ),
+    // project.insert(
+    //   {
+    //     id: 'content',
+    //     name: 'Content',
+    //     layout,
+    //     layoutProps,
+    //   },
+    //   root.id,
+    // ),
     project.insert(
       {
         id: 'foreground',

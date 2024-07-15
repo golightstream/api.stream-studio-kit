@@ -5,34 +5,38 @@
 import { Compositor } from '../core'
 
 export const ForegroundLayers = [
-  {
-    name: 'ImageIframeOverlayContainer',
-    id: 'fg-image-iframe',
-    layout: 'Free',
-  },
-  {
-    name: 'BannerContainer',
-    id: 'fg-banners',
-    layout: 'Column',
-    layoutProps: {
-      cover: true,
-    },
-  },
+  // {
+  //   name: 'ImageIframeOverlayContainer',
+  //   id: 'fg-image-iframe',
+  //   layout: 'Free',
+  // },
+  // {
+  //   name: 'BannerContainer',
+  //   id: 'fg-banners',
+  //   layout: 'Column',
+  //   layoutProps: {
+  //     cover: true,
+  //   },
+  // },
   {
     name: 'AlertContainer',
     id: 'alert',
     layout: 'Free',
+    layoutProps: {
+      type: 'alert',
+      preset: "center"
+    },
   },
-  {
-    name: 'VideoOverlayContainer',
-    id: 'fg-video',
-    layout: 'Free',
-  },
-  {
-    name: 'LogoContainer',
-    layout: 'Free',
-    id: 'logo',
-  },
+  // {
+  //   name: 'VideoOverlayContainer',
+  //   id: 'fg-video',
+  //   layout: 'Free',
+  // },
+  // {
+  //   name: 'LogoContainer',
+  //   layout: 'Free',
+  //   id: 'logo',
+  // },
 ]
 
 export const defaultStyles = {
