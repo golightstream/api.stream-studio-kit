@@ -626,9 +626,9 @@ export const commands = (_project: ScenelessProject) => {
       if (!foregroundAlert) {
         const nodeId = await coreProject.compositor.insert(
           {
-            name: 'Alert',
+            name: 'AlertContainer',
             layout: 'Free',
-            id: 'fg-alert',
+            id: 'alert',
           },
           foreground.id,
         )
@@ -1221,7 +1221,7 @@ export const commands = (_project: ScenelessProject) => {
               meta: {
                 style: {
                   ...extendedDefaultStyles,
-                  transform: `translate(-50%,-50%) scale(${scaleTo}) translateZ(0)`,
+                  transform: `scale(${scaleTo})`,
                 },
               },
             },
@@ -1239,7 +1239,7 @@ export const commands = (_project: ScenelessProject) => {
               meta: {
                 style: {
                   ...extendedDefaultStyles,
-                  transform: `translate(-50%,-50%) scale(${scaleTo}) translateZ(0)`,
+                  transform: `scale(${scaleTo})`,
                 },
               },
             },
