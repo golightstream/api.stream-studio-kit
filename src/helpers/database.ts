@@ -51,7 +51,6 @@ export const defaultStyles = {
     bottom: 0,
     right: 0,
     margin: 'auto',
-    zIndex: -1,
     pointerEvents: "none",
   },
   video: {

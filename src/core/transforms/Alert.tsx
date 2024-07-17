@@ -69,7 +69,7 @@ export const Alert = {
                     exit={APIKitAnimationTypes.FADE_OUT}
                     duration={400}
                 >
-                    <div className="alert-iframe-container" style={{ opacity: startAnimation ? 1 : 0 }}>
+                    <div style={{ opacity: startAnimation ? 1 : 0 }}>
                         <Iframe
                             key={source.id}
                             url={`${src}?${queryParams}`}
