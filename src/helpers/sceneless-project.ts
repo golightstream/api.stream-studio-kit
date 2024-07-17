@@ -520,7 +520,7 @@ export interface Commands {
   createGameSource(props: CreateGameSourceProps): Promise<LiveApiModel.Source>
 
   /**
-   * Add a source for type "integration"
+   * Update the layout props of a node
    */
   updateLayoutProps(nodeId: string, layout: LayoutName, layoutProps: LayoutProps): Promise<void>
 }
