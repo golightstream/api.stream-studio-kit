@@ -1274,7 +1274,7 @@ export const commands = (_project: ScenelessProject) => {
         })
       })
       if (existingForegroundNode) {
-        if (existingForegroundNode?.props?.sourceProps?.type === 'alert') {
+        if (existingForegroundNode?.props?.sourceType === 'Alert') {
           await CoreContext.Command.deleteNode({
             nodeId: existingForegroundNode.id,
           })

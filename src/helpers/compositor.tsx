@@ -105,7 +105,7 @@ const onDrop = async (
       // })
       return
     }
-    
+
   }
 
   // Swap the two nodes if they have the same parent
@@ -159,99 +159,99 @@ const ElementTree = (props: { nodeId: string }) => {
 
   let layoutDragHandlers = isDropTarget
     ? ({
-        onDrop: (e: React.DragEvent) => {
-          foundDropTarget = true
-          return onDrop(
-            {
-              dropType: 'layout',
-              dropNodeId: node.id,
-              project,
-            },
-            e,
-          )
-        },
-        onDragEnter: (e: React.DragEvent) => {
-          e.preventDefault()
-          e.stopPropagation()
-          rootRef.current?.toggleAttribute(
-            'data-layout-drop-target-active',
-            true,
-          )
-        },
-        onDragLeave: (e: React.DragEvent) => {
-          e.preventDefault()
-          e.stopPropagation()
-          rootRef.current?.toggleAttribute(
-            'data-layout-drop-target-active',
-            false,
-          )
-        },
-      } as React.HTMLAttributes<HTMLDivElement>)
+      onDrop: (e: React.DragEvent) => {
+        foundDropTarget = true
+        return onDrop(
+          {
+            dropType: 'layout',
+            dropNodeId: node.id,
+            project,
+          },
+          e,
+        )
+      },
+      onDragEnter: (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        rootRef.current?.toggleAttribute(
+          'data-layout-drop-target-active',
+          true,
+        )
+      },
+      onDragLeave: (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        rootRef.current?.toggleAttribute(
+          'data-layout-drop-target-active',
+          false,
+        )
+      },
+    } as React.HTMLAttributes<HTMLDivElement>)
     : {}
 
   let transformDragHandlers = isDragTarget
     ? ({
-        draggable: true,
-        // If a target is draggable, it will also be treated as
-        //  a drop target (swap element positions)
-        ondrop: (e) => {
-          foundDropTarget = true
-          return onDrop(
-            {
-              dropType: 'transform',
-              dropNodeId: node.id,
-              project,
-            },
-            // @ts-ignore TODO: Convert all to native drag events
-            e,
-          )
-        },
-        ondragstart: (e) => {
-          isDragging.current = true
-          wrapperEl.toggleAttribute('data-dragging', true)
-          setDraggingNodeId(node.id)
-          log.debug('Compositor: Dragging', node.id)
-          foundDropTarget = false
-          e.dataTransfer.setData('text/plain', node.id)
-          e.dataTransfer.dropEffect = 'move'
-          e.dataTransfer.setDragImage(dragImage, 10, 10)
-          rootRef.current?.toggleAttribute('data-drag-target-active', true)
-        },
-        ondragend: (e) => {
-          isDragging.current = false
-          if (!foundDropTarget) {
-            log.info('Compositor: No drop target - deleting node', node)
-            CoreContext.Command.deleteNode({ nodeId: node.id })
-          }
-          setDraggingNodeId(null)
-          wrapperEl.toggleAttribute('data-dragging', true)
-          log.debug('Compositor: DragEnd', e)
-          rootRef.current?.toggleAttribute('data-drag-target-active', false)
+      draggable: true,
+      // If a target is draggable, it will also be treated as
+      //  a drop target (swap element positions)
+      ondrop: (e) => {
+        foundDropTarget = true
+        return onDrop(
+          {
+            dropType: 'transform',
+            dropNodeId: node.id,
+            project,
+          },
+          // @ts-ignore TODO: Convert all to native drag events
+          e,
+        )
+      },
+      ondragstart: (e) => {
+        isDragging.current = true
+        wrapperEl.toggleAttribute('data-dragging', true)
+        setDraggingNodeId(node.id)
+        log.debug('Compositor: Dragging', node.id)
+        foundDropTarget = false
+        e.dataTransfer.setData('text/plain', node.id)
+        e.dataTransfer.dropEffect = 'move'
+        e.dataTransfer.setDragImage(dragImage, 10, 10)
+        rootRef.current?.toggleAttribute('data-drag-target-active', true)
+      },
+      ondragend: (e) => {
+        isDragging.current = false
+        if (!foundDropTarget) {
+          log.info('Compositor: No drop target - deleting node', node)
+          CoreContext.Command.deleteNode({ nodeId: node.id })
+        }
+        setDraggingNodeId(null)
+        wrapperEl.toggleAttribute('data-dragging', true)
+        log.debug('Compositor: DragEnd', e)
+        rootRef.current?.toggleAttribute('data-drag-target-active', false)
 
-          wrapperEl.querySelectorAll('[data-item]').forEach((x) => {
-            x.toggleAttribute('data-drag-target-active', false)
-            x.toggleAttribute('data-layout-drop-target-active', false)
-            x.toggleAttribute('data-transform-drop-target-active', false)
-          })
-        },
-        ondragenter: (e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          if (isDragging.current) return
-          rootRef.current?.toggleAttribute(
-            'data-transform-drop-target-active',
-            true,
-          )
-        },
-        ondragleave: (e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          rootRef.current?.toggleAttribute(
-            'data-transform-drop-target-active',
-            false,
-          )
-        },
-      } as Partial<HTMLElement>)
+        wrapperEl.querySelectorAll('[data-item]').forEach((x) => {
+          x.toggleAttribute('data-drag-target-active', false)
+          x.toggleAttribute('data-layout-drop-target-active', false)
+          x.toggleAttribute('data-transform-drop-target-active', false)
+        })
+      },
+      ondragenter: (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (isDragging.current) return
+        rootRef.current?.toggleAttribute(
+          'data-transform-drop-target-active',
+          true,
+        )
+      },
+      ondragleave: (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        rootRef.current?.toggleAttribute(
+          'data-transform-drop-target-active',
+          false,
+        )
+      },
+    } as Partial<HTMLElement>)
     : {}
 
   useEffect(() => {
@@ -276,7 +276,7 @@ const ElementTree = (props: { nodeId: string }) => {
   useEffect(() => {
     const onDoubleClick = isDragTarget
       ? () => onElementDoubleClick?.(node)
-      : () => {}
+      : () => { }
 
     if (interactiveRef.current) {
       Object.assign(interactiveRef.current, transformDragHandlers)
@@ -469,15 +469,17 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
 
   return (
     <div
-      onDrop={(e) => {
-        foundDropTarget = true
-        e.preventDefault()
-      }}
-      onDragOver={(e) => {
-        e.preventDefault()
-      }}
-      onDragLeave={(e) => {
-        e.preventDefault()
+      {...{
+        onDrop: (e: React.DragEvent) => {
+          foundDropTarget = true
+          e.preventDefault()
+        },
+        onDragOver: (e: React.DragEvent) => {
+          e.preventDefault()
+        },
+        onDragLeave: (e: React.DragEvent) => {
+          e.preventDefault()
+        },
       }}
       style={{
         userSelect: 'none',
@@ -900,13 +902,12 @@ const themes = {
         transform: translateX(-100%);
         opacity: 0 !important;
         white-space: nowrap;
-        ${
-          showNameBanners &&
-          `
+        ${showNameBanners &&
+      `
           opacity: 1 !important;
           transform: translateX(0);
         `
-        }
+      }
       }
 
       .NameBanner[data-size="4"] {
@@ -991,8 +992,8 @@ const themes = {
 
     .Banner, .NameBanner, .ChatOverlay {
         background: ${color(primaryColor)
-          .fade(color(primaryColor).alpha() * 0.7)
-          .toString()} !important;
+        .fade(color(primaryColor).alpha() * 0.7)
+        .toString()} !important;
         padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(60)} !important;
         position: relative !important;
         margin-bottom: ${scale(40)} !important;
@@ -1045,37 +1046,36 @@ const themes = {
         transform: translateX(-100%);
         opacity: 0 !important;
         white-space: nowrap;
-        ${
-          showNameBanners &&
-          `
+        ${showNameBanners &&
+      `
           opacity: 1 !important;
           transform: translateX(0);
         `
-        }
+      }
       }
 
       .NameBanner[data-size="4"] {
         padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(
-          40 + 20,
-        )} !important;
+        40 + 20,
+      )} !important;
         font-size: ${scale(34)} !important;
       }
       .NameBanner[data-size="3"] {
         padding: ${scale(16)} ${scale(40)} ${scale(16)} ${scale(
-          40 + 20,
-        )} !important;
+        40 + 20,
+      )} !important;
         font-size: ${scale(34)} !important;
       }
       .NameBanner[data-size="2"] {
         padding: ${scale(12)} ${scale(24)} ${scale(12)} ${scale(
-          24 + 20,
-        )} !important;
+        24 + 20,
+      )} !important;
         font-size: ${scale(24)} !important;
       }
       .NameBanner[data-size="1"], .NameBanner[data-size="0"] {
         padding: ${scale(12)} ${scale(16)} ${scale(12)} ${scale(
-          16 + 20,
-        )} !important;
+        16 + 20,
+      )} !important;
         font-size: ${scale(18)} !important;
       }
       .NameBanner[data-size="0"] {
@@ -1175,13 +1175,12 @@ const themes = {
         transform: translateX(-100%);
         opacity: 0 !important;
         white-space: nowrap;
-        ${
-          showNameBanners &&
-          `
+        ${showNameBanners &&
+      `
           opacity: 1 !important;
           transform: translateX(0);
         `
-        }
+      }
       }
 
       ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .NameBanner {
