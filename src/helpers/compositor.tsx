@@ -344,7 +344,7 @@ const ElementTree = (props: { nodeId: string }) => {
             style={{
               position: 'absolute',
               background: 'rgba(0,0,0,0.6)',
-              outline: '3px solid rgba(255,255,255,0.3)',
+              outline: '3px solid rgba(255,255,255,0.5)',
               pointerEvents: isDraggingChild ? 'all' : 'none',
               opacity: isDraggingChild ? 1 : 0,
               transition: isDraggingChild
@@ -664,23 +664,6 @@ video {
   height: 100%;
   object-fit: contain;
 }
-
-.alert-iframe-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.alert-iframe-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-}
-
 
 .NameBanner {
   top: 100%;
