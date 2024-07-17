@@ -522,7 +522,7 @@ export interface Commands {
   /**
    * Add a source for type "integration"
    */
-  updateLayoutProps(nodeId: string, layoutProps: any): Promise<void>
+  updateLayoutProps(nodeId: string, layout: LayoutName, layoutProps: LayoutProps): Promise<void>
 }
 
 /**
@@ -728,12 +728,11 @@ export const commands = (_project: ScenelessProject) => {
       return foregroundLogoContainer?.children[0]?.props?.id
     },
 
-    async updateLayoutProps(nodeId: string, layoutProps: any) {
+    async updateLayoutProps(nodeId: string, layout: LayoutName, layoutProps: LayoutProps) {
       Command.setNodeLayout({
         nodeId: nodeId,
-        layout: 'Layered',
+        layout,
         layoutProps: {
-          type: 'alert',
           ...layoutProps,
         },
       })
@@ -1228,6 +1227,9 @@ export const commands = (_project: ScenelessProject) => {
         ...(foregroundVideoContainer?.children.length && { opacity: 0 }),
       }
 
+      const { x: rootWidth } = root.props.size
+      const scaleTo = (rootWidth ?? 1920) / 1280
+
       if (!existingForegroundNode) {
         await CoreContext.Command.createNode({
           parentId: foregroundAlertContainer?.id,
@@ -1239,6 +1241,7 @@ export const commands = (_project: ScenelessProject) => {
               meta: {
                 style: {
                   ...extendedDefaultStyles,
+                  transform: `scale(${scaleTo})`,
                 },
               },
             },
@@ -1255,6 +1258,7 @@ export const commands = (_project: ScenelessProject) => {
               meta: {
                 style: {
                   ...extendedDefaultStyles,
+                  transform: `scale(${scaleTo})`,
                 },
               },
             },
@@ -2219,6 +2223,8 @@ export type LayoutProps = {
   barPosition?: 'bottom' | 'side'
   useGrid?: boolean
   reverse?: boolean
+  type?: string
+  preset?: string
 }
 type ScenelessSettings = {
   backgroundImage?: string
