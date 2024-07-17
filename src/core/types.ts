@@ -791,7 +791,7 @@ export type CompositorSettings = {
   /**
    * Determine whether a node is a candidate for dragging.
    */
-  checkDragTarget?: (node: SceneNode) => boolean
+  checkDragTarget?: (node: SceneNode, dragNode?: SceneNode) => boolean
   /**
    * Determine whether a node is a candidate for dropping.
    *  A drop target's children will be affected

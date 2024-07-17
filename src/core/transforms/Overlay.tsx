@@ -14,33 +14,15 @@ import { hasPermission, Permission } from '../../helpers/permission'
 import Iframe from './components/Iframe'
 import { Role } from '../types'
 
-export type AlertOverlayProps = {
-  src?: string
-  settings?: {
-    follow?: boolean
-    tip?: boolean
-  }
-  // Opaque to the SDK
-  [prop: string]: any
-}
-
 export type OverlayProps = {
   src?: string
   // Opaque to the SDK
   [prop: string]: any
 }
 
-
-
 export type OverlaySource = {
   id: string
   sourceProps: OverlayProps
-  sourceType: string
-}
-
-export type AlertOverlaySource = {
-  id: string
-  sourceProps: AlertOverlayProps
   sourceType: string
 }
 
@@ -58,44 +40,6 @@ export const Overlay = {
     const root = document.createElement('div')
     const role = getProject(CoreContext.state.activeProjectId).role
     let interval: NodeJS.Timeout
-
-    const AlertIFrame = React.memo(({
-      source,
-      setStartAnimation,
-    }: {
-      source: AlertOverlaySource
-      setStartAnimation: (value: boolean) => void
-    }) => {
-      const { src, meta, height, width, settings } = source?.sourceProps || {}
-      const iframeRef = React.useRef<HTMLIFrameElement>(null)
-      const queryParams = React.useMemo(() => {
-        return Object.entries(settings)
-          .map(e => e.join('='))
-          .concat(role === Role.ROLE_RENDERER ? [`mode=engine`] : [`mode=lightstream`])
-          .join('&');
-      }, [settings, role])
-
-      const resizeIframe = React.useCallback(() => {
-        if (iframeRef.current) {
-          setStartAnimation(true)
-        }
-      }, [])
-
-      return (
-        <React.Fragment>
-          <Iframe
-            key={source.id}
-            url={`${src}?${queryParams}`}
-            frameBorder={0}
-            iframeRef={iframeRef}
-            height={height}
-            width={width}
-            onLoad={resizeIframe}
-            styles={{ ...meta?.style }}
-          />
-        </React.Fragment>
-      )
-    })
 
     const IFrame = React.memo(({
       source,
@@ -313,9 +257,6 @@ export const Overlay = {
             )}
             {id && type === 'custom' && (
               <IFrame source={source} setStartAnimation={setStartAnimation} />
-            )}
-            {id && type === 'alert' && (
-              <AlertIFrame source={source} setStartAnimation={setStartAnimation} />
             )}
           </div>
         </APIKitAnimation>

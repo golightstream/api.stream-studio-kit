@@ -2,22 +2,21 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
+import { color } from 'csx'
 import React, {
   PropsWithChildren,
-  ReactNode,
   useContext,
   useEffect,
   useMemo,
   useRef,
-  useState,
+  useState
 } from 'react'
 import { createRoot } from 'react-dom/client'
-import { swapItems } from '../logic'
+import { CoreContext, InternalProject, log } from '../core/context'
 import { getProject } from '../core/data'
-import { CoreContext, log, InternalProject } from '../core/context'
 import { Compositor } from '../core/namespaces'
 import { CompositorSettings, SceneNode } from '../core/types'
-import { color } from 'csx'
+import { swapItems } from '../logic'
 
 const dragImageSvg = `
   <svg height="75" width="120" viewBox="0 0 120 75" xmlns="http://www.w3.org/2000/svg" style="">
@@ -97,13 +96,16 @@ const onDrop = async (
     })
   } else {
     // If the drop node is a transform, then swap
+    // is this even a valid case
     if (dragParent.id !== dropParent?.id) {
-      return CoreContext.Command.swapNodes({
-        projectId: project.id,
-        nodeAId: dragNode.id,
-        nodeBId: dropNode.id,
-      })
+      // return CoreContext.Command.swapNodes({
+      //   projectId: project.id,
+      //   nodeAId: dragNode.id,
+      //   nodeBId: dropNode.id,
+      // })
+      return
     }
+    
   }
 
   // Swap the two nodes if they have the same parent
@@ -138,7 +140,6 @@ const ElementTree = (props: { nodeId: string }) => {
   const { nodeId } = props
   const project = getProject(projectId)
   const node = project.compositor.get(nodeId)
-  if (!node) return null
 
   const element = CoreContext.compositor.getElement(node)
   const [localState, setLocalState] = useState({})
@@ -304,7 +305,7 @@ const ElementTree = (props: { nodeId: string }) => {
     },
     [presetPreviewTimeout, setLocalState],
   )
-
+  if (!node) return null
   return (
     <div
       ref={rootRef}
@@ -611,13 +612,13 @@ const scenelessProjectDragCheck = (node: SceneNode) => {
     node.props.name === 'Participant' ||
     node.props.sourceType === 'RoomParticipant' ||
     node.props.sourceType === 'RTMP' ||
-    node.props.sourceProps?.type === 'alert'
+    node.props.sourceType === 'Alert'
   )
 }
 
 /** This is a default check based on legacy behavior */
 const scenelessProjectDropCheck = (node: SceneNode) => {
-  return node.props.name === 'Content'
+  return node.props.name === 'Content' || node.props.name === 'AlertContainer'
 }
 
 type CompositorContext = {
@@ -661,6 +662,23 @@ video {
   height: 100%;
   object-fit: contain;
 }
+
+.alert-iframe-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.alert-iframe-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
 
 .NameBanner {
   top: 100%;
