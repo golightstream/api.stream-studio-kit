@@ -5,6 +5,8 @@
 import { html } from 'lighterhtml'
 import { CSSProperties } from 'react'
 import { LayoutDeclaration, Transition } from '../../compositor/layouts'
+import { getProject } from '../data'
+import CoreContext from '../context'
 
 type LayoutFreeProps = {
   size: { x: string; y: string }
@@ -14,60 +16,97 @@ type LayoutFreeProps = {
   preset: string
 }
 
-const getAlertStyle = (preset: string) => {
-  const width = `${633}px`
-  const height = `${290}px`
+const getPresetStyle = (preset: string) => {
+  const project = getProject(CoreContext.state.activeProjectId)
+  const root = project.compositor.getRoot()
+  const {x: rootWidth, y : rootHeight} = root.props.size
+  const scaleTo = (rootWidth ?? 1920) / 1280
+  const alertWidthPercentage = ((633 * scaleTo) / rootWidth) * 100
+  const alertHeightPercentage = ((290 * scaleTo) / rootHeight) * 100
+
+  const baseStyle = {
+    position: 'absolute' as 'absolute',
+    width: `${alertWidthPercentage}%`,
+    height: `${alertHeightPercentage}%`,
+  }
+
   switch (preset) {
     case 'center': {
       return {
-        position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
         margin: 'auto',
-        width,
-        height,
+        ...baseStyle,
       }
     }
 
     case 'top-left': {
       return {
-        position: 'absolute',
         top: 0,
         left: 0,
-        width,
-        height,
+        ...baseStyle,
       }
-      break
     }
     case 'top-right': {
       return {
-        position: 'absolute',
         top: 0,
         right: 0,
-        width,
-        height,
+        ...baseStyle,
       }
-      break
+    }
+    case 'top-center' : {
+      return {
+        top: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        ...baseStyle,
+      }
+    }
+    case 'bottom-left': {
+      return {
+        bottom: 0,
+        left: 0,
+        ...baseStyle,
+      }
+    }
+    case 'bottom-right': {
+      return {
+        bottom: 0,
+        right: 0,
+        ...baseStyle,
+      }
+    }
+    case 'bottom-center': {
+      return {
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        ...baseStyle,
+      }
+    }
+    case 'center-left': {
+      return {
+        top: '50%',
+        left: 0,
+        transform: 'translateY(-50%)',
+        ...baseStyle,
+      }  
+    }
+    case 'center-right': {
+      return {
+        top: '50%',
+        right: 0,
+        transform: 'translateY(-50%)',
+        ...baseStyle,
+      }
     }
   }
 }
 export const Free = {
   name: 'Free',
   layout: ({ props, children, size }) => {
-    if (props.type === 'alert') {
-      return html.node`<div style=${{
-        ...getAlertStyle(props.preset),
-      }}>
-        ${children.map(
-          (x, i) =>
-            html.node`<div data-node-id=${x.id} .data=${{}} style=${{
-              ...getAlertStyle(props.preset),
-            }}></div>`,
-        )}
-      </div>`
-    }
     return children.reduce((acc, x) => {
       const {
         size = { x: '100%', y: '100%' },
@@ -562,7 +601,11 @@ export const Presentation = {
   },
 } as LayoutDeclaration<LayoutPresentationProps>
 
-type LayoutLayeredProps = {}
+type LayoutLayeredProps = {
+  preset: string // for alert types
+  type: 'alert'
+}
+
 export const Layered = {
   name: 'Layered',
   layout: ({ props = {}, children, size }) => {
@@ -577,7 +620,8 @@ export const Layered = {
             zIndex: i + 1,
           }} style=${{
             position: 'absolute',
-            inset: `0px`,
+            ...(props.type !== 'alert' ? { inset: '0px' } : {}),
+            ...(props.type === 'alert' ? getPresetStyle(props.preset) : {}),
           }}></div>`,
       )}
     </div>`

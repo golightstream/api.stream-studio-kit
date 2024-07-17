@@ -49,7 +49,7 @@ import { cloneDeep, deepEqual, findAll, generateId } from '../logic'
 import { BackgroundProps } from './../core/transforms/Background'
 import { LogoProps } from './../core/transforms/Logo'
 import { OverlayProps } from './../core/transforms/Overlay'
-import { AlertOverlayProps } from './../core/transforms/Overlay'
+import { AlertOverlayProps } from './../core/transforms/Alert'
 import {
   defaultStyles,
   ForegroundLayers,
@@ -633,7 +633,7 @@ export const commands = (_project: ScenelessProject) => {
           {
             name: 'AlertContainer',
             id: 'alert',
-            layout: 'Free',
+            layout: 'Layered',
             layoutProps: {
               type: 'alert',
               preset: 'center',
@@ -646,15 +646,6 @@ export const commands = (_project: ScenelessProject) => {
         )
         return nodeId
       } else {
-        await coreProject.compositor.update(foregroundAlertContainer.id, {
-          name: 'AlertContainer',
-          id: 'alert',
-          layout: 'Free',
-          layoutProps: {
-            type: 'alert',
-            preset: 'center',
-          },
-        })
         return foregroundAlertContainer.id
       }
     }
@@ -738,7 +729,9 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     async updateLayoutProps(nodeId: string, layoutProps: any) {
-      await coreProject.compositor.update(nodeId, {
+      Command.setNodeLayout({
+        nodeId: nodeId,
+        layout: 'Layered',
         layoutProps: {
           type: 'alert',
           ...layoutProps,
@@ -1235,22 +1228,17 @@ export const commands = (_project: ScenelessProject) => {
         ...(foregroundVideoContainer?.children.length && { opacity: 0 }),
       }
 
-      const { x: rootWidth } = root.props.size
-      const scaleTo = (rootWidth ?? 1920) / 1280
-
       if (!existingForegroundNode) {
         await CoreContext.Command.createNode({
           parentId: foregroundAlertContainer?.id,
           props: {
-            sourceType: 'Overlay',
+            sourceType: 'Alert',
             id: id,
             sourceProps: {
               ...props,
-              type: 'alert',
               meta: {
                 style: {
                   ...extendedDefaultStyles,
-                  transform: `scale(${scaleTo})`,
                 },
               },
             },
@@ -1260,15 +1248,13 @@ export const commands = (_project: ScenelessProject) => {
         await CoreContext.Command.updateNode({
           nodeId: existingForegroundNode?.id,
           props: {
-            sourceType: 'Overlay',
+            sourceType: 'Alert',
             id: id,
             sourceProps: {
               ...props,
-              type: 'alert',
               meta: {
                 style: {
                   ...extendedDefaultStyles,
-                  transform: `scale(${scaleTo})`,
                 },
               },
             },
@@ -1678,8 +1664,8 @@ export const commands = (_project: ScenelessProject) => {
       cb: (state: { participantId: string; type: ParticipantType }) => void,
     ) {
       const sendState = () => {
-        const nodeId = content?.props.layoutProps.showcase
-        const node = content?.children.find((x) => x.id === nodeId)
+        const nodeId = content.props.layoutProps.showcase
+        const node = content.children.find((x) => x.id === nodeId)
         if (!node)
           return cb({
             participantId: null,
@@ -1696,7 +1682,7 @@ export const commands = (_project: ScenelessProject) => {
 
       // Watch for changes to the parent children
       return CoreContext.onInternal('NodeChanged', (payload) => {
-        if (payload.nodeId !== content?.id) return
+        if (payload.nodeId !== content.id) return
         sendState()
       })
     },
@@ -1961,7 +1947,7 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     removeParticipantTrack(trackId: string, type: ParticipantType = 'camera') {
-      content?.children
+      content.children
         .filter(
           (x) =>
             x.props.sourceProps?.id === trackId &&
@@ -2022,7 +2008,7 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
     removeParticipant(participantId: string, type: ParticipantType = 'camera') {
-      content?.children
+      content.children
         .filter(
           (x) =>
             x.props.sourceProps?.id === participantId &&
@@ -2036,7 +2022,7 @@ export const commands = (_project: ScenelessProject) => {
         })
     },
     getParticipantNode(id: string, type: ParticipantType = 'camera') {
-      return content?.children.find(
+      return content.children.find(
         (x) =>
           x.props.sourceProps?.id === id && x.props.sourceProps?.type === type,
       )
@@ -2062,7 +2048,7 @@ export const commands = (_project: ScenelessProject) => {
 
       // Watch for changes to the parent children
       const childListener = CoreContext.onInternal('NodeChanged', (payload) => {
-        if (payload.nodeId !== content?.id) return
+        if (payload.nodeId !== content.id) return
         const previous = participantNode
         participantNode = commands.getParticipantNode(participantId, type)
         if (previous !== participantNode) {
@@ -2123,7 +2109,7 @@ export const commands = (_project: ScenelessProject) => {
       const room = getProjectRoom(projectId)
       if (!room) return
 
-      content?.children
+      content.children
         .filter((node) => {
           if (node.props.sourceType !== 'RoomParticipant') return false
           const nodeSourceType = node.props.sourceProps?.type
@@ -2213,13 +2199,13 @@ export const commands = (_project: ScenelessProject) => {
       }
     },
   }
-  // const ensureValid = async () => {
-  //   await ensureRootLayersProps()
-  //   await ensureBackgroundChildLayersProps()
-  //   await ensureForegroundContainers()
-  // }
+  const ensureValid = async () => {
+    await ensureRootLayersProps()
+    await ensureBackgroundChildLayersProps()
+    await ensureForegroundContainers()
+  }
 
-  // ensureValid()
+  ensureValid()
 
   return commands
 }
@@ -2290,24 +2276,24 @@ export const createCompositor = async (
 
   // Create the base nodes for sceneless workflow
   const baseLayers = await Promise.all([
-    // project.insert(
-    //   {
-    //     name: 'Background',
-    //     id: 'bg',
-    //     layout: 'Layered',
-    //   },
-    //   root.id,
-    // ),
+    project.insert(
+      {
+        name: 'Background',
+        id: 'bg',
+        layout: 'Layered',
+      },
+      root.id,
+    ),
 
-    // project.insert(
-    //   {
-    //     id: 'content',
-    //     name: 'Content',
-    //     layout,
-    //     layoutProps,
-    //   },
-    //   root.id,
-    // ),
+    project.insert(
+      {
+        id: 'content',
+        name: 'Content',
+        layout,
+        layoutProps,
+      },
+      root.id,
+    ),
     project.insert(
       {
         id: 'foreground',

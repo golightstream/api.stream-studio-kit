@@ -12,5 +12,6 @@ export * from './Overlay'
 // TODO: remove this transformers after a while when this version of sdk (1.1.58) is adopted by all users
 export * from './RTMPSource'
 export * from './WebRTC'
+export * from './Alert'
 
 
