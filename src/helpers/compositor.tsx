@@ -336,10 +336,10 @@ const ElementTree = (props: { nodeId: string }) => {
           transition: 'opacity 300ms ease',
         }}
       >
-        {presetsOverlay?.map(({ name, position }) => (
+        {presetsOverlay?.map(({ name, position, layout }) => (
           <div
             key={name}
-            className="layout-preset-zone"
+            className={`layout-preset-zone ${layout}`}
             data-drag-target
             style={{
               position: 'absolute',
@@ -692,6 +692,10 @@ video {
 
 .layout-preset-zone[data-preset-drag-target-active] {
   transform: scale(1.1);
+}
+
+.layout-preset-zone.Alert[data-preset-drag-target-active] {
+  background: rgba(88, 218, 175, 0.75) !important;
 }
 
 ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .NameBanner {
