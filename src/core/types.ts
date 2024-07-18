@@ -822,7 +822,7 @@ export type CompositorSettings = {
           width?: string | number
           height?: string | number
         }
-        layout: string
+        layout?: string
       }[]
     | undefined
 }
