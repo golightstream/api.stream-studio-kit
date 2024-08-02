@@ -2223,9 +2223,12 @@ export type LayoutProps = {
   barPosition?: 'bottom' | 'side'
   useGrid?: boolean
   reverse?: boolean
-  type?: string
-  preset?: string
+  /** Value can be alert */
+  type?: string 
+  /** Values can be 'top-center' | 'bottom-center' **/
+  preset?: string  
 }
+
 type ScenelessSettings = {
   backgroundImage?: string
   layout?: string
