@@ -12,8 +12,6 @@ type LayoutFreeProps = {
   size: { x: string; y: string }
   position: { x: string; y: string }
   opacity: number
-  type: 'alert'
-  preset: string
 }
 
 const getPresetStyle = (preset: string) => {
@@ -601,8 +599,16 @@ export const Presentation = {
   },
 } as LayoutDeclaration<LayoutPresentationProps>
 
+
+/**
+ * The `LayoutLayeredProps` type defines props for a layered layout with an alert type.
+ * @property {string} preset - The `preset` property in the `LayoutLayeredProps` type is a string that
+ * specifies a preset configuration (determine the position for the alert layout ) for the layered layout, preset options are "top-center" & "bottom-center".
+ * @property type - The `type` property in the `LayoutLayeredProps` type is a string with the value
+ * `'alert'`.
+ */
 type LayoutLayeredProps = {
-  preset: string // for alert types
+  preset: string 
   type: 'alert'
 }
 
