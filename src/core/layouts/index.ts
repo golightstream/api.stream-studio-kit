@@ -17,7 +17,7 @@ type LayoutFreeProps = {
 const getPresetStyle = (preset: string) => {
   const project = getProject(CoreContext.state.activeProjectId)
   const root = project.compositor.getRoot()
-  const {x: rootWidth, y : rootHeight} = root.props.size
+  const { x: rootWidth, y: rootHeight } = root.props.size
   const scaleTo = (rootWidth ?? 1920) / 1280
   const alertWidthPercentage = ((633 * scaleTo) / rootWidth) * 100
   const alertHeightPercentage = ((290 * scaleTo) / rootHeight) * 100
@@ -54,7 +54,7 @@ const getPresetStyle = (preset: string) => {
         ...baseStyle,
       }
     }
-    case 'top-center' : {
+    case 'top-center': {
       return {
         top: 0,
         left: '50%',
@@ -90,7 +90,7 @@ const getPresetStyle = (preset: string) => {
         left: 0,
         transform: 'translateY(-50%)',
         ...baseStyle,
-      }  
+      }
     }
     case 'center-right': {
       return {
@@ -599,16 +599,18 @@ export const Presentation = {
   },
 } as LayoutDeclaration<LayoutPresentationProps>
 
-
-/**
- * The `LayoutLayeredProps` type defines props for a layered layout with an alert type.
- * @property {string} preset - The `preset` property in the `LayoutLayeredProps` type is a string that
- * specifies a preset configuration (determine the position for the alert layout ) for the layered layout, preset options are "top-center" & "bottom-center".
- * @property type - The `type` property in the `LayoutLayeredProps` type is a string with the value
- * `'alert'`.
- */
 type LayoutLayeredProps = {
-  preset: string 
+
+  /**
+   * Specifies a preset configuration for the alert layout position.
+   * @type {string} Either 'top-center' or 'bottom-center'
+   */
+  preset: string
+
+  /**
+   * Indicates the type of layout.
+   * @type {'alert'}
+   */
   type: 'alert'
 }
 
