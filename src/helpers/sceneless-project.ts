@@ -2223,9 +2223,9 @@ export type LayoutProps = {
   barPosition?: 'bottom' | 'side'
   useGrid?: boolean
   reverse?: boolean
-  /** Value can be alert */
+  /** used for type alert */
   type?: string 
-  /** Values can be 'top-center' | 'bottom-center' **/
+  /** Either 'top-center' or 'bottom-center' **/
   preset?: string  
 }
 
