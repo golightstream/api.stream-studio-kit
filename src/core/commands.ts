@@ -799,6 +799,25 @@ export const stopBroadcast = async (payload: { projectId?: string }) => {
 }
 
 /**
+ * get project broadcast state.
+ *
+ * @category Broadcast
+ */
+export const getBroadcastState = async (payload: {
+  projectId: string
+}): Promise<LiveApiModel.ProjectBroadcastStatus> => {
+  const { projectId  } = payload
+  const project = getProject(projectId)
+  const response = await CoreContext.clients
+    .LiveApi()
+    .project.getProjectBroadcastStatus({
+      collectionId: project.videoApi.project.collectionId,
+      projectId: project.videoApi.project.projectId,
+    })
+  return response.status
+}
+
+/**
  * Add a {@link Destination} to a project.
  *
  * @category Destination

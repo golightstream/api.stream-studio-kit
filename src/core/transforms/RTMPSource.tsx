@@ -191,43 +191,6 @@ export const RTMPSource = {
               }}
             />
           </div>
-          {Boolean(source?.props.displayName) && (
-            <div
-              className="NameBannerContainer"
-              style={{
-                width: '100%',
-                height: '100%',
-                position: 'absolute',
-              }}
-            >
-              <div
-                className="NameBanner"
-                data-size={labelSize}
-                style={{
-                  padding: '12px 30px',
-                  width: 'fit-content',
-                  height: 'fit-content',
-                  top: '100%',
-                  transform: 'translateY(-100%)',
-                  left: 0,
-                }}
-              >
-                {/* {headerText && (
-                  <div
-                    className="Banner-header"
-                    style={{ marginBottom: 6, fontSize: '60px' }}
-                  >
-                    {headerText}
-                  </div>
-                )} */}
-                {
-                  <div className="NameBanner-body">
-                    {source?.props.displayName}
-                  </div>
-                }
-              </div>
-            </div>
-          )}
         </div>
       )
     }
