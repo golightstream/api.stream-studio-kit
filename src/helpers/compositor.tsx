@@ -218,10 +218,6 @@ const ElementTree = (props: { nodeId: string }) => {
         },
         ondragend: (e) => {
           isDragging.current = false
-          if (!foundDropTarget) {
-            log.info('Compositor: No drop target - deleting node', node)
-            CoreContext.Command.deleteNode({ nodeId: node.id })
-          }
           setDraggingNodeId(null)
           wrapperEl.toggleAttribute('data-dragging', true)
           log.debug('Compositor: DragEnd', e)
