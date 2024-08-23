@@ -219,32 +219,54 @@ const ElementTree = (props: { nodeId: string }) => {
         ondragend: (e) => {
           isDragging.current = false
           setDraggingNodeId(null)
-          wrapperEl.toggleAttribute('data-dragging', true)
+          wrapperEl.toggleAttribute('data-dragging', false)
           log.debug('Compositor: DragEnd', e)
           rootRef.current?.toggleAttribute('data-drag-target-active', false)
+          wrapperEl.toggleAttribute('data-drop-target-ready', false)
 
           wrapperEl.querySelectorAll('[data-item]').forEach((x) => {
             x.toggleAttribute('data-drag-target-active', false)
             x.toggleAttribute('data-layout-drop-target-active', false)
             x.toggleAttribute('data-transform-drop-target-active', false)
+            x.toggleAttribute('data-transform-drop-self-active', false)
           })
         },
         ondragenter: (e) => {
           e.preventDefault()
           e.stopPropagation()
-          if (isDragging.current) return
-          rootRef.current?.toggleAttribute(
-            'data-transform-drop-target-active',
-            true,
-          )
+
+          if (isDragging.current) {
+            rootRef.current?.toggleAttribute(
+              'data-transform-drop-self-active',
+              true,
+            )
+          } else {
+            rootRef.current?.toggleAttribute(
+              'data-transform-drop-target-active',
+              true,
+            )
+          }
+
+          // Timeout to ensure "dragenter" runs after 
+          //  "dragleave" for other elements for global updates
+          setTimeout(() => {
+            if (!isDragging.current) {
+              wrapperEl.toggleAttribute('data-drop-target-ready', true)
+            }
+          })
         },
         ondragleave: (e) => {
           e.preventDefault()
           e.stopPropagation()
           rootRef.current?.toggleAttribute(
+            'data-transform-drop-self-active',
+            false,
+          )
+          rootRef.current?.toggleAttribute(
             'data-transform-drop-target-active',
             false,
           )
+          wrapperEl.toggleAttribute('data-drop-target-ready', false)
         },
       } as Partial<HTMLElement>)
     : {}
@@ -338,12 +360,10 @@ const ElementTree = (props: { nodeId: string }) => {
             data-drag-target
             style={{
               position: 'absolute',
-              background: 'rgba(0,0,0,0.6)',
-              outline: '3px solid rgba(255,255,255,0.5)',
               pointerEvents: isDraggingChild ? 'all' : 'none',
               opacity: isDraggingChild ? 1 : 0,
               transition: isDraggingChild
-                ? 'opacity 500ms ease 200ms, transform 150ms ease'
+                ? 'opacity 500ms ease 200ms, background-color 100ms ease'
                 : '',
               ...position,
             }}
@@ -358,11 +378,13 @@ const ElementTree = (props: { nodeId: string }) => {
                   preset: name,
                   setLocalState,
                 })
-              }, 750)
+              }, 250)
               setPresetPreviewTimeout(timeout)
+              e.stopPropagation()
             }}
             onDragLeave={(e) => {
               clearPresetTimeout(e.currentTarget)
+              e.stopPropagation()
             }}
             onDrop={(e) => {
               clearPresetTimeout(e.currentTarget)
@@ -674,6 +696,10 @@ video {
   position: absolute;
 }
 
+.item-element {
+  transition: opacity 150ms ease;
+}
+
 .interactive-overlay .interactive-overlay-hover {
   opacity: 0;
   pointer-events: none;
@@ -684,8 +710,13 @@ video {
   pointer-events: all;
 }
 
+.layout-preset-zone {
+  background-color: rgba(0,0,0,0.6);
+  outline: 2px solid rgba(255,255,255,0.3);
+}
+
 .layout-preset-zone[data-preset-drag-target-active] {
-  transform: scale(1.1);
+  background-color: rgba(255,255,255,0.3);
 }
 
 .layout-preset-zone.Alert[data-preset-drag-target-active] {
@@ -711,20 +742,25 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
   position: absolute !important;
 }
 
-#compositor-root[data-dragging] {}
+#compositor-root[data-dragging] * {
+  cursor: grabbing !important;
+}
 
 [data-drag-target] {}
-[data-drag-target]:hover > .interactive-overlay {
+[data-drag-target]:hover:not([data-drag-target-active]) > .interactive-overlay {
   box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.5);
   cursor: grab;
 }
 [data-drop-target] {}
 [data-drop-target]:hover {}
 [data-drag-target][data-drag-target-active] > .interactive-overlay {
-  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.2);
+  border: 3px solid #ffff007d;
 }
-[data-drag-target][data-drag-target-active] > .item-element {
-  opacity: 0.8;
+[data-drag-target][data-drag-target-active]:not([data-transform-drop-self-active]) > .interactive-overlay {
+  border: 3px dashed #ffff007d;
+}
+#compositor-root[data-drop-target-ready] [data-drag-target][data-drag-target-active] > .item-element {
+  opacity: 0.6;
 }
 [data-layout-drop-target-active] > .interactive-overlay {
   box-shadow: 0 0 0 3px inset yellow;
