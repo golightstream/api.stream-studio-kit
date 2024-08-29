@@ -19,7 +19,7 @@ type Props = {
 
 export const GameSource = {
   name: 'LS-Game-Source',
-  sourceType: 'GAME',
+  sourceType: 'Game',
   props: {},
   useSource(sources, props) {
     return sources.find((x) => isMatch(x.props, props.sourceProps))

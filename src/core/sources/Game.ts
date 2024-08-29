@@ -30,7 +30,7 @@ export type GameSource = {
 }
 
 export const Game = {
-  type: 'GAME',
+  type: 'Game',
   valueType: MediaStream,
   props: {
     id: {},

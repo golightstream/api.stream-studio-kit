@@ -102,7 +102,13 @@ const addingCache = {
 }
 
 export type ParticipantType = 'camera' | 'screen'
-export type SourceType = 'rtmp' | 'game'
+
+const ExternalSourceTypeMap = {
+  rtmp: 'RTMP',
+  game: 'Game',
+} as const
+
+export type ExternalSourceType = keyof typeof ExternalSourceTypeMap
 
 interface ScenelessProject extends SDK.Project {}
 
@@ -318,13 +324,13 @@ export interface Commands {
   addSourceNode(
     id: string,
     props: Partial<ParticipantProps>,
-    type?: SourceType,
+    type?: ExternalSourceType,
   ): Promise<void>
 
   /**
    * Remove an RTMP or GAME source from the canvas
    */
-  removeSourceNode(id: string, type: SourceType): Promise<void>
+  removeSourceNode(id: string): Promise<void>
 
   /**
    * @private
@@ -335,7 +341,7 @@ export interface Commands {
   /**
    * Use the RTMP or GAME nodes that are on currently on stage.
    */
-  useSourceNodes(cb: (nodes: Compositor.SceneNode[]) => void): Disposable
+  useSourceNodes(cb: (nodes: Compositor.SceneNode[]) => void, type: ExternalSourceType): Disposable
   /**
    * Add a participant camera track to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
@@ -1682,7 +1688,7 @@ export const commands = (_project: ScenelessProject) => {
         isHidden: false,
         volume: 0,
       },
-      type: SourceType = 'rtmp',
+      type: ExternalSourceType = 'rtmp',
     ) {
       if (addingCache[type].has(id)) {
         return
@@ -1697,8 +1703,8 @@ export const commands = (_project: ScenelessProject) => {
       // Get the participant type in the first position
       await CoreContext.Command.createNode({
         props: {
-          name: type.toUpperCase(),
-          sourceType: type.toUpperCase(),
+          name: ExternalSourceTypeMap[type],
+          sourceType: ExternalSourceTypeMap[type],
           sourceProps: {
             type,
             id,
@@ -1714,8 +1720,19 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     async removeSourceNode(id: string) {
+      const source = _project.sources.find(
+        (x) => x.preview.webrtc.participantId === id,
+      )
+      if (!source) return
+      const sourceType =
+        source.address.dynamic.id === 'integration'
+          ? ExternalSourceTypeMap['game']
+          : ExternalSourceTypeMap['rtmp']
       content.children
-        .filter((x) => x.props.sourceProps?.id === id)
+        .filter(
+          (x) =>
+            x.props.sourceProps?.id === id && x.props.sourceType === sourceType,
+        )
         .forEach((x) => {
           CoreContext.Command.deleteNode({
             nodeId: x.id,
@@ -1727,7 +1744,7 @@ export const commands = (_project: ScenelessProject) => {
       return content.children.find((x) => x.props.sourceProps?.id === id)
     },
 
-    useSourceNodes(cb, type: SourceType = 'rtmp') {
+    useSourceNodes(cb, type: ExternalSourceType = 'rtmp') {
       let nodeIds: string[] = []
       const sendState = () => {
         const nodes = content.children.filter(
@@ -1740,7 +1757,7 @@ export const commands = (_project: ScenelessProject) => {
       sendState()
 
       const nodeAddedListener = CoreContext.onInternal(
-        'NodeChanged',
+        'NodeAdded',
         (payload) => {
           const node = _project.scene.get(payload.nodeId)
           if (node?.props?.sourceProps?.type === type) {
