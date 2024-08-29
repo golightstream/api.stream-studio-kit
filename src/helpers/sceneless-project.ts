@@ -341,7 +341,10 @@ export interface Commands {
   /**
    * Use the RTMP or GAME nodes that are on currently on stage.
    */
-  useSourceNodes(cb: (nodes: Compositor.SceneNode[]) => void, type: ExternalSourceType): Disposable
+  useSourceNodes(
+    cb: (nodes: Compositor.SceneNode[]) => void,
+    type: ExternalSourceType,
+  ): Disposable
   /**
    * Add a participant camera track to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
@@ -1756,13 +1759,11 @@ export const commands = (_project: ScenelessProject) => {
 
       sendState()
 
-      const nodeAddedListener = CoreContext.onInternal(
-        'NodeAdded',
+      const nodeChangedListener = CoreContext.onInternal(
+        'NodeChanged',
         (payload) => {
-          const node = _project.scene.get(payload.nodeId)
-          if (node?.props?.sourceProps?.type === type) {
-            sendState()
-          }
+          if (payload.nodeId !== content.id) return
+          sendState()
         },
       )
 
@@ -1776,7 +1777,7 @@ export const commands = (_project: ScenelessProject) => {
       )
 
       return () => {
-        nodeAddedListener()
+        nodeChangedListener()
         nodeRemovedListener()
       }
     },
