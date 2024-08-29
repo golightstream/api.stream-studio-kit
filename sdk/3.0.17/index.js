@@ -83621,9 +83621,7 @@ const onDrop = async (a, u) => {
     parentId: O.id,
     childIds: swapItems(_.id, k.id, x)
   });
-};
-let foundDropTarget = !1;
-const ElementTree = (a) => {
+}, ElementTree = (a) => {
   var U, Y;
   const u = useRef(!1), c = useRef(), l = useRef(), v = useRef(), [p, _] = useState(), {
     projectId: k,
@@ -83643,11 +83641,11 @@ const ElementTree = (a) => {
     ...we
   }, Se = Te.layout || "Row", q = (O && (z == null ? void 0 : z(de))) ?? !1, H = (O && (Z == null ? void 0 : Z(de))) ?? !1, C = te == null ? void 0 : te(de, j.props);
   let S = de.children.some((L) => L.id === D), E = H ? {
-    onDrop: (L) => (foundDropTarget = !0, onDrop({
+    onDrop: (L) => onDrop({
       dropType: "layout",
       dropNodeId: de.id,
       project: j
-    }, L)),
+    }, L),
     onDragEnter: (L) => {
       var T;
       L.preventDefault(), L.stopPropagation(), (T = v.current) == null || T.toggleAttribute("data-layout-drop-target-active", !0);
@@ -83660,7 +83658,7 @@ const ElementTree = (a) => {
     draggable: !0,
     // If a target is draggable, it will also be treated as
     //  a drop target (swap element positions)
-    ondrop: (L) => (foundDropTarget = !0, onDrop(
+    ondrop: (L) => onDrop(
       {
         dropType: "transform",
         dropNodeId: de.id,
@@ -83668,26 +83666,26 @@ const ElementTree = (a) => {
       },
       // @ts-ignore TODO: Convert all to native drag events
       L
-    )),
+    ),
     ondragstart: (L) => {
       var T;
-      u.current = !0, wrapperEl.toggleAttribute("data-dragging", !0), Q(de.id), log.debug("Compositor: Dragging", de.id), foundDropTarget = !1, L.dataTransfer.setData("text/plain", de.id), L.dataTransfer.dropEffect = "move", L.dataTransfer.setDragImage(dragImage, 10, 10), (T = v.current) == null || T.toggleAttribute("data-drag-target-active", !0);
+      u.current = !0, wrapperEl.toggleAttribute("data-dragging", !0), Q(de.id), log.debug("Compositor: Dragging", de.id), L.dataTransfer.setData("text/plain", de.id), L.dataTransfer.dropEffect = "move", L.dataTransfer.setDragImage(dragImage, 10, 10), (T = v.current) == null || T.toggleAttribute("data-drag-target-active", !0);
     },
     ondragend: (L) => {
       var T;
-      u.current = !1, foundDropTarget || (log.info("Compositor: No drop target - deleting node", de), CoreContext.Command.deleteNode({
-        nodeId: de.id
-      })), Q(null), wrapperEl.toggleAttribute("data-dragging", !0), log.debug("Compositor: DragEnd", L), (T = v.current) == null || T.toggleAttribute("data-drag-target-active", !1), wrapperEl.querySelectorAll("[data-item]").forEach((B) => {
-        B.toggleAttribute("data-drag-target-active", !1), B.toggleAttribute("data-layout-drop-target-active", !1), B.toggleAttribute("data-transform-drop-target-active", !1);
+      u.current = !1, Q(null), wrapperEl.toggleAttribute("data-dragging", !1), log.debug("Compositor: DragEnd", L), (T = v.current) == null || T.toggleAttribute("data-drag-target-active", !1), wrapperEl.toggleAttribute("data-drop-target-ready", !1), wrapperEl.querySelectorAll("[data-item]").forEach((B) => {
+        B.toggleAttribute("data-drag-target-active", !1), B.toggleAttribute("data-layout-drop-target-active", !1), B.toggleAttribute("data-transform-drop-target-active", !1), B.toggleAttribute("data-transform-drop-self-active", !1);
       });
     },
     ondragenter: (L) => {
-      var T;
-      L.preventDefault(), L.stopPropagation(), !u.current && ((T = v.current) == null || T.toggleAttribute("data-transform-drop-target-active", !0));
+      var T, B;
+      L.preventDefault(), L.stopPropagation(), u.current ? (T = v.current) == null || T.toggleAttribute("data-transform-drop-self-active", !0) : (B = v.current) == null || B.toggleAttribute("data-transform-drop-target-active", !0), setTimeout(() => {
+        u.current || wrapperEl.toggleAttribute("data-drop-target-ready", !0);
+      });
     },
     ondragleave: (L) => {
-      var T;
-      L.preventDefault(), L.stopPropagation(), (T = v.current) == null || T.toggleAttribute("data-transform-drop-target-active", !1);
+      var T, B;
+      L.preventDefault(), L.stopPropagation(), (T = v.current) == null || T.toggleAttribute("data-transform-drop-self-active", !1), (B = v.current) == null || B.toggleAttribute("data-transform-drop-target-active", !1), wrapperEl.toggleAttribute("data-drop-target-ready", !1);
     }
   } : {};
   useEffect(() => {
@@ -83756,11 +83754,9 @@ const ElementTree = (a) => {
     "data-drag-target": !0,
     style: {
       position: "absolute",
-      background: "rgba(0,0,0,0.6)",
-      outline: "3px solid rgba(255,255,255,0.5)",
       pointerEvents: S ? "all" : "none",
       opacity: S ? 1 : 0,
-      transition: S ? "opacity 500ms ease 200ms, transform 150ms ease" : "",
+      transition: S ? "opacity 500ms ease 200ms, background-color 100ms ease" : "",
       ...T
     },
     onDragEnter: (ee) => {
@@ -83771,11 +83767,11 @@ const ElementTree = (a) => {
           preset: L,
           setLocalState: Ce
         });
-      }, 750);
-      _(pe);
+      }, 250);
+      _(pe), ee.stopPropagation();
     },
     onDragLeave: (ee) => {
-      $(ee.currentTarget);
+      $(ee.currentTarget), ee.stopPropagation();
     },
     onDrop: (ee) => {
       $(ee.currentTarget), ae == null || ae({
@@ -83835,7 +83831,7 @@ const ElementTree = (a) => {
     return k(), CoreContext.onInternal("ProjectChanged", k);
   }, [v]), u ? /* @__PURE__ */ React.createElement("div", {
     onDrop: (p) => {
-      foundDropTarget = !0, p.preventDefault();
+      p.preventDefault();
     },
     onDragOver: (p) => {
       p.preventDefault();
@@ -83951,6 +83947,10 @@ video {
   position: absolute;
 }
 
+.item-element {
+  transition: opacity 150ms ease;
+}
+
 .interactive-overlay .interactive-overlay-hover {
   opacity: 0;
   pointer-events: none;
@@ -83961,8 +83961,13 @@ video {
   pointer-events: all;
 }
 
+.layout-preset-zone {
+  background-color: rgba(0,0,0,0.6);
+  outline: 2px solid rgba(255,255,255,0.3);
+}
+
 .layout-preset-zone[data-preset-drag-target-active] {
-  transform: scale(1.1);
+  background-color: rgba(255,255,255,0.3);
 }
 
 .layout-preset-zone.Alert[data-preset-drag-target-active] {
@@ -83988,20 +83993,25 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
   position: absolute !important;
 }
 
-#compositor-root[data-dragging] {}
+#compositor-root[data-dragging] * {
+  cursor: grabbing !important;
+}
 
 [data-drag-target] {}
-[data-drag-target]:hover > .interactive-overlay {
+[data-drag-target]:hover:not([data-drag-target-active]) > .interactive-overlay {
   box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.5);
   cursor: grab;
 }
 [data-drop-target] {}
 [data-drop-target]:hover {}
 [data-drag-target][data-drag-target-active] > .interactive-overlay {
-  box-shadow: 0 0 0 3px inset rgba(255, 255, 255, 0.2);
+  border: 3px solid #ffff007d;
 }
-[data-drag-target][data-drag-target-active] > .item-element {
-  opacity: 0.8;
+[data-drag-target][data-drag-target-active]:not([data-transform-drop-self-active]) > .interactive-overlay {
+  border: 3px dashed #ffff007d;
+}
+#compositor-root[data-drop-target-ready] [data-drag-target][data-drag-target-active] > .item-element {
+  opacity: 0.6;
 }
 [data-layout-drop-target-active] > .interactive-overlay {
   box-shadow: 0 0 0 3px inset yellow;
