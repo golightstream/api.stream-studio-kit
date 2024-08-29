@@ -101,7 +101,8 @@ const addingCache = {
   game: new Set<string>(),
 }
 
-export type ParticipantType = 'camera' | 'screen' | 'rtmp' | 'game'
+export type ParticipantType = 'camera' | 'screen'
+export type SourceType = 'rtmp' | 'game'
 
 interface ScenelessProject extends SDK.Project {}
 
@@ -312,54 +313,29 @@ export interface Commands {
   ): Disposable
 
   /**
-   * @private
-   * Get the node associated with an RTMP Source
+   * Add an RTMP or GAME Source to the canvas
    */
-  getRTMPNode(id: string): Compositor.SceneNode
-
-  /**
-   * Use the RTMP nodes that are on currently on stage.
-   */
-  useRTMPNodes(cb: (nodes: Compositor.SceneNode[]) => void): Disposable
-
-  /**
-   * Add an RTMP Source to the canvas
-   */
-  addRTMPSource(
+  addSourceNode(
     id: string,
     props: Partial<ParticipantProps>,
-    type?: ParticipantType,
+    type?: SourceType,
   ): Promise<void>
 
   /**
-   * Remove an RTMP source from the canvas
+   * Remove an RTMP or GAME source from the canvas
    */
-  removeRTMPSource(id: string): void
+  removeSourceNode(id: string, type: SourceType): Promise<void>
 
   /**
    * @private
-   * Get the node associated with an RTMP Source
+   * Get the node associated with an RTMP or GAME Source
    */
-  getGameSourceNode(id: string): Compositor.SceneNode
+  getSourceNode(id: string): Compositor.SceneNode
 
   /**
-   * Use the RTMP nodes that are on currently on stage.
+   * Use the RTMP or GAME nodes that are on currently on stage.
    */
-  useGameSourceNodes(cb: (nodes: Compositor.SceneNode[]) => void): Disposable
-
-  /**
-   * Add an RTMP Source to the canvas
-   */
-  addGameSource(
-    id: string,
-    props: Partial<ParticipantProps>,
-    type?: ParticipantType,
-  ): Promise<void>
-
-  /**
-   * Remove an RTMP source from the canvas
-   */
-  removeGameSource(id: string): void
+  useSourceNodes(cb: (nodes: Compositor.SceneNode[]) => void): Disposable
   /**
    * Add a participant camera track to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
@@ -522,7 +498,11 @@ export interface Commands {
   /**
    * Update the layout props of a node
    */
-  updateLayoutProps(nodeId: string, layout: LayoutName, layoutProps: LayoutProps): Promise<void>
+  updateLayoutProps(
+    nodeId: string,
+    layout: LayoutName,
+    layoutProps: LayoutProps,
+  ): Promise<void>
 }
 
 /**
@@ -728,7 +708,11 @@ export const commands = (_project: ScenelessProject) => {
       return foregroundLogoContainer?.children[0]?.props?.id
     },
 
-    async updateLayoutProps(nodeId: string, layout: LayoutName, layoutProps: LayoutProps) {
+    async updateLayoutProps(
+      nodeId: string,
+      layout: LayoutName,
+      layoutProps: LayoutProps,
+    ) {
       Command.setNodeLayout({
         nodeId: nodeId,
         layout,
@@ -1691,19 +1675,63 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
 
-    getRTMPNode(id: string) {
-      return content.children.find(
-        (x) =>
-          x.props.sourceProps?.id === id &&
-          x.props.sourceProps?.type === 'rtmp',
+    async addSourceNode(
+      id: string,
+      props: Partial<ParticipantProps> = {
+        isMuted: true,
+        isHidden: false,
+        volume: 0,
+      },
+      type: SourceType = 'rtmp',
+    ) {
+      if (addingCache[type].has(id)) {
+        return
+      }
+      const { isMuted = false, isHidden = false, volume = 1 } = props
+      const existing = content.children.find(
+        (x) => x.props.sourceProps?.id === id,
       )
+      if (existing) return
+
+      addingCache[type].add(id)
+      // Get the participant type in the first position
+      await CoreContext.Command.createNode({
+        props: {
+          name: type.toUpperCase(),
+          sourceType: type.toUpperCase(),
+          sourceProps: {
+            type,
+            id,
+          },
+          volume,
+          isMuted,
+          isHidden,
+        },
+        parentId: content.id,
+      }).finally(() => {
+        addingCache[type].delete(id)
+      })
     },
 
-    useRTMPNodes(cb) {
+    async removeSourceNode(id: string) {
+      content.children
+        .filter((x) => x.props.sourceProps?.id === id)
+        .forEach((x) => {
+          CoreContext.Command.deleteNode({
+            nodeId: x.id,
+          })
+        })
+    },
+
+    getSourceNode(id: string) {
+      return content.children.find((x) => x.props.sourceProps?.id === id)
+    },
+
+    useSourceNodes(cb, type: SourceType = 'rtmp') {
       let nodeIds: string[] = []
       const sendState = () => {
         const nodes = content.children.filter(
-          (n) => n.props?.sourceProps?.type === 'rtmp',
+          (n) => n.props?.sourceProps?.type === type,
         )
         nodeIds = nodes.map((n) => n.id)
         return cb(nodes)
@@ -1715,7 +1743,7 @@ export const commands = (_project: ScenelessProject) => {
         'NodeChanged',
         (payload) => {
           const node = _project.scene.get(payload.nodeId)
-          if (node?.props?.sourceProps?.type === 'rtmp') {
+          if (node?.props?.sourceProps?.type === type) {
             sendState()
           }
         },
@@ -1734,169 +1762,6 @@ export const commands = (_project: ScenelessProject) => {
         nodeAddedListener()
         nodeRemovedListener()
       }
-    },
-
-    async addRTMPSource(
-      id: string,
-      props: Partial<ParticipantProps> = {
-        isMuted: true,
-        isHidden: false,
-        volume: 0,
-      },
-    ) {
-      const type = 'rtmp'
-      if (addingCache[type].has(id)) {
-        return
-      }
-      const { isMuted = false, isHidden = false, volume = 1 } = props
-      const existing = content.children.find(
-        (x) =>
-          x.props.sourceProps?.id === id && x.props.sourceProps?.type === type,
-      )
-      if (existing) return
-
-      addingCache[type].add(id)
-      // Get the participant type in the first position
-      const currentFirst = content.children[0]
-      let index = content.children.length
-
-      await CoreContext.Command.createNode({
-        props: {
-          name: 'RTMP',
-          sourceType: 'RTMP',
-          sourceProps: {
-            type,
-            id,
-          },
-          volume,
-          isMuted,
-          isHidden,
-        },
-        parentId: content.id,
-        index,
-      }).finally(() => {
-        addingCache[type].delete(id)
-      })
-    },
-
-    removeRTMPSource(id: string) {
-      const type = 'rtmp'
-      content.children
-        .filter(
-          (x) =>
-            x.props.sourceProps?.id === id &&
-            x.props.sourceProps?.type === type &&
-            x.props.sourceType === 'RTMP',
-        )
-        .forEach((x) => {
-          CoreContext.Command.deleteNode({
-            nodeId: x.id,
-          })
-        })
-    },
-
-    getGameSourceNode(id: string) {
-      return content.children.find(
-        (x) =>
-          x.props.sourceProps?.id === id &&
-          x.props.sourceProps?.type === 'game',
-      )
-    },
-
-    useGameSourceNodes(cb) {
-      let nodeIds: string[] = []
-      const sendState = () => {
-        const nodes = content.children.filter(
-          (n) => n.props?.sourceProps?.type === 'game',
-        )
-        nodeIds = nodes.map((n) => n.id)
-        return cb(nodes)
-      }
-
-      sendState()
-
-      const nodeAddedListener = CoreContext.onInternal(
-        'NodeChanged',
-        (payload) => {
-          const node = _project.scene.get(payload.nodeId)
-          if (node?.props?.sourceProps?.type === 'game') {
-            sendState()
-          }
-        },
-      )
-
-      const nodeRemovedListener = CoreContext.onInternal(
-        'NodeRemoved',
-        (payload) => {
-          if (nodeIds.indexOf(payload.nodeId) !== -1) {
-            sendState()
-          }
-        },
-      )
-
-      return () => {
-        nodeAddedListener()
-        nodeRemovedListener()
-      }
-    },
-
-    async addGameSource(
-      id: string,
-      props: Partial<ParticipantProps> = {
-        isMuted: true,
-        isHidden: false,
-        volume: 0,
-      },
-    ) {
-      const type = 'game'
-      if (addingCache[type].has(id)) {
-        return
-      }
-      const { isMuted = false, isHidden = false, volume = 1 } = props
-      const existing = content.children.find(
-        (x) =>
-          x.props.sourceProps?.id === id && x.props.sourceProps?.type === type,
-      )
-      if (existing) return
-
-      addingCache[type].add(id)
-      // Get the participant type in the first position
-      const currentFirst = content.children[0]
-      let index = content.children.length
-
-      await CoreContext.Command.createNode({
-        props: {
-          name: 'Game',
-          sourceType: 'Game',
-          sourceProps: {
-            type,
-            id,
-          },
-          volume,
-          isMuted,
-          isHidden,
-        },
-        parentId: content.id,
-        index,
-      }).finally(() => {
-        addingCache[type].delete(id)
-      })
-    },
-
-    removeGameSource(id: string) {
-      const type = 'game'
-      content.children
-        .filter(
-          (x) =>
-            x.props.sourceProps?.id === id &&
-            x.props.sourceProps?.type === type &&
-            x.props.sourceType === 'Game',
-        )
-        .forEach((x) => {
-          CoreContext.Command.deleteNode({
-            nodeId: x.id,
-          })
-        })
     },
 
     async addParticipantTrack(
@@ -2224,9 +2089,9 @@ export type LayoutProps = {
   useGrid?: boolean
   reverse?: boolean
   /** used for type alert */
-  type?: string 
+  type?: string
   /** Either 'top-center' or 'bottom-center' **/
-  preset?: string  
+  preset?: string
 }
 
 type ScenelessSettings = {
