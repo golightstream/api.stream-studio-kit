@@ -101,7 +101,7 @@ const addingCache = {
   game: new Set<string>(),
 }
 
-export type ParticipantType = 'camera' | 'screen'
+export type ParticipantType = 'camera' | 'screen' | 'rtmp' | 'game'
 
 interface ScenelessProject extends SDK.Project {}
 
@@ -1712,7 +1712,7 @@ export const commands = (_project: ScenelessProject) => {
       sendState()
 
       const nodeAddedListener = CoreContext.onInternal(
-        'NodeAdded',
+        'NodeChanged',
         (payload) => {
           const node = _project.scene.get(payload.nodeId)
           if (node?.props?.sourceProps?.type === 'rtmp') {
@@ -1816,7 +1816,7 @@ export const commands = (_project: ScenelessProject) => {
       sendState()
 
       const nodeAddedListener = CoreContext.onInternal(
-        'NodeAdded',
+        'NodeChanged',
         (payload) => {
           const node = _project.scene.get(payload.nodeId)
           if (node?.props?.sourceProps?.type === 'game') {
