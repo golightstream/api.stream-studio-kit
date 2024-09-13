@@ -174,7 +174,7 @@ const GuestCompoent = () => {
   }, [project])
 
   // Gets all webcams and microphones for the guest, listens for changes to available devices
-  const devices = useDevices(()
+  const devices = useDevices()
 
   // As soon as we have our devices, the first available webcam and microphone will be shared across the WebRTC Room.
   useEffect(() => {
