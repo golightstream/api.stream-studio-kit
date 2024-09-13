@@ -44,7 +44,7 @@ import { Compositor, SDK } from '../core/namespaces'
 import { Banner, BannerProps, BannerSource } from '../core/sources/Banners'
 import { RoomParticipantSource } from '../core/sources/WebRTC'
 import { ChatOverlayProps } from '../core/transforms/ChatOverlay'
-import { Disposable, SceneNode } from '../core/types'
+import { Disposable, SceneNode, VideoRendering } from '../core/types'
 import { cloneDeep, deepEqual, findAll, generateId } from '../logic'
 import { BackgroundProps } from './../core/transforms/Background'
 import { LogoProps } from './../core/transforms/Logo'
@@ -512,6 +512,14 @@ export interface Commands {
     layout: LayoutName,
     layoutProps: LayoutProps,
   ): Promise<void>
+  /**
+   * Get the current video rendering properties of the project.
+   */
+  getVideoRendering(): VideoRendering
+  /**
+   * Update the video rendering properties of the project. This includes height, width, framerate, and/or colorspace.
+   */
+  updateVideoRendering(videoRendering: VideoRendering): Promise<void>
 }
 
 /**
@@ -529,6 +537,7 @@ export const commands = (_project: ScenelessProject) => {
   const background = root.children.find((x) => x.props.id === 'bg')
   const content = root.children.find((x) => x.props.id === 'content')
   const foreground = root.children.find((x) => x.props.id === 'foreground')
+  const currentVideoRendering = _project.rendering.video
 
   let foregroundImageIframeContainer = foreground?.children?.find(
     (x) => x.props.id === 'fg-image-iframe',
@@ -728,6 +737,17 @@ export const commands = (_project: ScenelessProject) => {
         layoutProps: {
           ...layoutProps,
         },
+      })
+    },
+
+    getVideoRendering() {
+      return currentVideoRendering
+    },
+
+    async updateVideoRendering(videoRendering) {
+      Command.updateProjectVideoRendering({
+        projectId,
+        videoRendering,
       })
     },
 

@@ -411,6 +411,38 @@ export const updateProjectProps = async (payload: {
 }
 
 /**
+ * Update a project's rendering height, width, framerate, and/or colorspace
+ * Existing props are not affected unless explicitly overwritten.
+ *
+ * @category Project
+ */
+export const updateProjectVideoRendering = async (payload: {
+  projectId: SDK.Project['id']
+  /** video rendering props, including resolution / framerate data */
+  videoRendering: SDK.VideoRendering
+}) => {
+  const { projectId, videoRendering } = payload
+  const collectionId = getUser().id
+  const project = getProject(projectId)
+
+  const response = await CoreContext.clients.LiveApi().project.updateProject({
+    collectionId,
+    projectId,
+    updateMask: ['rendering.video'],
+    rendering: {
+      video: {
+        ...(project.videoApi.project.rendering?.video ?? {}),
+        ...videoRendering,
+      },
+    },
+  })
+
+  // Trigger event to update state
+  await triggerInternal('ProjectChanged', { project: response.project })
+  return
+}
+
+/**
  * @private Use updateProjectProps without internaltriggers
  */
 export const updateProjectPropsWithoutTrigger = async (payload: {
