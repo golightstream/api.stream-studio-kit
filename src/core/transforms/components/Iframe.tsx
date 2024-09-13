@@ -73,11 +73,19 @@ const Iframe = ({
   return (
     <React.Fragment>
       {children ? (
-        <iframe ref={iframeRef} {...props}>
+        <iframe
+          ref={iframeRef}
+          {...props}
+          style={{ colorScheme: 'normal', ...props.style }}
+        >
           {children}
         </iframe>
       ) : (
-        <iframe ref={iframeRef} {...props} />
+        <iframe
+          ref={iframeRef}
+          {...props}
+          style={{ colorScheme: 'normal', ...props.style }}
+        />
       )}
     </React.Fragment>
   )
