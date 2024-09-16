@@ -630,13 +630,13 @@ const scenelessProjectDragCheck = (node: SceneNode) => {
     node.props.name === 'Participant' ||
     node.props.sourceType === 'RoomParticipant' ||
     node.props.sourceType === 'RTMP' ||
-    node.props.sourceType === 'Alert'
+    node.props.sourceType === 'Game'
   )
 }
 
 /** This is a default check based on legacy behavior */
 const scenelessProjectDropCheck = (node: SceneNode) => {
-  return node.props.name === 'Content' || node.props.name === 'AlertContainer'
+  return node.props.name === 'Content'
 }
 
 type CompositorContext = {

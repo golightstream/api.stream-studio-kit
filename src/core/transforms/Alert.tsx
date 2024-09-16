@@ -6,10 +6,7 @@ import React, { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { APIKitAnimationTypes } from '../../animation/core/types'
 import APIKitAnimation from '../../compositor/html/html-animation'
-import CoreContext from '../context'
-import { getProject } from '../data'
 import { Compositor } from '../namespaces'
-import { Role } from '../types'
 import Iframe from './components/Iframe'
 export type AlertOverlayProps = {
     src?: string
@@ -35,8 +32,7 @@ export const Alert = {
     ) {
 
         const root = document.createElement('div')
-        const role = getProject(CoreContext.state.activeProjectId).role
-
+    
         const Alert = ({ source }: { source: AlertOverlaySource }) => {
             const { id } = source || {}
             const [startAnimation, setStartAnimation] = React.useState(false)
@@ -48,13 +44,9 @@ export const Alert = {
             const queryParams = React.useMemo(() => {
                 return Object.entries(settings)
                     .map((e) => e.join('='))
-                    .concat(
-                        role === Role.ROLE_RENDERER
-                            ? [`mode=engine`]
-                            : [`mode=lightstream`],
-                    )
+                    .concat( [`mode=engine`])
                     .join('&')
-            }, [settings, role])
+            }, [settings])
 
             const resizeIframe = React.useCallback(() => {
                 if (iframeRef.current) {
