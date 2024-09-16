@@ -18,7 +18,7 @@ const getPresetStyle = (preset: string) => {
   const project = getProject(CoreContext.state.activeProjectId)
   const root = project.compositor.getRoot()
   const { x: rootWidth, y: rootHeight } = root.props.size
-  const scaleTo = (rootWidth ?? 1920) / 1280
+  const scaleTo = 1;
   const alertWidthPercentage = ((633 * scaleTo) / rootWidth) * 100
   const alertHeightPercentage = ((290 * scaleTo) / rootHeight) * 100
 

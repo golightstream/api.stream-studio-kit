@@ -1241,7 +1241,7 @@ export const commands = (_project: ScenelessProject) => {
       }
 
       const { x: rootWidth } = root.props.size
-      const scaleTo = (rootWidth ?? 1920) / 1280
+      const scaleTo = (rootWidth ?? 1920) / 1920
 
       if (!existingForegroundNode) {
         await CoreContext.Command.createNode({
