@@ -327,6 +327,7 @@ const ElementTree = (props: { nodeId: string }) => {
     <div
       ref={rootRef}
       data-id={node.id + '-x'}
+      data-source-type={node.props.sourceType}
       data-item
       {...(isDragTarget && {
         'data-drag-target': true,
