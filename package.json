@@ -1,6 +1,6 @@
 {
   "name": "@api.stream/studio-kit",
-  "version": "3.0.23",
+  "version": "3.0.24",
   "description": "Client SDK for building studio experiences with API.stream",
   "license": "MIT",
   "private": false,
