@@ -19,9 +19,9 @@ const getPresetStyle = (preset: string) => {
   const root = project.compositor.getRoot()
   const { x: rootWidth, y: rootHeight } = root.props.size
   const scaleTo = 1;
-  const alertWidthPercentage = ((633 * scaleTo) / rootWidth) * 100
-  const alertHeightPercentage = ((290 * scaleTo) / rootHeight) * 100
-
+  const alertWidthPercentage = ((507 * scaleTo) / rootWidth) * 100
+  const alertHeightPercentage = ((153 * scaleTo) / rootHeight) * 100
+  
   const baseStyle = {
     position: 'absolute' as 'absolute',
     width: `${alertWidthPercentage}%`,
