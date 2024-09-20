@@ -424,6 +424,37 @@ export const init = async (
       }
     })
 
+  const createGuestCode = (options: GuestOptions = {}, url?: string) => {
+    const {
+      displayName,
+      role,
+      maxDuration = CoreContext.config.defaults.guestTokenDuration,
+      projectId = CoreContext.state.activeProjectId,
+    } = options
+    const project = getProject(projectId)
+
+    const token = displayName
+      ? {
+        direct: {
+          displayName,
+        },
+      }
+      : {
+        exchange: {
+          maxDuration,
+        },
+      }
+
+    return client.LiveApi().authentication.createGuestCode({
+      projectId,
+      token,
+      url,
+      collectionId: project.videoApi.project.collectionId,
+      maxDuration,
+      role: (role || LiveApiModel.Role.ROLE_GUEST) as LiveApiModel.Role,
+    })
+  }
+
   const createGuestToken = (options: GuestOptions = {}, url?: string) => {
     const {
       displayName,
@@ -435,15 +466,15 @@ export const init = async (
 
     const token = displayName
       ? {
-          direct: {
-            displayName,
-          },
-        }
+        direct: {
+          displayName,
+        },
+      }
       : {
-          exchange: {
-            maxDuration,
-          },
-        }
+        exchange: {
+          maxDuration,
+        },
+      }
 
     return client.LiveApi().authentication.createGuestAccessToken({
       projectId,
@@ -491,8 +522,21 @@ export const init = async (
       return response.url
     },
     createGuestLink: async (baseUrl, options = {}) => {
-      const response = await createGuestToken(options, baseUrl)
-      return response.url
+      const response = await createGuestCode(options, baseUrl)
+      return response.guestCode.linkUrl
+    },
+    deleteGuestLink: async (code: string) => {
+      await client.LiveApi().authentication.deleteGuestCode({ code })
+    },
+    getGuestLinks: async (options = {}) => {
+      const {
+        projectId = CoreContext.state.activeProjectId,
+      } = options
+      const project = getProject(projectId)
+      return await client.LiveApi().authentication.getGuestCodes({
+        projectId: projectId,
+        collectionId: project?.videoApi.project.collectionId!,
+      })
     },
     createGuestToken: async (options = {}) => {
       const response = await createGuestToken(options)
