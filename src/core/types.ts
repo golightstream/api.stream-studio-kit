@@ -745,7 +745,23 @@ export interface Studio {
    * may distribute to invite guests to their stream
    * (typically as WebRTC {@link Participant Participants}).
    */
+
+  /**
+  * These are a new set of endpoints for managing guest codes and are different to the existing one
+  * To create a guest code, The guest code returned looks like this, linkUrl is what you should copy to the users 
+  */
   createGuestLink: (baseUrl: string, options?: GuestOptions) => Promise<string>
+ 
+  /**
+   * To delete a guest code
+   */
+  deleteGuestLink: (link: string) => Promise<void>
+
+  /**
+   * To list all guest codes
+   */
+  getGuestLinks: (options?: GuestOptions) => Promise<{ guestCodes: LiveApiModel.IssuedGuestCode[] }>
+  
   /**
    * Create a link with an embedded access token.
    * This link resolves to a URL demonstrating the stream output.
