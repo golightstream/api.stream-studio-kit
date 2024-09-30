@@ -256,12 +256,12 @@ const ElementTree = (props: { nodeId: string }) => {
               })
             })
 
-            wrapperEl.removeEventListener('pointermove', onGlobalPointerMove)
-            wrapperEl.removeEventListener('pointerup', onGlobalPointerUp)
+            document.removeEventListener('pointermove', onGlobalPointerMove)
+            document.removeEventListener('pointerup', onGlobalPointerUp)
           }
 
-          wrapperEl.addEventListener('pointermove', onGlobalPointerMove)
-          wrapperEl.addEventListener('pointerup', onGlobalPointerUp)
+          document.addEventListener('pointermove', onGlobalPointerMove)
+          document.addEventListener('pointerup', onGlobalPointerUp)
         },
         onpointerup: (e) => {
           // If a target is draggable, it will also be treated as
