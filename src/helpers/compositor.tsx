@@ -63,15 +63,13 @@ class ErrorBoundary extends React.Component<
 const onDrop = async (
   data: {
     dropNodeId: string
+    dragNodeId: string
     dropType: 'layout' | 'transform'
     project: InternalProject
   },
-  e: React.DragEvent,
+  e: PointerEvent,
 ) => {
-  e.preventDefault()
-  e.stopPropagation()
-  const { dropNodeId, dropType, project } = data
-  const dragNodeId = e.dataTransfer.getData('text/plain')
+  const { dropNodeId, dragNodeId, dropType, project } = data
   log.debug('Compositor: Dropping', { dropType, dragNodeId, dropNodeId })
 
   if (dropNodeId === dragNodeId) return
@@ -117,9 +115,13 @@ const onDrop = async (
   })
 }
 
-let foundDropTarget = false
+let draggingNodeIdRef: string | null = null
+
+const DRAG_DISTANCE_REQUIRED = 2
+
 const ElementTree = (props: { nodeId: string }) => {
-  const isDragging = useRef(false)
+  const activePointerCoords = useRef<{ x: number; y: number } | undefined>()
+  const isDraggingSelf = useRef(false)
   const interactiveRef = useRef<HTMLDivElement>()
   const transformRef = useRef<HTMLDivElement>()
   const rootRef = useRef<HTMLDivElement>()
@@ -128,6 +130,7 @@ const ElementTree = (props: { nodeId: string }) => {
     projectId,
     interactive,
     draggingNodeId,
+    dropTargetNodeId,
     onElementDoubleClick,
     checkDragTarget,
     checkDropTarget,
@@ -135,6 +138,7 @@ const ElementTree = (props: { nodeId: string }) => {
     onPresetPreview,
     onPresetSelect,
     setDraggingNodeId,
+    setDropTargetNodeId,
   } = useContext(CompositorContext)
   const { nodeId } = props
   const project = getProject(projectId)
@@ -156,108 +160,151 @@ const ElementTree = (props: { nodeId: string }) => {
 
   let isDraggingChild = node.children.some((x) => x.id === draggingNodeId)
 
-  let layoutDragHandlers = isDropTarget
-    ? ({
-        onDrop: (e: React.DragEvent) => {
-          foundDropTarget = true
-          return onDrop(
-            {
-              dropType: 'layout',
-              dropNodeId: node.id,
-              project,
-            },
-            e,
-          )
-        },
-        onDragEnter: (e: React.DragEvent) => {
-          e.preventDefault()
-          e.stopPropagation()
-          rootRef.current?.toggleAttribute(
-            'data-layout-drop-target-active',
-            true,
-          )
-        },
-        onDragLeave: (e: React.DragEvent) => {
-          e.preventDefault()
-          e.stopPropagation()
-          rootRef.current?.toggleAttribute(
-            'data-layout-drop-target-active',
-            false,
-          )
-        },
-      } as React.HTMLAttributes<HTMLDivElement>)
-    : {}
+  let layoutDragHandlers =
+    isDropTarget && draggingNodeId && !isDraggingSelf.current
+      ? ({
+          onpointerup: (e) => {
+            log.debug('Compositor: PointerUp "Layout"', node.id)
+            return onDrop(
+              {
+                dropType: 'layout',
+                dropNodeId: node.id,
+                dragNodeId: draggingNodeId,
+                project,
+              },
+              e,
+            )
+          },
+          onpointerenter: (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            rootRef.current?.toggleAttribute(
+              'data-layout-drop-target-active',
+              true,
+            )
+          },
+          onpointerleave: (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            rootRef.current?.toggleAttribute(
+              'data-layout-drop-target-active',
+              false,
+            )
+          },
+        } as Partial<HTMLElement>)
+      : {}
 
   let transformDragHandlers = isDragTarget
     ? ({
-        draggable: true,
-        // If a target is draggable, it will also be treated as
-        //  a drop target (swap element positions)
-        ondrop: (e) => {
-          foundDropTarget = true
-          return onDrop(
-            {
-              dropType: 'transform',
-              dropNodeId: node.id,
-              project,
-            },
-            // @ts-ignore TODO: Convert all to native drag events
-            e,
-          )
-        },
-        ondragstart: (e) => {
-          isDragging.current = true
-          wrapperEl.toggleAttribute('data-dragging', true)
-          setDraggingNodeId(node.id)
+        onpointerdown: (e) => {
+          // Check for pointer distance move > 1px before treating as a drag
+          activePointerCoords.current = { x: e.clientX, y: e.clientY }
           log.debug('Compositor: Dragging', node.id)
-          foundDropTarget = false
-          e.dataTransfer.setData('text/plain', node.id)
-          e.dataTransfer.dropEffect = 'move'
-          e.dataTransfer.setDragImage(dragImage, 10, 10)
+          wrapperEl.toggleAttribute('data-dragging', true)
           rootRef.current?.toggleAttribute('data-drag-target-active', true)
-        },
-        ondragend: (e) => {
-          isDragging.current = false
-          setDraggingNodeId(null)
-          wrapperEl.toggleAttribute('data-dragging', false)
-          log.debug('Compositor: DragEnd', e)
-          rootRef.current?.toggleAttribute('data-drag-target-active', false)
-          wrapperEl.toggleAttribute('data-drop-target-ready', false)
 
-          wrapperEl.querySelectorAll('[data-item]').forEach((x) => {
-            x.toggleAttribute('data-drag-target-active', false)
-            x.toggleAttribute('data-layout-drop-target-active', false)
-            x.toggleAttribute('data-transform-drop-target-active', false)
-            x.toggleAttribute('data-transform-drop-self-active', false)
-          })
+          const onPointerMove = (e: PointerEvent) => {
+            if (
+              !isDraggingSelf.current &&
+              Boolean(activePointerCoords.current)
+            ) {
+              const isDragging = Boolean(
+                Math.abs(e.clientX - activePointerCoords.current.x) >=
+                  DRAG_DISTANCE_REQUIRED ||
+                  Math.abs(e.clientY - activePointerCoords.current.y) >=
+                    DRAG_DISTANCE_REQUIRED,
+              )
+
+              // Runs only once when dragging starts
+              if (isDragging) {
+                setDraggingNodeId(node.id)
+                isDraggingSelf.current = isDragging
+              }
+            }
+
+            // Runs every frame while dragging
+            if (isDraggingSelf.current) {
+              // TODO: Add drag image to cursor position on every fire of event
+              // TODO: Experiment with taking a snapshot of the element
+            }
+          }
+
+          onPointerMove(e)
+
+          const onPointerUp = (e: PointerEvent) => {
+            setTimeout(() => {
+              log.debug('Compositor: DragEnd', e)
+              activePointerCoords.current = undefined
+              isDraggingSelf.current = false
+              setDraggingNodeId(null)
+              wrapperEl.toggleAttribute('data-dragging', false)
+              wrapperEl.toggleAttribute('data-drop-target-ready', false)
+
+              wrapperEl.querySelectorAll('[data-item]').forEach((x) => {
+                x.toggleAttribute('data-drag-target-active', false)
+                x.toggleAttribute('data-layout-drop-target-active', false)
+                x.toggleAttribute('data-transform-drop-target-active', false)
+                x.toggleAttribute('data-transform-drop-self-active', false)
+              })
+            })
+
+            wrapperEl.removeEventListener('pointermove', onPointerMove)
+            wrapperEl.removeEventListener('pointerup', onPointerUp)
+          }
+
+          wrapperEl.addEventListener('pointermove', onPointerMove)
+          wrapperEl.addEventListener('pointerup', onPointerUp)
         },
-        ondragenter: (e) => {
+        onpointerup: (e) => {
+          // If a target is draggable, it will also be treated as
+          //  a drop target (swap element positions)
+          log.debug('Compositor: PointerUp "Node"', node.id)
+          if (draggingNodeIdRef && draggingNodeIdRef !== node.id) {
+            onDrop(
+              {
+                dropType: 'transform',
+                dropNodeId: node.id,
+                dragNodeId: draggingNodeIdRef,
+                project,
+              },
+              e,
+            )
+          }
+        },
+        onpointerenter: (e) => {
           e.preventDefault()
           e.stopPropagation()
 
-          if (isDragging.current) {
+          if (!draggingNodeIdRef) return
+
+          if (isDraggingSelf.current) {
+            log.debug('Compositor: Mouseenter self', node.id)
             rootRef.current?.toggleAttribute(
               'data-transform-drop-self-active',
               true,
             )
           } else {
+            log.debug('Compositor: Mouseenter other', node.id)
             rootRef.current?.toggleAttribute(
               'data-transform-drop-target-active',
               true,
             )
-          }
 
-          // Timeout to ensure "dragenter" runs after 
-          //  "dragleave" for other elements for global updates
-          setTimeout(() => {
-            if (!isDragging.current) {
-              wrapperEl.toggleAttribute('data-drop-target-ready', true)
-            }
-          })
+            // Timeout to ensure "dragenter" runs after
+            //  "dragleave" for other elements for global updates
+            setTimeout(() => {
+              if (!isDraggingSelf.current) {
+                wrapperEl.toggleAttribute('data-drop-target-ready', true)
+              }
+            })
+          }
         },
-        ondragleave: (e) => {
+        onpointerleave: (e) => {
           e.preventDefault()
           e.stopPropagation()
+
+          if (!draggingNodeIdRef) return
+
           rootRef.current?.toggleAttribute(
             'data-transform-drop-self-active',
             false,
@@ -308,6 +355,12 @@ const ElementTree = (props: { nodeId: string }) => {
     }
   }, [interactiveRef.current])
 
+  useEffect(() => {
+    if (rootRef.current) {
+      Object.assign(interactiveRef.current, layoutDragHandlers)
+    }
+  }, [rootRef.current])
+
   const layoutProps = {
     layout,
     ...(nodeProps.layoutProps ?? {}),
@@ -335,7 +388,6 @@ const ElementTree = (props: { nodeId: string }) => {
       {...(isDropTarget && {
         'data-drop-target': true,
       })}
-      {...layoutDragHandlers}
       style={{
         position: 'relative',
         width: nodeProps.size?.x || '100%',
@@ -488,7 +540,6 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
     <div
       {...{
         onDrop: (e: React.DragEvent) => {
-          foundDropTarget = true
           e.preventDefault()
         },
         onDragOver: (e: React.DragEvent) => {
@@ -643,6 +694,8 @@ const scenelessProjectDropCheck = (node: SceneNode) => {
 type CompositorContext = {
   draggingNodeId: string | null
   setDraggingNodeId: (id: string) => void
+  dropTargetNodeId: string | null
+  setDropTargetNodeId: (id: string) => void
 } & CompositorSettings
 
 export const CompositorContext = React.createContext<CompositorContext | null>(
@@ -654,6 +707,9 @@ const CompositorProvider = ({
   ...props
 }: PropsWithChildren<CompositorSettings>) => {
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null)
+  const [dropTargetNodeId, setDropTargetNodeId] = useState<string | null>(null)
+
+  draggingNodeIdRef = draggingNodeId
 
   return (
     <CompositorContext.Provider
@@ -661,6 +717,8 @@ const CompositorProvider = ({
         ...props,
         draggingNodeId,
         setDraggingNodeId,
+        dropTargetNodeId,
+        setDropTargetNodeId,
       }}
     >
       {children}
