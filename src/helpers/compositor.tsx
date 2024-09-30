@@ -117,7 +117,7 @@ const onDrop = async (
 
 let draggingNodeIdRef: string | null = null
 
-const DRAG_DISTANCE_REQUIRED = 2
+const DRAG_DISTANCE_BUFFER = 2
 
 const ElementTree = (props: { nodeId: string }) => {
   const activePointerCoords = useRef<{ x: number; y: number } | undefined>()
@@ -130,7 +130,6 @@ const ElementTree = (props: { nodeId: string }) => {
     projectId,
     interactive,
     draggingNodeId,
-    dropTargetNodeId,
     onElementDoubleClick,
     checkDragTarget,
     checkDropTarget,
@@ -138,7 +137,6 @@ const ElementTree = (props: { nodeId: string }) => {
     onPresetPreview,
     onPresetSelect,
     setDraggingNodeId,
-    setDropTargetNodeId,
   } = useContext(CompositorContext)
   const { nodeId } = props
   const project = getProject(projectId)
@@ -199,47 +197,57 @@ const ElementTree = (props: { nodeId: string }) => {
         onpointerdown: (e) => {
           // Check for pointer distance move > 1px before treating as a drag
           activePointerCoords.current = { x: e.clientX, y: e.clientY }
+          let latestPointerCoords = activePointerCoords.current
+
           log.debug('Compositor: Dragging', node.id)
           wrapperEl.toggleAttribute('data-dragging', true)
           rootRef.current?.toggleAttribute('data-drag-target-active', true)
 
-          const onPointerMove = (e: PointerEvent) => {
+          const adjustPreviewPosition = () => {
+            if (!isDraggingSelf.current) return
+
+            // Runs every frame while dragging
+            dragPreviewEl.style.top = latestPointerCoords.y - 20 + 'px'
+            dragPreviewEl.style.left = latestPointerCoords.x - 20 + 'px'
+            dragPreviewEl.toggleAttribute('data-active', true)
+
+            requestAnimationFrame(() => adjustPreviewPosition())
+          }
+
+          const onGlobalPointerMove = (e: PointerEvent) => {
             if (
               !isDraggingSelf.current &&
               Boolean(activePointerCoords.current)
             ) {
               const isDragging = Boolean(
                 Math.abs(e.clientX - activePointerCoords.current.x) >=
-                  DRAG_DISTANCE_REQUIRED ||
+                  DRAG_DISTANCE_BUFFER ||
                   Math.abs(e.clientY - activePointerCoords.current.y) >=
-                    DRAG_DISTANCE_REQUIRED,
+                    DRAG_DISTANCE_BUFFER,
               )
 
               // Runs only once when dragging starts
               if (isDragging) {
                 setDraggingNodeId(node.id)
                 isDraggingSelf.current = isDragging
+                adjustPreviewPosition()
               }
             }
-
-            // Runs every frame while dragging
-            if (isDraggingSelf.current) {
-              // TODO: Add drag image to cursor position on every fire of event
-              // TODO: Experiment with taking a snapshot of the element
-            }
+            latestPointerCoords = { x: e.clientX, y: e.clientY }
           }
 
-          onPointerMove(e)
+          onGlobalPointerMove(e)
 
-          const onPointerUp = (e: PointerEvent) => {
+          const onGlobalPointerUp = (e: PointerEvent) => {
             setTimeout(() => {
               log.debug('Compositor: DragEnd', e)
               activePointerCoords.current = undefined
               isDraggingSelf.current = false
               setDraggingNodeId(null)
+
+              dragPreviewEl.toggleAttribute('data-active', false)
               wrapperEl.toggleAttribute('data-dragging', false)
               wrapperEl.toggleAttribute('data-drop-target-ready', false)
-
               wrapperEl.querySelectorAll('[data-item]').forEach((x) => {
                 x.toggleAttribute('data-drag-target-active', false)
                 x.toggleAttribute('data-layout-drop-target-active', false)
@@ -248,12 +256,12 @@ const ElementTree = (props: { nodeId: string }) => {
               })
             })
 
-            wrapperEl.removeEventListener('pointermove', onPointerMove)
-            wrapperEl.removeEventListener('pointerup', onPointerUp)
+            wrapperEl.removeEventListener('pointermove', onGlobalPointerMove)
+            wrapperEl.removeEventListener('pointerup', onGlobalPointerUp)
           }
 
-          wrapperEl.addEventListener('pointermove', onPointerMove)
-          wrapperEl.addEventListener('pointerup', onPointerUp)
+          wrapperEl.addEventListener('pointermove', onGlobalPointerMove)
+          wrapperEl.addEventListener('pointerup', onGlobalPointerUp)
         },
         onpointerup: (e) => {
           // If a target is draggable, it will also be treated as
@@ -569,6 +577,7 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
   )
 }
 
+let dragPreviewEl: HTMLElement
 let wrapperEl: HTMLElement
 let customStyleEl: HTMLStyleElement
 
@@ -616,9 +625,14 @@ export const render = (settings: CompositorSettings) => {
       justifyContent: 'center',
       transformOrigin: 'center',
     })
+    dragPreviewEl = document.createElement('div')
+    dragPreviewEl.id = 'drag-preview'
+
     containerEl.shadowRoot.appendChild(baseStyleEl)
     containerEl.shadowRoot.appendChild(customStyleEl)
     containerEl.shadowRoot.appendChild(wrapperEl)
+    containerEl.shadowRoot.appendChild(dragPreviewEl)
+
     // Scale and center the compositor to fit in the container
     const resizeObserver = new ResizeObserver((entries) => {
       setScale()
@@ -694,8 +708,6 @@ const scenelessProjectDropCheck = (node: SceneNode) => {
 type CompositorContext = {
   draggingNodeId: string | null
   setDraggingNodeId: (id: string) => void
-  dropTargetNodeId: string | null
-  setDropTargetNodeId: (id: string) => void
 } & CompositorSettings
 
 export const CompositorContext = React.createContext<CompositorContext | null>(
@@ -717,8 +729,6 @@ const CompositorProvider = ({
         ...props,
         draggingNodeId,
         setDraggingNodeId,
-        dropTargetNodeId,
-        setDropTargetNodeId,
       }}
     >
       {children}
@@ -803,6 +813,25 @@ ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .Na
 
 #compositor-root[data-dragging] * {
   cursor: grabbing !important;
+}
+
+#drag-preview {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 100px;
+  height: 60px;
+  opacity: 0;
+  background: rgba(0,0,0,0.2);
+  border: 3px solid rgba(255,255,255,0.3);
+  pointer-events: none;
+}
+#drag-preview[data-active] {
+  opacity: 1;
+}
+#compositor-root[data-drop-target-ready] ~ #drag-preview {
+  display: none;
 }
 
 [data-drag-target] {}
