@@ -1743,7 +1743,8 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     async removeSourceNode(id: string) {
-      const source = _project.sources.find(
+      const project = getProject(projectId)
+      const source = project.videoApi.project.sources.find(
         (x) => x.preview.webrtc.participantId === id,
       )
       if (!source) return
