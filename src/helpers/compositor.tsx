@@ -428,28 +428,37 @@ const ElementTree = (props: { nodeId: string }) => {
                 : '',
               ...position,
             }}
-            onDragEnter={(e) => {
+            onPointerOver={(e) => {
+              e.stopPropagation()
+              if (!draggingNodeIdRef) return
+
               e.currentTarget.toggleAttribute(
                 'data-preset-drag-target-active',
                 true,
               )
               const timeout = window.setTimeout(() => {
                 onPresetPreview?.({
-                  node,
+                  node: project.compositor.get(draggingNodeIdRef),
                   preset: name,
                   setLocalState,
                 })
               }, 250)
               setPresetPreviewTimeout(timeout)
-              e.stopPropagation()
             }}
-            onDragLeave={(e) => {
-              clearPresetTimeout(e.currentTarget)
+            onPointerLeave={(e) => {
               e.stopPropagation()
-            }}
-            onDrop={(e) => {
+              if (!draggingNodeIdRef) return
+
               clearPresetTimeout(e.currentTarget)
-              onPresetSelect?.({ node, preset: name })
+            }}
+            onPointerUp={(e) => {
+              if (!draggingNodeIdRef) return
+
+              clearPresetTimeout(e.currentTarget)
+              onPresetSelect?.({
+                node: project.compositor.get(draggingNodeIdRef),
+                preset: name,
+              })
             }}
           ></div>
         ))}
@@ -546,17 +555,6 @@ const Root = (props: { setStyle: (CSS: string) => void }) => {
 
   return (
     <div
-      {...{
-        onDrop: (e: React.DragEvent) => {
-          e.preventDefault()
-        },
-        onDragOver: (e: React.DragEvent) => {
-          e.preventDefault()
-        },
-        onDragLeave: (e: React.DragEvent) => {
-          e.preventDefault()
-        },
-      }}
       style={{
         userSelect: 'none',
         width: `${tree.props.size.x + PADDING * 2}px`,
@@ -719,7 +717,6 @@ const CompositorProvider = ({
   ...props
 }: PropsWithChildren<CompositorSettings>) => {
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null)
-  const [dropTargetNodeId, setDropTargetNodeId] = useState<string | null>(null)
 
   draggingNodeIdRef = draggingNodeId
 
