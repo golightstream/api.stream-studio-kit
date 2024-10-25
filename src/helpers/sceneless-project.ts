@@ -440,6 +440,17 @@ export interface Commands {
    */
   setParticipantMuted(participantId: string, isMuted: boolean): void
   /**
+   * Mute a participant's screenshare without changing their volume.
+   *  This does not affect the underlying MediaStreamTrack.
+   *
+   * Participant screenshares muted in this way will not stop sending
+   *  audio data, but it will not play on the receiving end.
+   *
+   * A host may use this to override a guest's settings
+   *  for the stream output.
+   */
+  setParticipantScreenMuted(participantId: string, isMuted: boolean): void
+  /**
    * Hide a participant video feed from the stream.
    *  This does not affect the underlying MediaStreamTrack.
    *
@@ -450,6 +461,17 @@ export interface Commands {
    *  for the stream output.
    */
   setParticipantHidden(participantId: string, isHidden: boolean): void
+  /**
+   * Hide a participant screen share feed from the stream.
+   *  This does not affect the underlying MediaStreamTrack.
+   *
+   * Participant screens hidden in this way will not stop sending
+   *  video data, but it will not play on the receiving end.
+   *
+   * A host may use this to override a guest's settings
+   *  for the stream output.
+   */
+  setParticipantScreenHidden(participantId: string, isHidden: boolean): void
   /**
    * Remove all participants from the stream canvas who are not actively
    * sending a MediaStreamTrack for display.
@@ -2002,8 +2024,28 @@ export const commands = (_project: ScenelessProject) => {
         },
       })
     },
+    setParticipantScreenMuted(participantId: string, isMuted: boolean) {
+      const node = commands.getParticipantNode(participantId, 'screen')
+      if (!node) return
+      CoreContext.Command.updateNode({
+        nodeId: node.id,
+        props: {
+          isMuted,
+        },
+      })
+    },
     setParticipantHidden(participantId: string, isHidden: boolean) {
       const node = commands.getParticipantNode(participantId)
+      if (!node) return
+      CoreContext.Command.updateNode({
+        nodeId: node.id,
+        props: {
+          isHidden,
+        },
+      })
+    },
+    setParticipantScreenHidden(participantId: string, isHidden: boolean) {
+      const node = commands.getParticipantNode(participantId, 'screen')
       if (!node) return
       CoreContext.Command.updateNode({
         nodeId: node.id,
