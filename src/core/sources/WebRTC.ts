@@ -45,12 +45,7 @@ export const RoomParticipant = {
     videoEnabled: {},
     audioEnabled: {},
   },
-  init({
-    addSource,
-    removeSource,
-    updateSource,
-    getSource,
-  }) {
+  init({ addSource, removeSource, updateSource, getSource }) {
     CoreContext.on('RoomJoined', ({ room }) => {
       let listeners = {} as { [id: string]: Function }
       let previousTracks = [] as SDK.Track[]
@@ -58,7 +53,7 @@ export const RoomParticipant = {
       let participantStreams = {} as { [id: string]: MediaStream }
 
       const updateParticipants = () => {
-        /*  Updating the source of the camera. 
+        /*  Updating the source of the camera.
             Adding multi camera support
         */
         previousTracks
@@ -114,9 +109,15 @@ export const RoomParticipant = {
             return track?.type === 'screen_share'
           })
 
+          const screenshareAudioId = x.trackIds.find((x) => {
+            const track = room.getTrack(x)
+            return track?.type === 'screen_share_audio'
+          })
+
           const webcamTrack = room.getTrack(webcamId)
           const microphoneTrack = room.getTrack(microphoneId)
           const screenshareTrack = room.getTrack(screenshareId)
+          const screenshareAudioTrack = room.getTrack(screenshareAudioId)
 
           // Replace the tracks on the existing MediaStream
           updateMediaStreamTracks(srcObject, {
@@ -125,6 +126,7 @@ export const RoomParticipant = {
           })
           updateMediaStreamTracks(srcObjectScreenshare, {
             video: screenshareTrack?.mediaStreamTrack,
+            audio: screenshareAudioTrack?.mediaStreamTrack,
           })
 
           updateSource(x.id, {
@@ -138,8 +140,12 @@ export const RoomParticipant = {
             videoEnabled: Boolean(
               screenshareTrack && !screenshareTrack.isMuted,
             ),
+            audioEnabled: Boolean(
+              screenshareAudioTrack && !screenshareAudioTrack.isMuted,
+            ),
             displayName:
               x.meta.screenDisplayName || `${x.displayName}'s Screen`,
+            external: screenshareTrack?.isExternal,
           })
         })
       }
@@ -195,14 +201,17 @@ export const RoomParticipant = {
       // Listen for changes to available participants
       room.useParticipants((participants) => {
         // Get participants not contained in previousParticipants
-        const roomParticipants = participants.filter((x) => !x.id.startsWith('source'));
+        const roomParticipants = participants.filter(
+          (x) => !x.id.startsWith('source'),
+        )
         const newParticipants = roomParticipants.filter(
           (participant) =>
             !previousParticipants.some((x) => x.id === participant.id),
         )
         // Get previous participants not contained in current participants
         const removedParticipants = previousParticipants.filter(
-          (participant) => !roomParticipants.some((x) => x.id === participant.id),
+          (participant) =>
+            !roomParticipants.some((x) => x.id === participant.id),
         )
 
         previousParticipants = roomParticipants
