@@ -79,7 +79,8 @@ export const RoomParticipant = {
       /* It's checking if the participant is the local participant. */
       const isSelf =
         source?.id === room?.participantId ||
-        source?.props?.participantId === room?.participantId
+        source?.props?.participantId === room?.participantId ||
+        source?.id.startsWith(room?.participantId)
 
       // Mute audio if explicitly isMuted by host,
       //  or the participant is our local participant
