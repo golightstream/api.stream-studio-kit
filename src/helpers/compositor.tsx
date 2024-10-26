@@ -398,8 +398,8 @@ const ElementTree = (props: { nodeId: string }) => {
       })}
       style={{
         position: 'relative',
-        width: nodeProps.size?.x || '100%',
-        height: nodeProps.size?.y || '100%',
+        width: nodeProps?.size?.x ?? '100%',
+        height: nodeProps?.size?.y ?? '100%',
         pointerEvents: 'none',
       }}
     >
@@ -467,8 +467,8 @@ const ElementTree = (props: { nodeId: string }) => {
         className="interactive-overlay"
         ref={interactiveRef}
         style={{
-          height: '100%',
-          width: '100%',
+          width: (node.props?.isAudioOnly ?? false) ? '0%' : '100%',
+          height: (node.props?.isAudioOnly ?? false) ? '0%' : '100%',
           position: 'absolute',
           zIndex: 2,
         }}

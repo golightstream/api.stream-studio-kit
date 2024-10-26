@@ -13,7 +13,16 @@ import { getProject, getProjectRoom } from '../data'
 type Props = {
   volume: number
   isMuted: boolean
+  /**
+   * `isHidden` denotes whether the video feed is enabled.
+   * If `isHidden` is true, but `isAudioOnly` is false, the placeholder will be rendered.
+   */
   isHidden: boolean
+  /**
+   * `isAudioOnly` denotes whether the participant node appears in the `content` or is contained in the `audioContainer`.
+   * If `isHidden` is true, but `isAudioOnly` is false, the placeholder will be rendered.
+   */
+  isAudioOnly: boolean
   sink: string
 }
 
@@ -73,7 +82,7 @@ export const RoomParticipant = {
     }) => {
       const ref = useRef<HTMLVideoElement>()
 
-      const { volume = 1, isHidden = false } = props || {}
+      const { volume = 1, isHidden = false, isAudioOnly = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
 
       /* It's checking if the participant is the local participant. */
@@ -88,7 +97,7 @@ export const RoomParticipant = {
 
       // Hide video if explicitly isHidden by host or
       // if the participant is sending no video
-      const hasVideo = !props?.isHidden && source?.props?.videoEnabled
+      const hasVideo = !isAudioOnly && !isHidden && source?.props?.videoEnabled
 
       useEffect(() => {
         if (!ref.current) return
@@ -152,8 +161,13 @@ export const RoomParticipant = {
           style={{
             position: 'relative',
             display: 'flex',
-            height: '100%',
-            width: '100%',
+            ...(isAudioOnly ? {
+              height: '0px',
+              width: '0px',
+            } : {
+              height: '100%',
+              width: '100%',
+            }),
           }}
         >
           <div
@@ -170,7 +184,7 @@ export const RoomParticipant = {
               opacity: hasVideo ? '0' : '1',
             }}
           >
-            {source?.props.displayName && (
+            {source?.props.displayName && !props?.isAudioOnly && (
               <div
                 style={{
                   borderRadius: '50%',
@@ -218,7 +232,7 @@ export const RoomParticipant = {
               }}
             />
           </div>
-          {source?.props.displayName && (
+          {source?.props.displayName && !isAudioOnly && (
             <div
               className="NameBannerContainer"
               style={{
