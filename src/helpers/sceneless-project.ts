@@ -65,6 +65,7 @@ export type ParticipantProps = {
   volume: number
   isMuted: boolean
   isHidden: boolean
+  isAudioOnly: boolean
 }
 
 export type HTMLVideoElementAttributes = {
@@ -427,6 +428,7 @@ export interface Commands {
      * Accepted values from [0 - 1]
      */
     volume: number,
+    type?: ParticipantType,
   ): void
   /**
    * Mute a participant without changing their volume.
@@ -438,18 +440,12 @@ export interface Commands {
    * A host may use this to override a guest's settings
    *  for the stream output.
    */
-  setParticipantMuted(participantId: string, isMuted: boolean): void
-  /**
-   * Mute a participant's screenshare without changing their volume.
-   *  This does not affect the underlying MediaStreamTrack.
-   *
-   * Participant screenshares muted in this way will not stop sending
-   *  audio data, but it will not play on the receiving end.
-   *
-   * A host may use this to override a guest's settings
-   *  for the stream output.
-   */
-  setParticipantScreenMuted(participantId: string, isMuted: boolean): void
+  setParticipantMuted(
+    participantId: string,
+    isMuted: boolean,
+    /** @default `camera` */
+    type?: ParticipantType,
+  ): void
   /**
    * Hide a participant video feed from the stream.
    *  This does not affect the underlying MediaStreamTrack.
@@ -460,18 +456,18 @@ export interface Commands {
    * A host may use this to override a guest's settings
    *  for the stream output.
    */
-  setParticipantHidden(participantId: string, isHidden: boolean): void
-  /**
-   * Hide a participant screen share feed from the stream.
-   *  This does not affect the underlying MediaStreamTrack.
-   *
-   * Participant screens hidden in this way will not stop sending
-   *  video data, but it will not play on the receiving end.
-   *
-   * A host may use this to override a guest's settings
-   *  for the stream output.
-   */
-  setParticipantScreenHidden(participantId: string, isHidden: boolean): void
+  setParticipantHidden(
+    participantId: string,
+    isHidden: boolean,
+    /** @default `camera` */
+    type?: ParticipantType,
+  ): void
+  setParticipantAudioOnly(
+    participantId: string,
+    isAudioOnly: boolean,
+    /** @default `camera` */
+    type?: ParticipantType,
+  ): void
   /**
    * Remove all participants from the stream canvas who are not actively
    * sending a MediaStreamTrack for display.
@@ -559,6 +555,7 @@ export const commands = (_project: ScenelessProject) => {
   const background = root.children.find((x) => x.props.id === 'bg')
   const content = root.children.find((x) => x.props.id === 'content')
   const foreground = root.children.find((x) => x.props.id === 'foreground')
+  const audioContainer = root.children.find((x) => x.props.id === 'audio')
   const currentVideoRendering = _project.rendering.video
 
   let foregroundImageIframeContainer = foreground?.children?.find(
@@ -576,6 +573,7 @@ export const commands = (_project: ScenelessProject) => {
   let foregroundVideoContainer = foreground?.children?.find(
     (x) => x.props.id === 'fg-video',
   )
+
   const coreProject = getProject(_project.id)
 
   let bannerContainer = foreground?.children?.find(
@@ -738,7 +736,7 @@ export const commands = (_project: ScenelessProject) => {
       return (getProject(_project.id).props?.banners || []) as Banner[]
     },
     getParticipants() {
-      return content.children.filter((node) => {
+      return content.children.concat(audioContainer.children).filter((node) => {
         if (node.props.sourceType !== 'RoomParticipant') return false
         return true
       })
@@ -1732,14 +1730,21 @@ export const commands = (_project: ScenelessProject) => {
         isMuted: true,
         isHidden: false,
         volume: 0,
+        isAudioOnly: false,
       },
       type: ExternalSourceType = 'rtmp',
     ) {
       if (addingCache[type].has(id)) {
         return
       }
-      const { isMuted = false, isHidden = false, volume = 1 } = props
-      const existing = content.children.find(
+      const {
+        isMuted = false,
+        isHidden = false,
+        volume = 1,
+        isAudioOnly = false,
+      } = props
+      const target = isAudioOnly ? audioContainer : content
+      const existing = target.children.find(
         (x) => x.props.sourceProps?.id === id,
       )
       if (existing) return
@@ -1757,8 +1762,9 @@ export const commands = (_project: ScenelessProject) => {
           volume,
           isMuted,
           isHidden,
+          isAudioOnly,
         },
-        parentId: content.id,
+        parentId: target.id,
       }).finally(() => {
         addingCache[type].delete(id)
       })
@@ -1775,6 +1781,7 @@ export const commands = (_project: ScenelessProject) => {
           ? ExternalSourceTypeMap['game']
           : ExternalSourceTypeMap['rtmp']
       content.children
+        .concat(audioContainer.children)
         .filter(
           (x) =>
             x.props.sourceProps?.id === id && x.props.sourceType === sourceType,
@@ -1787,15 +1794,17 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     getSourceNode(id: string) {
-      return content.children.find((x) => x.props.sourceProps?.id === id)
+      return content.children
+        .concat(audioContainer.children)
+        .find((x) => x.props.sourceProps?.id === id)
     },
 
     useSourceNodes(cb, type: ExternalSourceType = 'rtmp') {
       let nodeIds: string[] = []
       const sendState = () => {
-        const nodes = content.children.filter(
-          (n) => n.props?.sourceProps?.type === type,
-        )
+        const nodes = content.children
+          .concat(audioContainer.children)
+          .filter((n) => n.props?.sourceProps?.type === type)
         nodeIds = nodes.map((n) => n.id)
         return cb(nodes)
       }
@@ -1805,7 +1814,11 @@ export const commands = (_project: ScenelessProject) => {
       const nodeChangedListener = CoreContext.onInternal(
         'NodeChanged',
         (payload) => {
-          if (payload.nodeId !== content.id) return
+          if (
+            payload.nodeId !== content.id &&
+            payload.nodeId !== audioContainer.id
+          )
+            return
           sendState()
         },
       )
@@ -1830,18 +1843,26 @@ export const commands = (_project: ScenelessProject) => {
       props: Partial<ParticipantProps> = {
         isMuted: true,
         isHidden: false,
+        isAudioOnly: false,
         volume: 0,
       },
       type: ParticipantType = 'camera',
     ) {
       if (addingCache[type].has(trackId)) return
 
-      const { isMuted = false, isHidden = false, volume = 1 } = props
-      const existing = content.children.find(
-        (x) =>
-          x.props.sourceProps?.id === trackId &&
-          x.props.sourceProps?.type === type,
-      )
+      const {
+        isMuted = false,
+        isHidden = false,
+        volume = 1,
+        isAudioOnly = false,
+      } = props
+      const existing = content.children
+        .concat(audioContainer.children)
+        .find(
+          (x) =>
+            x.props.sourceProps?.id === trackId &&
+            x.props.sourceProps?.type === type,
+        )
       if (existing) return
 
       addingCache[type].add(trackId)
@@ -1868,6 +1889,7 @@ export const commands = (_project: ScenelessProject) => {
           volume,
           isMuted,
           isHidden,
+          isAudioOnly,
         },
         parentId: content.id,
         index,
@@ -1898,18 +1920,24 @@ export const commands = (_project: ScenelessProject) => {
     ) {
       if (addingCache[type].has(participantId)) return
 
-      const { isMuted = false, isHidden = false, volume = 1 } = props
+      const {
+        isMuted = false,
+        isHidden = false,
+        volume = 1,
+        isAudioOnly = false,
+      } = props
       const existing = content.children.find(
         (x) =>
           x.props.sourceProps?.id === participantId &&
           x.props.sourceProps?.type === type,
       )
       if (existing) return
+      let target = isAudioOnly ? audioContainer : content
 
       addingCache[type].add(participantId)
       // Get the participant type in the first position
-      const currentFirst = content.children[0]
-      let index = content.children.length
+      const currentFirst = target.children[0]
+      let index = target.children.length
 
       // If we're adding a screen and the first position is not already
       //  a screen, then we add it in the first position.
@@ -1930,8 +1958,9 @@ export const commands = (_project: ScenelessProject) => {
           volume,
           isMuted,
           isHidden,
+          isAudioOnly,
         },
-        parentId: content.id,
+        parentId: target.id,
         index,
       }).finally(() => {
         addingCache[type].delete(participantId)
@@ -1939,6 +1968,7 @@ export const commands = (_project: ScenelessProject) => {
     },
     removeParticipant(participantId: string, type: ParticipantType = 'camera') {
       content.children
+        .concat(audioContainer.children)
         .filter(
           (x) =>
             x.props.sourceProps?.id === participantId &&
@@ -1952,10 +1982,13 @@ export const commands = (_project: ScenelessProject) => {
         })
     },
     getParticipantNode(id: string, type: ParticipantType = 'camera') {
-      return content.children.find(
-        (x) =>
-          x.props.sourceProps?.id === id && x.props.sourceProps?.type === type,
-      )
+      return content.children
+        .concat(audioContainer.children)
+        .find(
+          (x) =>
+            x.props.sourceProps?.id === id &&
+            x.props.sourceProps?.type === type,
+        )
     },
     getParticipantState(
       participantId: string,
@@ -2004,8 +2037,12 @@ export const commands = (_project: ScenelessProject) => {
       }
     },
 
-    setParticipantVolume(participantId: string, volume: number) {
-      const node = commands.getParticipantNode(participantId)
+    setParticipantVolume(
+      participantId: string,
+      volume: number,
+      type: ParticipantType = 'camera',
+    ) {
+      const node = commands.getParticipantNode(participantId, type)
       if (!node) return
       CoreContext.Command.updateNode({
         nodeId: node.id,
@@ -2014,8 +2051,12 @@ export const commands = (_project: ScenelessProject) => {
         },
       })
     },
-    setParticipantMuted(participantId: string, isMuted: boolean) {
-      const node = commands.getParticipantNode(participantId)
+    setParticipantMuted(
+      participantId: string,
+      isMuted: boolean,
+      type: ParticipantType = 'camera',
+    ) {
+      const node = commands.getParticipantNode(participantId, type)
       if (!node) return
       CoreContext.Command.updateNode({
         nodeId: node.id,
@@ -2024,18 +2065,12 @@ export const commands = (_project: ScenelessProject) => {
         },
       })
     },
-    setParticipantScreenMuted(participantId: string, isMuted: boolean) {
-      const node = commands.getParticipantNode(participantId, 'screen')
-      if (!node) return
-      CoreContext.Command.updateNode({
-        nodeId: node.id,
-        props: {
-          isMuted,
-        },
-      })
-    },
-    setParticipantHidden(participantId: string, isHidden: boolean) {
-      const node = commands.getParticipantNode(participantId)
+    setParticipantHidden(
+      participantId: string,
+      isHidden: boolean,
+      type: ParticipantType = 'camera',
+    ) {
+      const node = commands.getParticipantNode(participantId, type)
       if (!node) return
       CoreContext.Command.updateNode({
         nodeId: node.id,
@@ -2044,14 +2079,24 @@ export const commands = (_project: ScenelessProject) => {
         },
       })
     },
-    setParticipantScreenHidden(participantId: string, isHidden: boolean) {
-      const node = commands.getParticipantNode(participantId, 'screen')
+    setParticipantAudioOnly(
+      participantId: string,
+      isAudioOnly: boolean,
+      type: ParticipantType = 'camera',
+    ) {
+      const node = commands.getParticipantNode(participantId, type)
       if (!node) return
       CoreContext.Command.updateNode({
         nodeId: node.id,
         props: {
-          isHidden,
+          isAudioOnly,
         },
+      })
+      let target = isAudioOnly ? audioContainer : content
+      CoreContext.Command.moveNode({
+        nodeId: node.id,
+        parentId: target.id,
+        index: target.children.length,
       })
     },
     pruneParticipants() {
@@ -2060,6 +2105,7 @@ export const commands = (_project: ScenelessProject) => {
       if (!room) return
 
       content.children
+        .concat(audioContainer?.children ?? [])
         .filter((node) => {
           if (node.props.sourceType !== 'RoomParticipant') return false
           const nodeSourceType = node.props.sourceProps?.type
@@ -2231,6 +2277,23 @@ export const createCompositor = async (
 
   // Create the base nodes for sceneless workflow
   const baseLayers = await Promise.all([
+    project.insert(
+      {
+        id: 'audio',
+        name: 'AudioContainer',
+        layout: 'Free',
+        size: {
+          x: 0,
+          y: 0,
+        },
+        position: {
+          x: 0,
+          y: 0,
+        },
+        opacity: 0,
+      },
+      root.id,
+    ),
     project.insert(
       {
         name: 'Background',
