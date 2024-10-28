@@ -181,7 +181,7 @@ export const RoomParticipant = {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: hasVideo ? '0' : '1',
+              opacity: hasVideo || isAudioOnly ? '0' : '1',
             }}
           >
             {source?.props.displayName && !props?.isAudioOnly && (
