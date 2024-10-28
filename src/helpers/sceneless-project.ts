@@ -2011,7 +2011,7 @@ export const commands = (_project: ScenelessProject) => {
 
       // Watch for changes to the parent children
       const childListener = CoreContext.onInternal('NodeChanged', (payload) => {
-        if (payload.nodeId !== content.id) return
+        if (![content.id, audioContainer.id].includes(payload.nodeId)) return
         const previous = participantNode
         participantNode = commands.getParticipantNode(participantId, type)
         if (previous !== participantNode) {
