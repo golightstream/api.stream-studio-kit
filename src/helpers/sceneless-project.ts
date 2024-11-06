@@ -397,7 +397,7 @@ export interface Commands {
   getParticipantNode(
     id: string,
     /** @default `'camera'` */
-    type?: ParticipantType,
+    type?: ParticipantType | ExternalSourceType,
   ): Compositor.SceneNode
   /**
    * Get {@link ParticipantProps} associated with a participant/type.
@@ -405,7 +405,7 @@ export interface Commands {
   getParticipantState(
     participantId: string,
     /** @default `'camera'` */
-    type?: ParticipantType,
+    type?: ParticipantType | ExternalSourceType,
   ): ParticipantProps
   /**
    * @hook
@@ -416,7 +416,7 @@ export interface Commands {
     participantId: string,
     cb: (state: ParticipantProps) => void,
     /** @default `'camera'` */
-    type?: ParticipantType,
+    type?: ParticipantType | ExternalSourceType,
   ): Disposable
   /**
    * Change a participant's volume.
@@ -428,7 +428,7 @@ export interface Commands {
      * Accepted values from [0 - 1]
      */
     volume: number,
-    type?: ParticipantType,
+    type?: ParticipantType | ExternalSourceType,
   ): void
   /**
    * Mute a participant without changing their volume.
@@ -444,7 +444,7 @@ export interface Commands {
     participantId: string,
     isMuted: boolean,
     /** @default `camera` */
-    type?: ParticipantType,
+    type?: ParticipantType | ExternalSourceType,
   ): void
   /**
    * Hide a participant video feed from the stream.
@@ -460,13 +460,13 @@ export interface Commands {
     participantId: string,
     isHidden: boolean,
     /** @default `camera` */
-    type?: ParticipantType,
+    type?: ParticipantType | ExternalSourceType,
   ): void
   setParticipantAudioOnly(
     participantId: string,
     isAudioOnly: boolean,
     /** @default `camera` */
-    type?: ParticipantType,
+    type?: ParticipantType | ExternalSourceType,
   ): void
   /**
    * Remove all participants from the stream canvas who are not actively
@@ -1981,7 +1981,7 @@ export const commands = (_project: ScenelessProject) => {
           })
         })
     },
-    getParticipantNode(id: string, type: ParticipantType = 'camera') {
+    getParticipantNode(id: string, type: ParticipantType | ExternalSourceType = 'camera') {
       return content.children
         .concat(audioContainer.children)
         .find(
@@ -1992,7 +1992,7 @@ export const commands = (_project: ScenelessProject) => {
     },
     getParticipantState(
       participantId: string,
-      type: ParticipantType = 'camera',
+      type: ParticipantType | ExternalSourceType = 'camera',
     ) {
       return commands.getParticipantNode(participantId, type)
         ?.props as ParticipantProps
@@ -2001,7 +2001,7 @@ export const commands = (_project: ScenelessProject) => {
     useParticipantState(
       participantId: string,
       cb: (state: ParticipantProps) => void,
-      type = 'camera' as ParticipantType,
+      type = 'camera' as ParticipantType | ExternalSourceType,
     ) {
       let participantNode = commands.getParticipantNode(participantId, type)
 
@@ -2040,7 +2040,7 @@ export const commands = (_project: ScenelessProject) => {
     setParticipantVolume(
       participantId: string,
       volume: number,
-      type: ParticipantType = 'camera',
+      type: ParticipantType | ExternalSourceType = 'camera',
     ) {
       const node = commands.getParticipantNode(participantId, type)
       if (!node) return
@@ -2054,7 +2054,7 @@ export const commands = (_project: ScenelessProject) => {
     setParticipantMuted(
       participantId: string,
       isMuted: boolean,
-      type: ParticipantType = 'camera',
+      type: ParticipantType | ExternalSourceType = 'camera',
     ) {
       const node = commands.getParticipantNode(participantId, type)
       if (!node) return
@@ -2068,7 +2068,7 @@ export const commands = (_project: ScenelessProject) => {
     setParticipantHidden(
       participantId: string,
       isHidden: boolean,
-      type: ParticipantType = 'camera',
+      type: ParticipantType | ExternalSourceType = 'camera',
     ) {
       const node = commands.getParticipantNode(participantId, type)
       if (!node) return
@@ -2082,7 +2082,7 @@ export const commands = (_project: ScenelessProject) => {
     setParticipantAudioOnly(
       participantId: string,
       isAudioOnly: boolean,
-      type: ParticipantType = 'camera',
+      type: ParticipantType | ExternalSourceType = 'camera',
     ) {
       const node = commands.getParticipantNode(participantId, type)
       if (!node) return
