@@ -81204,6 +81204,24 @@ const StudioProvider = ({
         E(), I();
       };
     },
+    setSourceNodeVolume(Z, z) {
+      const P = ie.getSourceNode(Z);
+      P && CoreContext.Command.updateNode({
+        nodeId: P.id,
+        props: {
+          volume: z
+        }
+      });
+    },
+    setSourceNodeMuted(Z, z) {
+      const P = ie.getSourceNode(Z);
+      P && CoreContext.Command.updateNode({
+        nodeId: P.id,
+        props: {
+          isMuted: z
+        }
+      });
+    },
     async addParticipantTrack(Z, z = {
       isMuted: !0,
       isHidden: !1,
@@ -86075,8 +86093,8 @@ const themes = {
       var Ce;
       const Y = useRef(), {
         volume: ae = 1,
-        isHidden: ne = !1
-      } = X || {}, [fe, ie] = useState(0), ge = X == null ? void 0 : X.isMuted, be = !(X != null && X.isHidden) && ((Ce = oe == null ? void 0 : oe.props) == null ? void 0 : Ce.videoEnabled);
+        isMuted: ne = !1
+      } = X || {}, [fe, ie] = useState(0), ge = ne, be = !(X != null && X.isHidden) && ((Ce = oe == null ? void 0 : oe.props) == null ? void 0 : Ce.videoEnabled);
       return useEffect(() => {
         Y.current && (Y.current.play().catch((Me) => {
           document.addEventListener("click", () => {
