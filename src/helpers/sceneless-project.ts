@@ -347,6 +347,16 @@ export interface Commands {
     type: ExternalSourceType,
   ): Disposable
   /**
+   * Change a source node's volume.
+   * This does not affect the underlying MediaStreamTrack.
+   */
+  setSourceNodeVolume(id: string, volume: number): void
+  /**
+   * Mute a source node without changing its volume.
+   *  This does not affect the underlying MediaStreamTrack.
+   */
+  setSourceNodeMuted(id: string, isMuted: boolean): void
+  /**
    * Add a participant camera track to the stream canvas.
    * Available participants can be gleaned from the WebRTC {@link Room} using
    * {@link Room.useParticipants}.
@@ -1836,6 +1846,28 @@ export const commands = (_project: ScenelessProject) => {
         nodeChangedListener()
         nodeRemovedListener()
       }
+    },
+
+    setSourceNodeVolume(id, volume) {
+      const node = commands.getSourceNode(id)
+      if (!node) return
+      CoreContext.Command.updateNode({
+        nodeId: node.id,
+        props: {
+          volume,
+        },
+      })
+    },
+
+    setSourceNodeMuted(id, isMuted) {
+      const node = commands.getSourceNode(id)
+      if (!node) return
+      CoreContext.Command.updateNode({
+        nodeId: node.id,
+        props: {
+          isMuted,
+        },
+      })
     },
 
     async addParticipantTrack(

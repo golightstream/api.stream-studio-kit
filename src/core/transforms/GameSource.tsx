@@ -142,10 +142,10 @@ export const GameSource = {
       source: Sources.GameSource
     }) => {
       const ref = useRef<HTMLVideoElement>()
-      const { volume = 1, isHidden = false } = props || {}
+      const { volume = 1, isMuted = false } = props || {}
       const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
 
-      const muteAudio = props?.isMuted
+      const muteAudio = isMuted
 
       const hasVideo = !props?.isHidden && source?.props?.videoEnabled
 
