@@ -2365,3 +2365,13 @@ export const createCompositor = async (
 
   return project
 }
+
+// In lieu of a versioning system, this can be used
+//  to update a ScenelessProject if its base structure changes.
+export const updateToLatest = async (_project: ScenelessProject) => {
+  // const root = _project.scene.getRoot()
+  // const coreProject = getProject(_project.id)
+  
+  // Update logic here:
+  // e.g. if (!root.children.find(x => ...)) await coreProject.compositor.insert({ ... }, root.id)
+}
