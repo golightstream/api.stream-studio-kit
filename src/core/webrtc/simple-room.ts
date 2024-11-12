@@ -232,7 +232,9 @@ export const getRoom = (id: string) => {
 
         const tracks = await localParticipant.createTracks({
           video: {
-            deviceId: options.deviceId,
+            deviceId: {
+              exact: options.deviceId?.toString(),
+            },
             resolution: options.resolution || {
               width: 1280,
               height: 720,
