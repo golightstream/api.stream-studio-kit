@@ -19,6 +19,11 @@ export const ForegroundLayers = [
     },
   },
   {
+    name: 'VideoOverlayContainer',
+    id: 'fg-video',
+    layout: 'Free',
+  },
+  {
     name: 'AlertContainer',
     id: 'alert',
     layout: 'Layered',
@@ -26,11 +31,6 @@ export const ForegroundLayers = [
       type: 'alert',
       preset: 'center',
     },
-  },
-  {
-    name: 'VideoOverlayContainer',
-    id: 'fg-video',
-    layout: 'Free',
   },
   {
     name: 'LogoContainer',

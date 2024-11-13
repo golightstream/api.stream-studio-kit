@@ -86,8 +86,8 @@ type GenerateGameSourceProps<T extends LiveApiModel.Source> = {
   address: T['address'] extends {
     dynamic: LiveApiModel.Source['address']['dynamic']
   }
-    ? { dynamic: { id: 'integration' } }
-    : never
+  ? { dynamic: { id: 'integration' } }
+  : never
   displayName?: string
   props?: any
 }
@@ -111,7 +111,7 @@ const ExternalSourceTypeMap = {
 
 export type ExternalSourceType = keyof typeof ExternalSourceTypeMap
 
-interface ScenelessProject extends SDK.Project {}
+interface ScenelessProject extends SDK.Project { }
 
 // Note: Assume project is a valid sceneless project
 // Note: In the future commands will be returned by an argument of SceneNode
@@ -720,13 +720,13 @@ export const commands = (_project: ScenelessProject) => {
       const baseForegroundLayers = await Promise.all([
         ensureBannerContainer(),
         ensureForegroundImageAndIframeContainer(),
-        ensureAlert(),
         ensureForegroundVideoContainer(),
+        ensureAlert(),
         ensureForegroundLogoContainer(),
       ])
 
       await coreProject.compositor.reorder(foreground.id, baseForegroundLayers)
-    } catch (e) {}
+    } catch (e) { }
   }
 
   const commands: Commands = {
@@ -989,7 +989,7 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
     async setActiveBanner(id: string) {
-      const [nodeTocheckForChildren, ...{}] =
+      const [nodeTocheckForChildren, ...{ }] =
         bannerContainer?.children || ([] as SceneNode[])
 
       /* Checking if the existingBannerNode has a property called chatOverlayId. If it does, it deletes the
@@ -1035,7 +1035,7 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     async addChatOverlay(id: string, options: ChatOverlayProps) {
-      const [nodeTocheckForChildren, ...{}] =
+      const [nodeTocheckForChildren, ...{ }] =
         bannerContainer?.children || ([] as SceneNode[])
 
       /* Deleting the existing banner node if it exists. */
@@ -2167,7 +2167,7 @@ export const commands = (_project: ScenelessProject) => {
             // Get the source type as it corresponds to the track's type
             const sourceType =
               track.type === Track.Source.Camera ||
-              track.type === Track.Source.Microphone
+                track.type === Track.Source.Microphone
                 ? 'camera'
                 : 'screen'
 
@@ -2227,10 +2227,17 @@ export const commands = (_project: ScenelessProject) => {
       }
     },
   }
+
   const ensureValid = async () => {
-    await ensureRootLayersProps()
-    await ensureBackgroundChildLayersProps()
-    await ensureForegroundContainers()
+    try {
+      await Promise.all([
+        ensureRootLayersProps(),
+        ensureBackgroundChildLayersProps(),
+        ensureForegroundContainers()
+      ])
+    } catch (error) {
+      console.error('Error ensuring project validity:', error)
+    }
   }
 
   ensureValid()
