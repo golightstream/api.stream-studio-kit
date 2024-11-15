@@ -27,9 +27,9 @@ const OfflineIcon = () => (
       y2="200"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="16"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="16"
     />
     <line
       x1="40"
@@ -38,9 +38,9 @@ const OfflineIcon = () => (
       y2="200"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="16"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="16"
     />
     <line
       x1="48"
@@ -49,9 +49,9 @@ const OfflineIcon = () => (
       y2="216"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="16"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="16"
     />
     <line
       x1="160"
@@ -60,9 +60,9 @@ const OfflineIcon = () => (
       y2="200"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="16"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="16"
     />
     <line
       x1="160"
@@ -71,9 +71,9 @@ const OfflineIcon = () => (
       y2="115.63"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="16"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="16"
     />
     <line
       x1="200"
@@ -82,9 +82,9 @@ const OfflineIcon = () => (
       y2="159.63"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="16"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="16"
     />
     <line
       x1="120"
@@ -93,9 +93,9 @@ const OfflineIcon = () => (
       y2="200"
       fill="none"
       stroke="currentColor"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="16"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="16"
     />
   </svg>
 )

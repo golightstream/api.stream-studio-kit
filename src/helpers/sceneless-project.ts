@@ -743,7 +743,7 @@ export const commands = (_project: ScenelessProject) => {
       return content.props.layout
     },
     getBanners() {
-      return (getProject(_project.id).props?.banners || []) as Banner[]
+      return (getProject(_project.id)?.props?.banners || []) as Banner[]
     },
     getParticipants() {
       return content.children.concat(audioContainer.children).filter((node) => {
@@ -1267,7 +1267,6 @@ export const commands = (_project: ScenelessProject) => {
 
       const extendedDefaultStyles = {
         ...defaultStyles['alert'],
-        ...(foregroundVideoContainer?.children.length && { opacity: 0 }),
       }
 
       const { x: rootWidth } = root.props.size
@@ -2184,7 +2183,7 @@ export const commands = (_project: ScenelessProject) => {
         })
     },
     getProp(prop) {
-      return getProject(_project.id).props[prop]
+      return getProject(_project.id)?.props[prop]
     },
     setProp(prop, val) {
       return Command.updateProjectProps({
