@@ -86,8 +86,8 @@ type GenerateGameSourceProps<T extends LiveApiModel.Source> = {
   address: T['address'] extends {
     dynamic: LiveApiModel.Source['address']['dynamic']
   }
-  ? { dynamic: { id: 'integration' } }
-  : never
+    ? { dynamic: { id: 'integration' } }
+    : never
   displayName?: string
   props?: any
 }
@@ -111,7 +111,7 @@ const ExternalSourceTypeMap = {
 
 export type ExternalSourceType = keyof typeof ExternalSourceTypeMap
 
-interface ScenelessProject extends SDK.Project { }
+interface ScenelessProject extends SDK.Project {}
 
 // Note: Assume project is a valid sceneless project
 // Note: In the future commands will be returned by an argument of SceneNode
@@ -289,7 +289,7 @@ export interface Commands {
   /**
    * remove video overlay from foreground layer
    */
-  removeCustomOverlay(): Promise<void>
+  removeCustomOverlay(id: string): Promise<void>
   /**
    * remove the active video overlay
    */
@@ -726,7 +726,7 @@ export const commands = (_project: ScenelessProject) => {
       ])
 
       await coreProject.compositor.reorder(foreground.id, baseForegroundLayers)
-    } catch (e) { }
+    } catch (e) {}
   }
 
   const commands: Commands = {
@@ -989,7 +989,7 @@ export const commands = (_project: ScenelessProject) => {
       })
     },
     async setActiveBanner(id: string) {
-      const [nodeTocheckForChildren, ...{ }] =
+      const [nodeTocheckForChildren, ...{}] =
         bannerContainer?.children || ([] as SceneNode[])
 
       /* Checking if the existingBannerNode has a property called chatOverlayId. If it does, it deletes the
@@ -1035,7 +1035,7 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     async addChatOverlay(id: string, options: ChatOverlayProps) {
-      const [nodeTocheckForChildren, ...{ }] =
+      const [nodeTocheckForChildren, ...{}] =
         bannerContainer?.children || ([] as SceneNode[])
 
       /* Deleting the existing banner node if it exists. */
@@ -1329,14 +1329,24 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     async addCustomOverlay(id: string, props: OverlayProps): Promise<void> {
-      const [existingForegroundNode, ...excessForegroundNode] =
-        foregroundImageIframeContainer?.children || ([] as SceneNode[])
-      // Delete all except one banner from the project
-      excessForegroundNode.forEach((x) => {
+      const existingForegroundNode =
+        foregroundImageIframeContainer?.children?.find(
+          (x) =>
+            x?.props?.sourceProps?.type === 'custom' && x?.props?.id === id,
+        )
+
+      const existingImageOverlays =
+        foregroundImageIframeContainer?.children?.filter(
+          (x) => x?.props?.sourceProps?.type === 'image',
+        )
+
+      // Delete all except image overlays
+      existingImageOverlays.forEach((x) => {
         CoreContext.Command.deleteNode({
           nodeId: x.id,
         })
       })
+
       const extendedDefaultStyles = {
         ...defaultStyles['custom'],
         ...(foregroundVideoContainer?.children.length && { opacity: 0 }),
@@ -1374,16 +1384,12 @@ export const commands = (_project: ScenelessProject) => {
       }
     },
 
-    async removeCustomOverlay(): Promise<void> {
-      // find overlay node by id
-      const [existingForegroundNode, ...excessForegroundNode] =
-        foregroundImageIframeContainer?.children || ([] as SceneNode[])
-      // if overlay exists, remove it
-      excessForegroundNode.forEach((x) => {
-        CoreContext.Command.deleteNode({
-          nodeId: x.id,
-        })
-      })
+    async removeCustomOverlay(id: string): Promise<void> {
+      const existingForegroundNode =
+        foregroundImageIframeContainer?.children?.find(
+          (x) =>
+            x?.props?.sourceProps?.type === 'custom' && x?.props?.id === id,
+        )
       if (existingForegroundNode) {
         if (existingForegroundNode?.props?.sourceProps?.type === 'custom') {
           await CoreContext.Command.deleteNode({
@@ -1413,7 +1419,6 @@ export const commands = (_project: ScenelessProject) => {
     },
 
     async removeVideoOverlay(): Promise<void> {
-      // find overlay node by id
       // find overlay node by id
       const [existingForegroundNode, ...excessForegroundNode] =
         foregroundVideoContainer?.children || ([] as SceneNode[])
@@ -2012,7 +2017,10 @@ export const commands = (_project: ScenelessProject) => {
           })
         })
     },
-    getParticipantNode(id: string, type: ParticipantType | ExternalSourceType = 'camera') {
+    getParticipantNode(
+      id: string,
+      type: ParticipantType | ExternalSourceType = 'camera',
+    ) {
       return content.children
         .concat(audioContainer.children)
         .find(
@@ -2166,7 +2174,7 @@ export const commands = (_project: ScenelessProject) => {
             // Get the source type as it corresponds to the track's type
             const sourceType =
               track.type === Track.Source.Camera ||
-                track.type === Track.Source.Microphone
+              track.type === Track.Source.Microphone
                 ? 'camera'
                 : 'screen'
 
@@ -2232,7 +2240,7 @@ export const commands = (_project: ScenelessProject) => {
       await Promise.all([
         ensureRootLayersProps(),
         ensureBackgroundChildLayersProps(),
-        ensureForegroundContainers()
+        ensureForegroundContainers(),
       ])
     } catch (error) {
       console.error('Error ensuring project validity:', error)
