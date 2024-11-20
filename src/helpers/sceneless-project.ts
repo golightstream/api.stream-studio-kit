@@ -1340,7 +1340,7 @@ export const commands = (_project: ScenelessProject) => {
           (x) => x?.props?.sourceProps?.type === 'image',
         )
 
-      // Delete all except image overlays
+      // Delete image overlays
       existingImageOverlays.forEach((x) => {
         CoreContext.Command.deleteNode({
           nodeId: x.id,
