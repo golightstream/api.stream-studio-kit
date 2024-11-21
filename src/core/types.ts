@@ -747,11 +747,11 @@ export interface Studio {
    */
 
   /**
-  * These are a new set of endpoints for managing guest codes and are different to the existing one
-  * To create a guest code, The guest code returned looks like this, linkUrl is what you should copy to the users 
-  */
+   * These are a new set of endpoints for managing guest codes and are different to the existing one
+   * To create a guest code, The guest code returned looks like this, linkUrl is what you should copy to the users
+   */
   createGuestLink: (baseUrl: string, options?: GuestOptions) => Promise<string>
- 
+
   /**
    * To delete a guest code
    */
@@ -760,8 +760,10 @@ export interface Studio {
   /**
    * To list all guest codes
    */
-  getGuestLinks: (options?: GuestOptions) => Promise<{ guestCodes: LiveApiModel.IssuedGuestCode[] }>
-  
+  getGuestLinks: (
+    options?: GuestOptions,
+  ) => Promise<{ guestCodes: LiveApiModel.IssuedGuestCode[] }>
+
   /**
    * Create a link with an embedded access token.
    * This link resolves to a URL demonstrating the stream output.
@@ -873,8 +875,23 @@ export type Props = { [prop: string]: any }
 
 export type LogLevel = 'Debug' | 'Info' | 'Warn' | 'Error'
 
+type SandboxAttributeValue =
+  | 'allow-downloads-without-user-activation'
+  | 'allow-forms'
+  | 'allow-modals'
+  | 'allow-orientation-lock'
+  | 'allow-pointer-lock'
+  | 'allow-popups'
+  | 'allow-popups-to-escape-sandbox'
+  | 'allow-presentation'
+  | 'allow-same-origin'
+  | 'allow-scripts'
+  | 'allow-storage-access-by-user-activation'
+  | 'allow-top-navigation'
+  | 'allow-top-navigation-by-user-activation'
+
 export interface IframeProps {
-  url?: string
+  url: string
   src?: string
   allowFullScreen?: boolean
   position?:
@@ -886,17 +903,38 @@ export interface IframeProps {
     | 'inherit'
     | 'initial'
     | 'unset'
-  display?: 'block' | 'none' | 'inline'
+  display?: 'block' | 'none' | 'inline' | 'initial'
   height?: string
   width?: string
-  overflow?: string
+  loading?: 'auto' | 'eager' | 'lazy'
   target?: string
+  importance?: 'auto' | 'high' | 'low'
+  overflow?: string
   styles?: object
   name?: string
+  allowpaymentrequest?: boolean
+  referrerpolicy?:
+    | 'no-referrer'
+    | 'no-referrer-when-downgrade'
+    | 'origin'
+    | 'origin-when-cross-origin'
+    | 'same-origin'
+    | 'strict-origin'
+    | 'strict-origin-when-cross-origin'
+    | 'unsafe-url'
   onLoad?: () => void
+  onMouseOver?: () => void
+  onMouseOut?: () => void
   frameBorder?: number
+  scrolling?: 'auto' | 'yes' | 'no'
   id?: string
+  ariaHidden?: boolean
+  ariaLabel?: string
+  ariaLabelledby?: string
+  sandbox?: SandboxAttributeValue | SandboxAttributeValue[]
+  allow?: string
   className?: string
-  children?: React.ReactNode
+  title?: string
+  key?: string
   iframeRef?: React.Ref<HTMLIFrameElement>
 }

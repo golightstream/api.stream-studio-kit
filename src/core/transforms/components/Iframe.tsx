@@ -2,12 +2,11 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { IframeProps } from '../../types'
-import React from 'react'
-import APIKitAnimation from '../../../compositor/html/html-animation'
-import { APIKitAnimationTypes } from '../../../animation/core/types'
+import React, { ComponentType } from 'react'
 
-const Iframe = ({
+import { IframeProps } from '../../types'
+
+const Iframe: ComponentType<IframeProps> = ({
   url,
   allowFullScreen,
   position,
@@ -17,31 +16,58 @@ const Iframe = ({
   overflow,
   styles,
   onLoad,
+  onMouseOver,
+  onMouseOut,
+  scrolling = 'no',
   id,
   frameBorder,
+  ariaHidden,
+  sandbox,
+  allow,
   className,
+  title,
+  ariaLabel,
+  ariaLabelledby,
   name,
   target,
-  iframeRef,
-  children,
+  loading,
+  importance,
+  referrerpolicy,
+  allowpaymentrequest,
   src,
+  key,
+  iframeRef,
 }: IframeProps) => {
   const defaultProps = Object.assign({
     src: src || url,
     target: target || null,
     style: {
       position: position || null,
-      display: display || 'block',
+      display: display || 'initial',
       overflow: overflow || null,
-      ...styles,
     },
+    scrolling: scrolling || null,
+    allowpaymentrequest: allowpaymentrequest || null,
+    importance: importance || null,
+    sandbox: (sandbox && [...sandbox].join(' ')) || null,
+    loading: loading || null,
+    styles: styles || null,
     name: name || null,
     className: className || null,
+    allowFullScreen: 'allowFullScreen' || null,
+    referrerpolicy: referrerpolicy || null,
+    title: title || null,
+    allow: allow || null,
     id: id || null,
-    onLoad: onLoad || null,
-    height: height || '100%',
+    'aria-labelledby': ariaLabelledby || null,
+    'aria-hidden': ariaHidden || null,
+    'aria-label': ariaLabel || null,
     width: width || '100%',
-    allow: 'autoplay',
+    height: height || '100%',
+    onLoad: onLoad || null,
+    onMouseOver: onMouseOver || null,
+    onMouseOut: onMouseOut || null,
+    key: key || 'iframe',
   })
   let props = Object.create(null)
   for (let prop of Object.keys(defaultProps)) {
@@ -53,6 +79,17 @@ const Iframe = ({
   for (let i of Object.keys(props.style)) {
     if (props.style[i] == null) {
       delete props.style[i]
+    }
+  }
+
+  if (props.styles) {
+    for (let key of Object.keys(props.styles)) {
+      if (props.styles.hasOwnProperty(key)) {
+        props.style[key] = props.styles[key]
+      }
+      if (Object.keys(props.styles).pop() == key) {
+        delete props.styles
+      }
     }
   }
 
@@ -71,23 +108,11 @@ const Iframe = ({
     }
   }
   return (
-    <React.Fragment>
-      {children ? (
-        <iframe
-          ref={iframeRef}
-          {...props}
-          style={{ colorScheme: 'normal', ...props.style }}
-        >
-          {children}
-        </iframe>
-      ) : (
-        <iframe
-          ref={iframeRef}
-          {...props}
-          style={{ colorScheme: 'normal', ...props.style }}
-        />
-      )}
-    </React.Fragment>
+    <iframe
+      {...props}
+      ref={iframeRef}
+      style={{ colorScheme: 'normal', ...props.style }}
+    />
   )
 }
 
