@@ -139,7 +139,7 @@ const ElementTree = (props: { nodeId: string }) => {
   const { nodeId } = props
   const project = getProject(projectId)
   const node = project.compositor.get(nodeId)
-  const element = useMemo(() => CoreContext.compositor.getElement(node), [node])
+  const element = CoreContext.compositor.getElement(node)
   const [localState, setLocalState] = useState({})
   const nodeProps = {
     ...node.props,
@@ -340,7 +340,7 @@ const ElementTree = (props: { nodeId: string }) => {
         ...(nodeProps.style || {}),
       })
     }
-  }, [element])
+  }, [])
 
   useEffect(() => {
     const onDoubleClick = isDragTarget
