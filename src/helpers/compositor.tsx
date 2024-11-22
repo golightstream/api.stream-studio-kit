@@ -94,14 +94,12 @@ const onDrop = async (
     })
   } else {
     // If the drop node is a transform, then swap
-    // is this even a valid case
     if (dragParent.id !== dropParent?.id) {
-      // return CoreContext.Command.swapNodes({
-      //   projectId: project.id,
-      //   nodeAId: dragNode.id,
-      //   nodeBId: dropNode.id,
-      // })
-      return
+      return CoreContext.Command.swapNodes({
+        projectId: project.id,
+        nodeAId: dragNode.id,
+        nodeBId: dropNode.id,
+      })
     }
   }
 
@@ -140,8 +138,7 @@ const ElementTree = (props: { nodeId: string }) => {
   } = useContext(CompositorContext)
   const { nodeId } = props
   const project = getProject(projectId)
-  const node = useMemo(() => project.compositor.get(nodeId), [nodeId])
-
+  const node = project.compositor.get(nodeId)
   const element = useMemo(() => CoreContext.compositor.getElement(node), [node])
   const [localState, setLocalState] = useState({})
   const nodeProps = {
@@ -327,12 +324,6 @@ const ElementTree = (props: { nodeId: string }) => {
     : {}
 
   useEffect(() => {
-    if (element) {
-      console.log('Element is changing', element.nodeId)
-    }
-  }, [transformRef.current, element])
-
-  useEffect(() => {
     if (transformRef.current && element) {
       transformRef.current.appendChild(element.root)
       Object.assign(transformRef.current.style, {
@@ -473,8 +464,8 @@ const ElementTree = (props: { nodeId: string }) => {
         className="interactive-overlay"
         ref={interactiveRef}
         style={{
-          width: (node.props?.isAudioOnly ?? false) ? '0%' : '100%',
-          height: (node.props?.isAudioOnly ?? false) ? '0%' : '100%',
+          width: node.props?.isAudioOnly ?? false ? '0%' : '100%',
+          height: node.props?.isAudioOnly ?? false ? '0%' : '100%',
           position: 'absolute',
           zIndex: 2,
         }}
