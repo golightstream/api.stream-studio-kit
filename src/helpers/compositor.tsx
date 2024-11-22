@@ -140,9 +140,9 @@ const ElementTree = (props: { nodeId: string }) => {
   } = useContext(CompositorContext)
   const { nodeId } = props
   const project = getProject(projectId)
-  const node = project.compositor.get(nodeId)
+  const node = useMemo(() => project.compositor.get(nodeId), [nodeId])
 
-  const element = CoreContext.compositor.getElement(node)
+  const element = useMemo(() => CoreContext.compositor.getElement(node), [node])
   const [localState, setLocalState] = useState({})
   const nodeProps = {
     ...node.props,
@@ -327,6 +327,12 @@ const ElementTree = (props: { nodeId: string }) => {
     : {}
 
   useEffect(() => {
+    if (element) {
+      console.log('Element is changing', element.nodeId)
+    }
+  }, [transformRef.current, element])
+
+  useEffect(() => {
     if (transformRef.current && element) {
       transformRef.current.appendChild(element.root)
       Object.assign(transformRef.current.style, {
@@ -343,7 +349,7 @@ const ElementTree = (props: { nodeId: string }) => {
         ...(nodeProps.style || {}),
       })
     }
-  }, [transformRef.current, element])
+  }, [element])
 
   useEffect(() => {
     const onDoubleClick = isDragTarget
@@ -361,13 +367,13 @@ const ElementTree = (props: { nodeId: string }) => {
     return () => {
       interactiveRef.current?.removeEventListener('dblclick', onDoubleClick)
     }
-  }, [interactiveRef.current])
+  }, [])
 
   useEffect(() => {
     if (rootRef.current) {
       Object.assign(interactiveRef.current, layoutDragHandlers)
     }
-  }, [rootRef.current])
+  }, [])
 
   const layoutProps = {
     layout,
