@@ -641,7 +641,10 @@ export const commands = (_project: ScenelessProject) => {
           {
             name: 'ImageIframeOverlay',
             id: 'fg-image-iframe',
-            layout: 'Free',
+            layout: 'Layered',
+            layoutProps: {
+              type: 'image-iframe-overlay',
+            },
           },
           foreground.id,
         )
@@ -651,6 +654,15 @@ export const commands = (_project: ScenelessProject) => {
         )
         return nodeId
       } else {
+        // ensure the image iframe container is of type Layered
+        if(foregroundImageIframeContainer.props.layout !== 'Layered') {
+          await coreProject.compositor.update(foregroundImageIframeContainer.id, {
+            layout: 'Layered',
+            layoutProps: {
+              type: 'image-iframe-overlay',
+            },
+          })
+        }
         return foregroundImageIframeContainer.id
       }
     }
@@ -2262,9 +2274,11 @@ export type LayoutProps = {
   useGrid?: boolean
   reverse?: boolean
   /** used for type alert */
-  type?: string
+  type?: 'alert' | 'image-iframe-overlay'
   /** Either 'top-center' or 'bottom-center' **/
   preset?: string
+  /** used for type image-iframe-overlay to order the layers */
+  order?: string[]
 }
 
 type ScenelessSettings = {

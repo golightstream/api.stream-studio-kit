@@ -8,7 +8,10 @@ export const ForegroundLayers = [
   {
     name: 'ImageIframeOverlayContainer',
     id: 'fg-image-iframe',
-    layout: 'Free',
+    layout: 'Layered',
+    layoutProps: {
+      type: 'image-iframe-overlay',
+    },
   },
   {
     name: 'BannerContainer',

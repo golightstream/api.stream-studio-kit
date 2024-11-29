@@ -7,12 +7,35 @@ import { CSSProperties } from 'react'
 import { LayoutDeclaration, Transition } from '../../compositor/layouts'
 import { getProject } from '../data'
 import CoreContext from '../context'
+import { Scene, SceneNode } from '../types'
+import { isEmpty } from 'lodash-es'
 
 type LayoutFreeProps = {
   size: { x: string; y: string }
   position: { x: string; y: string }
   opacity: number
 }
+
+/**
+ * Calculates the z-index for a node in a layered layout
+ * For image-iframe-overlay layouts:
+ * - Uses props.order array to determine z-index if node ID is in the order array
+ * - Higher z-index = appears on top
+ * - Nodes not in order array get default z-index based on array position
+ * 
+ * For other layouts:
+ * - Simply returns index + 1 as the z-index
+ */
+const calculateZIndex = (props: LayoutLayeredProps | {}, node: SceneNode, i: number) => {
+  // Type guard to check if props is a LayoutLayeredProps
+  if (!props || !('type' in props) || props.type !== 'image-iframe-overlay') return i + 1;
+ 
+  const nodePropId = CoreContext.compositor.getNode(node.id.split('-')[0])?.props?.id;
+  
+  return !nodePropId || !props.order?.includes(nodePropId)
+    ? i + 1
+    : props.order.length - props.order.indexOf(nodePropId);
+ };
 
 const getPresetStyle = (preset: string) => {
   const project = getProject(CoreContext.state.activeProjectId)
@@ -611,7 +634,12 @@ type LayoutLayeredProps = {
    * Indicates the type of layout.
    * @type {'alert'}
    */
-  type: 'alert'
+  type: 'alert' | 'image-iframe-overlay'
+
+  /**
+   * Used for type image-iframe-overlay to order the layers
+   */
+  order?: string[]
 }
 
 export const Layered = {
@@ -623,15 +651,18 @@ export const Layered = {
       position: 'relative',
     }}>
       ${children.map(
-        (x, i) =>
-          html.node`<div data-node-id=${x.id} .data=${{
-            zIndex: i + 1,
-          }} style=${{
-            position: 'absolute',
-            ...(props.type !== 'alert' ? { inset: '0px' } : {}),
-            ...(props.type === 'alert' ? getPresetStyle(props.preset) : {}),
-          }}></div>`,
-      )}
+      (x, i) => {
+        const zIndex =  calculateZIndex(props, x, i)
+        const style = {
+          position: 'absolute',
+          ...(props.type !== 'alert' ? { inset: '0px' } : {}),
+          ...(props.type === 'alert' ? getPresetStyle(props.preset) : {}),
+        }
+        return html.node`<div data-node-id=${x.id} .data=${{
+          zIndex,
+        }} style=${style}></div>`;
+      },
+    )}
     </div>`
   },
 } as LayoutDeclaration<LayoutLayeredProps>
