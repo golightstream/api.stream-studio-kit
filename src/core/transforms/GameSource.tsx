@@ -2,13 +2,13 @@
  * Copyright (c) Infiniscene, Inc. All rights reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
-import { createRoot } from 'react-dom/client'
-import React, { useLayoutEffect, useState, useEffect, useRef } from 'react'
 import { isMatch } from 'lodash-es'
+import { useCallback, useEffect, useRef } from 'react'
+import { createRoot } from 'react-dom/client'
 import { CoreContext } from '../context'
+import { getProject } from '../data'
 import { Compositor } from '../namespaces'
 import * as Sources from '../sources'
-import { getProject } from '../data'
 
 type Props = {
   volume: number
@@ -118,22 +118,6 @@ export const GameSource = {
     let source: any
     let props = initialProps
 
-    const getSize = (
-      width: number,
-      canvas: { width: number; height: number },
-    ) => {
-      const widthAsPercentage = width / canvas.width
-
-      if (widthAsPercentage >= 0.5) {
-        return 3
-      } else if (widthAsPercentage > 0.25) {
-        return 2
-      } else if (widthAsPercentage > 0.15) {
-        return 1
-      }
-      return 0
-    }
-
     const GameSourceLayer = ({
       props,
       source,
@@ -141,70 +125,48 @@ export const GameSource = {
       props: Props
       source: Sources.GameSource
     }) => {
-      const ref = useRef<HTMLVideoElement>()
+      const ref = useRef<HTMLVideoElement>(null)
       const { volume = 1, isMuted = false } = props || {}
-      const [labelSize, setLabelSize] = useState<0 | 1 | 2 | 3>(0)
 
       const muteAudio = isMuted
 
       const hasVideo = !props?.isHidden && source?.props?.videoEnabled
 
-      useEffect(() => {
-        if (!ref.current) return
-        ref.current.play().catch((e) => {
-          document.addEventListener('click', () => ref.current?.play(), {
-            once: true,
-          })
-        })
 
-        if (source?.value && source?.value !== ref.current.srcObject) {
-          ref.current.srcObject = source?.value
+      const handleVideoPlay = useCallback(() => {
+        if (!ref.current) return
+
+        ref.current.play().catch(() => {
+          const retryPlay = () => {
+            ref.current?.play().catch(() => {});
+            document.removeEventListener('click', retryPlay);
+          };
+
+          document.addEventListener('click', retryPlay, { once: true });
+        })
+      }, [])
+
+
+      // Handle source object and play state
+      useEffect(() => {
+        if (!ref.current) return;
+
+        // Update source object
+        if (source?.value && source.value !== ref.current.srcObject) {
+          ref.current.srcObject = source.value;
+          handleVideoPlay();
         } else if (!source?.value) {
-          ref.current.srcObject = null
+          ref.current.srcObject = null;
         }
-      }, [ref.current, source?.value])
+      }, [source?.value]);
 
+
+      // Volume control
       useEffect(() => {
-        if (!props && ref.current) {
-          ref.current.srcObject = null
-          ref.current = null
+        if (ref.current) {
+          ref.current.volume = volume;
         }
-      }, [props])
-
-      useLayoutEffect(() => {
-        if (!ref.current) return
-
-        const calculate = () => {
-          const rect = ref.current
-          if (rect) {
-            setLabelSize(
-              getSize(rect.clientWidth, {
-                width: project.compositor.getRoot().props.size.x,
-                height: project.compositor.getRoot().props.size.y,
-              }),
-            )
-          }
-        }
-
-        const resizeObserver = new ResizeObserver((entries) => {
-          calculate()
-        })
-
-        calculate()
-        resizeObserver?.observe(ref.current)
-
-        return () => {
-          if (ref.current) {
-            resizeObserver?.unobserve(ref.current)
-            ref.current.srcObject = null
-          }
-        }
-      }, [ref.current, project])
-
-      useEffect(() => {
-        if (!ref.current) return
-        ref.current.volume = volume
-      }, [ref.current, volume])
+      }, [volume]);
 
       return (
         <div
