@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { isMatch } from 'lodash-es'
-import { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { createRoot } from 'react-dom/client'
 import { CoreContext } from '../context'
 import { getProject } from '../data'
