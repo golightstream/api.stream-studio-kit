@@ -319,7 +319,7 @@ export const init = async (
         const project = getProjectByLayoutId(layoutId)
         const nodes = [node, ...project.compositor.nodes.map(toDataNode)]
         const tree = toSceneTree(nodes, node.id)
-        project.compositor.local.insert(tree)
+        project?.compositor.local.insert(tree)
         triggerInternal('NodeAdded', { projectId: project.id, nodeId: node.id })
       } else if (type === LayoutApiModel.EventSubType.EVENT_SUB_TYPE_UPDATE) {
         log.debug('Received: Node Update', layer.update)
@@ -342,7 +342,7 @@ export const init = async (
         latestUpdateVersion[node.id] = updateVersions[node.id]
 
         const project = getProjectByLayoutId(layoutId)
-        project.compositor.local.update(
+        project?.compositor.local.update(
           layer.update.id,
           node.props,
           node.childIds,
@@ -357,7 +357,7 @@ export const init = async (
         if (CoreContext.connectionId === connectionId) return
 
         const project = getProjectByLayoutId(layoutId)
-        project.compositor.local.remove(layer.delete.id)
+        project?.compositor.local.remove(layer.delete.id)
         triggerInternal('NodeRemoved', {
           projectId: project.id,
           nodeId: layer.delete.id,
@@ -377,7 +377,7 @@ export const init = async (
             const [type, args] = Object.entries(batch)[0]
             if (type === 'create') {
               const node = layerToNode(args)
-              project.compositor.local.insert(node)
+              project?.compositor.local.insert(node)
               triggerInternal('NodeAdded', {
                 projectId: project.id,
                 nodeId: node.id,
@@ -394,7 +394,7 @@ export const init = async (
               }
               latestUpdateVersion[node.id] = updateVersions[node.id]
 
-              project.compositor.local.update(
+              project?.compositor.local.update(
                 node.id,
                 node.props,
                 node.childIds,
@@ -404,7 +404,7 @@ export const init = async (
                 nodeId: node.id,
               })
             } else if (type === 'delete') {
-              project.compositor.local.remove(args.id)
+              project?.compositor.local.remove(args.id)
               triggerInternal('NodeRemoved', {
                 projectId: project.id,
                 nodeId: args.id,
@@ -419,7 +419,7 @@ export const init = async (
         if (project)
           triggerInternal('NodeChanged', {
             projectId: project.id,
-            nodeId: project.compositor.getRoot().id,
+            nodeId: project?.compositor.getRoot().id,
           })
       }
     })

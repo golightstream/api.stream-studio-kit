@@ -3,7 +3,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * -------------------------------------------------------------------------------------------- */
 import { createRoot } from 'react-dom/client'
-import React, { useLayoutEffect, useState, useEffect, useRef } from 'react'
+import React, { useLayoutEffect, useState, useEffect, useRef, useCallback } from 'react'
 import { isMatch } from 'lodash-es'
 import { CoreContext } from '../context'
 import { Compositor } from '../namespaces'
@@ -67,27 +67,31 @@ export const RTMPSource = {
 
       const hasVideo = !props?.isHidden && source?.props?.videoEnabled
 
+      const handleVideoPlay = useCallback(() => {
+        if (!ref.current) return
+
+        ref.current.play().catch(() => {
+          const retryPlay = () => {
+            ref.current?.play().catch(() => { });
+            document.removeEventListener('click', retryPlay);
+          };
+
+          document.addEventListener('click', retryPlay, { once: true });
+        })
+      }, [])
+
+
       useEffect(() => {
         if (!ref.current) return
-        ref.current.play().catch((e) => {
-          document.addEventListener('click', () => ref.current?.play(), {
-            once: true,
-          })
-        })
-
         if (source?.value && source?.value !== ref.current.srcObject) {
           ref.current.srcObject = source?.value
+          handleVideoPlay()
         } else if (!source?.value) {
           ref.current.srcObject = null
         }
-      }, [ref.current, source?.value])
+      }, [source?.value])
 
-      useEffect(() => {
-        if (!props && ref.current) {
-          ref.current.srcObject = null
-          ref.current = null
-        }
-      }, [props])
+
 
       useLayoutEffect(() => {
         if (!ref.current) return
@@ -114,15 +118,14 @@ export const RTMPSource = {
         return () => {
           if (ref.current) {
             resizeObserver?.unobserve(ref.current)
-            ref.current.srcObject = null
           }
         }
-      }, [ref.current, project])
+      }, [])
 
       useEffect(() => {
         if (!ref.current) return
         ref.current.volume = volume
-      }, [ref.current, volume])
+      }, [volume])
 
       return (
         <div

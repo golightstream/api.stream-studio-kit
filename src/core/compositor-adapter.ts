@@ -261,11 +261,15 @@ export const compositorAdapter: Compositor.DBAdapter = (layoutId, methods) => ({
   async batch(
     batch: [type: ActionType, node: Partial<Compositor.SceneNode>][],
   ) {
-    const layerBatch = batch.map(
-      ([type, node]) => [type, sceneNodeToLayer(node)] as Action,
+    try {
+      const layerBatch = batch.map(
+        ([type, node]) => [type, sceneNodeToLayer(node)] as Action,
     )
     const response = await request(layoutId, layerBatch)
-    log.debug('Batch response', response)
-    return response
+      log.debug('Batch response', response)
+      return response
+    } catch (error) {
+      log.error('Batch error', error)
+    }
   },
 })
