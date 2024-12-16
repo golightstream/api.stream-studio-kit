@@ -317,10 +317,15 @@ export const init = async (
 
         const node = layerToNode(layer.create)
         const project = getProjectByLayoutId(layoutId)
-        const nodes = [node, ...project.compositor.nodes.map(toDataNode)]
-        const tree = toSceneTree(nodes, node.id)
-        project?.compositor.local.insert(tree)
-        triggerInternal('NodeAdded', { projectId: project.id, nodeId: node.id })
+        if (project) {
+          const nodes = [node, ...project?.compositor.nodes.map(toDataNode)]
+          const tree = toSceneTree(nodes, node.id)
+          project.compositor.local.insert(tree)
+          triggerInternal('NodeAdded', {
+            projectId: project.id,
+            nodeId: node.id,
+          })
+        }
       } else if (type === LayoutApiModel.EventSubType.EVENT_SUB_TYPE_UPDATE) {
         log.debug('Received: Node Update', layer.update)
         const {
@@ -342,26 +347,30 @@ export const init = async (
         latestUpdateVersion[node.id] = updateVersions[node.id]
 
         const project = getProjectByLayoutId(layoutId)
-        project?.compositor.local.update(
-          layer.update.id,
-          node.props,
-          node.childIds,
-        )
-        triggerInternal('NodeChanged', {
-          projectId: project.id,
-          nodeId: node.id,
-        })
+        if (project) {
+          project.compositor.local.update(
+            layer.update.id,
+            node.props,
+            node.childIds,
+          )
+          triggerInternal('NodeChanged', {
+            projectId: project.id,
+            nodeId: node.id,
+          })
+        }
       } else if (type === LayoutApiModel.EventSubType.EVENT_SUB_TYPE_DELETE) {
         log.debug('Received: Node Delete', layer.delete)
         const { connectionId, layoutId } = layer.delete.requestMetadata
         if (CoreContext.connectionId === connectionId) return
 
         const project = getProjectByLayoutId(layoutId)
-        project?.compositor.local.remove(layer.delete.id)
-        triggerInternal('NodeRemoved', {
-          projectId: project.id,
-          nodeId: layer.delete.id,
-        })
+        if (project) {
+          project.compositor.local.remove(layer.delete.id)
+          triggerInternal('NodeRemoved', {
+            projectId: project.id,
+            nodeId: layer.delete.id,
+          })
+        }
       } else if (type === LayoutApiModel.EventSubType.EVENT_SUB_TYPE_BATCH) {
         log.debug('Received: Node Batch Update', layer.batch)
         const {
@@ -377,11 +386,13 @@ export const init = async (
             const [type, args] = Object.entries(batch)[0]
             if (type === 'create') {
               const node = layerToNode(args)
-              project?.compositor.local.insert(node)
-              triggerInternal('NodeAdded', {
-                projectId: project.id,
-                nodeId: node.id,
-              })
+              if (project) {
+                project.compositor.local.insert(node)
+                triggerInternal('NodeAdded', {
+                  projectId: project.id,
+                  nodeId: node.id,
+                })
+              }
             } else if (type === 'update') {
               const node = layerToNode(args)
 
@@ -394,21 +405,25 @@ export const init = async (
               }
               latestUpdateVersion[node.id] = updateVersions[node.id]
 
-              project?.compositor.local.update(
-                node.id,
-                node.props,
-                node.childIds,
-              )
-              triggerInternal('NodeChanged', {
-                projectId: project.id,
-                nodeId: node.id,
-              })
+              if (project) {
+                project.compositor.local.update(
+                  node.id,
+                  node.props,
+                  node.childIds,
+                )
+                triggerInternal('NodeChanged', {
+                  projectId: project.id,
+                  nodeId: node.id,
+                })
+              }
             } else if (type === 'delete') {
-              project?.compositor.local.remove(args.id)
-              triggerInternal('NodeRemoved', {
-                projectId: project.id,
-                nodeId: args.id,
-              })
+              if (project) {
+                project.compositor.local.remove(args.id)
+                triggerInternal('NodeRemoved', {
+                  projectId: project.id,
+                  nodeId: args.id,
+                })
+              }
             }
           } catch (e) {
             log.warn('Error handling batch item', e, { item: batch })
@@ -435,15 +450,15 @@ export const init = async (
 
     const token = displayName
       ? {
-        direct: {
-          displayName,
-        },
-      }
+          direct: {
+            displayName,
+          },
+        }
       : {
-        exchange: {
-          maxDuration,
-        },
-      }
+          exchange: {
+            maxDuration,
+          },
+        }
 
     return client.LiveApi().authentication.createGuestCode({
       projectId,
@@ -466,15 +481,15 @@ export const init = async (
 
     const token = displayName
       ? {
-        direct: {
-          displayName,
-        },
-      }
+          direct: {
+            displayName,
+          },
+        }
       : {
-        exchange: {
-          maxDuration,
-        },
-      }
+          exchange: {
+            maxDuration,
+          },
+        }
 
     return client.LiveApi().authentication.createGuestAccessToken({
       projectId,
@@ -529,9 +544,7 @@ export const init = async (
       await client.LiveApi().authentication.deleteGuestCode({ code })
     },
     getGuestLinks: async (options = {}) => {
-      const {
-        projectId = CoreContext.state.activeProjectId,
-      } = options
+      const { projectId = CoreContext.state.activeProjectId } = options
       const project = getProject(projectId)
       return await client.LiveApi().authentication.getGuestCodes({
         projectId: projectId,
