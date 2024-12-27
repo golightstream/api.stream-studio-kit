@@ -590,6 +590,16 @@ export const commands = (_project: ScenelessProject) => {
     (x) => x.props.id === 'fg-banners',
   )
 
+  const ensureRootLayersReorder = async () => {
+    if (!background || !content || !foreground || !audioContainer) return
+    await coreProject.compositor.reorder(root.id, [
+      background.id,
+      content.id,
+      foreground.id,
+      audioContainer.id,
+    ])
+  }
+
   const ensureRootLayersProps = async () => {
     if (background?.props?.layout !== 'Layered') {
       await coreProject.compositor.update(background.id, {
@@ -2250,6 +2260,7 @@ export const commands = (_project: ScenelessProject) => {
   const ensureValid = async () => {
     try {
       await Promise.all([
+        ensureRootLayersReorder(),
         ensureRootLayersProps(),
         ensureBackgroundChildLayersProps(),
         ensureForegroundContainers(),
@@ -2339,23 +2350,6 @@ export const createCompositor = async (
   const baseLayers = await Promise.all([
     project.insert(
       {
-        id: 'audio',
-        name: 'AudioContainer',
-        layout: 'Free',
-        size: {
-          x: 0,
-          y: 0,
-        },
-        position: {
-          x: 0,
-          y: 0,
-        },
-        opacity: 0,
-      },
-      root.id,
-    ),
-    project.insert(
-      {
         name: 'Background',
         id: 'bg',
         layout: 'Layered',
@@ -2377,6 +2371,23 @@ export const createCompositor = async (
         id: 'foreground',
         name: 'Overlays',
         layout: 'Layered',
+      },
+      root.id,
+    ),
+    project.insert(
+      {
+        id: 'audio',
+        name: 'AudioContainer',
+        layout: 'Free',
+        size: {
+          x: 0,
+          y: 0,
+        },
+        position: {
+          x: 0,
+          y: 0,
+        },
+        opacity: 0,
       },
       root.id,
     ),
