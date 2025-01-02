@@ -158,169 +158,169 @@ const ElementTree = (props: { nodeId: string }) => {
   let layoutDragHandlers =
     isDropTarget && draggingNodeId && !isDraggingSelf.current
       ? ({
-        onpointerup: (e) => {
-          log.debug('Compositor: PointerUp "Layout"', node.id)
-          return onDrop(
-            {
-              dropType: 'layout',
-              dropNodeId: node.id,
-              dragNodeId: draggingNodeId,
-              project,
-            },
-            e,
-          )
-        },
-        onpointerenter: (e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          rootRef.current?.toggleAttribute(
-            'data-layout-drop-target-active',
-            true,
-          )
-        },
-        onpointerleave: (e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          rootRef.current?.toggleAttribute(
-            'data-layout-drop-target-active',
-            false,
-          )
-        },
-      } as Partial<HTMLElement>)
+          onpointerup: (e) => {
+            log.debug('Compositor: PointerUp "Layout"', node.id)
+            return onDrop(
+              {
+                dropType: 'layout',
+                dropNodeId: node.id,
+                dragNodeId: draggingNodeId,
+                project,
+              },
+              e,
+            )
+          },
+          onpointerenter: (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            rootRef.current?.toggleAttribute(
+              'data-layout-drop-target-active',
+              true,
+            )
+          },
+          onpointerleave: (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            rootRef.current?.toggleAttribute(
+              'data-layout-drop-target-active',
+              false,
+            )
+          },
+        } as Partial<HTMLElement>)
       : {}
 
   let transformDragHandlers = isDragTarget
     ? ({
-      onpointerdown: (e) => {
-        // Check for pointer distance move > 1px before treating as a drag
-        activePointerCoords.current = { x: e.clientX, y: e.clientY }
-        let latestPointerCoords = activePointerCoords.current
+        onpointerdown: (e) => {
+          // Check for pointer distance move > 1px before treating as a drag
+          activePointerCoords.current = { x: e.clientX, y: e.clientY }
+          let latestPointerCoords = activePointerCoords.current
 
-        log.debug('Compositor: Dragging', node.id)
-        wrapperEl.toggleAttribute('data-dragging', true)
-        rootRef.current?.toggleAttribute('data-drag-target-active', true)
+          log.debug('Compositor: Dragging', node.id)
+          wrapperEl.toggleAttribute('data-dragging', true)
+          rootRef.current?.toggleAttribute('data-drag-target-active', true)
 
-        const adjustPreviewPosition = () => {
-          if (!isDraggingSelf.current) return
+          const adjustPreviewPosition = () => {
+            if (!isDraggingSelf.current) return
 
-          // Runs every frame while dragging
-          dragPreviewEl.style.top = latestPointerCoords.y - 20 + 'px'
-          dragPreviewEl.style.left = latestPointerCoords.x - 20 + 'px'
-          dragPreviewEl.toggleAttribute('data-active', true)
+            // Runs every frame while dragging
+            dragPreviewEl.style.top = latestPointerCoords.y - 20 + 'px'
+            dragPreviewEl.style.left = latestPointerCoords.x - 20 + 'px'
+            dragPreviewEl.toggleAttribute('data-active', true)
 
-          requestAnimationFrame(() => adjustPreviewPosition())
-        }
+            requestAnimationFrame(() => adjustPreviewPosition())
+          }
 
-        const onGlobalPointerMove = (e: PointerEvent) => {
-          if (
-            !isDraggingSelf.current &&
-            Boolean(activePointerCoords.current)
-          ) {
-            const isDragging = Boolean(
-              Math.abs(e.clientX - activePointerCoords.current.x) >=
-              DRAG_DISTANCE_BUFFER ||
-              Math.abs(e.clientY - activePointerCoords.current.y) >=
-              DRAG_DISTANCE_BUFFER,
+          const onGlobalPointerMove = (e: PointerEvent) => {
+            if (
+              !isDraggingSelf.current &&
+              Boolean(activePointerCoords.current)
+            ) {
+              const isDragging = Boolean(
+                Math.abs(e.clientX - activePointerCoords.current.x) >=
+                  DRAG_DISTANCE_BUFFER ||
+                  Math.abs(e.clientY - activePointerCoords.current.y) >=
+                    DRAG_DISTANCE_BUFFER,
+              )
+
+              // Runs only once when dragging starts
+              if (isDragging) {
+                setDraggingNodeId(node.id)
+                isDraggingSelf.current = isDragging
+                adjustPreviewPosition()
+              }
+            }
+            latestPointerCoords = { x: e.clientX, y: e.clientY }
+          }
+
+          onGlobalPointerMove(e)
+
+          const onGlobalPointerUp = (e: PointerEvent) => {
+            setTimeout(() => {
+              log.debug('Compositor: DragEnd', e)
+              activePointerCoords.current = undefined
+              isDraggingSelf.current = false
+              setDraggingNodeId(null)
+
+              dragPreviewEl.toggleAttribute('data-active', false)
+              wrapperEl.toggleAttribute('data-dragging', false)
+              wrapperEl.toggleAttribute('data-drop-target-ready', false)
+              wrapperEl.querySelectorAll('[data-item]').forEach((x) => {
+                x.toggleAttribute('data-drag-target-active', false)
+                x.toggleAttribute('data-layout-drop-target-active', false)
+                x.toggleAttribute('data-transform-drop-target-active', false)
+                x.toggleAttribute('data-transform-drop-self-active', false)
+              })
+            })
+
+            document.removeEventListener('pointermove', onGlobalPointerMove)
+            document.removeEventListener('pointerup', onGlobalPointerUp)
+          }
+
+          document.addEventListener('pointermove', onGlobalPointerMove)
+          document.addEventListener('pointerup', onGlobalPointerUp)
+        },
+        onpointerup: (e) => {
+          // If a target is draggable, it will also be treated as
+          //  a drop target (swap element positions)
+          log.debug('Compositor: PointerUp "Node"', node.id)
+          if (draggingNodeIdRef && draggingNodeIdRef !== node.id) {
+            onDrop(
+              {
+                dropType: 'transform',
+                dropNodeId: node.id,
+                dragNodeId: draggingNodeIdRef,
+                project,
+              },
+              e,
+            )
+          }
+        },
+        onpointerenter: (e) => {
+          e.preventDefault()
+          e.stopPropagation()
+
+          if (!draggingNodeIdRef) return
+
+          if (isDraggingSelf.current) {
+            log.debug('Compositor: Mouseenter self', node.id)
+            rootRef.current?.toggleAttribute(
+              'data-transform-drop-self-active',
+              true,
+            )
+          } else {
+            log.debug('Compositor: Mouseenter other', node.id)
+            rootRef.current?.toggleAttribute(
+              'data-transform-drop-target-active',
+              true,
             )
 
-            // Runs only once when dragging starts
-            if (isDragging) {
-              setDraggingNodeId(node.id)
-              isDraggingSelf.current = isDragging
-              adjustPreviewPosition()
-            }
-          }
-          latestPointerCoords = { x: e.clientX, y: e.clientY }
-        }
-
-        onGlobalPointerMove(e)
-
-        const onGlobalPointerUp = (e: PointerEvent) => {
-          setTimeout(() => {
-            log.debug('Compositor: DragEnd', e)
-            activePointerCoords.current = undefined
-            isDraggingSelf.current = false
-            setDraggingNodeId(null)
-
-            dragPreviewEl.toggleAttribute('data-active', false)
-            wrapperEl.toggleAttribute('data-dragging', false)
-            wrapperEl.toggleAttribute('data-drop-target-ready', false)
-            wrapperEl.querySelectorAll('[data-item]').forEach((x) => {
-              x.toggleAttribute('data-drag-target-active', false)
-              x.toggleAttribute('data-layout-drop-target-active', false)
-              x.toggleAttribute('data-transform-drop-target-active', false)
-              x.toggleAttribute('data-transform-drop-self-active', false)
+            // Timeout to ensure "dragenter" runs after
+            //  "dragleave" for other elements for global updates
+            setTimeout(() => {
+              if (!isDraggingSelf.current) {
+                wrapperEl.toggleAttribute('data-drop-target-ready', true)
+              }
             })
-          })
+          }
+        },
+        onpointerleave: (e) => {
+          e.preventDefault()
+          e.stopPropagation()
 
-          document.removeEventListener('pointermove', onGlobalPointerMove)
-          document.removeEventListener('pointerup', onGlobalPointerUp)
-        }
+          if (!draggingNodeIdRef) return
 
-        document.addEventListener('pointermove', onGlobalPointerMove)
-        document.addEventListener('pointerup', onGlobalPointerUp)
-      },
-      onpointerup: (e) => {
-        // If a target is draggable, it will also be treated as
-        //  a drop target (swap element positions)
-        log.debug('Compositor: PointerUp "Node"', node.id)
-        if (draggingNodeIdRef && draggingNodeIdRef !== node.id) {
-          onDrop(
-            {
-              dropType: 'transform',
-              dropNodeId: node.id,
-              dragNodeId: draggingNodeIdRef,
-              project,
-            },
-            e,
-          )
-        }
-      },
-      onpointerenter: (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        if (!draggingNodeIdRef) return
-
-        if (isDraggingSelf.current) {
-          log.debug('Compositor: Mouseenter self', node.id)
           rootRef.current?.toggleAttribute(
             'data-transform-drop-self-active',
-            true,
+            false,
           )
-        } else {
-          log.debug('Compositor: Mouseenter other', node.id)
           rootRef.current?.toggleAttribute(
             'data-transform-drop-target-active',
-            true,
+            false,
           )
-
-          // Timeout to ensure "dragenter" runs after
-          //  "dragleave" for other elements for global updates
-          setTimeout(() => {
-            if (!isDraggingSelf.current) {
-              wrapperEl.toggleAttribute('data-drop-target-ready', true)
-            }
-          })
-        }
-      },
-      onpointerleave: (e) => {
-        e.preventDefault()
-        e.stopPropagation()
-
-        if (!draggingNodeIdRef) return
-
-        rootRef.current?.toggleAttribute(
-          'data-transform-drop-self-active',
-          false,
-        )
-        rootRef.current?.toggleAttribute(
-          'data-transform-drop-target-active',
-          false,
-        )
-        wrapperEl.toggleAttribute('data-drop-target-ready', false)
-      },
-    } as Partial<HTMLElement>)
+          wrapperEl.toggleAttribute('data-drop-target-ready', false)
+        },
+      } as Partial<HTMLElement>)
     : {}
 
   useEffect(() => {
@@ -345,7 +345,7 @@ const ElementTree = (props: { nodeId: string }) => {
   useEffect(() => {
     const onDoubleClick = isDragTarget
       ? () => onElementDoubleClick?.(node)
-      : () => { }
+      : () => {}
 
     if (interactiveRef.current) {
       Object.assign(interactiveRef.current, transformDragHandlers)
@@ -1000,12 +1000,13 @@ const themes = {
         transform: translateX(-100%);
         opacity: 0 !important;
         white-space: nowrap;
-        ${showNameBanners &&
-      `
+        ${
+          showNameBanners &&
+          `
           opacity: 1 !important;
           transform: translateX(0);
         `
-      }
+        }
       }
 
       .NameBanner[data-size="4"] {
@@ -1090,8 +1091,8 @@ const themes = {
 
     .Banner, .NameBanner, .ChatOverlay {
         background: ${color(primaryColor)
-        .fade(color(primaryColor).alpha() * 0.7)
-        .toString()} !important;
+          .fade(color(primaryColor).alpha() * 0.7)
+          .toString()} !important;
         padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(60)} !important;
         position: relative !important;
         margin-bottom: ${scale(40)} !important;
@@ -1144,36 +1145,37 @@ const themes = {
         transform: translateX(-100%);
         opacity: 0 !important;
         white-space: nowrap;
-        ${showNameBanners &&
-      `
+        ${
+          showNameBanners &&
+          `
           opacity: 1 !important;
           transform: translateX(0);
         `
-      }
+        }
       }
 
       .NameBanner[data-size="4"] {
         padding: ${scale(40)} ${scale(40)} ${scale(40)} ${scale(
-        40 + 20,
-      )} !important;
+          40 + 20,
+        )} !important;
         font-size: ${scale(34)} !important;
       }
       .NameBanner[data-size="3"] {
         padding: ${scale(16)} ${scale(40)} ${scale(16)} ${scale(
-        40 + 20,
-      )} !important;
+          40 + 20,
+        )} !important;
         font-size: ${scale(34)} !important;
       }
       .NameBanner[data-size="2"] {
         padding: ${scale(12)} ${scale(24)} ${scale(12)} ${scale(
-        24 + 20,
-      )} !important;
+          24 + 20,
+        )} !important;
         font-size: ${scale(24)} !important;
       }
       .NameBanner[data-size="1"], .NameBanner[data-size="0"] {
         padding: ${scale(12)} ${scale(16)} ${scale(12)} ${scale(
-        16 + 20,
-      )} !important;
+          16 + 20,
+        )} !important;
         font-size: ${scale(18)} !important;
       }
       .NameBanner[data-size="0"] {
@@ -1273,12 +1275,13 @@ const themes = {
         transform: translateX(-100%);
         opacity: 0 !important;
         white-space: nowrap;
-        ${showNameBanners &&
-      `
+        ${
+          showNameBanners &&
+          `
           opacity: 1 !important;
           transform: translateX(0);
         `
-      }
+        }
       }
 
       ls-layout[layout="Presentation"][props*="\\"cover\\"\\:true"] > :first-child .NameBanner {
