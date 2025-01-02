@@ -178,6 +178,7 @@ const queueOp = (op: Op) => {
 }
 
 export class Layout extends HTMLElement {
+  private isInitialized: boolean = false
   parentEl: HTMLElement
   slotEl: HTMLElement
   parentLayout: Layout
@@ -242,16 +243,7 @@ export class Layout extends HTMLElement {
           queueOp(['attributesChanged', this.dataset.id])
         } else if (x.type === 'childList') {
           x.addedNodes.forEach((child: ChildEl) => {
-            const inMemory = childIndex[child.dataset.id]
-            if (child.removed) return
-            if (!inMemory) {
-              this.initializeChild(child)
-            } else if (inMemory !== child) {
-              this.initializeChild(child)
-              child.setAttribute('style', inMemory.getAttribute('style'))
-              child.data = inMemory.data
-            }
-            queueOp(['childInserted', this.dataset.id, child.dataset.id])
+            this.handleChildAddition(child)
           })
           x.removedNodes.forEach((child: ChildEl) => {
             if (child.removed) return
@@ -261,6 +253,13 @@ export class Layout extends HTMLElement {
       })
     })
     this.mutationObserver.observe(this, { childList: true, attributes: true })
+
+    // Only handle initial children if this is the first time
+    if (!this.isInitialized) {
+      this.handleInitialChildren()
+      this.isInitialized = true
+    }
+
 
     if (!this.latestSize) {
       queueOp(['attributesChanged', this.dataset.id])
@@ -273,7 +272,30 @@ export class Layout extends HTMLElement {
     // - A child node will still have the same "parentElement" when the above occurs
   }
 
-  adoptedCallback() {}
+  adoptedCallback() { }
+
+  private handleInitialChildren() {
+    // Process all existing children when the component is first connected
+    requestAnimationFrame(() => {
+      Array.from(this.children).forEach((child: ChildEl) => {
+        this.handleChildAddition(child)
+      })
+      queueOp(['attributesChanged', this.dataset.id])
+    })
+  }
+
+  private handleChildAddition(child: ChildEl) {
+    const inMemory = childIndex[child.dataset.id]
+    if (child.removed) return
+    if (!inMemory) {
+      this.initializeChild(child)
+    } else if (inMemory !== child) {
+      this.initializeChild(child)
+      child.setAttribute('style', inMemory.getAttribute('style'))
+      child.data = inMemory.data
+    }
+    queueOp(['childInserted', this.dataset.id, child.dataset.id])
+  }
 
   updatePositions(options: {
     size?: { x: number; y: number }
@@ -384,9 +406,8 @@ export class Layout extends HTMLElement {
               transitionTimingFunction: entryTransition.timingFn ?? 'ease',
               transform: `translate3d(calc(${asSize(
                 entryTransition.offset?.x ?? 0,
-              )}), calc(${asSize(entryTransition.offset?.y ?? 0)}), 0) scaleX(${
-                entryTransition.scale?.x ?? 1
-              }) scaleY(${entryTransition.scale?.y ?? 1})`,
+              )}), calc(${asSize(entryTransition.offset?.y ?? 0)}), 0) scaleX(${entryTransition.scale?.x ?? 1
+                }) scaleY(${entryTransition.scale?.y ?? 1})`,
               opacity: entryTransition.opacity ?? opacity,
               left: asSize(position.x) || 0,
               right: asSize(childRight) || 0,
@@ -576,9 +597,8 @@ export class Layout extends HTMLElement {
           childEl.data.exitTransition.timingFn ?? 'ease',
         transform: `translate3d(calc(${asSize(
           childEl.data.exitTransition.offset?.x ?? 0,
-        )}), calc( ${asSize(childEl.data.exitTransition.offset?.y ?? 0)}), 0) scaleX(${
-          childEl.data.exitTransition.scale?.x ?? 1
-        }) scaleY(${childEl.data.exitTransition.scale?.y ?? 1})`,
+        )}), calc( ${asSize(childEl.data.exitTransition.offset?.y ?? 0)}), 0) scaleX(${childEl.data.exitTransition.scale?.x ?? 1
+          }) scaleY(${childEl.data.exitTransition.scale?.y ?? 1})`,
         opacity: childEl.data.exitTransition.opacity ?? 0,
       } as CSS.StandardProperties)
 
