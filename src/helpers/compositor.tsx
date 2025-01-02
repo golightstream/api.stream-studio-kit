@@ -639,26 +639,20 @@ export const render = (settings: CompositorSettings) => {
   const { x: rootWidth, y: rootHeight } = root.props.size
 
   const setScale = () => {
-    let { width, height } = containerEl.getBoundingClientRect()
-    const containerRatio = width / height
-    const compositorRatio = rootWidth / rootHeight
-
-    let scale
-    if (width && height) {
-      if (compositorRatio > containerRatio) {
-        // If compositor ratio is higher, width is the constraint
-        scale = width / (rootWidth + PADDING * 2)
-      } else {
-        // If container ratio is higher, height is the constraint
-        scale = height / (rootHeight + PADDING * 2)
-      }
-    } else {
-      // It's possible the container will have no size defined (width/height=0)
-      scale = 1
-    }
-
-    wrapperEl.style.willChange = `transform`
-    wrapperEl.style.transform = `scale(${scale}) translateZ(0)`
+    const { width, height } = containerEl.getBoundingClientRect();
+    // Calculate available space considering padding
+    const availableWidth = width - (PADDING * 2);
+    const availableHeight = height - (PADDING * 2);
+    
+    // Calculate scales for both dimensions
+    const widthScale = availableWidth / rootWidth;
+    const heightScale = availableHeight / rootHeight;
+    
+    // Use the smaller scale to ensure content fits
+    const scale = Math.min(widthScale, heightScale);
+    
+    // Apply transform with hardware acceleration
+    wrapperEl.style.transform = `scale(${scale}) translateZ(0)`;
     // @ts-ignore
     window.__scale = scale
     render()
