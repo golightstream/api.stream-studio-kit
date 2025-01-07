@@ -110,12 +110,14 @@ export const Background = {
           if (videoRef.current) {
             videoRef.current!.src = src
             videoRef.current!.play().catch(() => {
-              videoRef.current.muted = true
-              videoRef.current.play()
+              if (videoRef.current) {
+                videoRef.current.muted = true
+                videoRef.current.play()
+              }
             })
             if (hasPermission(role, Permission.UpdateProject)) {
               interval = setInterval(() => {
-                if (videoRef.current.duration) {
+                if (videoRef.current?.duration) {
                   const timePending =
                     videoRef.current.duration - videoRef.current.currentTime
                   trigger('VideoTimeUpdate', {
