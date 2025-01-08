@@ -654,13 +654,16 @@ export const commands = (_project: ScenelessProject) => {
         return nodeId
       } else {
         // ensure the image iframe container is of type Layered
-        if(foregroundImageIframeContainer.props.layout !== 'Layered') {
-          await coreProject.compositor.update(foregroundImageIframeContainer.id, {
-            layout: 'Layered',
-            layoutProps: {
-              type: 'image-iframe-overlay',
+        if (foregroundImageIframeContainer.props.layout !== 'Layered') {
+          await coreProject.compositor.update(
+            foregroundImageIframeContainer.id,
+            {
+              layout: 'Layered',
+              layoutProps: {
+                type: 'image-iframe-overlay',
+              },
             },
-          })
+          )
         }
         return foregroundImageIframeContainer.id
       }
@@ -1947,6 +1950,7 @@ export const commands = (_project: ScenelessProject) => {
 
     removeParticipantTrack(trackId: string, type: ParticipantType = 'camera') {
       content.children
+        .concat(audioContainer.children)
         .filter(
           (x) =>
             x.props.sourceProps?.id === trackId &&
