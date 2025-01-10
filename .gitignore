@@ -16,3 +16,4 @@ log.txt
 docs/
 .npmrc
 renderer/renderer.json
+.aider*

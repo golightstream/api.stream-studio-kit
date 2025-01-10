@@ -106,10 +106,15 @@ export const deleteProject = async (request: { projectId: string }) => {
  * Load the user data from whatever access token has been registered
  *  with the API.
  */
-export const loadUser = async (size?: {
-  x: number
-  y: number
-}): Promise<{
+export const loadUser = async (
+  size?: {
+    x: number
+    y: number
+  },
+  options?: {
+    updateLayoutOnly?: boolean
+  }
+): Promise<{
   user: InternalUser
   projects: InternalProject[]
   sources: InternalSource[]
@@ -146,7 +151,7 @@ export const loadUser = async (size?: {
   const projects = await Promise.all(
     collection.projects
       .filter((p) => Boolean(p.metadata?.layoutId))
-      .map((project) => hydrateProject(project, 'ROLE_HOST' as Role, size)),
+      .map((project) => hydrateProject(project, 'ROLE_HOST' as Role, size, options?.updateLayoutOnly)),
   )
 
   return {

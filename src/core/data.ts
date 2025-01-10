@@ -117,6 +117,7 @@ export const hydrateProject = async (
     x: number
     y: number
   },
+  updateLayoutOnly?: boolean,
 ) => {
   const metadata = project.metadata || {}
 
@@ -140,7 +141,7 @@ export const hydrateProject = async (
   }
 
   // handle composition size changing
-  if (size) {
+  if (size && !updateLayoutOnly) {
     updateRequest.rendering = {
       video: {
         width: size.x,
@@ -148,9 +149,9 @@ export const hydrateProject = async (
         framerate: 30,
       },      
     };
-
     updateRequest.updateMask.push('rendering');
   }
+
 
   if (updateRequest.updateMask.length) {
     await CoreContext.clients.LiveApi().project.updateProject(updateRequest);
