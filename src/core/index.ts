@@ -602,6 +602,9 @@ const load = async (
     x: number
     y: number
   },
+  options?: {
+    updateLayoutOnly?: boolean
+  }
 ): Promise<SDK.User> => {
   let user = getBaseUser()
   if (user) {
@@ -621,7 +624,7 @@ const load = async (
   await client.load(accessToken)
 
   // Load the projects and user data
-  const result = await CoreContext.Request.loadUser(size)
+  const result = await CoreContext.Request.loadUser(size, options)
 
   // TODO: Move to UserLoaded event handler
   setAppState({
