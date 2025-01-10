@@ -782,7 +782,7 @@ export interface Studio {
    * ----
    * **Emits {@link UserLoaded}**
    */
-  load: (accessToken: string, size?: { x: number; y: number }) => Promise<User>
+  load: (accessToken: string, size?: { x: number; y: number }, options?: { updateLayoutOnly?: boolean }) => Promise<User>
   /**
    * Renders a project into the supplied HTML Element.
    */
