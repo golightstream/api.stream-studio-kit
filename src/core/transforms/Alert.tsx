@@ -71,6 +71,7 @@ export const Alert = {
                             width={width}
                             onLoad={resizeIframe}
                             styles={{ ...meta?.style }}
+                            allow="autoplay"
                         />
                     </div>
                 </APIKitAnimation>
