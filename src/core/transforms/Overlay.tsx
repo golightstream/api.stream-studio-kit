@@ -97,6 +97,7 @@ export const Overlay = {
               width={width}
               onLoad={resizeIframe}
               styles={{ ...meta?.style }}
+              allow='autoplay'
             />
           </React.Fragment>
         )
