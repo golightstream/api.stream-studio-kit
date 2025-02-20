@@ -1800,12 +1800,18 @@ export const commands = (_project: ScenelessProject) => {
 
     async removeSourceNode(id: string) {
       const project = getProject(projectId)
-      const source = project.videoApi.project.sources.find(
-        (x) => x.preview.webrtc.participantId === id,
-      )
+      const source =
+        // for game sources
+        project.videoApi.project.sources.find(
+          (x) => x.preview.webrtc.participantId === id,
+        ) ??
+        // for rtmp sources
+        project.videoApi.project.sources.find(
+          (x) => x.preview.webrtc.participantId === `source-${id}`,
+        )
       if (!source) return
       const sourceType =
-        source.address.dynamic.id === 'integration'
+        source.address.dynamic?.id === 'integration'
           ? ExternalSourceTypeMap['game']
           : ExternalSourceTypeMap['rtmp']
       content.children
