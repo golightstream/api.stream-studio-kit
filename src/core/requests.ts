@@ -9,7 +9,7 @@
  * Not every external request is represented here. In some cases
  *  it is simpler to use the API SDK client interface directly.
  */
-import { LayoutApiModel, LiveApiModel } from '@api.stream/sdk'
+import { LiveApiModel } from '@api.stream/sdk'
 import { Helpers } from '.'
 import {
   CoreContext,
