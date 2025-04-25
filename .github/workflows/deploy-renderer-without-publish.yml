@@ -31,6 +31,7 @@ jobs:
       - uses: cloudflare/wrangler-action@v3
         name: Publish Release
         with:
+          wranglerVersion: "2.0.0"
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
           workingDirectory: './build/hosted-renderer'
