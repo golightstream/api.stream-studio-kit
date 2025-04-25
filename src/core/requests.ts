@@ -9,7 +9,7 @@
  * Not every external request is represented here. In some cases
  *  it is simpler to use the API SDK client interface directly.
  */
-import { LiveApiModel } from '@api.stream/sdk'
+import { LayoutApiModel, LiveApiModel } from '@api.stream/sdk'
 import { Helpers } from '.'
 import {
   CoreContext,
@@ -150,7 +150,7 @@ export const loadUser = async (
   // Take the Vapi Project and hydrate it with Compositor and Lapi project details
   const projects = await Promise.all(
     collection.projects
-      .filter((p) => Boolean(p.metadata?.layoutId))
+      .filter((p) => p.metadata?.layoutId && p.metadata?.type === 'sceneless')
       .map((project) => hydrateProject(project, 'ROLE_HOST' as Role, size, options?.updateLayoutOnly)),
   )
 
